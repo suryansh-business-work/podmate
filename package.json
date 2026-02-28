@@ -1,0 +1,23 @@
+{
+  "name": "partywings",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PartyWings — Trust-based communities platform",
+  "scripts": {
+    "dev:server": "pnpm --filter partywings-server dev",
+    "dev:website": "pnpm --filter partywings-website dev",
+    "dev:admin": "pnpm --filter partywings-admin dev",
+    "dev:app": "pnpm --filter partywings-app start",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format",
+    "format:check": "pnpm -r format:check",
+    "test": "pnpm -r test",
+    "type-check": "pnpm -r type-check"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "packageManager": "pnpm@9.1.0"
+}

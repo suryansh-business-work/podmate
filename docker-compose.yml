@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - '4039:4039'
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - partywings
+
+  admin-panel:
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+    ports:
+      - '4040:4040'
+    depends_on:
+      - server
+    restart: unless-stopped
+    networks:
+      - partywings
+
+  website:
+    build:
+      context: ./website
+      dockerfile: Dockerfile
+    ports:
+      - '4041:4041'
+    restart: unless-stopped
+    networks:
+      - partywings
+
+networks:
+  partywings:
+    driver: bridge

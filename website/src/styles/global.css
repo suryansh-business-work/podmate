@@ -1,0 +1,43 @@
+:root {
+  --primary: #5b4cdb;
+  --primary-light: #7b6ee8;
+  --primary-dark: #4338b8;
+  --secondary: #f97316;
+  --accent: #6366f1;
+  --bg: #ffffff;
+  --bg-dark: #0f0e17;
+  --surface: #f8f9fa;
+  --text: #1a1a2e;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
+  --gradient-start: #5b4cdb;
+  --gradient-end: #a78bfa;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');

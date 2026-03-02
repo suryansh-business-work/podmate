@@ -18,6 +18,9 @@ import chatResolvers from './modules/chat/chat.resolvers';
 import * as chatService from './modules/chat/chat.services';
 import inviteTypeDefs from './modules/invite/invite.typeDefs';
 import inviteResolvers from './modules/invite/invite.resolvers';
+import policyTypeDefs from './modules/policy/policy.typeDefs';
+import policyResolvers from './modules/policy/policy.resolvers';
+import logger from './lib/logger';
 
 const PORT = parseInt(process.env.PORT ?? '4039', 10);
 
@@ -30,11 +33,16 @@ const rootSchema = `#graphql
     myPods: [Pod!]!
     chatMessages(podId: ID!): [ChatMessage!]!
     podInvites(podId: ID!): [Invite!]!
+    policies(type: String): [Policy!]!
+    dashboardStats: DashboardStats!
   }
 
   type Mutation {
     sendOtp(phone: String!): OtpResponse!
     verifyOtp(phone: String!, otp: String!): AuthPayload!
+    adminLogin(email: String!, password: String!): AdminAuthPayload!
+    sendAdminCredentials(email: String!): SendCredentialsResponse!
+    completeProfile(name: String!, age: Int!): User!
     createPod(input: CreatePodInput!): Pod!
     updatePod(id: ID!, input: UpdatePodInput!): Pod!
     deletePod(id: ID!): Boolean!
@@ -45,10 +53,13 @@ const rootSchema = `#graphql
     getImageKitAuth: ImageKitAuth!
     sendMessage(podId: ID!, content: String!): ChatMessage!
     sendInvites(podId: ID!, contacts: [InviteInput!]!): InviteResult!
+    createPolicy(input: CreatePolicyInput!): Policy!
+    updatePolicy(id: ID!, input: UpdatePolicyInput!): Policy!
+    deletePolicy(id: ID!): Boolean!
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs];
+const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs];
 
 const resolvers = {
   Query: {
@@ -56,6 +67,7 @@ const resolvers = {
     ...podResolvers.Query,
     ...chatResolvers.Query,
     ...inviteResolvers.Query,
+    ...policyResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -63,6 +75,7 @@ const resolvers = {
     ...authResolvers.Mutation,
     ...chatResolvers.Mutation,
     ...inviteResolvers.Mutation,
+    ...policyResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   ChatMessage: chatResolvers.ChatMessage,
@@ -152,14 +165,12 @@ async function main(): Promise<void> {
   });
 
   httpServer.listen(PORT, () => {
-    // eslint-disable-next-line no-console
-    console.log(`PartyWings Server ready at http://localhost:${PORT}/graphql`);
-    console.log(`WebSocket ready at ws://localhost:${PORT}/ws`);
+    logger.info(`PartyWings Server ready at http://localhost:${PORT}/graphql`);
+    logger.info(`WebSocket ready at ws://localhost:${PORT}/ws`);
   });
 }
 
 main().catch((err: Error) => {
-  // eslint-disable-next-line no-console
-  console.error('Server failed to start:', err);
+  logger.error('Server failed to start:', err);
   process.exit(1);
 });

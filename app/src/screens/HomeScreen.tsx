@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Activi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { colors, spacing, borderRadius } from '../theme';
 import { CategoryChip } from '../components/CategoryChip';
 import { EventCard } from '../components/EventCard';
@@ -66,11 +68,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity onPress={onMenuPress} style={styles.menuBtn}>
-            <Text style={styles.menuIcon}>☰</Text>
+            <MaterialIcons name="menu" size={24} color={colors.text} />
           </TouchableOpacity>
           <LinearGradient
             colors={[colors.primaryLight, colors.primary]}
@@ -78,12 +79,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            <Text style={styles.headerLogoIcon}>👥</Text>
+            <MaterialCommunityIcons name="account-group" size={18} color={colors.white} />
           </LinearGradient>
           <Text style={styles.headerTitle}>PartyWings</Text>
         </View>
         <TouchableOpacity style={styles.notificationBtn}>
-          <Text style={styles.notificationIcon}>🔔</Text>
+          <MaterialIcons name="notifications-none" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -95,9 +96,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primary]} />
         }
       >
-        {/* Search */}
         <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <MaterialIcons name="search" size={18} color={colors.textTertiary} />
           <TextInput
             style={styles.searchInput}
             placeholder="Find hiking, dining, tech..."
@@ -107,7 +107,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
           />
         </View>
 
-        {/* Categories */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -124,7 +123,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
           ))}
         </ScrollView>
 
-        {/* Section Header */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Popular near you</Text>
           <TouchableOpacity>
@@ -132,23 +130,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Loading State */}
         {loading && pods.length === 0 && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
         )}
 
-        {/* Empty State */}
         {!loading && pods.length === 0 && (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>🎫</Text>
+            <MaterialCommunityIcons name="ticket-outline" size={48} color={colors.textTertiary} />
             <Text style={styles.emptyTitle}>No pods found</Text>
             <Text style={styles.emptySubtitle}>Try a different category or search term</Text>
           </View>
         )}
 
-        {/* Event Cards */}
         {pods.map((pod) => (
           <EventCard
             key={pod.id}
@@ -196,19 +191,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  menuIcon: {
-    fontSize: 22,
-    color: colors.text,
-  },
   headerLogo: {
     width: 36,
     height: 36,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  headerLogoIcon: {
-    fontSize: 18,
   },
   headerTitle: {
     fontSize: 20,
@@ -220,9 +208,6 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  notificationIcon: {
-    fontSize: 20,
   },
   scrollView: {
     flex: 1,
@@ -238,10 +223,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
-  },
-  searchIcon: {
-    fontSize: 16,
-    marginRight: spacing.sm,
+    gap: spacing.sm,
   },
   searchInput: {
     flex: 1,
@@ -280,15 +262,12 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: spacing.xxxl,
   },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: spacing.lg,
-  },
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: colors.text,
     marginBottom: spacing.sm,
+    marginTop: spacing.lg,
   },
   emptySubtitle: {
     fontSize: 14,

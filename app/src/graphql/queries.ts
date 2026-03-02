@@ -107,3 +107,16 @@ export const GET_MY_PODS = gql`
     }
   }
 `;
+
+export const GET_POLICIES = gql`
+  query GetPolicies($type: String) {
+    policies(type: $type) {
+      id
+      type
+      title
+      content
+      isActive
+      createdAt
+    }
+  }
+`;

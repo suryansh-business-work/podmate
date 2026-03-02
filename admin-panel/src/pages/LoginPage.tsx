@@ -8,18 +8,20 @@ import {
   Button,
   Alert,
   CircularProgress,
+  Snackbar,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { useMutation } from '@apollo/client';
+import { ADMIN_LOGIN, SEND_ADMIN_CREDENTIALS } from '../graphql/mutations';
 
 const loginSchema = Yup.object({
-  phone: Yup.string()
-    .matches(/^\+?\d{10,15}$/, 'Enter a valid phone number')
-    .required('Phone number is required'),
-  otp: Yup.string()
-    .length(6, 'OTP must be 6 digits')
-    .matches(/^\d+$/, 'OTP must contain only numbers')
-    .required('OTP is required'),
+  email: Yup.string()
+    .email('Enter a valid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
 });
 
 interface LoginPageProps {
@@ -28,32 +30,47 @@ interface LoginPageProps {
 
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [error, setError] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('');
+
+  const [adminLogin] = useMutation(ADMIN_LOGIN);
+  const [sendCredentials, { loading: sendingCredentials }] = useMutation(SEND_ADMIN_CREDENTIALS);
 
   const formik = useFormik({
-    initialValues: { phone: '', otp: '' },
+    initialValues: { email: '', password: '' },
     validationSchema: loginSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
         setError('');
-        if (values.otp === '123456') {
-          const token = 'admin-dev-token-' + Date.now();
-          localStorage.setItem('admin-token', token);
-          onLogin(token);
-        } else {
-          setError('Invalid OTP. Default OTP is 123456.');
+        const { data } = await adminLogin({
+          variables: { email: values.email, password: values.password },
+        });
+        if (data?.adminLogin?.token) {
+          localStorage.setItem('admin-token', data.adminLogin.token);
+          onLogin(data.adminLogin.token);
         }
-      } catch {
-        setError('Login failed. Please try again.');
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Login failed. Please try again.';
+        setError(message);
       } finally {
         setSubmitting(false);
       }
     },
   });
 
-  const handleSendOtp = () => {
-    if (formik.values.phone && !formik.errors.phone) {
-      setOtpSent(true);
+  const handleSendCredentials = async () => {
+    const email = formik.values.email;
+    if (!email || formik.errors.email) {
+      setError('Please enter a valid email first');
+      return;
+    }
+    try {
+      const { data } = await sendCredentials({ variables: { email } });
+      if (data?.sendAdminCredentials?.success) {
+        setSnackMessage('Credentials sent to your email!');
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to send credentials';
+      setError(message);
     }
   };
 
@@ -73,25 +90,24 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           {/* Logo */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Box
+              component="img"
+              src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=200&h=200&fit=crop"
+              alt="PartyWings"
               sx={{
-                width: 56,
-                height: 56,
+                width: 80,
+                height: 80,
                 borderRadius: 3,
-                background: 'linear-gradient(135deg, #7B6EE8, #5B4CDB)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                objectFit: 'cover',
                 margin: '0 auto 16px',
-                fontSize: 28,
+                display: 'block',
+                boxShadow: '0 4px 12px rgba(91,76,219,0.3)',
               }}
-            >
-              👥
-            </Box>
+            />
             <Typography variant="h5" gutterBottom>
               PartyWings Admin
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Sign in to manage your platform
+              Sign in with your admin credentials
             </Typography>
           </Box>
 
@@ -103,65 +119,73 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
           <form onSubmit={formik.handleSubmit}>
             <TextField
-              label="Phone Number"
-              name="phone"
-              placeholder="+919999999999"
-              value={formik.values.phone}
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              placeholder="suryansh@exyconn.com"
+              value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.phone && Boolean(formik.errors.phone)}
-              helperText={formik.touched.phone && formik.errors.phone}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email && formik.errors.email}
               sx={{ mb: 2 }}
-              InputProps={{
-                endAdornment: !otpSent && (
-                  <Button
-                    size="small"
-                    onClick={handleSendOtp}
-                    disabled={!formik.values.phone || Boolean(formik.errors.phone)}
-                  >
-                    Send OTP
-                  </Button>
-                ),
-              }}
             />
 
-            {otpSent && (
-              <>
-                <Alert severity="info" sx={{ mb: 2 }}>
-                  OTP sent! Default development OTP: <strong>123456</strong>
-                </Alert>
-                <TextField
-                  label="OTP Code"
-                  name="otp"
-                  placeholder="123456"
-                  value={formik.values.otp}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.otp && Boolean(formik.errors.otp)}
-                  helperText={formik.touched.otp && formik.errors.otp}
-                  sx={{ mb: 3 }}
-                  inputProps={{ maxLength: 6 }}
-                />
+            <TextField
+              fullWidth
+              label="Password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
+              sx={{ mb: 3 }}
+            />
 
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  disabled={formik.isSubmitting}
-                  sx={{
-                    background: 'linear-gradient(135deg, #5B4CDB, #A78BFA)',
-                    py: 1.5,
-                    fontSize: 16,
-                  }}
-                >
-                  {formik.isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
-                </Button>
-              </>
-            )}
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              size="large"
+              disabled={formik.isSubmitting || !formik.isValid || !formik.dirty}
+              sx={{
+                background: 'linear-gradient(135deg, #5B4CDB, #A78BFA)',
+                py: 1.5,
+                fontSize: 16,
+                mb: 2,
+              }}
+            >
+              {formik.isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
+            </Button>
+
+            <Button
+              variant="outlined"
+              fullWidth
+              size="small"
+              onClick={handleSendCredentials}
+              disabled={sendingCredentials || !formik.values.email || Boolean(formik.errors.email)}
+              sx={{ textTransform: 'none' }}
+            >
+              {sendingCredentials ? (
+                <CircularProgress size={18} sx={{ mr: 1 }} />
+              ) : null}
+              Send Credentials to Email
+            </Button>
           </form>
         </CardContent>
       </Card>
+
+      <Snackbar
+        open={Boolean(snackMessage)}
+        autoHideDuration={4000}
+        onClose={() => setSnackMessage('')}
+        message={snackMessage}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Box>
   );
 };

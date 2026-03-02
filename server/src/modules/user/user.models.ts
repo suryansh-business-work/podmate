@@ -7,7 +7,10 @@ export enum UserRole {
 export interface User {
   id: string;
   phone: string;
+  email: string;
+  password: string;
   name: string;
+  age: number;
   avatar: string;
   role: UserRole;
   isVerifiedHost: boolean;
@@ -17,11 +20,16 @@ export interface User {
 export interface CreateUserInput {
   phone: string;
   role?: UserRole;
+  email?: string;
+  password?: string;
+  name?: string;
+  age?: number;
 }
 
 export interface UpdateUserInput {
   name?: string;
   avatar?: string;
+  age?: number;
 }
 
 export interface PaginationInput {

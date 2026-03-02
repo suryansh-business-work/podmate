@@ -10,10 +10,20 @@ const authTypeDefs = `#graphql
     isNewUser: Boolean!
   }
 
+  type AdminAuthPayload {
+    token: String!
+    user: User!
+  }
+
   type ImageKitAuth {
     token: String!
     expire: Int!
     signature: String!
+  }
+
+  type SendCredentialsResponse {
+    success: Boolean!
+    message: String!
   }
 `;
 

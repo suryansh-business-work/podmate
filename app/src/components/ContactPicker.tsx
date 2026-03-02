@@ -1,22 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
-  Alert,
-  Platform,
+  View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert,
 } from 'react-native';
-import * as Contacts from 'expo-contacts';
-import * as Linking from 'expo-linking';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@apollo/client';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing, borderRadius } from '../theme';
 import { SEND_INVITES } from '../graphql/mutations';
 
-interface SelectedContact {
+interface Contact {
   id: string;
   name: string;
   phone: string;
@@ -29,190 +21,85 @@ interface ContactPickerProps {
   onSkip: () => void;
 }
 
-interface ContactItem {
-  id: string;
-  name: string;
-  phone: string;
-}
+/** Placeholder contacts — replace with a real contacts API */
+const SAMPLE_CONTACTS: Contact[] = [];
 
 const ContactPicker: React.FC<ContactPickerProps> = ({ podId, podTitle, onDone, onSkip }) => {
-  const [contacts, setContacts] = useState<ContactItem[]>([]);
-  const [filtered, setFiltered] = useState<ContactItem[]>([]);
-  const [selected, setSelected] = useState<Map<string, SelectedContact>>(new Map());
   const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const [sendInvites, { loading: sending }] = useMutation(SEND_INVITES);
 
-  useEffect(() => {
-    loadContacts();
-  }, []);
+  const contacts = SAMPLE_CONTACTS;
 
-  useEffect(() => {
-    if (!search.trim()) {
-      setFiltered(contacts);
-    } else {
-      const q = search.toLowerCase();
-      setFiltered(
-        contacts.filter(
-          (c) => c.name.toLowerCase().includes(q) || c.phone.includes(q),
-        ),
-      );
-    }
-  }, [search, contacts]);
+  const filtered = contacts.filter((c) => {
+    const q = search.toLowerCase();
+    return c.name.toLowerCase().includes(q) || c.phone.includes(q);
+  });
 
-  const loadContacts = async () => {
-    try {
-      const { status } = await Contacts.requestPermissionsAsync();
-      if (status !== 'granted') {
-        setPermissionDenied(true);
-        setLoading(false);
-        return;
-      }
-
-      const { data } = await Contacts.getContactsAsync({
-        fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Name],
-        sort: Contacts.SortTypes.FirstName,
-      });
-
-      const mapped: ContactItem[] = [];
-      for (const c of data) {
-        if (c.phoneNumbers && c.phoneNumbers.length > 0) {
-          const phone = c.phoneNumbers[0].number ?? '';
-          if (phone) {
-            mapped.push({
-              id: c.id ?? phone,
-              name: c.name ?? c.firstName ?? 'Unknown',
-              phone: phone.replace(/[\s()-]/g, ''),
-            });
-          }
-        }
-      }
-
-      setContacts(mapped);
-      setFiltered(mapped);
-    } catch {
-      Alert.alert('Error', 'Failed to load contacts');
-    } finally {
-      setLoading(false);
-    }
+  const toggleContact = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
   };
 
-  const toggleSelect = useCallback(
-    (contact: ContactItem) => {
-      setSelected((prev) => {
-        const next = new Map(prev);
-        if (next.has(contact.id)) {
-          next.delete(contact.id);
-        } else {
-          next.set(contact.id, { id: contact.id, name: contact.name, phone: contact.phone });
-        }
-        return next;
-      });
-    },
-    [],
-  );
-
-  const handleDone = async () => {
-    const selectedContacts = Array.from(selected.values());
-    if (selectedContacts.length === 0) return;
-
+  const handleSend = async () => {
+    const selected = contacts.filter((c) => selectedIds.includes(c.id));
     try {
-      const { data } = await sendInvites({
+      await sendInvites({
         variables: {
           podId,
-          contacts: selectedContacts.map((c) => ({
-            phone: c.phone,
-            name: c.name,
-          })),
+          contacts: selected.map((c) => ({ name: c.name, phone: c.phone })),
         },
       });
-
-      const smsMessages = data?.sendInvites?.smsMessages ?? [];
-
-      if (smsMessages.length > 0 && Platform.OS !== 'web') {
-        Alert.alert(
-          'Invites Ready!',
-          `${smsMessages.length} invitation(s) prepared. Send SMS to your friends?`,
-          [
-            { text: 'Skip', style: 'cancel', onPress: onDone },
-            {
-              text: 'Send SMS',
-              onPress: async () => {
-                for (const sms of smsMessages as { phone: string; body: string }[]) {
-                  const smsUrl =
-                    Platform.OS === 'ios'
-                      ? `sms:${sms.phone}&body=${encodeURIComponent(sms.body)}`
-                      : `sms:${sms.phone}?body=${encodeURIComponent(sms.body)}`;
-                  try {
-                    await Linking.openURL(smsUrl);
-                  } catch {
-                    /* user cancelled */
-                  }
-                }
-                onDone();
-              },
-            },
-          ],
-        );
-      } else {
-        Alert.alert('Invites Sent!', `${selectedContacts.length} contacts invited.`, [
-          { text: 'OK', onPress: onDone },
-        ]);
-      }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to send invites';
-      Alert.alert('Error', msg);
+      Alert.alert('Invitations Sent', `${selected.length} invite(s) sent for "${podTitle}"`, [
+        { text: 'OK', onPress: onDone },
+      ]);
+    } catch {
+      Alert.alert('Error', 'Failed to send invitations. Please try again.');
     }
   };
 
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map((w) => w[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  if (loading) {
+  const renderContact = useCallback(({ item }: { item: Contact }) => {
+    const isSelected = selectedIds.includes(item.id);
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.loadingText}>Loading contacts...</Text>
-      </View>
+      <TouchableOpacity style={styles.contactRow} onPress={() => toggleContact(item.id)} activeOpacity={0.7}>
+        <View style={styles.contactAvatar}>
+          <Text style={styles.contactInitial}>{item.name.charAt(0).toUpperCase()}</Text>
+        </View>
+        <View style={styles.contactInfo}>
+          <Text style={styles.contactName}>{item.name}</Text>
+          <View style={styles.phoneRow}>
+            <MaterialIcons name="smartphone" size={13} color={colors.textTertiary} />
+            <Text style={styles.contactPhone}>{item.phone}</Text>
+          </View>
+        </View>
+        <View style={[styles.checkCircle, isSelected && styles.checkCircleActive]}>
+          {isSelected && <MaterialIcons name="check" size={16} color={colors.white} />}
+        </View>
+      </TouchableOpacity>
     );
-  }
-
-  if (permissionDenied) {
-    return (
-      <View style={styles.centered}>
-        <Text style={styles.deniedIcon}>📱</Text>
-        <Text style={styles.deniedTitle}>Contact Access Required</Text>
-        <Text style={styles.deniedText}>
-          To invite friends to your pod, please grant contact access in your device settings.
-        </Text>
-        <TouchableOpacity style={styles.skipBtnLarge} onPress={onSkip}>
-          <Text style={styles.skipBtnText}>Skip for Now</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  }, [selectedIds]);
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Invite Friends</Text>
-        <Text style={styles.subtitle}>
-          Select contacts to send SMS invites with a link to your pod
-        </Text>
+        <TouchableOpacity onPress={onSkip} style={styles.headerBtn}>
+          <MaterialIcons name="close" size={22} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Invite Friends</Text>
+        <TouchableOpacity onPress={onSkip}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Search */}
-      <View style={styles.searchContainer}>
-        <Text style={styles.searchIcon}>🔍</Text>
+      <Text style={styles.podLabel}>
+        <MaterialIcons name="event" size={14} color={colors.primary} />{' '}
+        {podTitle}
+      </Text>
+
+      <View style={styles.searchRow}>
+        <MaterialIcons name="search" size={18} color={colors.textTertiary} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search contacts..."
@@ -220,208 +107,83 @@ const ContactPicker: React.FC<ContactPickerProps> = ({ podId, podTitle, onDone, 
           value={search}
           onChangeText={setSearch}
         />
+        {search.length > 0 && (
+          <TouchableOpacity onPress={() => setSearch('')}>
+            <MaterialIcons name="close" size={18} color={colors.textTertiary} />
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Selected count */}
-      {selected.size > 0 && (
-        <View style={styles.selectedBanner}>
-          <Text style={styles.selectedText}>
-            {selected.size} contact{selected.size > 1 ? 's' : ''} selected
-          </Text>
-        </View>
+      {selectedIds.length > 0 && (
+        <Text style={styles.selectedCount}>
+          {selectedIds.length} contact{selectedIds.length > 1 ? 's' : ''} selected
+        </Text>
       )}
 
-      {/* Contact list */}
       <FlatList
         data={filtered}
         keyExtractor={(item) => item.id}
+        renderItem={renderContact}
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => {
-          const isSelected = selected.has(item.id);
-          return (
-            <TouchableOpacity
-              style={[styles.contactRow, isSelected && styles.contactRowSelected]}
-              onPress={() => toggleSelect(item)}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.avatar, isSelected && styles.avatarSelected]}>
-                <Text style={[styles.avatarText, isSelected && styles.avatarTextSelected]}>
-                  {getInitials(item.name)}
-                </Text>
-              </View>
-              <View style={styles.contactInfo}>
-                <Text style={styles.contactName}>{item.name}</Text>
-                <Text style={styles.contactPhone}>{item.phone}</Text>
-              </View>
-              <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-                {isSelected && <Text style={styles.checkmark}>✓</Text>}
-              </View>
-            </TouchableOpacity>
-          );
-        }}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No contacts found</Text>
+            <MaterialIcons name="person-search" size={40} color={colors.textTertiary} />
+            <Text style={styles.emptyTitle}>
+              {contacts.length === 0 ? 'No contacts available' : 'No contacts match your search'}
+            </Text>
+            <Text style={styles.emptySubtext}>
+              Contact access will be available in a future update. You can share the pod link instead.
+            </Text>
           </View>
         }
       />
 
-      {/* Bottom actions */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.skipBtn} onPress={onSkip}>
-          <Text style={styles.skipBtnText}>Skip</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.inviteBtn, (selected.size === 0 || sending) && styles.inviteBtnDisabled]}
-          onPress={handleDone}
-          disabled={selected.size === 0 || sending}
-        >
-          <Text style={styles.inviteBtnText}>
-            {sending ? 'Sending...' : `Send Invites (${selected.size})`}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      {selectedIds.length > 0 && (
+        <View style={styles.footer}>
+          <TouchableOpacity style={styles.sendBtn} onPress={handleSend} disabled={sending} activeOpacity={0.8}>
+            {sending ? (
+              <ActivityIndicator size="small" color={colors.white} />
+            ) : (
+              <>
+                <MaterialIcons name="send" size={18} color={colors.white} />
+                <Text style={styles.sendBtnText}>Send {selectedIds.length} Invite{selectedIds.length > 1 ? 's' : ''}</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
-    backgroundColor: colors.white,
-  },
-  loadingText: {
-    marginTop: spacing.md,
-    fontSize: 15,
-    color: colors.textSecondary,
-  },
-  deniedIcon: { fontSize: 48, marginBottom: spacing.md },
-  deniedTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  deniedText: {
-    fontSize: 15,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.xl,
-    lineHeight: 22,
-  },
-  header: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing.md },
-  title: { fontSize: 24, fontWeight: '700', color: colors.text, marginBottom: spacing.xs },
-  subtitle: { fontSize: 14, color: colors.textSecondary, lineHeight: 20 },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: spacing.xl,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.md,
-    gap: spacing.sm,
-  },
-  searchIcon: { fontSize: 16 },
-  searchInput: {
-    flex: 1,
-    paddingVertical: Platform.OS === 'ios' ? spacing.sm : spacing.xs,
-    fontSize: 15,
-    color: colors.text,
-  },
-  selectedBanner: {
-    backgroundColor: colors.primary + '15',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.sm,
-  },
-  selectedText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  list: { paddingHorizontal: spacing.xl, paddingBottom: spacing.lg },
-  contactRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    gap: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceVariant,
-  },
-  contactRowSelected: {
-    backgroundColor: colors.primary + '08',
-  },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: colors.surfaceVariant,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarSelected: { backgroundColor: colors.primary },
-  avatarText: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
-  avatarTextSelected: { color: colors.white },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingVertical: spacing.md },
+  headerBtn: { width: 36, height: 36, justifyContent: 'center', alignItems: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text },
+  skipText: { fontSize: 15, fontWeight: '600', color: colors.primary },
+  podLabel: { fontSize: 14, fontWeight: '600', color: colors.primary, paddingHorizontal: spacing.xl, marginBottom: spacing.md },
+  searchRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: borderRadius.sm, paddingHorizontal: spacing.md, marginHorizontal: spacing.xl, marginBottom: spacing.md, gap: spacing.sm },
+  searchInput: { flex: 1, fontSize: 15, color: colors.text, paddingVertical: 12 },
+  selectedCount: { fontSize: 13, fontWeight: '600', color: colors.primary, paddingHorizontal: spacing.xl, marginBottom: spacing.sm },
+  list: { paddingHorizontal: spacing.xl },
+  contactRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, gap: spacing.md },
+  contactAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surfaceVariant, justifyContent: 'center', alignItems: 'center' },
+  contactInitial: { fontSize: 18, fontWeight: '700', color: colors.primary },
   contactInfo: { flex: 1 },
-  contactName: { fontSize: 15, fontWeight: '500', color: colors.text },
-  contactPhone: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxSelected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primary,
-  },
-  checkmark: { color: colors.white, fontSize: 14, fontWeight: '700' },
-  emptyContainer: { padding: spacing.xl, alignItems: 'center' },
-  emptyText: { fontSize: 15, color: colors.textSecondary },
-  bottomBar: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.surfaceVariant,
-    gap: spacing.md,
-  },
-  skipBtn: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  skipBtnLarge: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xxl,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  skipBtnText: { fontSize: 15, fontWeight: '500', color: colors.textSecondary },
-  inviteBtn: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  inviteBtnDisabled: { opacity: 0.4 },
-  inviteBtnText: { fontSize: 15, fontWeight: '600', color: colors.white },
+  contactName: { fontSize: 15, fontWeight: '600', color: colors.text },
+  phoneRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  contactPhone: { fontSize: 13, color: colors.textSecondary },
+  checkCircle: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: colors.border, justifyContent: 'center', alignItems: 'center' },
+  checkCircleActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  separator: { height: 1, backgroundColor: colors.surfaceVariant, marginLeft: 56 },
+  emptyContainer: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: spacing.xxl },
+  emptyTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginTop: spacing.lg },
+  emptySubtext: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginTop: spacing.sm },
+  footer: { paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, borderTopWidth: 1, borderTopColor: colors.surfaceVariant },
+  sendBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, paddingVertical: 14, borderRadius: borderRadius.full, gap: spacing.sm },
+  sendBtnText: { fontSize: 16, fontWeight: '600', color: colors.white },
 });
 
 export default ContactPicker;

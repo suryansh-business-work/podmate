@@ -17,9 +17,11 @@ import {
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import EventIcon from '@mui/icons-material/Event';
+import PolicyIcon from '@mui/icons-material/Policy';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
+import GroupsIcon from '@mui/icons-material/Groups';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const DRAWER_WIDTH = 260;
@@ -28,6 +30,7 @@ const navItems = [
   { icon: <DashboardIcon />, label: 'Dashboard', path: '/dashboard' },
   { icon: <PeopleIcon />, label: 'Users', path: '/users' },
   { icon: <EventIcon />, label: 'Pods', path: '/pods' },
+  { icon: <PolicyIcon />, label: 'Policies', path: '/policies' },
   { icon: <SettingsIcon />, label: 'Settings', path: '/settings' },
 ];
 
@@ -58,7 +61,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             fontSize: 20,
           }}
         >
-          👥
+          <GroupsIcon sx={{ color: '#FFF', fontSize: 22 }} />
         </Box>
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>

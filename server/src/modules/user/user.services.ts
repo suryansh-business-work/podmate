@@ -8,7 +8,10 @@ const seedUsers: User[] = [
   {
     id: 'user-1',
     phone: '+919999999999',
+    email: '',
+    password: '',
     name: 'Sarah L.',
+    age: 0,
     avatar: 'https://i.pravatar.cc/150?img=1',
     role: UserRole.PLACE_OWNER,
     isVerifiedHost: true,
@@ -17,7 +20,10 @@ const seedUsers: User[] = [
   {
     id: 'user-2',
     phone: '+919888888888',
+    email: '',
+    password: '',
     name: 'Alex D.',
+    age: 0,
     avatar: 'https://i.pravatar.cc/150?img=2',
     role: UserRole.PLACE_OWNER,
     isVerifiedHost: true,
@@ -26,7 +32,10 @@ const seedUsers: User[] = [
   {
     id: 'user-3',
     phone: '+919777777777',
+    email: '',
+    password: '',
     name: 'Vineet K.',
+    age: 0,
     avatar: 'https://i.pravatar.cc/150?img=3',
     role: UserRole.USER,
     isVerifiedHost: false,
@@ -35,7 +44,10 @@ const seedUsers: User[] = [
   {
     id: 'user-4',
     phone: '+919666666666',
+    email: '',
+    password: '',
     name: 'Chef Kenji',
+    age: 0,
     avatar: 'https://i.pravatar.cc/150?img=4',
     role: UserRole.PLACE_OWNER,
     isVerifiedHost: true,
@@ -44,7 +56,10 @@ const seedUsers: User[] = [
   {
     id: 'admin-1',
     phone: '+919000000000',
+    email: 'suryansh@exyconn.com',
+    password: '12345678',
     name: 'Admin',
+    age: 0,
     avatar: 'https://i.pravatar.cc/150?img=10',
     role: UserRole.ADMIN,
     isVerifiedHost: false,
@@ -66,7 +81,10 @@ export function createUser(input: CreateUserInput): User {
   const user: User = {
     id: uuidv4(),
     phone: input.phone,
-    name: '',
+    email: input.email ?? '',
+    password: input.password ?? '',
+    name: input.name ?? '',
+    age: input.age ?? 0,
     avatar: `https://i.pravatar.cc/150?u=${input.phone}`,
     role: input.role ?? UserRole.USER,
     isVerifiedHost: false,
@@ -81,8 +99,13 @@ export function updateUser(id: string, input: UpdateUserInput): User {
   if (!user) throw new Error('User not found');
   if (input.name !== undefined) user.name = input.name;
   if (input.avatar !== undefined) user.avatar = input.avatar;
+  if (input.age !== undefined) user.age = input.age;
   users.set(user.id, user);
   return user;
+}
+
+export function findUserByEmail(email: string): User | undefined {
+  return [...users.values()].find((u) => u.email === email);
 }
 
 export function updateUserRole(id: string, role: UserRole): User {
@@ -103,7 +126,7 @@ export function getPaginatedUsers(input: PaginationInput): PaginatedResponse<Use
   if (input.search) {
     const q = input.search.toLowerCase();
     items = items.filter(
-      (u) => u.name.toLowerCase().includes(q) || u.phone.includes(q),
+      (u) => u.name.toLowerCase().includes(q) || u.phone.includes(q) || u.email.toLowerCase().includes(q),
     );
   }
 

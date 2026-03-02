@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing, borderRadius } from '../theme';
 import { GET_PODS } from '../graphql/queries';
 
@@ -65,9 +66,8 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
     <SafeAreaView style={styles.container}>
       <Text style={styles.headerTitle}>Explore</Text>
 
-      {/* Search */}
       <View style={styles.searchContainer}>
-        <Text style={styles.searchIcon}>🔍</Text>
+        <MaterialIcons name="search" size={18} color={colors.textTertiary} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search pods..."
@@ -78,12 +78,11 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
         />
         {search.length > 0 && (
           <TouchableOpacity onPress={() => setSearch('')}>
-            <Text style={styles.clearIcon}>✕</Text>
+            <MaterialIcons name="close" size={18} color={colors.textTertiary} />
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Category tabs */}
       <View style={styles.categoryRow}>
         {CATEGORIES.map((cat) => (
           <TouchableOpacity
@@ -92,10 +91,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
             onPress={() => setActiveCategory(cat)}
           >
             <Text
-              style={[
-                styles.categoryTabText,
-                activeCategory === cat && styles.categoryTabTextActive,
-              ]}
+              style={[styles.categoryTabText, activeCategory === cat && styles.categoryTabTextActive]}
             >
               {cat}
             </Text>
@@ -103,14 +99,12 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
         ))}
       </View>
 
-      {/* Loading */}
       {loading && pods.length === 0 && (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
 
-      {/* Grid */}
       <FlatList
         data={pods}
         numColumns={2}
@@ -123,7 +117,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
         ListEmptyComponent={
           !loading ? (
             <View style={styles.centered}>
-              <Text style={styles.emptyIcon}>🔍</Text>
+              <MaterialIcons name="search-off" size={48} color={colors.textTertiary} />
               <Text style={styles.emptyTitle}>No pods found</Text>
               <Text style={styles.emptySubtitle}>Try a different search or category</Text>
             </View>
@@ -143,12 +137,11 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
               <Text style={styles.statusText}>{item.status}</Text>
             </View>
             <View style={styles.cardContent}>
-              <Text style={styles.cardTitle} numberOfLines={1}>
-                {item.title}
-              </Text>
-              <Text style={styles.cardLocation} numberOfLines={1}>
-                📍 {item.location}
-              </Text>
+              <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+              <View style={styles.locationRow}>
+                <MaterialIcons name="place" size={12} color={colors.textSecondary} />
+                <Text style={styles.cardLocation} numberOfLines={1}>{item.location}</Text>
+              </View>
               <View style={styles.cardMeta}>
                 <Text style={styles.cardCategory}>{item.category}</Text>
                 <Text style={styles.cardFee}>₹{item.feePerPerson}</Text>
@@ -156,15 +149,10 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
               <View style={styles.seatsRow}>
                 <View style={styles.seatsBarBg}>
                   <View
-                    style={[
-                      styles.seatsBarFill,
-                      { width: `${Math.min((item.currentSeats / item.maxSeats) * 100, 100)}%` },
-                    ]}
+                    style={[styles.seatsBarFill, { width: `${Math.min((item.currentSeats / item.maxSeats) * 100, 100)}%` }]}
                   />
                 </View>
-                <Text style={styles.seatsText}>
-                  {item.currentSeats}/{item.maxSeats}
-                </Text>
+                <Text style={styles.seatsText}>{item.currentSeats}/{item.maxSeats}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -195,11 +183,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
+    gap: spacing.sm,
   },
-  searchIcon: { fontSize: 16, marginRight: spacing.sm },
   searchInput: { flex: 1, fontSize: 15, color: colors.text },
-  clearIcon: { fontSize: 14, color: colors.textTertiary, padding: spacing.xs },
-
   categoryRow: {
     flexDirection: 'row',
     paddingHorizontal: spacing.xl,
@@ -220,12 +206,9 @@ const styles = StyleSheet.create({
   },
   categoryTabText: { fontSize: 13, fontWeight: '500', color: colors.textSecondary },
   categoryTabTextActive: { color: colors.white, fontWeight: '600' },
-
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
-  emptyIcon: { fontSize: 48, marginBottom: spacing.md },
-  emptyTitle: { fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: spacing.xs },
+  emptyTitle: { fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: spacing.xs, marginTop: spacing.md },
   emptySubtitle: { fontSize: 14, color: colors.textSecondary },
-
   grid: { paddingHorizontal: spacing.xl, paddingBottom: 100 },
   row: { gap: spacing.md, marginBottom: spacing.md },
   card: {
@@ -252,7 +235,8 @@ const styles = StyleSheet.create({
   statusText: { color: colors.white, fontSize: 10, fontWeight: '600' },
   cardContent: { padding: spacing.md },
   cardTitle: { fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 2 },
-  cardLocation: { fontSize: 11, color: colors.textSecondary, marginBottom: spacing.xs },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: spacing.xs },
+  cardLocation: { fontSize: 11, color: colors.textSecondary },
   cardMeta: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.xs },
   cardCategory: { fontSize: 12, color: colors.textSecondary },
   cardFee: { fontSize: 12, fontWeight: '700', color: colors.primary },

@@ -8,7 +8,9 @@ const userTypeDefs = `#graphql
   type User {
     id: ID!
     phone: String!
+    email: String!
     name: String!
+    age: Int!
     avatar: String!
     role: UserRole!
     isVerifiedHost: Boolean!

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing } from '../theme';
 import { OtpInput } from '../components/OtpInput';
 import { GradientButton } from '../components/GradientButton';
@@ -37,19 +38,16 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* Back Button */}
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backArrow}>←</Text>
+          <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
 
-        {/* Header */}
         <Text style={styles.title}>Verify your number</Text>
         <Text style={styles.subtitle}>
           We sent a 6-digit code to{'\n'}
           <Text style={styles.phoneHighlight}>{maskedPhone}</Text>
         </Text>
 
-        {/* OTP Input */}
         <View style={styles.otpContainer}>
           <OtpInput
             onComplete={(code) => {
@@ -59,7 +57,6 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack }) => {
           />
         </View>
 
-        {/* Resend */}
         <View style={styles.resendContainer}>
           {canResend ? (
             <TouchableOpacity onPress={handleResend}>
@@ -72,7 +69,6 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack }) => {
           )}
         </View>
 
-        {/* Verify Button */}
         <GradientButton title="Verify" onPress={() => onVerify(otp)} disabled={otp.length < 6} />
       </View>
     </SafeAreaView>
@@ -95,10 +91,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing.xxl,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: colors.text,
   },
   title: {
     fontSize: 28,

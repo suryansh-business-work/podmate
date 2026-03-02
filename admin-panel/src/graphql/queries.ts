@@ -6,7 +6,9 @@ export const GET_USERS = gql`
       items {
         id
         phone
+        email
         name
+        age
         avatar
         role
         isVerifiedHost
@@ -76,11 +78,25 @@ export const GET_PODS = gql`
 
 export const GET_DASHBOARD_STATS = gql`
   query GetDashboardStats {
-    users(page: 1, limit: 1) {
-      total
+    dashboardStats {
+      totalUsers
+      totalPods
+      activePods
+      totalRevenue
     }
-    pods(page: 1, limit: 1) {
-      total
+  }
+`;
+
+export const GET_POLICIES = gql`
+  query GetPolicies($type: String) {
+    policies(type: $type) {
+      id
+      type
+      title
+      content
+      isActive
+      createdAt
+      updatedAt
     }
   }
 `;

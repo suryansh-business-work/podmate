@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../theme';
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
@@ -11,12 +12,12 @@ import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-const TAB_ICONS: Record<string, { active: string; inactive: string }> = {
-  Home: { active: '🏠', inactive: '🏠' },
-  Explore: { active: '🧭', inactive: '🧭' },
-  Create: { active: '+', inactive: '+' },
-  Chat: { active: '💬', inactive: '💬' },
-  Profile: { active: '👤', inactive: '👤' },
+const TAB_ICONS: Record<string, string> = {
+  Home: 'home',
+  Explore: 'explore',
+  Create: 'add',
+  Chat: 'chat-bubble-outline',
+  Profile: 'person',
 };
 
 interface MainTabsProps {
@@ -42,7 +43,7 @@ const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textTertiary,
         tabBarLabelStyle: styles.tabLabel,
-        tabBarIcon: ({ focused }) => {
+        tabBarIcon: ({ focused, color }) => {
           if (route.name === 'Create') {
             return (
               <View style={styles.createButtonOuter}>
@@ -52,16 +53,19 @@ const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                 >
-                  <Text style={styles.createIcon}>+</Text>
+                  <MaterialIcons name="add" size={28} color={colors.white} />
                 </LinearGradient>
               </View>
             );
           }
-          const icons = TAB_ICONS[route.name];
+          const iconName = TAB_ICONS[route.name] ?? 'circle';
           return (
-            <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>
-              {focused ? icons.active : icons.inactive}
-            </Text>
+            <MaterialIcons
+              name={iconName}
+              size={24}
+              color={color}
+              style={{ opacity: focused ? 1 : 0.6 }}
+            />
           );
         },
       })}
@@ -106,13 +110,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '500',
   },
-  tabIcon: {
-    fontSize: 22,
-    opacity: 0.5,
-  },
-  tabIconActive: {
-    opacity: 1,
-  },
   createButtonOuter: {
     marginTop: -20,
   },
@@ -127,11 +124,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
-  },
-  createIcon: {
-    fontSize: 28,
-    color: colors.white,
-    fontWeight: '300',
   },
 });
 

@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 import { colors, spacing, borderRadius } from '../theme';
 import { GradientButton } from '../components/GradientButton';
 
@@ -17,14 +21,22 @@ interface LoginScreenProps {
   onSendOtp: (phone: string) => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp }) => {
-  const [phone, setPhone] = useState('');
-  const [countryCode, setCountryCode] = useState('+91');
+interface LoginFormValues {
+  phone: string;
+}
 
-  const handleContinue = () => {
-    if (phone.length >= 10) {
-      onSendOtp(countryCode + phone);
-    }
+const loginSchema = Yup.object().shape({
+  phone: Yup.string()
+    .matches(/^[0-9]{10}$/, 'Please enter a valid 10-digit phone number')
+    .required('Phone number is required'),
+});
+
+const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp }) => {
+  const [countryCode] = useState('+91');
+  const initialValues: LoginFormValues = { phone: '' };
+
+  const handleSubmit = (values: LoginFormValues) => {
+    onSendOtp(countryCode + values.phone);
   };
 
   return (
@@ -34,52 +46,66 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.topSection}>
-          {/* Logo */}
           <LinearGradient
             colors={[colors.primaryLight, colors.primary]}
             style={styles.logoBox}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            <Text style={styles.logoIcon}>👥</Text>
+            <MaterialCommunityIcons name="account-group" size={26} color={colors.white} />
           </LinearGradient>
 
-          {/* Welcome Text */}
           <Text style={styles.title}>Welcome to PartyWings</Text>
           <Text style={styles.subtitle}>Enter your phone number to join or create your Pod.</Text>
 
-          {/* Phone Input */}
-          <Text style={styles.inputLabel}>PHONE NUMBER</Text>
-          <View style={styles.phoneInputRow}>
-            <TouchableOpacity style={styles.countryCodeBox}>
-              <Text style={styles.countryCodeText}>{countryCode}</Text>
-              <Text style={styles.dropdownArrow}>▾</Text>
-            </TouchableOpacity>
-            <TextInput
-              style={styles.phoneInput}
-              placeholder="555 000-0000"
-              placeholderTextColor={colors.textTertiary}
-              keyboardType="phone-pad"
-              value={phone}
-              onChangeText={setPhone}
-              maxLength={10}
-            />
-          </View>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={loginSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ handleChange, handleBlur, handleSubmit: formSubmit, values, errors, touched, isValid, dirty }) => (
+              <View>
+                <Text style={styles.inputLabel}>PHONE NUMBER</Text>
+                <View style={styles.phoneInputRow}>
+                  <TouchableOpacity style={styles.countryCodeBox}>
+                    <Text style={styles.countryCodeText}>{countryCode}</Text>
+                    <MaterialIcons name="arrow-drop-down" size={18} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                  <TextInput
+                    style={styles.phoneInput}
+                    placeholder="555 000-0000"
+                    placeholderTextColor={colors.textTertiary}
+                    keyboardType="phone-pad"
+                    value={values.phone}
+                    onChangeText={handleChange('phone')}
+                    onBlur={handleBlur('phone')}
+                    maxLength={10}
+                  />
+                </View>
+                {touched.phone && errors.phone && (
+                  <Text style={styles.errorText}>{errors.phone}</Text>
+                )}
 
-          {/* Secure Badge */}
-          <View style={styles.secureBadge}>
-            <Text style={styles.secureIcon}>🛡️</Text>
-            <Text style={styles.secureText}>Secure, passwordless login</Text>
-          </View>
-        </View>
+                <View style={styles.secureBadge}>
+                  <MaterialIcons name="verified-user" size={16} color={colors.success} />
+                  <Text style={styles.secureText}>Secure, passwordless login</Text>
+                </View>
 
-        {/* Bottom Section */}
-        <View style={styles.bottomSection}>
-          <GradientButton title="Continue" onPress={handleContinue} disabled={phone.length < 10} />
-          <Text style={styles.termsText}>
-            By continuing, you agree to our <Text style={styles.termsLink}>Terms of Service</Text>{' '}
-            and <Text style={styles.termsLink}>Privacy Policy</Text>
-          </Text>
+                <View style={styles.bottomSection}>
+                  <GradientButton
+                    title="Continue"
+                    onPress={() => formSubmit()}
+                    disabled={!isValid || !dirty}
+                  />
+                  <Text style={styles.termsText}>
+                    By continuing, you agree to our{' '}
+                    <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
+                    <Text style={styles.termsLink}>Privacy Policy</Text>
+                  </Text>
+                </View>
+              </View>
+            )}
+          </Formik>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -93,11 +119,11 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'space-between',
     paddingHorizontal: spacing.xl,
   },
   topSection: {
     paddingTop: 60,
+    flex: 1,
   },
   logoBox: {
     width: 56,
@@ -106,9 +132,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing.xxl,
-  },
-  logoIcon: {
-    fontSize: 26,
   },
   title: {
     fontSize: 32,
@@ -137,7 +160,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: borderRadius.md,
     overflow: 'hidden',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   countryCodeBox: {
     flexDirection: 'row',
@@ -153,11 +176,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: colors.text,
   },
-  dropdownArrow: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginLeft: 4,
-  },
   phoneInput: {
     flex: 1,
     paddingHorizontal: spacing.lg,
@@ -165,13 +183,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
   },
+  errorText: {
+    fontSize: 12,
+    color: colors.error,
+    marginBottom: spacing.sm,
+    marginLeft: spacing.xs,
+  },
   secureBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-  },
-  secureIcon: {
-    fontSize: 16,
+    marginTop: spacing.sm,
   },
   secureText: {
     fontSize: 14,
@@ -179,7 +201,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   bottomSection: {
+    marginTop: 'auto',
     paddingBottom: 40,
+    paddingTop: spacing.xxxl,
   },
   termsText: {
     textAlign: 'center',

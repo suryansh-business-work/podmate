@@ -88,3 +88,16 @@ export const SEND_INVITES = gql`
     }
   }
 `;
+
+export const COMPLETE_PROFILE = gql`
+  mutation CompleteProfile($name: String!, $age: Int!) {
+    completeProfile(name: $name, age: $age) {
+      id
+      phone
+      name
+      age
+      avatar
+      role
+    }
+  }
+`;

@@ -3,6 +3,8 @@ import type { AuthPayload } from './auth.models';
 import { UserRole } from '../user/user.models';
 import type { GraphQLContext } from './auth.models';
 import * as userService from '../user/user.services';
+import { sendSMS, sendAdminCredentials } from '../../lib/email';
+import logger from '../../lib/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'partywings-dev-secret';
 const OTP_DEFAULT = process.env.OTP_DEFAULT ?? '123456';
@@ -41,7 +43,10 @@ export function requireRole(context: GraphQLContext, ...roles: UserRole[]): Auth
   return user;
 }
 
-export function sendOtp(phone: string): { success: boolean; message: string } {
+export async function sendOtp(phone: string): Promise<{ success: boolean; message: string }> {
+  const otpMessage = `Your PartyWings OTP is: ${OTP_DEFAULT}. Valid for 5 minutes.`;
+  await sendSMS(phone, otpMessage);
+  logger.info(`OTP sent to ${phone}`);
   return { success: true, message: `OTP sent to ${phone}` };
 }
 
@@ -61,6 +66,48 @@ export function verifyOtp(
     isNewUser = true;
   }
 
+  logger.info(`User ${user.id} verified via OTP (isNew: ${isNewUser})`);
   const token = signToken({ userId: user.id, phone: user.phone, role: user.role });
   return { token, user, isNewUser };
+}
+
+export function adminLogin(
+  email: string,
+  password: string,
+): { token: string; user: ReturnType<typeof userService.findUserByEmail> } {
+  const user = userService.findUserByEmail(email);
+  if (!user) {
+    throw new Error('Invalid email or password');
+  }
+  if (user.password !== password) {
+    throw new Error('Invalid email or password');
+  }
+  if (user.role !== UserRole.ADMIN) {
+    throw new Error('Access denied. Admin privileges required.');
+  }
+
+  logger.info(`Admin login: ${email}`);
+  const token = signToken({ userId: user.id, phone: user.phone, role: user.role });
+  return { token, user };
+}
+
+export async function sendAdminCredentialsEmail(
+  email: string,
+): Promise<{ success: boolean; message: string }> {
+  const user = userService.findUserByEmail(email);
+  if (!user) {
+    throw new Error('Admin user not found');
+  }
+  await sendAdminCredentials(email, user.password);
+  logger.info(`Admin credentials sent to ${email}`);
+  return { success: true, message: `Credentials sent to ${email}` };
+}
+
+export function completeProfile(
+  userId: string,
+  name: string,
+  age: number,
+): ReturnType<typeof userService.updateUser> {
+  logger.info(`Profile completed for user ${userId}`);
+  return userService.updateUser(userId, { name, age });
 }

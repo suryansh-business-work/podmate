@@ -17,6 +17,7 @@ import {
 import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
 import OtpScreen from '../screens/OtpScreen';
+import CompleteProfileScreen from '../screens/CompleteProfileScreen';
 import PodDetailScreen from '../screens/PodDetailScreen';
 import CreatePodScreen from '../screens/CreatePodScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
@@ -30,6 +31,7 @@ export type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
   Otp: { phone: string };
+  CompleteProfile: undefined;
   Main: undefined;
   PodDetail: { podId: string };
   CreatePod: undefined;
@@ -46,6 +48,7 @@ const RootNavigator: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [otpPhone, setOtpPhone] = useState('');
+  const [isNewUser, setIsNewUser] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
@@ -91,6 +94,9 @@ const RootNavigator: React.FC = () => {
       });
       if (data?.verifyOtp?.token) {
         await AsyncStorage.setItem('token', data.verifyOtp.token);
+        if (data.verifyOtp.isNewUser) {
+          setIsNewUser(true);
+        }
         setIsAuthenticated(true);
         setOtpPhone('');
       }
@@ -191,6 +197,16 @@ const RootNavigator: React.FC = () => {
                   )}
                 </Stack.Screen>
               )}
+            </>
+          ) : isNewUser ? (
+            <>
+              <Stack.Screen name="CompleteProfile">
+                {() => (
+                  <CompleteProfileScreen
+                    onComplete={() => setIsNewUser(false)}
+                  />
+                )}
+              </Stack.Screen>
             </>
           ) : (
             <>

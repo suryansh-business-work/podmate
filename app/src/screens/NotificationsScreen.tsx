@@ -1,81 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  RefreshControl,
+  View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useQuery } from '@apollo/client';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { colors, spacing, borderRadius } from '../theme';
+import { GET_MY_PODS } from '../graphql/queries';
 
 interface Notification {
   id: string;
-  type: 'pod_join' | 'pod_update' | 'invite' | 'system' | 'payment';
+  type: string;
   title: string;
   message: string;
   time: string;
   read: boolean;
 }
 
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: '1',
-    type: 'pod_join',
-    title: 'New Attendee',
-    message: 'Alex D. joined your pod "Omakase & Sake Night"',
-    time: '2m ago',
-    read: false,
-  },
-  {
-    id: '2',
-    type: 'pod_update',
-    title: 'Pod Confirmed',
-    message: '"Startup Networking Hike" has reached minimum members and is confirmed!',
-    time: '1h ago',
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'invite',
-    title: 'Pod Invitation',
-    message: 'Chef Kenji invited you to "Tokyo-Style Sushi Masterclass"',
-    time: '3h ago',
-    read: false,
-  },
-  {
-    id: '4',
-    type: 'payment',
-    title: 'Payment Received',
-    message: '₹1,200 payment received for "Omakase & Sake Night"',
-    time: '5h ago',
-    read: true,
-  },
-  {
-    id: '5',
-    type: 'system',
-    title: 'Welcome to PartyWings!',
-    message: 'Start exploring pods near you or host your first event.',
-    time: '1d ago',
-    read: true,
-  },
-  {
-    id: '6',
-    type: 'pod_update',
-    title: 'Reminder',
-    message: '"Premium Wine Tasting Evening" starts tomorrow at 6:30 PM',
-    time: '1d ago',
-    read: true,
-  },
-];
-
-const NOTIFICATION_ICONS: Record<string, string> = {
-  pod_join: '👥',
-  pod_update: '🎫',
-  invite: '✉️',
-  system: '🔔',
-  payment: '💰',
+const NOTIFICATION_ICON_MAP: Record<string, { name: string; family: 'material' | 'community' }> = {
+  pod_join: { name: 'group', family: 'material' },
+  pod_update: { name: 'confirmation-number', family: 'material' },
+  invite: { name: 'email', family: 'material' },
+  system: { name: 'notifications', family: 'material' },
+  payment: { name: 'attach-money', family: 'material' },
 };
 
 interface NotificationsScreenProps {
@@ -83,32 +31,50 @@ interface NotificationsScreenProps {
 }
 
 const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => {
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
-  const [refreshing, setRefreshing] = useState(false);
+  const { data, loading, refetch } = useQuery(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const notifications: Notification[] = (data?.myPods ?? []).map(
+    (pod: { id: string; title: string; status: string; category: string }, index: number) => ({
+      id: `notif-${pod.id}`,
+      type: index % 2 === 0 ? 'pod_update' : 'pod_join',
+      title: pod.status === 'ACTIVE' ? 'Pod Active' : 'Pod Update',
+      message: `"${pod.title}" - ${pod.category} pod is ${pod.status.toLowerCase()}.`,
+      time: 'Recently',
+      read: pod.status !== 'ACTIVE',
+    }),
+  );
+
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const unreadCount = notifications.filter((n) => !n.read && !readIds.has(n.id)).length;
 
   const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    setReadIds((prev) => new Set([...prev, id]));
   };
 
   const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setReadIds(new Set(notifications.map((n) => n.id)));
   };
 
-  const onRefresh = () => {
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
+
+  const renderIcon = (type: string) => {
+    const iconConfig = NOTIFICATION_ICON_MAP[type] ?? { name: 'notifications', family: 'material' };
+    if (iconConfig.family === 'community') {
+      return <MaterialCommunityIcons name={iconConfig.name} size={18} color={colors.primary} />;
+    }
+    return <MaterialIcons name={iconConfig.name} size={18} color={colors.primary} />;
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backBtn}>
-          <Text style={styles.backIcon}>←</Text>
+          <MaterialIcons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
         {unreadCount > 0 ? (
@@ -128,45 +94,48 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
         </View>
       )}
 
+      {loading && notifications.length === 0 && (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      )}
+
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
-        }
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.notificationRow, !item.read && styles.notificationUnread]}
-            onPress={() => markAsRead(item.id)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.iconContainer}>
-              <Text style={styles.notificationIcon}>{NOTIFICATION_ICONS[item.type]}</Text>
-            </View>
-            <View style={styles.notificationContent}>
-              <View style={styles.notificationTop}>
-                <Text style={[styles.notificationTitle, !item.read && styles.notificationTitleUnread]}>
-                  {item.title}
-                </Text>
-                <Text style={styles.notificationTime}>{item.time}</Text>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+        renderItem={({ item }) => {
+          const isRead = item.read || readIds.has(item.id);
+          return (
+            <TouchableOpacity
+              style={[styles.notificationRow, !isRead && styles.notificationUnread]}
+              onPress={() => markAsRead(item.id)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.iconContainer}>
+                {renderIcon(item.type)}
               </View>
-              <Text style={styles.notificationMessage} numberOfLines={2}>
-                {item.message}
-              </Text>
-            </View>
-            {!item.read && <View style={styles.unreadDot} />}
-          </TouchableOpacity>
-        )}
+              <View style={styles.notificationContent}>
+                <View style={styles.notificationTop}>
+                  <Text style={[styles.notificationTitle, !isRead && styles.notificationTitleUnread]}>{item.title}</Text>
+                  <Text style={styles.notificationTime}>{item.time}</Text>
+                </View>
+                <Text style={styles.notificationMessage} numberOfLines={2}>{item.message}</Text>
+              </View>
+              {!isRead && <View style={styles.unreadDot} />}
+            </TouchableOpacity>
+          );
+        }}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>🔔</Text>
-            <Text style={styles.emptyTitle}>No notifications</Text>
-            <Text style={styles.emptySubtitle}>
-              You&apos;re all caught up! New notifications will appear here.
-            </Text>
-          </View>
+          !loading ? (
+            <View style={styles.emptyContainer}>
+              <MaterialIcons name="notifications-none" size={48} color={colors.textTertiary} />
+              <Text style={styles.emptyTitle}>No notifications</Text>
+              <Text style={styles.emptySubtitle}>You&apos;re all caught up! New notifications will appear here.</Text>
+            </View>
+          ) : null
         }
       />
     </SafeAreaView>
@@ -174,131 +143,29 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.md,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backIcon: {
-    fontSize: 22,
-    color: colors.text,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  markAllRead: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  unreadBanner: {
-    backgroundColor: colors.primary + '10',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xl,
-  },
-  unreadBannerText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  list: {
-    paddingHorizontal: spacing.xl,
-  },
-  notificationRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: spacing.lg,
-    gap: spacing.md,
-  },
-  notificationUnread: {
-    backgroundColor: colors.surface,
-    marginHorizontal: -spacing.xl,
-    paddingHorizontal: spacing.xl,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.surfaceVariant,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  notificationIcon: {
-    fontSize: 18,
-  },
-  notificationContent: {
-    flex: 1,
-  },
-  notificationTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  notificationTitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text,
-  },
-  notificationTitleUnread: {
-    fontWeight: '700',
-  },
-  notificationTime: {
-    fontSize: 12,
-    color: colors.textTertiary,
-  },
-  notificationMessage: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-    marginTop: 8,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: colors.surfaceVariant,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    paddingTop: 80,
-    paddingHorizontal: spacing.xxxl,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: spacing.lg,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
+  container: { flex: 1, backgroundColor: colors.white },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingVertical: spacing.md },
+  backBtn: { width: 36, height: 36, justifyContent: 'center', alignItems: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text },
+  markAllRead: { fontSize: 13, fontWeight: '600', color: colors.primary },
+  unreadBanner: { backgroundColor: colors.primary + '10', paddingVertical: spacing.sm, paddingHorizontal: spacing.xl },
+  unreadBannerText: { fontSize: 13, fontWeight: '600', color: colors.primary },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
+  list: { paddingHorizontal: spacing.xl },
+  notificationRow: { flexDirection: 'row', alignItems: 'flex-start', paddingVertical: spacing.lg, gap: spacing.md },
+  notificationUnread: { backgroundColor: colors.surface, marginHorizontal: -spacing.xl, paddingHorizontal: spacing.xl },
+  iconContainer: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceVariant, justifyContent: 'center', alignItems: 'center', marginTop: 2 },
+  notificationContent: { flex: 1 },
+  notificationTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  notificationTitle: { fontSize: 14, fontWeight: '500', color: colors.text },
+  notificationTitleUnread: { fontWeight: '700' },
+  notificationTime: { fontSize: 12, color: colors.textTertiary },
+  notificationMessage: { fontSize: 14, color: colors.textSecondary, lineHeight: 20 },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary, marginTop: 8 },
+  separator: { height: 1, backgroundColor: colors.surfaceVariant },
+  emptyContainer: { alignItems: 'center', paddingTop: 80, paddingHorizontal: spacing.xxxl },
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: spacing.sm, marginTop: spacing.lg },
+  emptySubtitle: { fontSize: 14, color: colors.textSecondary, textAlign: 'center', lineHeight: 22 },
 });
 
 export default NotificationsScreen;

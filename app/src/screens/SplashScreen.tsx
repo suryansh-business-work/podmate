@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { colors } from '../theme';
 
 interface SplashScreenProps {
@@ -15,7 +16,6 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
   return (
     <View style={styles.container}>
-      {/* Logo */}
       <View style={styles.logoContainer}>
         <LinearGradient
           colors={[colors.primaryLight, colors.primary]}
@@ -23,11 +23,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <Text style={styles.logoIcon}>👥</Text>
+          <MaterialCommunityIcons name="account-group" size={36} color={colors.white} />
         </LinearGradient>
       </View>
-
-      {/* App Name */}
       <Text style={styles.appName}>PartyWings</Text>
       <Text style={styles.tagline}>Trust-based communities</Text>
     </View>
@@ -55,9 +53,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 16,
     elevation: 8,
-  },
-  logoIcon: {
-    fontSize: 36,
   },
   appName: {
     fontSize: 32,

@@ -12,6 +12,23 @@ const authResolvers = {
       return authService.verifyOtp(args.phone, args.otp);
     },
 
+    adminLogin: (_: unknown, args: { email: string; password: string }) => {
+      return authService.adminLogin(args.email, args.password);
+    },
+
+    sendAdminCredentials: (_: unknown, args: { email: string }) => {
+      return authService.sendAdminCredentialsEmail(args.email);
+    },
+
+    completeProfile: (
+      _: unknown,
+      args: { name: string; age: number },
+      context: GraphQLContext,
+    ) => {
+      const auth = authService.requireAuth(context);
+      return authService.completeProfile(auth.userId, args.name, args.age);
+    },
+
     getImageKitAuth: (_: unknown, __: unknown, context: GraphQLContext) => {
       authService.requireAuth(context);
       return getImageKitAuthParams();

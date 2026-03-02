@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Platform, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -70,39 +70,45 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={goBack} style={styles.headerBtn}>
-          <MaterialIcons name={step === 0 ? 'close' : 'arrow-back'} size={22} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Register Venue</Text>
-        <View style={styles.headerBtn} />
-      </View>
-      <StepIndicator step={step} />
-      {step === 0 && <StepVenueDetails formValues={formValues} onSubmit={handleStepOneSubmit} />}
-      {step === 1 && (
-        <StepDocuments
-          businessLicenseUrl={businessLicenseUrl}
-          permitsUrl={permitsUrl}
-          venueMedia={venueMedia}
-          uploading={uploading}
-          progress={progress}
-          onUploadLicense={handleUploadLicense}
-          onUploadPermits={handleUploadPermits}
-          onMediaChange={setVenueMedia}
-          onContinue={() => setStep(2)}
-        />
-      )}
-      {step === 2 && (
-        <StepPolicies
-          policies={policies}
-          policiesLoading={policiesLoading}
-          policiesAccepted={policiesAccepted}
-          hasScrolledPolicies={hasScrolledPolicies}
-          onToggleAccepted={() => setPoliciesAccepted(!policiesAccepted)}
-          onScrolledToBottom={() => setHasScrolledPolicies(true)}
-          onSubmit={handleFinalSubmit}
-        />
-      )}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={{ flex: 1 }}>
+            <View style={styles.header}>
+              <TouchableOpacity onPress={goBack} style={styles.headerBtn}>
+                <MaterialIcons name={step === 0 ? 'close' : 'arrow-back'} size={22} color={colors.text} />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Register Venue</Text>
+              <View style={styles.headerBtn} />
+            </View>
+            <StepIndicator step={step} />
+            {step === 0 && <StepVenueDetails formValues={formValues} onSubmit={handleStepOneSubmit} />}
+            {step === 1 && (
+              <StepDocuments
+                businessLicenseUrl={businessLicenseUrl}
+                permitsUrl={permitsUrl}
+                venueMedia={venueMedia}
+                uploading={uploading}
+                progress={progress}
+                onUploadLicense={handleUploadLicense}
+                onUploadPermits={handleUploadPermits}
+                onMediaChange={setVenueMedia}
+                onContinue={() => setStep(2)}
+              />
+            )}
+            {step === 2 && (
+              <StepPolicies
+                policies={policies}
+                policiesLoading={policiesLoading}
+                policiesAccepted={policiesAccepted}
+                hasScrolledPolicies={hasScrolledPolicies}
+                onToggleAccepted={() => setPoliciesAccepted(!policiesAccepted)}
+                onScrolledToBottom={() => setHasScrolledPolicies(true)}
+                onSubmit={handleFinalSubmit}
+              />
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

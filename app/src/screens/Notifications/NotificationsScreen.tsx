@@ -1,0 +1,134 @@
+import React, { useState, useCallback } from 'react';
+import {
+  View, Text, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useQuery } from '@apollo/client';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { colors } from '../../theme';
+import { GET_MY_PODS } from '../../graphql/queries';
+import { Notification, NotificationsScreenProps, NOTIFICATION_ICON_MAP } from './Notifications.types';
+import { styles } from './Notifications.styles';
+
+const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => {
+  const { data, loading, error, refetch } = useQuery(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
+
+  const notifications: Notification[] = (data?.myPods ?? []).map(
+    (pod: { id: string; title: string; status: string; category: string }, index: number) => ({
+      id: `notif-${pod.id}`,
+      type: index % 2 === 0 ? 'pod_update' : 'pod_join',
+      title: pod.status === 'ACTIVE' ? 'Pod Active' : 'Pod Update',
+      message: `"${pod.title}" - ${pod.category} pod is ${pod.status.toLowerCase()}.`,
+      time: 'Recently',
+      read: pod.status !== 'ACTIVE',
+    }),
+  );
+
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const unreadCount = notifications.filter((n) => !n.read && !readIds.has(n.id)).length;
+
+  const markAsRead = (id: string) => {
+    setReadIds((prev) => new Set([...prev, id]));
+  };
+
+  const markAllRead = () => {
+    setReadIds(new Set(notifications.map((n) => n.id)));
+  };
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
+
+  const renderIcon = (type: string) => {
+    const iconConfig = NOTIFICATION_ICON_MAP[type] ?? { name: 'notifications', family: 'material' };
+    if (iconConfig.family === 'community') {
+      return <MaterialCommunityIcons name={iconConfig.name} size={18} color={colors.primary} />;
+    }
+    return <MaterialIcons name={iconConfig.name} size={18} color={colors.primary} />;
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={onBack} style={styles.backBtn}>
+          <MaterialIcons name="arrow-back" size={22} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Notifications</Text>
+        {unreadCount > 0 ? (
+          <TouchableOpacity onPress={markAllRead}>
+            <Text style={styles.markAllRead}>Mark all read</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 80 }} />
+        )}
+      </View>
+
+      {unreadCount > 0 && (
+        <View style={styles.unreadBanner}>
+          <Text style={styles.unreadBannerText}>
+            {unreadCount} unread notification{unreadCount > 1 ? 's' : ''}
+          </Text>
+        </View>
+      )}
+
+      {loading && notifications.length === 0 && (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      )}
+
+      {!loading && error && notifications.length === 0 && (
+        <View style={styles.centered}>
+          <MaterialIcons name="cloud-off" size={48} color={colors.error} />
+          <Text style={styles.emptyTitle}>Failed to load</Text>
+          <Text style={styles.emptySubtitle}>{error.message}</Text>
+        </View>
+      )}
+
+      <FlatList
+        data={notifications}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.list}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+        renderItem={({ item }) => {
+          const isRead = item.read || readIds.has(item.id);
+          return (
+            <TouchableOpacity
+              style={[styles.notificationRow, !isRead && styles.notificationUnread]}
+              onPress={() => markAsRead(item.id)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.iconContainer}>
+                {renderIcon(item.type)}
+              </View>
+              <View style={styles.notificationContent}>
+                <View style={styles.notificationTop}>
+                  <Text style={[styles.notificationTitle, !isRead && styles.notificationTitleUnread]}>{item.title}</Text>
+                  <Text style={styles.notificationTime}>{item.time}</Text>
+                </View>
+                <Text style={styles.notificationMessage} numberOfLines={2}>{item.message}</Text>
+              </View>
+              {!isRead && <View style={styles.unreadDot} />}
+            </TouchableOpacity>
+          );
+        }}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ListEmptyComponent={
+          !loading && !error ? (
+            <View style={styles.emptyContainer}>
+              <MaterialIcons name="notifications-none" size={48} color={colors.textTertiary} />
+              <Text style={styles.emptyTitle}>No notifications</Text>
+              <Text style={styles.emptySubtitle}>You&apos;re all caught up! New notifications will appear here.</Text>
+            </View>
+          ) : null
+        }
+      />
+    </SafeAreaView>
+  );
+};
+
+export default NotificationsScreen;

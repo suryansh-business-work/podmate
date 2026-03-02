@@ -1,0 +1,77 @@
+import { StyleSheet } from 'react-native';
+import { colors, spacing, borderRadius } from '../../theme';
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.white },
+  header: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: spacing.xl, paddingVertical: spacing.md,
+  },
+  headerBtn: { width: 36, height: 36, justifyContent: 'center', alignItems: 'center' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text },
+  skipText: { fontSize: 15, fontWeight: '600', color: colors.primary },
+  podLabel: {
+    fontSize: 14, fontWeight: '600', color: colors.primary,
+    paddingHorizontal: spacing.xl, marginBottom: spacing.md,
+  },
+  searchRow: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface,
+    borderRadius: borderRadius.sm, paddingHorizontal: spacing.md,
+    marginHorizontal: spacing.xl, marginBottom: spacing.md, gap: spacing.sm,
+  },
+  searchInput: { flex: 1, fontSize: 15, color: colors.text, paddingVertical: 12 },
+  selectedCount: {
+    fontSize: 13, fontWeight: '600', color: colors.primary,
+    paddingHorizontal: spacing.xl, marginBottom: spacing.sm,
+  },
+  list: { paddingHorizontal: spacing.xl },
+  contactRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: spacing.md, gap: spacing.md,
+  },
+  contactAvatar: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: colors.surfaceVariant, justifyContent: 'center', alignItems: 'center',
+  },
+  contactInitial: { fontSize: 18, fontWeight: '700', color: colors.primary },
+  contactInfo: { flex: 1 },
+  contactName: { fontSize: 15, fontWeight: '600', color: colors.text },
+  phoneRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  contactPhone: { fontSize: 13, color: colors.textSecondary },
+  checkCircle: {
+    width: 26, height: 26, borderRadius: 13,
+    borderWidth: 2, borderColor: colors.border, justifyContent: 'center', alignItems: 'center',
+  },
+  checkCircleActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  separator: { height: 1, backgroundColor: colors.surfaceVariant, marginLeft: 56 },
+  emptyContainer: {
+    alignItems: 'center', paddingVertical: 60, paddingHorizontal: spacing.xxl,
+  },
+  emptyTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginTop: spacing.lg },
+  emptySubtext: {
+    fontSize: 14, color: colors.textSecondary,
+    textAlign: 'center', lineHeight: 22, marginTop: spacing.sm,
+  },
+  footer: {
+    paddingHorizontal: spacing.xl, paddingVertical: spacing.lg,
+    borderTopWidth: 1, borderTopColor: colors.surfaceVariant,
+  },
+  sendBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.primary, paddingVertical: 14,
+    borderRadius: borderRadius.full, gap: spacing.sm,
+  },
+  sendBtnText: { fontSize: 16, fontWeight: '600', color: colors.white },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  permissionText: {
+    fontSize: 14, color: colors.textSecondary, textAlign: 'center',
+    marginTop: spacing.md, paddingHorizontal: spacing.xxl, lineHeight: 22,
+  },
+  retryBtn: {
+    marginTop: spacing.lg, paddingHorizontal: spacing.xxl, paddingVertical: spacing.md,
+    backgroundColor: colors.primary, borderRadius: borderRadius.full,
+  },
+  retryBtnText: { fontSize: 14, fontWeight: '600', color: colors.white },
+});
+
+export default styles;

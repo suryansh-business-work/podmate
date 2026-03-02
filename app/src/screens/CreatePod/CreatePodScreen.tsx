@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Platform, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -116,32 +116,38 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onClose}>
-          <MaterialIcons name="close" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Host a Pod</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={{ flex: 1 }}>
+            <View style={styles.header}>
+              <TouchableOpacity onPress={onClose}>
+                <MaterialIcons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Host a Pod</Text>
+              <View style={{ width: 24 }} />
+            </View>
 
-      <Formik initialValues={initialValues} validationSchema={podSchema} onSubmit={handleCreate}>
-        {(formik) => (
-          <PodFormBody
-            formik={formik}
-            dateTime={dateTime}
-            showDatePicker={showDatePicker}
-            showTimePicker={showTimePicker}
-            mediaItems={mediaItems}
-            loading={loading}
-            onMediaChange={setMediaItems}
-            onShowDatePicker={() => setShowDatePicker(true)}
-            onDateChange={handleDateChange}
-            onTimeChange={handleTimeChange}
-            onDismissDatePicker={() => setShowDatePicker(false)}
-            onDismissTimePicker={() => setShowTimePicker(false)}
-          />
-        )}
-      </Formik>
+            <Formik initialValues={initialValues} validationSchema={podSchema} onSubmit={handleCreate}>
+              {(formik) => (
+                <PodFormBody
+                  formik={formik}
+                  dateTime={dateTime}
+                  showDatePicker={showDatePicker}
+                  showTimePicker={showTimePicker}
+                  mediaItems={mediaItems}
+                  loading={loading}
+                  onMediaChange={setMediaItems}
+                  onShowDatePicker={() => setShowDatePicker(true)}
+                  onDateChange={handleDateChange}
+                  onTimeChange={handleTimeChange}
+                  onDismissDatePicker={() => setShowDatePicker(false)}
+                  onDismissTimePicker={() => setShowTimePicker(false)}
+                />
+              )}
+            </Formik>
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

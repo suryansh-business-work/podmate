@@ -1,3 +1,5 @@
+NO DUMMY DATA ANYWHERE IN THE CODEBASE ONLY SERVER DATA SOURCES ARE ALLOWED
+
 # 🚀 Copilot Project Development Standards
 
 These standards apply to all repositories and projects including:
@@ -92,90 +94,56 @@ components/
 - Import Grid only like:
 
 ```ts
-import Grid from '@mui/material/Grid';
-
-Always use the size attribute for Grid layouts
-
-Do NOT use SCSS
-
-Avoid custom styling unless absolutely necessary
+1. import Grid from '@mui/material/Grid';
+2. Always use the size attribute for Grid layouts
+3. Do NOT use SCSS
+4. Avoid custom styling unless absolutely necessary
 
 📱 Responsiveness (Mandatory)
-
-Fully responsive
-
-Mobile-first
-
-Tablet compatible
-
-Desktop optimized
-
-Use MUI breakpoints correctly
-
-Avoid fixed widths
+1. Fully responsive
+2. Mobile-first
+3. Tablet compatible
+4. Desktop optimized
+5. Use MUI breakpoints correctly
+6. Avoid fixed widths
 
 📝 Forms
-
-Use:
-
-Formik
-
-Yup
-
-Validation schemas must be typed
-
-Show proper error messages
-
-Use reusable form components
-
-Avoid uncontrolled inputs
+1. Use: Formik, Yup
+2. Validation schemas must be typed
+3. Show proper error messages
+4. Use reusable form components
+5. Avoid uncontrolled inputs
 
 🌍 State Management
-
-Use Props by default
-
-Use Context API only for:
-
-Deeply nested data
-
-Global state (auth, user, theme)
-
-Avoid misuse of Context
-
-Never use any in context definitions
+1. Use Props by default
+2. Use Context API only for:
+3. Deeply nested data
+4. Global state (auth, user, theme)
+5. Avoid misuse of Context
+6. Never use any in context definitions
 
 📊 Tables (Mandatory Features)
-
-Every table must support:
-
-Pagination (backend driven)
-
-Filtering
-
-Searching
-
-Sorting
-
-Loading state
-
-Empty state
-
-Error state
-
-Backend APIs must support:
+1. Every table must support:
+2. Pagination (backend driven)
+3. Filtering
+4. Searching
+5. Sorting
+6. Loading state
+7. Empty state
+8. Error state
+9. Backend APIs must support:
 ?page=
 ?limit=
 ?search=
 ?sortBy=
 ?order=
 ?filters=
+
+
 🧭 Navigation
-
-Add Breadcrumbs on every page
-
-Page title must match breadcrumb
-
-Use consistent layout wrapper
+1. Add Breadcrumbs on every page
+2. Page title must match breadcrumb
+3. Use consistent layout wrapper
 
 🖥 Server Standards (GraphQL + TypeScript)
 ⚙️ Tech Stack

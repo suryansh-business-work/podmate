@@ -7,49 +7,54 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useQuery, useMutation } from '@apollo/client';
 import { colors, spacing, borderRadius } from '../theme';
-import { GradientButton } from '../components/GradientButton';
+import { GET_POD } from '../graphql/queries';
+import { JOIN_POD } from '../graphql/mutations';
 
 const { width } = Dimensions.get('window');
-
-// Mock pod data (would come from navigation params in real app)
-const POD_DATA = {
-  id: 'pod-4',
-  title: 'Tokyo-Style Sushi Masterclass',
-  description:
-    "Join us for an intimate evening learning the art of Nigiri. Chef Kenji will guide us through fish selection, rice preparation, and knife skills.\n\nThe session includes all ingredients, sake tasting, and a 12-piece omakase dinner that you'll make yourself! Perfect for beginners and foodies alike.",
-  imageUrl: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=800',
-  feePerPerson: 1200,
-  maxSeats: 10,
-  currentSeats: 8,
-  dateTime: '2026-08-12T19:00:00.000Z',
-  location: 'Downtown Kitchen',
-  locationDetail: 'SoHo, NY',
-  rating: 4.9,
-  reviewCount: 124,
-  status: 'PENDING',
-  refundPolicy: '24h Refund',
-  hostName: 'Chef Kenji',
-  hostAvatar: 'https://i.pravatar.cc/150?img=4',
-  isVerifiedHost: true,
-  attendees: [
-    { id: '1', avatar: 'https://i.pravatar.cc/150?img=1' },
-    { id: '2', avatar: 'https://i.pravatar.cc/150?img=2' },
-    { id: '3', avatar: 'https://i.pravatar.cc/150?img=3' },
-  ],
-};
 
 interface PodDetailScreenProps {
   podId?: string;
   onBack: () => void;
-  onJoin: (podId: string) => void;
 }
 
-const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onJoin }) => {
-  const pod = POD_DATA; // In production, fetch by podId
+const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack }) => {
+  const { data, loading } = useQuery(GET_POD, {
+    variables: { id: podId },
+    skip: !podId,
+  });
+
+  const [joinPod, { loading: joining }] = useMutation(JOIN_POD);
+
+  const handleJoin = async () => {
+    if (!podId) return;
+    try {
+      await joinPod({ variables: { podId } });
+      Alert.alert('Joined!', 'You have successfully joined this pod.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to join pod';
+      Alert.alert('Error', errorMessage);
+    }
+  };
+
+  if (loading || !data?.pod) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <TouchableOpacity onPress={onBack} style={{ marginTop: 20 }}>
+          <Text style={{ color: colors.primary, fontWeight: '600' }}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const pod = data.pod;
   const spotsLeft = pod.maxSeats - pod.currentSeats;
   const date = new Date(pod.dateTime);
   const formattedDate = date.toLocaleDateString('en-US', {
@@ -98,9 +103,9 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onJoin
             <View style={styles.hostInfo}>
               <Text style={styles.hostedBy}>HOSTED BY</Text>
               <View style={styles.hostNameRow}>
-                <Image source={{ uri: pod.hostAvatar }} style={styles.hostAvatar} />
-                <Text style={styles.hostName}>{pod.hostName}</Text>
-                {pod.isVerifiedHost && <Text style={styles.verifiedIcon}>✓</Text>}
+                <Image source={{ uri: pod.host?.avatar }} style={styles.hostAvatar} />
+                <Text style={styles.hostName}>{pod.host?.name}</Text>
+                {pod.host?.isVerifiedHost && <Text style={styles.verifiedIcon}>✓</Text>}
               </View>
             </View>
             <View style={styles.ratingContainer}>
@@ -146,18 +151,20 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onJoin
               </TouchableOpacity>
             </View>
             <View style={styles.attendeesRow}>
-              {pod.attendees.map((a, i) => (
+              {(pod.attendees ?? []).slice(0, 3).map((a: { id: string; avatar: string }, i: number) => (
                 <Image
                   key={a.id}
                   source={{ uri: a.avatar }}
                   style={[styles.attendeeAvatar, { marginLeft: i > 0 ? -10 : 0 }]}
                 />
               ))}
-              <View style={styles.moreAttendees}>
-                <Text style={styles.moreAttendeesText}>
-                  +{pod.currentSeats - pod.attendees.length}
-                </Text>
-              </View>
+              {pod.currentSeats > 3 && (
+                <View style={styles.moreAttendees}>
+                  <Text style={styles.moreAttendeesText}>
+                    +{pod.currentSeats - 3}
+                  </Text>
+                </View>
+              )}
               <Text style={styles.joiningText}>Joining {pod.currentSeats} others</Text>
             </View>
           </View>
@@ -186,14 +193,14 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onJoin
           <Text style={styles.totalPrice}>₹{pod.feePerPerson.toLocaleString()}</Text>
           <Text style={styles.perPerson}>/ person</Text>
         </View>
-        <TouchableOpacity style={styles.joinButton} onPress={() => onJoin(pod.id)}>
+        <TouchableOpacity style={styles.joinButton} onPress={handleJoin} disabled={joining}>
           <LinearGradient
             colors={[colors.secondary, '#EF4444']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.joinGradient}
           >
-            <Text style={styles.joinText}>Join Pod →</Text>
+            <Text style={styles.joinText}>{joining ? 'Joining...' : 'Join Pod →'}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>

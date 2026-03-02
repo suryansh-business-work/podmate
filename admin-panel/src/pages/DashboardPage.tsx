@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Grid, Card, CardContent } from '@mui/material';
+import { Box, Typography, Grid2 as Grid, Card, CardContent } from '@mui/material';
 import PeopleIcon from '@mui/icons-material/People';
 import EventIcon from '@mui/icons-material/Event';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';

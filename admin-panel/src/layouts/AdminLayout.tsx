@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Drawer,
@@ -37,7 +38,9 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState('/dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeNav = location.pathname;
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -74,7 +77,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
         {navItems.map((item) => (
           <ListItemButton
             key={item.path}
-            onClick={() => setActiveNav(item.path)}
+            onClick={() => {
+              navigate(item.path);
+              setMobileOpen(false);
+            }}
             sx={{
               borderRadius: 2,
               mb: 0.5,

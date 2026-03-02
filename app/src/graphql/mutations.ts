@@ -58,3 +58,33 @@ export const UPDATE_PROFILE = gql`
     }
   }
 `;
+
+export const SEND_MESSAGE = gql`
+  mutation SendMessage($podId: ID!, $content: String!) {
+    sendMessage(podId: $podId, content: $content) {
+      id
+      podId
+      senderId
+      content
+      createdAt
+      sender {
+        id
+        name
+        avatar
+      }
+    }
+  }
+`;
+
+export const SEND_INVITES = gql`
+  mutation SendInvites($podId: ID!, $contacts: [InviteInput!]!) {
+    sendInvites(podId: $podId, contacts: $contacts) {
+      success
+      totalInvited
+      smsMessages {
+        phone
+        body
+      }
+    }
+  }
+`;

@@ -21,14 +21,14 @@
     "@mui/material": "^6.4.0",
     "formik": "^2.4.6",
     "graphql": "^16.10.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-router-dom": "^7.4.0",
     "yup": "^1.6.0"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.0",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
     "@vitejs/plugin-react": "^4.4.0",

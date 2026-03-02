@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useQuery } from '@apollo/client';
 import { colors, spacing, borderRadius } from '../theme';
+import { GET_ME, GET_MY_PODS } from '../graphql/queries';
 
 interface ProfileScreenProps {
   onLogout: () => void;
@@ -18,9 +20,29 @@ const MENU_ITEMS = [
 ];
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
+  const { data: meData, loading: meLoading } = useQuery(GET_ME, {
+    fetchPolicy: 'cache-and-network',
+  });
+  const { data: podsData } = useQuery(GET_MY_PODS, {
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const user = meData?.me;
+  const podCount = podsData?.myPods?.length ?? 0;
+
+  if (meLoading && !user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <LinearGradient
@@ -29,25 +51,28 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            <Image source={{ uri: 'https://i.pravatar.cc/150?img=8' }} style={styles.avatar} />
+            <Image
+              source={{ uri: user?.avatar || 'https://i.pravatar.cc/150?img=8' }}
+              style={styles.avatar}
+            />
           </LinearGradient>
-          <Text style={styles.userName}>PartyWings User</Text>
-          <Text style={styles.userPhone}>+91 9999999999</Text>
+          <Text style={styles.userName}>{user?.name || 'PartyWings User'}</Text>
+          <Text style={styles.userPhone}>{user?.phone || ''}</Text>
+          {user?.isVerifiedHost && (
+            <View style={styles.verifiedBadge}>
+              <Text style={styles.verifiedBadgeText}>✓ Verified Host</Text>
+            </View>
+          )}
 
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>3</Text>
-              <Text style={styles.statLabel}>Pods Joined</Text>
+              <Text style={styles.statValue}>{podCount}</Text>
+              <Text style={styles.statLabel}>My Pods</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>1</Text>
-              <Text style={styles.statLabel}>Pods Hosted</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>4.8</Text>
-              <Text style={styles.statLabel}>Rating</Text>
+              <Text style={styles.statValue}>{user?.role === 'ADMIN' ? '⭐' : user?.role || 'USER'}</Text>
+              <Text style={styles.statLabel}>Role</Text>
             </View>
           </View>
         </View>
@@ -79,6 +104,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   profileHeader: { alignItems: 'center', paddingTop: spacing.xxl, paddingBottom: spacing.xl },
   avatarGradient: {
     width: 88,
@@ -91,6 +117,14 @@ const styles = StyleSheet.create({
   avatar: { width: 80, height: 80, borderRadius: 40, borderWidth: 3, borderColor: colors.white },
   userName: { fontSize: 22, fontWeight: '700', color: colors.text },
   userPhone: { fontSize: 14, color: colors.textSecondary, marginTop: 2 },
+  verifiedBadge: {
+    marginTop: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    backgroundColor: colors.success + '20',
+    borderRadius: borderRadius.full,
+  },
+  verifiedBadgeText: { fontSize: 12, fontWeight: '600', color: colors.success },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',

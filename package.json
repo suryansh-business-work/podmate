@@ -8,6 +8,7 @@
     "dev:website": "pnpm --filter partywings-website dev",
     "dev:admin": "pnpm --filter partywings-admin dev",
     "dev:app": "pnpm --filter partywings-app start",
+    "dev:all": "pnpm dev:server & pnpm dev:admin & pnpm dev:website",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",

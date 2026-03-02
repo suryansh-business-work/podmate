@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
@@ -22,14 +23,22 @@ interface MainTabsProps {
   onPodPress: (id: string) => void;
   onCreatePress: () => void;
   onLogout: () => void;
+  onMenuPress: () => void;
 }
 
-const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout }) => {
+const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout, onMenuPress }) => {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: {
+          ...styles.tabBar,
+          paddingBottom: bottomPadding + 8,
+          height: 60 + bottomPadding + 8,
+        },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textTertiary,
         tabBarLabelStyle: styles.tabLabel,
@@ -57,7 +66,7 @@ const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout
         },
       })}
     >
-      <Tab.Screen name="Home">{() => <HomeScreen onPodPress={onPodPress} />}</Tab.Screen>
+      <Tab.Screen name="Home">{() => <HomeScreen onPodPress={onPodPress} onMenuPress={onMenuPress} />}</Tab.Screen>
       <Tab.Screen name="Explore" component={ExploreScreen} />
       <Tab.Screen
         name="Create"
@@ -77,8 +86,8 @@ const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 70,
-    paddingBottom: 8,
+    height: 80,
+    paddingBottom: 16,
     paddingTop: 8,
     backgroundColor: colors.white,
     borderTopWidth: 1,
@@ -88,6 +97,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 8,
+    position: 'absolute' as const,
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   tabLabel: {
     fontSize: 11,

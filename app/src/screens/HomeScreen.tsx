@@ -1,92 +1,77 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useQuery } from '@apollo/client';
 import { colors, spacing, borderRadius } from '../theme';
 import { CategoryChip } from '../components/CategoryChip';
 import { EventCard } from '../components/EventCard';
+import { GET_PODS } from '../graphql/queries';
 
 const CATEGORIES = ['All', 'Social', 'Learning', 'Outdoor'];
 
-// Seed data matching server store
-const MOCK_PODS = [
-  {
-    id: 'pod-1',
-    title: 'Omakase & Sake Night',
-    imageUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800',
-    feePerPerson: 1200,
-    maxSeats: 10,
-    currentSeats: 8,
-    dateTime: '2026-08-12T19:00:00.000Z',
-    rating: 4.9,
-    status: 'PENDING',
-    category: 'Social',
-    hostName: 'Sarah L.',
-    hostAvatar: 'https://i.pravatar.cc/150?img=1',
-  },
-  {
-    id: 'pod-2',
-    title: 'Startup Networking Hike',
-    imageUrl: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800',
-    feePerPerson: 500,
-    maxSeats: 20,
-    currentSeats: 15,
-    dateTime: '2026-08-13T06:00:00.000Z',
-    rating: 5.0,
-    status: 'CONFIRMED',
-    category: 'Outdoor',
-    hostName: 'Alex D.',
-    hostAvatar: 'https://i.pravatar.cc/150?img=2',
-  },
-  {
-    id: 'pod-3',
-    title: 'Premium Wine Tasting Evening',
-    imageUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800',
-    feePerPerson: 2500,
-    maxSeats: 12,
-    currentSeats: 0,
-    dateTime: '2026-08-18T18:30:00.000Z',
-    rating: 0,
-    status: 'NEW',
-    category: 'Social',
-    hostName: 'Vineet K.',
-    hostAvatar: 'https://i.pravatar.cc/150?img=3',
-  },
-  {
-    id: 'pod-4',
-    title: 'Tokyo-Style Sushi Masterclass',
-    imageUrl: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=800',
-    feePerPerson: 1200,
-    maxSeats: 10,
-    currentSeats: 8,
-    dateTime: '2026-08-12T19:00:00.000Z',
-    rating: 4.9,
-    status: 'PENDING',
-    category: 'Learning',
-    hostName: 'Chef Kenji',
-    hostAvatar: 'https://i.pravatar.cc/150?img=4',
-  },
-];
+interface PodItem {
+  id: string;
+  title: string;
+  imageUrl: string;
+  feePerPerson: number;
+  maxSeats: number;
+  currentSeats: number;
+  dateTime: string;
+  rating: number;
+  status: string;
+  category: string;
+  host: {
+    id: string;
+    name: string;
+    avatar: string;
+    isVerifiedHost: boolean;
+  };
+}
+
+interface PodsQueryData {
+  pods: {
+    items: PodItem[];
+    total: number;
+  };
+}
 
 interface HomeScreenProps {
   onPodPress: (id: string) => void;
+  onMenuPress: () => void;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredPods = MOCK_PODS.filter((pod) => {
-    const matchesCategory = selectedCategory === 'All' || pod.category === selectedCategory;
-    const matchesSearch = pod.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+  const { data, loading, refetch } = useQuery<PodsQueryData>(GET_PODS, {
+    variables: {
+      category: selectedCategory === 'All' ? undefined : selectedCategory,
+      search: searchQuery || undefined,
+      page: 1,
+      limit: 20,
+    },
+    fetchPolicy: 'cache-and-network',
   });
+
+  const pods = data?.pods?.items ?? [];
+
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={onMenuPress} style={styles.menuBtn}>
+            <Text style={styles.menuIcon}>☰</Text>
+          </TouchableOpacity>
           <LinearGradient
             colors={[colors.primaryLight, colors.primary]}
             style={styles.headerLogo}
@@ -102,7 +87,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress }) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primary]} />
+        }
+      >
         {/* Search */}
         <View style={styles.searchContainer}>
           <Text style={styles.searchIcon}>🔍</Text>
@@ -140,9 +132,40 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress }) => {
           </TouchableOpacity>
         </View>
 
+        {/* Loading State */}
+        {loading && pods.length === 0 && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        )}
+
+        {/* Empty State */}
+        {!loading && pods.length === 0 && (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>🎫</Text>
+            <Text style={styles.emptyTitle}>No pods found</Text>
+            <Text style={styles.emptySubtitle}>Try a different category or search term</Text>
+          </View>
+        )}
+
         {/* Event Cards */}
-        {filteredPods.map((pod) => (
-          <EventCard key={pod.id} {...pod} onPress={onPodPress} />
+        {pods.map((pod) => (
+          <EventCard
+            key={pod.id}
+            id={pod.id}
+            title={pod.title}
+            imageUrl={pod.imageUrl}
+            feePerPerson={pod.feePerPerson}
+            maxSeats={pod.maxSeats}
+            currentSeats={pod.currentSeats}
+            dateTime={pod.dateTime}
+            rating={pod.rating}
+            status={pod.status}
+            category={pod.category}
+            hostName={pod.host.name}
+            hostAvatar={pod.host.avatar}
+            onPress={onPodPress}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -166,6 +189,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  menuBtn: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuIcon: {
+    fontSize: 22,
+    color: colors.text,
   },
   headerLogo: {
     width: 36,
@@ -237,6 +270,30 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.secondary,
     letterSpacing: 0.5,
+  },
+  loadingContainer: {
+    paddingVertical: 60,
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingHorizontal: spacing.xxxl,
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: spacing.lg,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.sm,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
 });
 

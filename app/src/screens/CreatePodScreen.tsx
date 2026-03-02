@@ -1,32 +1,99 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useMutation } from '@apollo/client';
 import { colors, spacing, borderRadius } from '../theme';
 import { GradientButton } from '../components/GradientButton';
+import ContactPicker from '../components/ContactPicker';
+import { CREATE_POD } from '../graphql/mutations';
+import { GET_PODS } from '../graphql/queries';
 
 interface CreatePodScreenProps {
   onClose: () => void;
-  onCreate: (data: {
-    title: string;
-    description: string;
-    feePerPerson: number;
-    maxSeats: number;
-  }) => void;
 }
 
-const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onCreate }) => {
+const CATEGORIES = ['Social', 'Learning', 'Outdoor'];
+
+const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [fee, setFee] = useState('1200');
   const [maxSeats, setMaxSeats] = useState(10);
+  const [location, setLocation] = useState('');
+  const [locationDetail, setLocationDetail] = useState('');
+  const [category, setCategory] = useState('Social');
+  const [dateTime] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString());
+  const [showInvite, setShowInvite] = useState(false);
+  const [createdPodId, setCreatedPodId] = useState<string>('');
+
+  const [createPod, { loading }] = useMutation(CREATE_POD, {
+    refetchQueries: [{ query: GET_PODS, variables: { page: 1, limit: 20 } }],
+  });
 
   const feeNum = parseInt(fee, 10) || 0;
   const grossRevenue = feeNum * maxSeats;
   const platformFee = grossRevenue * 0.05;
   const netRevenue = grossRevenue - platformFee;
 
+  const handleCreate = async () => {
+    if (!title.trim()) {
+      Alert.alert('Missing Title', 'Please enter a pod title.');
+      return;
+    }
+    if (!description.trim()) {
+      Alert.alert('Missing Description', 'Please describe your pod.');
+      return;
+    }
+    if (!location.trim()) {
+      Alert.alert('Missing Location', 'Please enter a location.');
+      return;
+    }
+
+    try {
+      const result = await createPod({
+        variables: {
+          input: {
+            title: title.trim(),
+            description: description.trim(),
+            category,
+            feePerPerson: feeNum,
+            maxSeats,
+            dateTime,
+            location: location.trim(),
+            locationDetail: locationDetail.trim() || 'TBD',
+          },
+        },
+      });
+      const newPodId = result?.data?.createPod?.id;
+      if (newPodId) {
+        setCreatedPodId(newPodId);
+        Alert.alert('Pod Created!', 'Would you like to invite friends?', [
+          { text: 'Skip', onPress: onClose },
+          { text: 'Invite Friends', onPress: () => setShowInvite(true) },
+        ]);
+      } else {
+        Alert.alert('Pod Created!', 'Your pod has been created successfully.', [
+          { text: 'OK', onPress: onClose },
+        ]);
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create pod';
+      Alert.alert('Error', errorMessage);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      {/* Contact Picker overlay after pod creation */}
+      {showInvite && createdPodId ? (
+        <ContactPicker
+          podId={createdPodId}
+          podTitle={title}
+          onDone={onClose}
+          onSkip={onClose}
+        />
+      ) : (
+        <>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onClose}>
@@ -73,6 +140,41 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onCreate }) 
           textAlignVertical="top"
           value={description}
           onChangeText={setDescription}
+        />
+
+        {/* Category */}
+        <Text style={styles.inputLabel}>CATEGORY</Text>
+        <View style={styles.categoryRow}>
+          {CATEGORIES.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[styles.categoryChip, category === cat && styles.categoryChipActive]}
+              onPress={() => setCategory(cat)}
+            >
+              <Text style={[styles.categoryChipText, category === cat && styles.categoryChipTextActive]}>
+                {cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Location */}
+        <Text style={styles.inputLabel}>LOCATION</Text>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Venue name"
+          placeholderTextColor={colors.textTertiary}
+          value={location}
+          onChangeText={setLocation}
+        />
+
+        <Text style={styles.inputLabel}>LOCATION DETAIL</Text>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Area, City"
+          placeholderTextColor={colors.textTertiary}
+          value={locationDetail}
+          onChangeText={setLocationDetail}
         />
 
         {/* Logistics */}
@@ -160,15 +262,17 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onCreate }) 
       {/* Bottom */}
       <View style={styles.bottom}>
         <GradientButton
-          title="Continue →"
-          onPress={() => onCreate({ title, description, feePerPerson: feeNum, maxSeats })}
-          disabled={!title}
+          title={loading ? 'Creating...' : 'Create Pod →'}
+          onPress={handleCreate}
+          disabled={!title || loading}
         />
         <View style={styles.verifiedRow}>
           <Text style={styles.verifiedIcon}>✓</Text>
           <Text style={styles.verifiedText}>Verified Host Status Required</Text>
         </View>
       </View>
+        </>
+      )}
     </SafeAreaView>
   );
 };
@@ -258,6 +362,32 @@ const styles = StyleSheet.create({
   },
   textArea: {
     minHeight: 100,
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    flexWrap: 'wrap',
+  },
+  categoryChip: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  categoryChipActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primary + '15',
+  },
+  categoryChipText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  categoryChipTextActive: {
+    color: colors.primary,
+    fontWeight: '600',
   },
   sectionTitle: {
     fontSize: 20,

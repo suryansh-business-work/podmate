@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import UsersPage from './pages/UsersPage';
+import PodsPage from './pages/PodsPage';
 import AdminLayout from './layouts/AdminLayout';
 
 const App: React.FC = () => {
@@ -36,6 +38,8 @@ const App: React.FC = () => {
       <AdminLayout onLogout={handleLogout}>
         <Routes>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="/pods" element={<PodsPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AdminLayout>

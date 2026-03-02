@@ -2,12 +2,18 @@ import type { GraphQLContext } from '../auth/auth.models';
 import { UserRole } from './user.models';
 import { requireAuth, requireRole } from '../auth/auth.services';
 import * as userService from './user.services';
+import { sendSMS } from '../../lib/email';
 
 const userResolvers = {
   Query: {
     me: (_: unknown, __: unknown, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return userService.findUserById(auth.userId) ?? null;
+    },
+
+    user: (_: unknown, args: { id: string }, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return userService.findUserById(args.id);
     },
 
     users: (
@@ -54,6 +60,31 @@ const userResolvers = {
       const existing = await userService.findUserByPhone(args.phone);
       if (existing) throw new Error('User with this phone already exists');
       return userService.createUser({ phone: args.phone, name: args.name, role: args.role });
+    },
+
+    toggleUserActive: async (
+      _: unknown,
+      args: { userId: string; isActive: boolean; reason?: string },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      const user = await userService.toggleUserActive(args.userId, args.isActive, args.reason ?? '');
+      const action = args.isActive ? 'enabled' : 'disabled';
+      const smsMessage = args.isActive
+        ? 'Your PartyWings account has been re-enabled. You can now access the app.'
+        : `Your PartyWings account has been disabled. Reason: ${args.reason || 'Policy violation'}. Contact support for help.`;
+      await sendSMS(user.phone, smsMessage);
+      return user;
+    },
+  },
+
+  User: {
+    podCount: async (parent: { id: string }) => {
+      // Dynamically import to avoid circular deps
+      const { PodModel } = await import('../pod/pod.models');
+      return PodModel.countDocuments({
+        $or: [{ hostId: parent.id }, { attendees: parent.id }],
+      });
     },
   },
 };

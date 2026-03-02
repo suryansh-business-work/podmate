@@ -14,6 +14,7 @@ export interface Place {
   address: string;
   city: string;
   imageUrl: string;
+  mediaUrls: string[];
   ownerId: string;
   category: string;
   phone: string;
@@ -30,6 +31,7 @@ export interface CreatePlaceInput {
   address: string;
   city: string;
   imageUrl?: string;
+  mediaUrls?: string[];
   category: string;
   phone?: string;
   email?: string;
@@ -41,6 +43,7 @@ export interface UpdatePlaceInput {
   address?: string;
   city?: string;
   imageUrl?: string;
+  mediaUrls?: string[];
   category?: string;
   phone?: string;
   email?: string;
@@ -75,6 +78,7 @@ const PlaceSchema = new Schema<PlaceMongoDoc>(
     address: { type: String, required: true },
     city: { type: String, required: true },
     imageUrl: { type: String, default: '' },
+    mediaUrls: { type: [String], default: [] },
     ownerId: { type: String, required: true },
     category: { type: String, required: true },
     phone: { type: String, default: '' },

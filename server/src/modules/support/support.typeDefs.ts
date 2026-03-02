@@ -33,6 +33,14 @@ const supportTypeDefs = `#graphql
     totalPages: Int!
   }
 
+  type SupportTicketCounts {
+    open: Int!
+    inProgress: Int!
+    resolved: Int!
+    closed: Int!
+    total: Int!
+  }
+
   input CreateSupportTicketInput {
     subject: String!
     message: String!

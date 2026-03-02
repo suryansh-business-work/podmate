@@ -10,7 +10,6 @@ These standards apply to all repositories and projects including:
 - `server`
 
 **Package Manager: `pnpm` (mandatory)**
-
 ---
 
 # 📁 Folder Structure Rules (All Projects)
@@ -85,14 +84,11 @@ ComponentName.types.ts
 ComponentName.utils.ts
 components/
 
-
 ---
 
 ## 📐 MUI Rules
-
 - Use **MUI Components only**
 - Import Grid only like:
-
 ```ts
 1. import Grid from '@mui/material/Grid';
 2. Always use the size attribute for Grid layouts
@@ -147,13 +143,9 @@ components/
 
 🖥 Server Standards (GraphQL + TypeScript)
 ⚙️ Tech Stack
-
-GraphQL
-
-TypeScript (strict mode)
-
-Modular architecture
-
+1. GraphQL
+2. TypeScript (strict mode)
+3. Modular architecture
 Module Structure
 modules/
   user/
@@ -162,108 +154,70 @@ modules/
     user.service.ts
     user.types.ts
 📐 GraphQL Rules
-
 Separate:
-
 Schema
-
 Resolver
-
 Service
-
 Types
-
-No business logic inside resolvers
-
-Implement:
-
+4. No business logic inside resolvers
+5. Implement:
 Query
-
 Mutation
-
 Pagination pattern
-
 Use consistent error format
-
 Validate inputs before processing
 
 🔐 Security Standards
-
-JWT authentication
-
-Role-based authorization
-
-Input validation required
-
-Sanitize inputs
-
-No direct DB access inside resolvers
-
-Environment variables required for secrets
+1. JWT authentication
+2. Role-based authorization
+3. Input validation required
+4. Sanitize inputs
+5. No direct DB access inside resolvers
+6. Environment variables required for secrets
 
 📦 Package Management Rules
-
-Use pnpm only
-
-No npm
-
-No yarn
-
-Commit lockfile
-
-Use exact versions for critical packages
+1. Use pnpm only
+2. No npm
+3. No yarn
+4. Commit lockfile
+5. Use exact versions for critical packages
 
 🧪 Code Quality Rules
-
-Follow DRY principle
-
-Avoid duplicate logic
-
-Create reusable hooks
-
-Create reusable utilities
-
-Use clear naming conventions
-
-Use barrel exports when appropriate
-
-Avoid deep nested folders
+1. Follow DRY principle
+2. Avoid duplicate logic
+3. Create reusable hooks
+4. Create reusable utilities
+5. Use clear naming conventions
+6. Use barrel exports when appropriate
+7. Avoid deep nested folders
 
 🚀 Production Readiness Checklist
-
-Before marking any feature complete:
-
-Build passes
-
-Type check passes
-
-Fully responsive
-
-No warnings
-
-APIs tested
-
-No hardcoded secrets
-
-Environment variables validated
-
-Error handling implemented
-
-Loading states implemented
+1. Before marking any feature complete:
+2. Build passes
+3.Type check passes
+4. Fully responsive
+5. No warnings
+6. APIs tested
+7. No hardcoded secrets
+8. Environment variables validated
+9. Error handling implemented
+10. Loading states implemented
 
 🏁 Completion Rule
-
 A task is considered complete only if:
-
-All standards above are satisfied
-
-Code is clean, modular, typed, and production-ready
-
-Strict TypeScript compliance is maintained
-
-For backend for every feature apis use below file structure
+1. All standards above are satisfied
+2. Code is clean, modular, typed, and production-ready
+3. Strict TypeScript compliance is maintained
+4. For backend for every feature apis use below file structure
 <feature>.typeDefs.ts
 <feature>.resolvers.ts
 <feature>.models.ts
 <feature>.services.ts
 <feature>.validators.ts
+
+Additionally
+1. Do not user any depreacated things in codebase in any of the projects
+2. Do not use any dummy data anywhere in the codebase only server data sources are allowed
+3. Production level code quality is expected in all projects and repositories no compromises on code quality is allowed in any of the projects and repositories
+4. For any new feature added to the codebase make sure to add all the necessary tests for that feature and maintain 100% code coverage for that feature
+5. For any new feature added to the codebase make sure to add all the necessary documentation for that feature and maintain the documentation up to date for that feature

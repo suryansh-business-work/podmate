@@ -154,3 +154,31 @@ export const DELETE_SUPPORT_TICKET = gql`
     deleteSupportTicket(id: $id)
   }
 `;
+
+export const TOGGLE_USER_ACTIVE = gql`
+  mutation ToggleUserActive($userId: ID!, $isActive: Boolean!, $reason: String) {
+    toggleUserActive(userId: $userId, isActive: $isActive, reason: $reason) {
+      id
+      isActive
+      disableReason
+    }
+  }
+`;
+
+export const UPSERT_SETTING = gql`
+  mutation UpsertSetting($input: UpsertSettingInput!) {
+    upsertSetting(input: $input) {
+      id
+      key
+      value
+      category
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_SETTING = gql`
+  mutation DeleteSetting($key: String!) {
+    deleteSetting(key: $key)
+  }
+`;

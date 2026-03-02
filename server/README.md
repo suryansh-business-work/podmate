@@ -31,7 +31,6 @@ pnpm dev
 |----------|-------------|
 | `PORT` | Server port (default: 4039) |
 | `JWT_SECRET` | Secret for JWT token signing |
-| `OTP_DEFAULT` | Default OTP for development |
 | `SMTP_HOST` | SMTP server host |
 | `SMTP_PORT` | SMTP server port |
 | `SMTP_USER` | SMTP username |

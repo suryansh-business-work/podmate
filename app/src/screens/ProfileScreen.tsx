@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing, borderRadius } from '../theme';
+import { SkeletonProfile } from '../components/Skeleton';
 import { GET_ME, GET_MY_PODS } from '../graphql/queries';
 
 interface ProfileScreenProps {
@@ -29,25 +30,42 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout, onNavigate }) => {
-  const { data: meData, loading: meLoading } = useQuery(GET_ME, { fetchPolicy: 'cache-and-network' });
-  const { data: podsData } = useQuery(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
+  const { data: meData, loading: meLoading, error: meError, refetch: refetchMe } = useQuery(GET_ME, { fetchPolicy: 'cache-and-network' });
+  const { data: podsData, refetch: refetchPods } = useQuery(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
 
   const user = meData?.me;
   const podCount = podsData?.myPods?.length ?? 0;
 
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([refetchMe(), refetchPods()]);
+    setRefreshing(false);
+  }, [refetchMe, refetchPods]);
+
   if (meLoading && !user) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+        <SkeletonProfile />
+      </SafeAreaView>
+    );
+  }
+
+  if (meError && !user) {
+    return (
+      <SafeAreaView style={[styles.container, styles.centered]}>
+        <MaterialIcons name="cloud-off" size={48} color={colors.error} />
+        <Text style={{ color: colors.error, fontWeight: '600', marginTop: 12 }}>Failed to load profile</Text>
+        <Text style={{ color: colors.textSecondary, marginTop: 4 }}>{meError.message}</Text>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
+      >
         <View style={styles.profileHeader}>
           <LinearGradient
             colors={[colors.primaryLight, colors.primary]}

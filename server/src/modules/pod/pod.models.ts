@@ -7,6 +7,7 @@ export interface Pod {
   description: string;
   category: string;
   imageUrl: string;
+  mediaUrls: string[];
   hostId: string;
   feePerPerson: number;
   maxSeats: number;
@@ -29,6 +30,7 @@ export interface CreatePodInput {
   description: string;
   category: string;
   imageUrl?: string;
+  mediaUrls?: string[];
   feePerPerson: number;
   maxSeats: number;
   dateTime: string;
@@ -42,6 +44,7 @@ export interface UpdatePodInput {
   description?: string;
   category?: string;
   imageUrl?: string;
+  mediaUrls?: string[];
   feePerPerson?: number;
   maxSeats?: number;
   dateTime?: string;
@@ -77,6 +80,7 @@ const PodSchema = new Schema<PodMongoDoc>(
     description: { type: String, default: '' },
     category: { type: String, default: '' },
     imageUrl: { type: String, default: '' },
+    mediaUrls: { type: [String], default: [] },
     hostId: { type: String, required: true },
     feePerPerson: { type: Number, default: 0 },
     maxSeats: { type: Number, default: 1 },

@@ -20,6 +20,7 @@ const supportResolvers = {
         limit?: number;
         search?: string;
         status?: string;
+        priority?: string;
         sortBy?: string;
         order?: string;
       },
@@ -31,9 +32,18 @@ const supportResolvers = {
         limit: args.limit ?? 20,
         search: args.search,
         status: args.status,
+        priority: args.priority,
         sortBy: args.sortBy,
         order: (args.order as 'ASC' | 'DESC') ?? 'DESC',
       });
+    },
+    supportTicketCounts: (
+      _: unknown,
+      __: unknown,
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return supportService.getTicketCounts();
     },
   },
 

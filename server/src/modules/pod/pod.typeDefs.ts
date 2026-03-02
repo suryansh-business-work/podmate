@@ -5,6 +5,7 @@ const podTypeDefs = `#graphql
     description: String!
     category: String!
     imageUrl: String!
+    mediaUrls: [String!]!
     host: User!
     feePerPerson: Float!
     maxSeats: Int!
@@ -41,6 +42,7 @@ const podTypeDefs = `#graphql
     description: String!
     category: String!
     imageUrl: String
+    mediaUrls: [String!]
     feePerPerson: Float!
     maxSeats: Int!
     dateTime: String!
@@ -54,6 +56,7 @@ const podTypeDefs = `#graphql
     description: String
     category: String
     imageUrl: String
+    mediaUrls: [String!]
     feePerPerson: Float
     maxSeats: Int
     dateTime: String

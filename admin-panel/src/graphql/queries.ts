@@ -12,6 +12,9 @@ export const GET_USERS = gql`
         avatar
         role
         isVerifiedHost
+        isActive
+        disableReason
+        podCount
         createdAt
       }
       total
@@ -45,6 +48,7 @@ export const GET_PODS = gql`
         description
         category
         imageUrl
+        mediaUrls
         feePerPerson
         maxSeats
         currentSeats
@@ -111,6 +115,7 @@ export const GET_PLACES = gql`
         address
         city
         imageUrl
+        mediaUrls
         owner {
           id
           name
@@ -133,8 +138,8 @@ export const GET_PLACES = gql`
 `;
 
 export const GET_SUPPORT_TICKETS = gql`
-  query GetSupportTickets($page: Int, $limit: Int, $search: String, $status: String, $sortBy: String, $order: String) {
-    supportTickets(page: $page, limit: $limit, search: $search, status: $status, sortBy: $sortBy, order: $order) {
+  query GetSupportTickets($page: Int, $limit: Int, $search: String, $status: String, $priority: String, $sortBy: String, $order: String) {
+    supportTickets(page: $page, limit: $limit, search: $search, status: $status, priority: $priority, sortBy: $sortBy, order: $order) {
       items {
         id
         userId
@@ -155,6 +160,116 @@ export const GET_SUPPORT_TICKETS = gql`
       page
       limit
       totalPages
+    }
+  }
+`;
+
+export const GET_SUPPORT_TICKET_COUNTS = gql`
+  query GetSupportTicketCounts {
+    supportTicketCounts {
+      open
+      inProgress
+      resolved
+      closed
+      total
+    }
+  }
+`;
+
+export const GET_APP_SETTINGS = gql`
+  query GetAppSettings {
+    appSettings {
+      id
+      key
+      value
+      category
+      updatedAt
+    }
+  }
+`;
+
+export const GET_MAINTENANCE_MODE = gql`
+  query GetMaintenanceMode {
+    maintenanceMode
+  }
+`;
+
+export const GET_USER = gql`
+  query GetUser($id: ID!) {
+    user(id: $id) {
+      id
+      phone
+      email
+      name
+      age
+      avatar
+      role
+      isVerifiedHost
+      isActive
+      disableReason
+      podCount
+      createdAt
+    }
+  }
+`;
+
+export const GET_POD = gql`
+  query GetPod($id: ID!) {
+    pod(id: $id) {
+      id
+      title
+      description
+      category
+      imageUrl
+      mediaUrls
+      feePerPerson
+      maxSeats
+      currentSeats
+      dateTime
+      location
+      locationDetail
+      rating
+      reviewCount
+      status
+      refundPolicy
+      createdAt
+      host {
+        id
+        name
+        avatar
+        isVerifiedHost
+      }
+      attendees {
+        id
+        name
+        avatar
+      }
+    }
+  }
+`;
+
+export const GET_PLACE = gql`
+  query GetPlace($id: ID!) {
+    place(id: $id) {
+      id
+      name
+      description
+      address
+      city
+      imageUrl
+      mediaUrls
+      owner {
+        id
+        name
+        phone
+      }
+      category
+      phone
+      email
+      status
+      isVerified
+      createdAt
+      updatedAt
     }
   }
 `;

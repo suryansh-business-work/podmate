@@ -17,6 +17,8 @@ export interface User {
   avatar: string;
   role: UserRole;
   isVerifiedHost: boolean;
+  isActive: boolean;
+  disableReason: string;
   createdAt: string;
 }
 
@@ -67,6 +69,8 @@ const UserSchema = new Schema<UserMongoDoc>(
     avatar: { type: String, default: '' },
     role: { type: String, enum: Object.values(UserRole), default: UserRole.USER },
     isVerifiedHost: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
+    disableReason: { type: String, default: '' },
     createdAt: { type: String, default: () => new Date().toISOString() },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } },

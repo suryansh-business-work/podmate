@@ -14,6 +14,9 @@ const userTypeDefs = `#graphql
     avatar: String!
     role: UserRole!
     isVerifiedHost: Boolean!
+    isActive: Boolean!
+    disableReason: String!
+    podCount: Int
     createdAt: String!
   }
 

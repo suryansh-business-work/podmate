@@ -94,3 +94,14 @@ export async function getPaginatedUsers(input: PaginationInput): Promise<Paginat
     totalPages,
   };
 }
+
+export async function toggleUserActive(id: string, isActive: boolean, reason: string): Promise<User> {
+  const updated = await UserModel.findByIdAndUpdate(
+    id,
+    { $set: { isActive, disableReason: isActive ? '' : reason } },
+    { new: true },
+  ).lean({ virtuals: true });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+  return result;
+}

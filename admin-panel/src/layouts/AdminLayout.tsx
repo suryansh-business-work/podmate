@@ -13,62 +13,44 @@ import {
   Avatar,
   IconButton,
   Divider,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import PeopleIcon from '@mui/icons-material/People';
-import EventIcon from '@mui/icons-material/Event';
-import PolicyIcon from '@mui/icons-material/Policy';
-import PlaceIcon from '@mui/icons-material/Place';
-import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import GroupsIcon from '@mui/icons-material/Groups';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-
-const DRAWER_WIDTH = 260;
-
-const navItems = [
-  { icon: <DashboardIcon />, label: 'Dashboard', path: '/dashboard' },
-  { icon: <PeopleIcon />, label: 'Users', path: '/users' },
-  { icon: <EventIcon />, label: 'Pods', path: '/pods' },
-  { icon: <PlaceIcon />, label: 'Places', path: '/places' },
-  { icon: <PolicyIcon />, label: 'Policies', path: '/policies' },
-  { icon: <SupportAgentIcon />, label: 'Support', path: '/support' },
-];
-
-interface AdminLayoutProps {
-  children: React.ReactNode;
-  onLogout: () => void;
-}
+import LogoutIcon from '@mui/icons-material/Logout';
+import { DRAWER_WIDTH, AdminLayoutProps, navItems } from './AdminLayout.types';
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const activeNav = location.pathname;
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Brand */}
-      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      {/* Brand – compact */}
+      <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
         <Box
           sx={{
-            width: 40,
-            height: 40,
-            borderRadius: 2.5,
+            width: 34,
+            height: 34,
+            borderRadius: 2,
             background: 'linear-gradient(135deg, #FF3370, #F50247)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 20,
           }}
         >
-          <GroupsIcon sx={{ color: '#FFF', fontSize: 22 }} />
+          <GroupsIcon sx={{ color: '#FFF', fontSize: 18 }} />
         </Box>
         <Box>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
             PartyWings
           </Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10 }}>
             Admin Panel
           </Typography>
         </Box>
@@ -77,7 +59,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
       <Divider />
 
       {/* Navigation */}
-      <List sx={{ flex: 1, px: 1.5, py: 2 }}>
+      <List sx={{ flex: 1, px: 1, py: 1 }}>
         {navItems.map((item) => (
           <ListItemButton
             key={item.path}
@@ -86,47 +68,28 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
               setMobileOpen(false);
             }}
             sx={{
-              borderRadius: 2,
-              mb: 0.5,
-              color: activeNav === item.path ? 'primary.main' : 'text.secondary',
-              bgcolor: activeNav === item.path ? 'rgba(245,2,71,0.08)' : 'transparent',
+              borderRadius: 1.5,
+              mb: 0.25,
+              py: 0.75,
+              color: activeNav.startsWith(item.path) ? 'primary.main' : 'text.secondary',
+              bgcolor: activeNav.startsWith(item.path) ? 'rgba(245,2,71,0.08)' : 'transparent',
               '&:hover': {
-                bgcolor: activeNav === item.path ? 'rgba(245,2,71,0.12)' : 'rgba(0,0,0,0.04)',
+                bgcolor: activeNav.startsWith(item.path) ? 'rgba(245,2,71,0.12)' : 'rgba(0,0,0,0.04)',
               },
             }}
           >
-            <ListItemIcon
-              sx={{
-                color: 'inherit',
-                minWidth: 40,
-              }}
-            >
+            <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
               {item.icon}
             </ListItemIcon>
             <ListItemText
               primary={item.label}
               primaryTypographyProps={{
-                fontSize: 14,
-                fontWeight: activeNav === item.path ? 600 : 500,
+                fontSize: 13,
+                fontWeight: activeNav.startsWith(item.path) ? 600 : 500,
               }}
             />
           </ListItemButton>
         ))}
-      </List>
-
-      <Divider />
-
-      {/* Logout */}
-      <List sx={{ px: 1.5, py: 1 }}>
-        <ListItemButton onClick={onLogout} sx={{ borderRadius: 2, color: 'error.main' }}>
-          <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary="Logout"
-            primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }}
-          />
-        </ListItemButton>
       </List>
     </Box>
   );
@@ -145,7 +108,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
           borderColor: 'divider',
         }}
       >
-        <Toolbar>
+        <Toolbar variant="dense" sx={{ minHeight: 52 }}>
           <IconButton
             edge="start"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -155,13 +118,29 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
           </IconButton>
           <Box sx={{ flex: 1 }} />
           <IconButton
-            onClick={() => navigate('/dashboard')}
+            onClick={(e) => setAnchorEl(e.currentTarget)}
             sx={{ p: 0, ml: 1 }}
           >
-            <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main', fontSize: 14, cursor: 'pointer' }}>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 13, cursor: 'pointer' }}>
               A
             </Avatar>
           </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => setAnchorEl(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            <MenuItem onClick={() => { setAnchorEl(null); navigate('/dashboard'); }}>
+              <ListItemIcon><DashboardIcon fontSize="small" /></ListItemIcon>
+              Dashboard
+            </MenuItem>
+            <MenuItem onClick={() => { setAnchorEl(null); onLogout(); }}>
+              <ListItemIcon><LogoutIcon fontSize="small" color="error" /></ListItemIcon>
+              <Typography color="error">Logout</Typography>
+            </MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
 
@@ -201,7 +180,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
         sx={{
           flexGrow: 1,
           p: 3,
-          pt: 11,
+          pt: 9,
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
           bgcolor: 'background.default',
           minHeight: '100vh',

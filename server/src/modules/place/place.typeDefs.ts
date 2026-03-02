@@ -12,6 +12,7 @@ const placeTypeDefs = `#graphql
     address: String!
     city: String!
     imageUrl: String!
+    mediaUrls: [String!]!
     owner: User!
     category: String!
     phone: String!
@@ -36,6 +37,7 @@ const placeTypeDefs = `#graphql
     address: String!
     city: String!
     imageUrl: String
+    mediaUrls: [String!]
     category: String!
     phone: String
     email: String
@@ -47,6 +49,7 @@ const placeTypeDefs = `#graphql
     address: String
     city: String
     imageUrl: String
+    mediaUrls: [String!]
     category: String
     phone: String
     email: String

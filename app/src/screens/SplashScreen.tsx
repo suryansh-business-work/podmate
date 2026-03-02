@@ -1,89 +1,59 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useRef, useCallback } from 'react';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import { Video, ResizeMode, AVPlaybackStatus } from 'expo-av';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../theme';
+
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
 interface SplashScreenProps {
   onFinish: () => void;
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
-  const logoScale = useRef(new Animated.Value(0.3)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
-  const textOpacity = useRef(new Animated.Value(0)).current;
-  const textTranslateY = useRef(new Animated.Value(20)).current;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    Animated.sequence([
-      Animated.parallel([
-        Animated.spring(logoScale, { toValue: 1, friction: 6, tension: 80, useNativeDriver: true }),
-        Animated.timing(logoOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
-      ]),
-      Animated.parallel([
-        Animated.timing(textOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
-        Animated.timing(textTranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
-      ]),
-    ]).start();
+    Animated.timing(logoOpacity, { toValue: 1, duration: 600, delay: 400, useNativeDriver: true }).start();
+    timerRef.current = setTimeout(onFinish, 4000);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [onFinish, logoOpacity]);
 
-    const timer = setTimeout(onFinish, 2500);
-    return () => clearTimeout(timer);
-  }, [onFinish, logoScale, logoOpacity, textOpacity, textTranslateY]);
+  const handlePlaybackStatus = useCallback((status: AVPlaybackStatus) => {
+    if ('didJustFinish' in status && status.didJustFinish) {
+      onFinish();
+    }
+  }, [onFinish]);
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.logoContainer, { opacity: logoOpacity, transform: [{ scale: logoScale }] }]}>
-        <LinearGradient
-          colors={[colors.primaryLight, colors.primary]}
-          style={styles.logoBox}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        >
-          <MaterialCommunityIcons name="account-group" size={36} color={colors.white} />
+      <Video
+        source={require('../../assets/icon-and-splash/splash_photo.mp4')}
+        style={styles.video}
+        resizeMode={ResizeMode.COVER}
+        shouldPlay
+        isLooping={false}
+        isMuted
+        onPlaybackStatusUpdate={handlePlaybackStatus}
+      />
+      <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
+        <LinearGradient colors={[colors.primaryLight, colors.primary]} style={styles.logoBox} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+          <MaterialCommunityIcons name="account-group" size={22} color={colors.white} />
         </LinearGradient>
-      </Animated.View>
-      <Animated.View style={{ opacity: textOpacity, transform: [{ translateY: textTranslateY }] }}>
-        <Text style={styles.appName}>PartyWings</Text>
-        <Text style={styles.tagline}>Trust-based communities</Text>
+        <Text style={styles.brandName}>PartyWings</Text>
       </Animated.View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-  },
-  logoContainer: {
-    marginBottom: 20,
-  },
-  logoBox: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  appName: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.text,
-    letterSpacing: -0.5,
-  },
-  tagline: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: 4,
-    letterSpacing: 0.3,
-  },
+  container: { flex: 1, backgroundColor: colors.black },
+  video: { width: SCREEN_W, height: SCREEN_H, position: 'absolute', top: 0, left: 0 },
+  logoWrap: { position: 'absolute', bottom: 48, alignSelf: 'center', alignItems: 'center', gap: 8 },
+  logoBox: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+  brandName: { fontSize: 16, fontWeight: '700', color: colors.white, letterSpacing: 0.5 },
 });
 
 export default SplashScreen;

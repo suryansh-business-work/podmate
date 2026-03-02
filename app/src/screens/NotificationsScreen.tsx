@@ -31,7 +31,7 @@ interface NotificationsScreenProps {
 }
 
 const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => {
-  const { data, loading, refetch } = useQuery(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
+  const { data, loading, error, refetch } = useQuery(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
 
   const notifications: Notification[] = (data?.myPods ?? []).map(
     (pod: { id: string; title: string; status: string; category: string }, index: number) => ({
@@ -97,6 +97,14 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
       {loading && notifications.length === 0 && (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      )}
+
+      {!loading && error && notifications.length === 0 && (
+        <View style={styles.centered}>
+          <MaterialIcons name="cloud-off" size={48} color={colors.error} />
+          <Text style={styles.emptyTitle}>Failed to load</Text>
+          <Text style={styles.emptySubtitle}>{error.message}</Text>
         </View>
       )}
 

@@ -9,6 +9,7 @@ export const GET_PODS = gql`
         description
         category
         imageUrl
+        mediaUrls
         feePerPerson
         maxSeats
         currentSeats
@@ -41,6 +42,7 @@ export const GET_POD = gql`
       description
       category
       imageUrl
+      mediaUrls
       feePerPerson
       maxSeats
       currentSeats
@@ -104,6 +106,7 @@ export const GET_MY_PODS = gql`
       id
       title
       imageUrl
+      mediaUrls
       category
       status
     }

@@ -12,6 +12,7 @@ export interface SupportPaginationInput {
   limit: number;
   search?: string;
   status?: string;
+  priority?: string;
   sortBy?: string;
   order?: 'ASC' | 'DESC';
 }
@@ -56,6 +57,7 @@ export async function getPaginatedTickets(
 ): Promise<PaginatedSupportTickets> {
   const filter: Record<string, unknown> = {};
   if (input.status) filter.status = input.status;
+  if (input.priority) filter.priority = input.priority;
   if (input.search) {
     filter.$or = [
       { subject: { $regex: input.search, $options: 'i' } },
@@ -108,4 +110,23 @@ export async function deleteSupportTicket(id: string): Promise<boolean> {
   const result = await SupportTicketModel.deleteOne({ _id: id });
   if (result.deletedCount > 0) logger.info(`Support ticket deleted: ${id}`);
   return result.deletedCount > 0;
+}
+
+export interface SupportTicketCounts {
+  open: number;
+  inProgress: number;
+  resolved: number;
+  closed: number;
+  total: number;
+}
+
+export async function getTicketCounts(): Promise<SupportTicketCounts> {
+  const [open, inProgress, resolved, closed, total] = await Promise.all([
+    SupportTicketModel.countDocuments({ status: 'OPEN' }),
+    SupportTicketModel.countDocuments({ status: 'IN_PROGRESS' }),
+    SupportTicketModel.countDocuments({ status: 'RESOLVED' }),
+    SupportTicketModel.countDocuments({ status: 'CLOSED' }),
+    SupportTicketModel.countDocuments(),
+  ]);
+  return { open, inProgress, resolved, closed, total };
 }

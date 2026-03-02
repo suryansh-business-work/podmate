@@ -24,6 +24,8 @@ import placeTypeDefs from './modules/place/place.typeDefs';
 import placeResolvers from './modules/place/place.resolvers';
 import supportTypeDefs from './modules/support/support.typeDefs';
 import supportResolvers from './modules/support/support.resolvers';
+import settingsTypeDefs from './modules/settings/settings.typeDefs';
+import settingsResolvers from './modules/settings/settings.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -32,6 +34,7 @@ const PORT = parseInt(process.env.PORT ?? '4039', 10);
 const rootSchema = `#graphql
   type Query {
     me: User
+    user(id: ID!): User
     users(page: Int, limit: Int, search: String, sortBy: String, order: String): PaginatedUsers!
     pods(category: String, page: Int, limit: Int, search: String, sortBy: String, order: String): PaginatedPods!
     pod(id: ID!): Pod
@@ -44,7 +47,11 @@ const rootSchema = `#graphql
     place(id: ID!): Place
     myPlaces: [Place!]!
     mySupportTickets: [SupportTicket!]!
-    supportTickets(page: Int, limit: Int, search: String, status: String, sortBy: String, order: String): PaginatedSupportTickets!
+    supportTickets(page: Int, limit: Int, search: String, status: String, priority: String, sortBy: String, order: String): PaginatedSupportTickets!
+    supportTicketCounts: SupportTicketCounts!
+    appSettings: [AppSetting!]!
+    appSettingsByCategory(category: String!): [AppSetting!]!
+    maintenanceMode: Boolean!
   }
 
   type Mutation {
@@ -76,10 +83,13 @@ const rootSchema = `#graphql
     createSupportTicket(input: CreateSupportTicketInput!): SupportTicket!
     updateSupportTicket(id: ID!, input: UpdateSupportTicketInput!): SupportTicket!
     deleteSupportTicket(id: ID!): Boolean!
+    upsertSetting(input: UpsertSettingInput!): AppSetting!
+    deleteSetting(key: String!): Boolean!
+    toggleUserActive(userId: ID!, isActive: Boolean!, reason: String): User!
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs];
+const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs];
 
 const resolvers = {
   Query: {
@@ -90,6 +100,7 @@ const resolvers = {
     ...policyResolvers.Query,
     ...placeResolvers.Query,
     ...supportResolvers.Query,
+    ...settingsResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -100,11 +111,13 @@ const resolvers = {
     ...policyResolvers.Mutation,
     ...placeResolvers.Mutation,
     ...supportResolvers.Mutation,
+    ...settingsResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   ChatMessage: chatResolvers.ChatMessage,
   Place: placeResolvers.Place,
   SupportTicket: supportResolvers.SupportTicket,
+  User: userResolvers.User,
 };
 
 /* ── WebSocket connection registry ── */
@@ -191,9 +204,9 @@ async function main(): Promise<void> {
     });
   });
 
-  httpServer.listen(PORT, () => {
-    logger.info(`PartyWings Server ready at http://localhost:${PORT}/graphql`);
-    logger.info(`WebSocket ready at ws://localhost:${PORT}/ws`);
+  httpServer.listen(PORT, '0.0.0.0', () => {
+    logger.info(`PartyWings Server ready at http://0.0.0.0:${PORT}/graphql`);
+    logger.info(`WebSocket ready at ws://0.0.0.0:${PORT}/ws`);
   });
 }
 

@@ -102,10 +102,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 8,
-    position: 'absolute' as const,
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   tabLabel: {
     fontSize: 11,

@@ -1,59 +1,30 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { ChatMessage } from './chat.models';
+import { ChatMessageModel, toChatMessage } from './chat.models';
+import type { User } from '../user/user.models';
 import { findUserById } from '../user/user.services';
 
-const chatMessages: Map<string, ChatMessage[]> = new Map();
-
-// Seed some chat messages
-const seedMessages: ChatMessage[] = [
-  {
-    id: 'msg-1',
-    podId: 'pod-1',
-    senderId: 'user-4',
-    content: 'See you all on Saturday!',
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'msg-2',
-    podId: 'pod-2',
-    senderId: 'user-2',
-    content: "Don't forget sunscreen 🧴",
-    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'msg-3',
-    podId: 'pod-1',
-    senderId: 'user-1',
-    content: 'Can we bring our own sake?',
-    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-  },
-];
-
-seedMessages.forEach((msg) => {
-  const existing = chatMessages.get(msg.podId) ?? [];
-  existing.push(msg);
-  chatMessages.set(msg.podId, existing);
-});
-
-export function getMessagesForPod(podId: string): ChatMessage[] {
-  return chatMessages.get(podId) ?? [];
+export async function getMessagesForPod(podId: string): Promise<ChatMessage[]> {
+  const docs = await ChatMessageModel.find({ podId }).sort({ createdAt: 1 }).lean({ virtuals: true });
+  return docs.map(toChatMessage).filter(Boolean) as ChatMessage[];
 }
 
-export function addMessage(podId: string, senderId: string, content: string): ChatMessage {
-  const message: ChatMessage = {
-    id: uuidv4(),
+export async function addMessage(
+  podId: string,
+  senderId: string,
+  content: string,
+): Promise<ChatMessage> {
+  const doc = await ChatMessageModel.create({
+    _id: uuidv4(),
     podId,
     senderId,
     content,
     createdAt: new Date().toISOString(),
-  };
-  const existing = chatMessages.get(podId) ?? [];
-  existing.push(message);
-  chatMessages.set(podId, existing);
-  return message;
+  });
+  return toChatMessage(doc.toObject({ virtuals: true })) as ChatMessage;
 }
 
-export function resolveSender(senderId: string) {
+export async function resolveSender(senderId: string): Promise<User | null> {
   return findUserById(senderId);
 }
 

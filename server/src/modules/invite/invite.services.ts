@@ -1,8 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { Invite } from './invite.models';
+import { InviteModel, toInvite } from './invite.models';
 import { getPodById } from '../pod/pod.services';
-
-const invites: Map<string, Invite> = new Map();
 
 const BASE_URL = process.env.BASE_URL ?? 'https://partywings.app';
 
@@ -21,12 +20,12 @@ export interface SmsMessage {
   body: string;
 }
 
-export function createInvites(
+export async function createInvites(
   podId: string,
   inviterId: string,
   contacts: InviteContact[],
-): { invites: Invite[]; smsMessages: SmsMessage[] } {
-  const pod = getPodById(podId);
+): Promise<{ invites: Invite[]; smsMessages: SmsMessage[] }> {
+  const pod = await getPodById(podId);
   const podTitle = pod?.title ?? 'a Pod';
 
   const created: Invite[] = [];
@@ -34,8 +33,8 @@ export function createInvites(
 
   for (const contact of contacts) {
     const shortLink = generateShortLink(podId);
-    const invite: Invite = {
-      id: uuidv4(),
+    const doc = await InviteModel.create({
+      _id: uuidv4(),
       podId,
       inviterId,
       inviteePhone: contact.phone,
@@ -43,9 +42,8 @@ export function createInvites(
       status: 'PENDING',
       shortLink,
       createdAt: new Date().toISOString(),
-    };
-    invites.set(invite.id, invite);
-    created.push(invite);
+    });
+    created.push(toInvite(doc.toObject({ virtuals: true })) as Invite);
 
     smsMessages.push({
       phone: contact.phone,
@@ -56,6 +54,7 @@ export function createInvites(
   return { invites: created, smsMessages };
 }
 
-export function getInvitesForPod(podId: string): Invite[] {
-  return Array.from(invites.values()).filter((i) => i.podId === podId);
+export async function getInvitesForPod(podId: string): Promise<Invite[]> {
+  const docs = await InviteModel.find({ podId }).lean({ virtuals: true });
+  return docs.map(toInvite).filter(Boolean) as Invite[];
 }

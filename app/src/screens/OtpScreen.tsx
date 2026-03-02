@@ -10,13 +10,16 @@ interface OtpScreenProps {
   phone: string;
   onVerify: (otp: string) => Promise<void> | void;
   onBack: () => void;
+  onResend: () => Promise<void> | void;
   loading?: boolean;
+  error?: string;
 }
 
-const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, loading }) => {
+const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, onResend, loading, error }) => {
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     if (timer > 0) {
@@ -29,7 +32,13 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, loading 
     }
   }, [timer]);
 
-  const handleResend = () => {
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      await onResend();
+    } finally {
+      setResending(false);
+    }
     setTimer(30);
     setCanResend(false);
   };
@@ -60,8 +69,8 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, loading 
 
         <View style={styles.resendContainer}>
           {canResend ? (
-            <TouchableOpacity onPress={handleResend}>
-              <Text style={styles.resendActive}>Resend Code</Text>
+            <TouchableOpacity onPress={handleResend} disabled={resending}>
+              <Text style={styles.resendActive}>{resending ? 'Sending...' : 'Resend Code'}</Text>
             </TouchableOpacity>
           ) : (
             <Text style={styles.resendTimer}>
@@ -69,6 +78,13 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, loading 
             </Text>
           )}
         </View>
+
+        {error ? (
+          <View style={styles.errorContainer}>
+            <MaterialIcons name="error-outline" size={16} color={colors.error} />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : null}
 
         <GradientButton title={loading ? '' : 'Verify'} onPress={() => onVerify(otp)} disabled={otp.length < 6 || loading}>
           {loading && <ActivityIndicator color={colors.white} size="small" />}
@@ -130,6 +146,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.primary,
     fontWeight: '600',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: '#FEF2F2',
+    borderRadius: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  errorText: {
+    fontSize: 13,
+    color: colors.error,
+    flex: 1,
   },
 });
 

@@ -17,14 +17,14 @@ const inviteResolvers = {
   },
 
   Mutation: {
-    sendInvites: (
+    sendInvites: async (
       _: unknown,
       args: { podId: string; contacts: InviteInput[] },
       context: GraphQLContext,
     ) => {
       const auth = requireAuth(context);
       const validated = validateInviteContacts(args.contacts);
-      const { invites, smsMessages } = inviteService.createInvites(
+      const { invites, smsMessages } = await inviteService.createInvites(
         args.podId,
         auth.userId,
         validated,

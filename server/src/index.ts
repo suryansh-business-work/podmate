@@ -23,6 +23,7 @@ import policyResolvers from './modules/policy/policy.resolvers';
 import placeTypeDefs from './modules/place/place.typeDefs';
 import placeResolvers from './modules/place/place.resolvers';
 import logger from './lib/logger';
+import { connectDB } from './lib/db';
 
 const PORT = parseInt(process.env.PORT ?? '4039', 10);
 
@@ -124,6 +125,7 @@ async function main(): Promise<void> {
     resolvers,
   });
 
+  await connectDB();
   await server.start();
 
   app.use(cors());

@@ -6,15 +6,14 @@ import type {
   PlacePaginationInput,
   PaginatedResponse,
 } from './place.models';
-import { PlaceStatus } from './place.models';
+import { PlaceModel, PlaceStatus, toPlace } from './place.models';
+import type { User } from '../user/user.models';
 import { findUserById } from '../user/user.services';
 
-const places: Map<string, Place> = new Map();
-
-export function createPlace(input: CreatePlaceInput, ownerId: string): Place {
+export async function createPlace(input: CreatePlaceInput, ownerId: string): Promise<Place> {
   const now = new Date().toISOString();
-  const place: Place = {
-    id: uuidv4(),
+  const doc = await PlaceModel.create({
+    _id: uuidv4(),
     name: input.name,
     description: input.description,
     address: input.address,
@@ -28,15 +27,17 @@ export function createPlace(input: CreatePlaceInput, ownerId: string): Place {
     isVerified: false,
     createdAt: now,
     updatedAt: now,
-  };
-  places.set(place.id, place);
-  return place;
+  });
+  return toPlace(doc.toObject({ virtuals: true })) as Place;
 }
 
-export function adminCreatePlace(input: CreatePlaceInput, ownerId: string): Place {
+export async function adminCreatePlace(
+  input: CreatePlaceInput,
+  ownerId: string,
+): Promise<Place> {
   const now = new Date().toISOString();
-  const place: Place = {
-    id: uuidv4(),
+  const doc = await PlaceModel.create({
+    _id: uuidv4(),
     name: input.name,
     description: input.description,
     address: input.address,
@@ -50,93 +51,103 @@ export function adminCreatePlace(input: CreatePlaceInput, ownerId: string): Plac
     isVerified: true,
     createdAt: now,
     updatedAt: now,
-  };
-  places.set(place.id, place);
-  return place;
+  });
+  return toPlace(doc.toObject({ virtuals: true })) as Place;
 }
 
-export function updatePlace(id: string, input: UpdatePlaceInput): Place {
-  const place = places.get(id);
-  if (!place) throw new Error('Place not found');
-  if (input.name !== undefined) place.name = input.name;
-  if (input.description !== undefined) place.description = input.description;
-  if (input.address !== undefined) place.address = input.address;
-  if (input.city !== undefined) place.city = input.city;
-  if (input.imageUrl !== undefined) place.imageUrl = input.imageUrl;
-  if (input.category !== undefined) place.category = input.category;
-  if (input.phone !== undefined) place.phone = input.phone;
-  if (input.email !== undefined) place.email = input.email;
-  place.updatedAt = new Date().toISOString();
-  places.set(place.id, place);
-  return place;
+export async function updatePlace(id: string, input: UpdatePlaceInput): Promise<Place> {
+  const update: Record<string, unknown> = { updatedAt: new Date().toISOString() };
+  if (input.name !== undefined) update.name = input.name;
+  if (input.description !== undefined) update.description = input.description;
+  if (input.address !== undefined) update.address = input.address;
+  if (input.city !== undefined) update.city = input.city;
+  if (input.imageUrl !== undefined) update.imageUrl = input.imageUrl;
+  if (input.category !== undefined) update.category = input.category;
+  if (input.phone !== undefined) update.phone = input.phone;
+  if (input.email !== undefined) update.email = input.email;
+
+  const updated = await PlaceModel.findByIdAndUpdate(id, { $set: update }, { new: true }).lean({
+    virtuals: true,
+  });
+  const result = toPlace(updated);
+  if (!result) throw new Error('Place not found');
+  return result;
 }
 
-export function approvePlace(id: string): Place {
-  const place = places.get(id);
-  if (!place) throw new Error('Place not found');
-  place.status = PlaceStatus.APPROVED;
-  place.isVerified = true;
-  place.updatedAt = new Date().toISOString();
-  places.set(place.id, place);
-  return place;
+export async function approvePlace(id: string): Promise<Place> {
+  const updated = await PlaceModel.findByIdAndUpdate(
+    id,
+    { $set: { status: PlaceStatus.APPROVED, isVerified: true, updatedAt: new Date().toISOString() } },
+    { new: true },
+  ).lean({ virtuals: true });
+  const result = toPlace(updated);
+  if (!result) throw new Error('Place not found');
+  return result;
 }
 
-export function rejectPlace(id: string): Place {
-  const place = places.get(id);
-  if (!place) throw new Error('Place not found');
-  place.status = PlaceStatus.REJECTED;
-  place.isVerified = false;
-  place.updatedAt = new Date().toISOString();
-  places.set(place.id, place);
-  return place;
+export async function rejectPlace(id: string): Promise<Place> {
+  const updated = await PlaceModel.findByIdAndUpdate(
+    id,
+    { $set: { status: PlaceStatus.REJECTED, isVerified: false, updatedAt: new Date().toISOString() } },
+    { new: true },
+  ).lean({ virtuals: true });
+  const result = toPlace(updated);
+  if (!result) throw new Error('Place not found');
+  return result;
 }
 
-export function deletePlace(id: string): boolean {
-  return places.delete(id);
+export async function deletePlace(id: string): Promise<boolean> {
+  const result = await PlaceModel.deleteOne({ _id: id });
+  return result.deletedCount > 0;
 }
 
-export function getPlaceById(id: string): Place | undefined {
-  return places.get(id);
+export async function getPlaceById(id: string): Promise<Place | null> {
+  const doc = await PlaceModel.findById(id).lean({ virtuals: true });
+  return toPlace(doc);
 }
 
-export function getPlacesByOwner(ownerId: string): Place[] {
-  return [...places.values()].filter((p) => p.ownerId === ownerId);
+export async function getPlacesByOwner(ownerId: string): Promise<Place[]> {
+  const docs = await PlaceModel.find({ ownerId }).lean({ virtuals: true });
+  return docs.map(toPlace).filter(Boolean) as Place[];
 }
 
-export function resolveOwner(ownerId: string): unknown {
-  return findUserById(ownerId) ?? null;
+export async function resolveOwner(ownerId: string): Promise<User | null> {
+  return findUserById(ownerId);
 }
 
-export function getPaginatedPlaces(input: PlacePaginationInput): PaginatedResponse<Place> {
-  let items = [...places.values()];
+export async function getPaginatedPlaces(
+  input: PlacePaginationInput,
+): Promise<PaginatedResponse<Place>> {
+  const filter: Record<string, unknown> = {};
 
-  if (input.status) {
-    items = items.filter((p) => p.status === input.status);
-  }
-
+  if (input.status) filter.status = input.status;
   if (input.search) {
-    const q = input.search.toLowerCase();
-    items = items.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.address.toLowerCase().includes(q) ||
-        p.city.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q),
-    );
+    const q = input.search;
+    filter.$or = [
+      { name: { $regex: q, $options: 'i' } },
+      { address: { $regex: q, $options: 'i' } },
+      { city: { $regex: q, $options: 'i' } },
+      { category: { $regex: q, $options: 'i' } },
+    ];
   }
 
   const sortBy = input.sortBy ?? 'createdAt';
-  const order = input.order ?? 'DESC';
-  items.sort((a, b) => {
-    const aVal = String(a[sortBy as keyof Place] ?? '');
-    const bVal = String(b[sortBy as keyof Place] ?? '');
-    return order === 'ASC' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-  });
-
-  const total = items.length;
+  const sortOrder = input.order === 'ASC' ? 1 : -1;
+  const total = await PlaceModel.countDocuments(filter);
   const totalPages = Math.ceil(total / input.limit);
-  const start = (input.page - 1) * input.limit;
-  items = items.slice(start, start + input.limit);
+  const skip = (input.page - 1) * input.limit;
 
-  return { items, total, page: input.page, limit: input.limit, totalPages };
+  const docs = await PlaceModel.find(filter)
+    .sort({ [sortBy]: sortOrder })
+    .skip(skip)
+    .limit(input.limit)
+    .lean({ virtuals: true });
+
+  return {
+    items: docs.map(toPlace).filter(Boolean) as Place[],
+    total,
+    page: input.page,
+    limit: input.limit,
+    totalPages,
+  };
 }

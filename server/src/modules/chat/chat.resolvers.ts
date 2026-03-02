@@ -11,12 +11,12 @@ const chatResolvers = {
   },
 
   Mutation: {
-    sendMessage: (_: unknown, args: { podId: string; content: string }, context: GraphQLContext) => {
+    sendMessage: async (_: unknown, args: { podId: string; content: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
-      const message = chatService.addMessage(args.podId, auth.userId, args.content);
+      const message = await chatService.addMessage(args.podId, auth.userId, args.content);
 
       // Push to all WebSocket subscribers in this pod room
-      const sender = chatService.resolveSender(auth.userId);
+      const sender = await chatService.resolveSender(auth.userId);
       chatService.broadcast(args.podId, {
         type: 'new_message',
         message: {

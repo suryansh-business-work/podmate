@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import type { AuthPayload } from './auth.models';
+import type { User } from '../user/user.models';
 import { UserRole } from '../user/user.models';
 import type { GraphQLContext } from './auth.models';
 import * as userService from '../user/user.services';
@@ -7,7 +8,18 @@ import { sendSMS, sendAdminCredentials } from '../../lib/email';
 import logger from '../../lib/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'partywings-dev-secret';
-const OTP_DEFAULT = process.env.OTP_DEFAULT ?? '123456';
+const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+
+interface OtpRecord {
+  otp: string;
+  expiresAt: number;
+}
+
+const otpStore = new Map<string, OtpRecord>();
+
+function generateOtp(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export function signToken(payload: AuthPayload): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '30d' });
@@ -44,25 +56,39 @@ export function requireRole(context: GraphQLContext, ...roles: UserRole[]): Auth
 }
 
 export async function sendOtp(phone: string): Promise<{ success: boolean; message: string }> {
-  const otpMessage = `Your PartyWings OTP is: ${OTP_DEFAULT}. Valid for 5 minutes.`;
+  const otp = generateOtp();
+  otpStore.set(phone, { otp, expiresAt: Date.now() + OTP_EXPIRY_MS });
+
+  const otpMessage = `Your PartyWings OTP is: ${otp}. Valid for 5 minutes.`;
   await sendSMS(phone, otpMessage);
   logger.info(`OTP sent to ${phone}`);
   return { success: true, message: `OTP sent to ${phone}` };
 }
 
-export function verifyOtp(
+export async function verifyOtp(
   phone: string,
   otp: string,
-): { token: string; user: ReturnType<typeof userService.findUserById>; isNewUser: boolean } {
-  if (otp !== OTP_DEFAULT) {
+): Promise<{ token: string; user: User; isNewUser: boolean }> {
+  const record = otpStore.get(phone);
+
+  if (!record) {
+    throw new Error('OTP not found or expired. Please request a new one.');
+  }
+  if (Date.now() > record.expiresAt) {
+    otpStore.delete(phone);
+    throw new Error('OTP has expired. Please request a new one.');
+  }
+  if (otp !== record.otp) {
     throw new Error('Invalid OTP. Please try again.');
   }
 
-  let user = userService.findUserByPhone(phone);
+  otpStore.delete(phone); // single-use
+
+  let user = await userService.findUserByPhone(phone);
   let isNewUser = false;
 
   if (!user) {
-    user = userService.createUser({ phone });
+    user = await userService.createUser({ phone });
     isNewUser = true;
   }
 
@@ -71,11 +97,11 @@ export function verifyOtp(
   return { token, user, isNewUser };
 }
 
-export function adminLogin(
+export async function adminLogin(
   email: string,
   password: string,
-): { token: string; user: ReturnType<typeof userService.findUserByEmail> } {
-  const user = userService.findUserByEmail(email);
+): Promise<{ token: string; user: User }> {
+  const user = await userService.findUserByEmail(email);
   if (!user) {
     throw new Error('Invalid email or password');
   }
@@ -94,7 +120,7 @@ export function adminLogin(
 export async function sendAdminCredentialsEmail(
   email: string,
 ): Promise<{ success: boolean; message: string }> {
-  const user = userService.findUserByEmail(email);
+  const user = await userService.findUserByEmail(email);
   if (!user) {
     throw new Error('Admin user not found');
   }
@@ -103,11 +129,11 @@ export async function sendAdminCredentialsEmail(
   return { success: true, message: `Credentials sent to ${email}` };
 }
 
-export function completeProfile(
+export async function completeProfile(
   userId: string,
   name: string,
   age: number,
-): ReturnType<typeof userService.updateUser> {
+): Promise<User> {
   logger.info(`Profile completed for user ${userId}`);
   return userService.updateUser(userId, { name, age });
 }

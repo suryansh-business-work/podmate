@@ -12,10 +12,10 @@ const policyResolvers = {
       return policyService.getPolicies(args.type);
     },
 
-    dashboardStats: (_: unknown, __: unknown, context: GraphQLContext) => {
+    dashboardStats: async (_: unknown, __: unknown, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
-      const users = getAllUsers();
-      const podsData = getPaginatedPods({ page: 1, limit: 10000 });
+      const users = await getAllUsers();
+      const podsData = await getPaginatedPods({ page: 1, limit: 10000 });
       const activePods = podsData.items.filter(
         (p) => p.status === 'CONFIRMED' || p.status === 'PENDING',
       ).length;

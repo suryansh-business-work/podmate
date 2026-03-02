@@ -26,7 +26,7 @@ import NotificationsScreen from '../screens/NotificationsScreen';
 import RegisterPlaceScreen from '../screens/RegisterPlaceScreen';
 import MainTabs from './MainTabs';
 import DrawerMenu from '../components/DrawerMenu';
-import { SEND_OTP, VERIFY_OTP } from '../graphql/mutations';
+import { SEND_OTP, VERIFY_OTP, COMPLETE_PROFILE } from '../graphql/mutations';
 import { colors } from '../theme';
 
 export type RootStackParamList = {
@@ -54,6 +54,7 @@ const RootNavigator: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [otpError, setOtpError] = useState('');
   const drawerAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
@@ -61,6 +62,7 @@ const RootNavigator: React.FC = () => {
 
   const [sendOtpMutation] = useMutation(SEND_OTP);
   const [verifyOtpMutation] = useMutation(VERIFY_OTP);
+  const [completeProfileMutation] = useMutation(COMPLETE_PROFILE);
 
   useEffect(() => {
     checkAuth();
@@ -105,12 +107,13 @@ const RootNavigator: React.FC = () => {
 
   const handleSendOtp = async (phone: string) => {
     setSendingOtp(true);
+    setOtpError('');
     try {
       await sendOtpMutation({ variables: { phone } });
       setOtpPhone(phone);
-    } catch {
-      // Fallback: still navigate to OTP screen
-      setOtpPhone(phone);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to send OTP. Please try again.';
+      Alert.alert('Error', message);
     } finally {
       setSendingOtp(false);
     }
@@ -118,6 +121,7 @@ const RootNavigator: React.FC = () => {
 
   const handleVerifyOtp = async (otp: string) => {
     setVerifyingOtp(true);
+    setOtpError('');
     try {
       const { data } = await verifyOtpMutation({
         variables: { phone: otpPhone, otp },
@@ -129,11 +133,24 @@ const RootNavigator: React.FC = () => {
         }
         setIsAuthenticated(true);
         setOtpPhone('');
+      } else {
+        setOtpError('Verification failed. Please try again.');
       }
-    } catch {
-      // OTP verification failed — handled by Apollo error state in OtpScreen
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Verification failed. Please try again.';
+      setOtpError(message);
     } finally {
       setVerifyingOtp(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setOtpError('');
+    try {
+      await sendOtpMutation({ variables: { phone: otpPhone } });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to resend OTP.';
+      setOtpError(message);
     }
   };
 
@@ -261,8 +278,10 @@ const RootNavigator: React.FC = () => {
                     <OtpScreen
                       phone={otpPhone}
                       onVerify={handleVerifyOtp}
-                      onBack={() => setOtpPhone('')}
+                      onBack={() => { setOtpPhone(''); setOtpError(''); }}
+                      onResend={handleResendOtp}
                       loading={verifyingOtp}
+                      error={otpError}
                     />
                   )}
                 </Stack.Screen>
@@ -273,7 +292,14 @@ const RootNavigator: React.FC = () => {
               <Stack.Screen name="CompleteProfile">
                 {() => (
                   <CompleteProfileScreen
-                    onComplete={() => setIsNewUser(false)}
+                    onComplete={async (name: string, age: number) => {
+                      try {
+                        await completeProfileMutation({ variables: { name, age } });
+                      } catch {
+                        // Profile save failed — continue anyway
+                      }
+                      setIsNewUser(false);
+                    }}
                   />
                 )}
               </Stack.Screen>

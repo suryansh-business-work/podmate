@@ -1,85 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { User, CreateUserInput, UpdateUserInput, PaginationInput, PaginatedResponse } from './user.models';
-import { UserRole } from './user.models';
+import { UserModel, UserRole, toUser } from './user.models';
 
-const users: Map<string, User> = new Map();
-
-const seedUsers: User[] = [
-  {
-    id: 'user-1',
-    phone: '+919999999999',
-    email: '',
-    password: '',
-    name: 'Sarah L.',
-    age: 0,
-    avatar: '',
-    role: UserRole.PLACE_OWNER,
-    isVerifiedHost: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'user-2',
-    phone: '+919888888888',
-    email: '',
-    password: '',
-    name: 'Alex D.',
-    age: 0,
-    avatar: '',
-    role: UserRole.PLACE_OWNER,
-    isVerifiedHost: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'user-3',
-    phone: '+919777777777',
-    email: '',
-    password: '',
-    name: 'Vineet K.',
-    age: 0,
-    avatar: '',
-    role: UserRole.USER,
-    isVerifiedHost: false,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'user-4',
-    phone: '+919666666666',
-    email: '',
-    password: '',
-    name: 'Chef Kenji',
-    age: 0,
-    avatar: '',
-    role: UserRole.PLACE_OWNER,
-    isVerifiedHost: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'admin-1',
-    phone: '+919000000000',
-    email: 'suryansh@exyconn.com',
-    password: '12345678',
-    name: 'Admin',
-    age: 0,
-    avatar: '',
-    role: UserRole.ADMIN,
-    isVerifiedHost: false,
-    createdAt: new Date().toISOString(),
-  },
-];
-
-seedUsers.forEach((u) => users.set(u.id, u));
-
-export function findUserById(id: string): User | undefined {
-  return users.get(id);
+export async function findUserById(id: string): Promise<User | null> {
+  const doc = await UserModel.findById(id).lean({ virtuals: true });
+  return toUser(doc);
 }
 
-export function findUserByPhone(phone: string): User | undefined {
-  return [...users.values()].find((u) => u.phone === phone);
+export async function findUserByPhone(phone: string): Promise<User | null> {
+  const doc = await UserModel.findOne({ phone }).lean({ virtuals: true });
+  return toUser(doc);
 }
 
-export function createUser(input: CreateUserInput): User {
-  const user: User = {
-    id: uuidv4(),
+export async function createUser(input: CreateUserInput): Promise<User> {
+  const doc = await UserModel.create({
+    _id: uuidv4(),
     phone: input.phone,
     email: input.email ?? '',
     password: input.password ?? '',
@@ -89,59 +24,73 @@ export function createUser(input: CreateUserInput): User {
     role: input.role ?? UserRole.USER,
     isVerifiedHost: false,
     createdAt: new Date().toISOString(),
-  };
-  users.set(user.id, user);
-  return user;
+  });
+  return toUser(doc.toObject({ virtuals: true })) as User;
 }
 
-export function updateUser(id: string, input: UpdateUserInput): User {
-  const user = users.get(id);
-  if (!user) throw new Error('User not found');
-  if (input.name !== undefined) user.name = input.name;
-  if (input.avatar !== undefined) user.avatar = input.avatar;
-  if (input.age !== undefined) user.age = input.age;
-  users.set(user.id, user);
-  return user;
+export async function updateUser(id: string, input: UpdateUserInput): Promise<User> {
+  const update: Record<string, unknown> = {};
+  if (input.name !== undefined) update.name = input.name;
+  if (input.avatar !== undefined) update.avatar = input.avatar;
+  if (input.age !== undefined) update.age = input.age;
+
+  const updated = await UserModel.findByIdAndUpdate(id, { $set: update }, { new: true }).lean({
+    virtuals: true,
+  });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+  return result;
 }
 
-export function findUserByEmail(email: string): User | undefined {
-  return [...users.values()].find((u) => u.email === email);
+export async function findUserByEmail(email: string): Promise<User | null> {
+  const doc = await UserModel.findOne({ email }).lean({ virtuals: true });
+  return toUser(doc);
 }
 
-export function updateUserRole(id: string, role: UserRole): User {
-  const user = users.get(id);
-  if (!user) throw new Error('User not found');
-  user.role = role;
-  users.set(user.id, user);
-  return user;
+export async function updateUserRole(id: string, role: UserRole): Promise<User> {
+  const updated = await UserModel.findByIdAndUpdate(
+    id,
+    { $set: { role } },
+    { new: true },
+  ).lean({ virtuals: true });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+  return result;
 }
 
-export function getAllUsers(): User[] {
-  return [...users.values()];
+export async function getAllUsers(): Promise<User[]> {
+  const docs = await UserModel.find().lean({ virtuals: true });
+  return docs.map(toUser).filter(Boolean) as User[];
 }
 
-export function getPaginatedUsers(input: PaginationInput): PaginatedResponse<User> {
-  let items = [...users.values()];
-
+export async function getPaginatedUsers(input: PaginationInput): Promise<PaginatedResponse<User>> {
+  const filter: Record<string, unknown> = {};
   if (input.search) {
-    const q = input.search.toLowerCase();
-    items = items.filter(
-      (u) => u.name.toLowerCase().includes(q) || u.phone.includes(q) || u.email.toLowerCase().includes(q),
-    );
+    const q = input.search;
+    filter.$or = [
+      { name: { $regex: q, $options: 'i' } },
+      { phone: { $regex: q, $options: 'i' } },
+      { email: { $regex: q, $options: 'i' } },
+    ];
   }
 
   const sortBy = input.sortBy ?? 'createdAt';
-  const order = input.order ?? 'DESC';
-  items.sort((a, b) => {
-    const aVal = String(a[sortBy as keyof User] ?? '');
-    const bVal = String(b[sortBy as keyof User] ?? '');
-    return order === 'ASC' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-  });
-
-  const total = items.length;
+  const sortOrder = input.order === 'ASC' ? 1 : -1;
+  const total = await UserModel.countDocuments(filter);
   const totalPages = Math.ceil(total / input.limit);
-  const start = (input.page - 1) * input.limit;
-  items = items.slice(start, start + input.limit);
+  const skip = (input.page - 1) * input.limit;
 
-  return { items, total, page: input.page, limit: input.limit, totalPages };
+  const docs = await UserModel.find(filter)
+    .sort({ [sortBy]: sortOrder })
+    .skip(skip)
+    .limit(input.limit)
+    .lean({ virtuals: true });
+
+  return {
+    items: docs.map(toUser).filter(Boolean) as User[],
+    total,
+    page: input.page,
+    limit: input.limit,
+    totalPages,
+  };
 }

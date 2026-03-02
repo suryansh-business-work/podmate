@@ -1,3 +1,6 @@
+import mongoose, { Schema, model } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+
 export interface Pod {
   id: string;
   title: string;
@@ -61,4 +64,41 @@ export interface PaginatedPods {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+/* ── Mongoose ── */
+
+export type PodMongoDoc = Omit<Pod, 'id'> & { _id: string };
+
+const PodSchema = new Schema<PodMongoDoc>(
+  {
+    _id: { type: String, default: () => uuidv4() },
+    title: { type: String, required: true },
+    description: { type: String, default: '' },
+    category: { type: String, default: '' },
+    imageUrl: { type: String, default: '' },
+    hostId: { type: String, required: true },
+    feePerPerson: { type: Number, default: 0 },
+    maxSeats: { type: Number, default: 1 },
+    currentSeats: { type: Number, default: 0 },
+    dateTime: { type: String, required: true },
+    location: { type: String, default: '' },
+    locationDetail: { type: String, default: '' },
+    rating: { type: Number, default: 0 },
+    reviewCount: { type: Number, default: 0 },
+    status: { type: String, enum: ['NEW', 'CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED'], default: 'NEW' },
+    refundPolicy: { type: String, default: '24h Refund' },
+    attendeeIds: { type: [String], default: [] },
+    createdAt: { type: String, default: () => new Date().toISOString() },
+  },
+  { toJSON: { virtuals: true }, toObject: { virtuals: true } },
+);
+
+export const PodModel =
+  (mongoose.models['Pod'] as mongoose.Model<PodMongoDoc> | undefined) ??
+  model<PodMongoDoc>('Pod', PodSchema);
+
+export function toPod(doc: (PodMongoDoc & { id?: string }) | null): Pod | null {
+  if (!doc) return null;
+  return { ...doc, id: doc.id ?? doc._id } as Pod;
 }

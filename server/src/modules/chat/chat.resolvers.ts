@@ -11,9 +11,20 @@ const chatResolvers = {
   },
 
   Mutation: {
-    sendMessage: async (_: unknown, args: { podId: string; content: string }, context: GraphQLContext) => {
+    sendMessage: async (
+      _: unknown,
+      args: { podId: string; content: string; messageType?: string; mediaUrl?: string },
+      context: GraphQLContext,
+    ) => {
       const auth = requireAuth(context);
-      const message = await chatService.addMessage(args.podId, auth.userId, args.content);
+      const msgType = (args.messageType ?? 'TEXT') as 'TEXT' | 'IMAGE' | 'VIDEO';
+      const message = await chatService.addMessage(
+        args.podId,
+        auth.userId,
+        args.content,
+        msgType,
+        args.mediaUrl ?? '',
+      );
 
       // Push to all WebSocket subscribers in this pod room
       const sender = await chatService.resolveSender(auth.userId);

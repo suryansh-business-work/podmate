@@ -60,12 +60,14 @@ export const UPDATE_PROFILE = gql`
 `;
 
 export const SEND_MESSAGE = gql`
-  mutation SendMessage($podId: ID!, $content: String!) {
-    sendMessage(podId: $podId, content: $content) {
+  mutation SendMessage($podId: ID!, $content: String!, $messageType: ChatMessageType, $mediaUrl: String) {
+    sendMessage(podId: $podId, content: $content, messageType: $messageType, mediaUrl: $mediaUrl) {
       id
       podId
       senderId
       content
+      messageType
+      mediaUrl
       createdAt
       sender {
         id
@@ -108,6 +110,19 @@ export const GET_IMAGEKIT_AUTH = gql`
       token
       expire
       signature
+    }
+  }
+`;
+
+export const CREATE_SUPPORT_TICKET = gql`
+  mutation CreateSupportTicket($input: CreateSupportTicketInput!) {
+    createSupportTicket(input: $input) {
+      id
+      subject
+      message
+      status
+      priority
+      createdAt
     }
   }
 `;

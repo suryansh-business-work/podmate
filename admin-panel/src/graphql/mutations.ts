@@ -136,3 +136,21 @@ export const DELETE_PLACE = gql`
     deletePlace(id: $id)
   }
 `;
+
+export const UPDATE_SUPPORT_TICKET = gql`
+  mutation UpdateSupportTicket($id: ID!, $input: UpdateSupportTicketInput!) {
+    updateSupportTicket(id: $id, input: $input) {
+      id
+      status
+      priority
+      adminReply
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_SUPPORT_TICKET = gql`
+  mutation DeleteSupportTicket($id: ID!) {
+    deleteSupportTicket(id: $id)
+  }
+`;

@@ -86,6 +86,8 @@ export const GET_CHAT_MESSAGES = gql`
       podId
       senderId
       content
+      messageType
+      mediaUrl
       createdAt
       sender {
         id
@@ -117,6 +119,21 @@ export const GET_POLICIES = gql`
       content
       isActive
       createdAt
+    }
+  }
+`;
+
+export const GET_MY_SUPPORT_TICKETS = gql`
+  query GetMySupportTickets {
+    mySupportTickets {
+      id
+      subject
+      message
+      status
+      priority
+      adminReply
+      createdAt
+      updatedAt
     }
   }
 `;

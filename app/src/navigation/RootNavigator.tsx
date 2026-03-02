@@ -24,6 +24,8 @@ import PodDetailScreen from '../screens/PodDetailScreen';
 import CreatePodScreen from '../screens/CreatePodScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import RegisterPlaceScreen from '../screens/RegisterPlaceScreen';
+import FaqScreen from '../screens/FaqScreen';
+import SupportScreen from '../screens/SupportScreen';
 import MainTabs from './MainTabs';
 import DrawerMenu from '../components/DrawerMenu';
 import { SEND_OTP, VERIFY_OTP, COMPLETE_PROFILE } from '../graphql/mutations';
@@ -39,6 +41,8 @@ export type RootStackParamList = {
   CreatePod: undefined;
   Notifications: undefined;
   RegisterPlace: undefined;
+  Faq: undefined;
+  Support: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -206,8 +210,10 @@ const RootNavigator: React.FC = () => {
         break;
       case 'Payments':
       case 'Privacy':
+        // Placeholder: screens can be added later
+        break;
       case 'Help':
-        // Placeholder: stay on profile; screens can be added later
+        navigation.navigate('Faq');
         break;
       default:
         break;
@@ -247,7 +253,10 @@ const RootNavigator: React.FC = () => {
         nav.navigate('Main', { screen: 'Profile' } as never);
         break;
       case 'Help':
-        nav.navigate('Main', { screen: 'Profile' } as never);
+        nav.navigate('Faq');
+        break;
+      case 'Support':
+        nav.navigate('Support');
         break;
       default:
         break;
@@ -340,6 +349,16 @@ const RootNavigator: React.FC = () => {
               <Stack.Screen name="RegisterPlace" options={{ presentation: 'modal' }}>
                 {({ navigation }) => (
                   <RegisterPlaceScreen onClose={() => navigation.goBack()} />
+                )}
+              </Stack.Screen>
+              <Stack.Screen name="Faq" options={{ presentation: 'card' }}>
+                {({ navigation }) => (
+                  <FaqScreen onBack={() => navigation.goBack()} />
+                )}
+              </Stack.Screen>
+              <Stack.Screen name="Support" options={{ presentation: 'card' }}>
+                {({ navigation }) => (
+                  <SupportScreen onBack={() => navigation.goBack()} />
                 )}
               </Stack.Screen>
             </>

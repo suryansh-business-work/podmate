@@ -22,7 +22,7 @@ import PlaceIcon from '@mui/icons-material/Place';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import GroupsIcon from '@mui/icons-material/Groups';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 
 const DRAWER_WIDTH = 260;
 
@@ -32,6 +32,7 @@ const navItems = [
   { icon: <EventIcon />, label: 'Pods', path: '/pods' },
   { icon: <PlaceIcon />, label: 'Places', path: '/places' },
   { icon: <PolicyIcon />, label: 'Policies', path: '/policies' },
+  { icon: <SupportAgentIcon />, label: 'Support', path: '/support' },
 ];
 
 interface AdminLayoutProps {
@@ -153,12 +154,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             <MenuIcon />
           </IconButton>
           <Box sx={{ flex: 1 }} />
-          <IconButton>
-            <NotificationsIcon />
+          <IconButton
+            onClick={() => navigate('/dashboard')}
+            sx={{ p: 0, ml: 1 }}
+          >
+            <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main', fontSize: 14, cursor: 'pointer' }}>
+              A
+            </Avatar>
           </IconButton>
-          <Avatar sx={{ width: 36, height: 36, bgcolor: 'primary.main', ml: 1, fontSize: 14 }}>
-            A
-          </Avatar>
         </Toolbar>
       </AppBar>
 

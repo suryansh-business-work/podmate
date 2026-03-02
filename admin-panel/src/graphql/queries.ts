@@ -131,3 +131,30 @@ export const GET_PLACES = gql`
     }
   }
 `;
+
+export const GET_SUPPORT_TICKETS = gql`
+  query GetSupportTickets($page: Int, $limit: Int, $search: String, $status: String, $sortBy: String, $order: String) {
+    supportTickets(page: $page, limit: $limit, search: $search, status: $status, sortBy: $sortBy, order: $order) {
+      items {
+        id
+        userId
+        user {
+          id
+          name
+          phone
+        }
+        subject
+        message
+        status
+        priority
+        adminReply
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;

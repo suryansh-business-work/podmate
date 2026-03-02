@@ -39,7 +39,8 @@ const ACCOUNT_ITEMS: NavItem[] = [
   { id: 'Profile', icon: 'person', label: 'Profile', color: '#6366F1' },
   { id: 'Tickets', icon: 'confirmation-number', label: 'My Tickets', color: '#EC4899' },
   { id: 'Payments', icon: 'account-balance-wallet', label: 'Payments', color: '#14B8A6' },
-  { id: 'Help', icon: 'help-outline', label: 'Help & Support', color: '#8B5CF6' },
+  { id: 'Help', icon: 'help-outline', label: 'Help & FAQs', color: '#8B5CF6' },
+  { id: 'Support', icon: 'support-agent', label: 'Support', color: '#F50247' },
 ];
 
 const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }) => {

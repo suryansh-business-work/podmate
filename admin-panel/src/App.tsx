@@ -6,6 +6,7 @@ import UsersPage from './pages/UsersPage';
 import PodsPage from './pages/PodsPage';
 import PlacesPage from './pages/PlacesPage';
 import PoliciesPage from './pages/PoliciesPage';
+import SupportPage from './pages/SupportPage';
 import AdminLayout from './layouts/AdminLayout';
 
 const App: React.FC = () => {
@@ -44,6 +45,7 @@ const App: React.FC = () => {
           <Route path="/pods" element={<PodsPage />} />
           <Route path="/places" element={<PlacesPage />} />
           <Route path="/policies" element={<PoliciesPage />} />
+          <Route path="/support" element={<SupportPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AdminLayout>

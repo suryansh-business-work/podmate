@@ -1,11 +1,15 @@
 import mongoose, { Schema, model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
+export type ChatMessageType = 'TEXT' | 'IMAGE' | 'VIDEO';
+
 export interface ChatMessage {
   id: string;
   podId: string;
   senderId: string;
   content: string;
+  messageType: ChatMessageType;
+  mediaUrl: string;
   createdAt: string;
 }
 
@@ -23,7 +27,9 @@ const ChatMessageSchema = new Schema<ChatMessageMongoDoc>(
     _id: { type: String, default: () => uuidv4() },
     podId: { type: String, required: true, index: true },
     senderId: { type: String, required: true },
-    content: { type: String, required: true },
+    content: { type: String, default: '' },
+    messageType: { type: String, enum: ['TEXT', 'IMAGE', 'VIDEO'], default: 'TEXT' },
+    mediaUrl: { type: String, default: '' },
     createdAt: { type: String, default: () => new Date().toISOString() },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } },

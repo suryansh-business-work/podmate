@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { ChatMessage } from './chat.models';
+import type { ChatMessage, ChatMessageType } from './chat.models';
 import { ChatMessageModel, toChatMessage } from './chat.models';
 import type { User } from '../user/user.models';
 import { findUserById } from '../user/user.services';
@@ -13,12 +13,16 @@ export async function addMessage(
   podId: string,
   senderId: string,
   content: string,
+  messageType: ChatMessageType = 'TEXT',
+  mediaUrl = '',
 ): Promise<ChatMessage> {
   const doc = await ChatMessageModel.create({
     _id: uuidv4(),
     podId,
     senderId,
     content,
+    messageType,
+    mediaUrl,
     createdAt: new Date().toISOString(),
   });
   return toChatMessage(doc.toObject({ virtuals: true })) as ChatMessage;

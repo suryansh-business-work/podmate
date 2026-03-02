@@ -22,6 +22,8 @@ import policyTypeDefs from './modules/policy/policy.typeDefs';
 import policyResolvers from './modules/policy/policy.resolvers';
 import placeTypeDefs from './modules/place/place.typeDefs';
 import placeResolvers from './modules/place/place.resolvers';
+import supportTypeDefs from './modules/support/support.typeDefs';
+import supportResolvers from './modules/support/support.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -41,6 +43,8 @@ const rootSchema = `#graphql
     places(page: Int, limit: Int, search: String, status: String, sortBy: String, order: String): PaginatedPlaces!
     place(id: ID!): Place
     myPlaces: [Place!]!
+    mySupportTickets: [SupportTicket!]!
+    supportTickets(page: Int, limit: Int, search: String, status: String, sortBy: String, order: String): PaginatedSupportTickets!
   }
 
   type Mutation {
@@ -58,7 +62,7 @@ const rootSchema = `#graphql
     updateUserRole(userId: ID!, role: UserRole!): User!
     adminCreateUser(phone: String!, name: String!, role: UserRole!): User!
     getImageKitAuth: ImageKitAuth!
-    sendMessage(podId: ID!, content: String!): ChatMessage!
+    sendMessage(podId: ID!, content: String!, messageType: ChatMessageType, mediaUrl: String): ChatMessage!
     sendInvites(podId: ID!, contacts: [InviteInput!]!): InviteResult!
     createPolicy(input: CreatePolicyInput!): Policy!
     updatePolicy(id: ID!, input: UpdatePolicyInput!): Policy!
@@ -69,10 +73,13 @@ const rootSchema = `#graphql
     approvePlace(id: ID!): Place!
     rejectPlace(id: ID!): Place!
     deletePlace(id: ID!): Boolean!
+    createSupportTicket(input: CreateSupportTicketInput!): SupportTicket!
+    updateSupportTicket(id: ID!, input: UpdateSupportTicketInput!): SupportTicket!
+    deleteSupportTicket(id: ID!): Boolean!
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs];
+const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs];
 
 const resolvers = {
   Query: {
@@ -82,6 +89,7 @@ const resolvers = {
     ...inviteResolvers.Query,
     ...policyResolvers.Query,
     ...placeResolvers.Query,
+    ...supportResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -91,10 +99,12 @@ const resolvers = {
     ...inviteResolvers.Mutation,
     ...policyResolvers.Mutation,
     ...placeResolvers.Mutation,
+    ...supportResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   ChatMessage: chatResolvers.ChatMessage,
   Place: placeResolvers.Place,
+  SupportTicket: supportResolvers.SupportTicket,
 };
 
 /* ── WebSocket connection registry ── */

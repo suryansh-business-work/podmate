@@ -44,6 +44,17 @@ const userResolvers = {
       requireRole(context, UserRole.ADMIN);
       return userService.updateUserRole(args.userId, args.role);
     },
+
+    adminCreateUser: (
+      _: unknown,
+      args: { phone: string; name: string; role: UserRole },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      const existing = userService.findUserByPhone(args.phone);
+      if (existing) throw new Error('User with this phone already exists');
+      return userService.createUser({ phone: args.phone, name: args.name, role: args.role });
+    },
   },
 };
 

@@ -20,6 +20,8 @@ import inviteTypeDefs from './modules/invite/invite.typeDefs';
 import inviteResolvers from './modules/invite/invite.resolvers';
 import policyTypeDefs from './modules/policy/policy.typeDefs';
 import policyResolvers from './modules/policy/policy.resolvers';
+import placeTypeDefs from './modules/place/place.typeDefs';
+import placeResolvers from './modules/place/place.resolvers';
 import logger from './lib/logger';
 
 const PORT = parseInt(process.env.PORT ?? '4039', 10);
@@ -35,6 +37,9 @@ const rootSchema = `#graphql
     podInvites(podId: ID!): [Invite!]!
     policies(type: String): [Policy!]!
     dashboardStats: DashboardStats!
+    places(page: Int, limit: Int, search: String, status: String, sortBy: String, order: String): PaginatedPlaces!
+    place(id: ID!): Place
+    myPlaces: [Place!]!
   }
 
   type Mutation {
@@ -50,16 +55,23 @@ const rootSchema = `#graphql
     leavePod(podId: ID!): Pod!
     updateProfile(name: String, avatar: String): User!
     updateUserRole(userId: ID!, role: UserRole!): User!
+    adminCreateUser(phone: String!, name: String!, role: UserRole!): User!
     getImageKitAuth: ImageKitAuth!
     sendMessage(podId: ID!, content: String!): ChatMessage!
     sendInvites(podId: ID!, contacts: [InviteInput!]!): InviteResult!
     createPolicy(input: CreatePolicyInput!): Policy!
     updatePolicy(id: ID!, input: UpdatePolicyInput!): Policy!
     deletePolicy(id: ID!): Boolean!
+    createPlace(input: CreatePlaceInput!): Place!
+    adminCreatePlace(input: CreatePlaceInput!, ownerId: ID!): Place!
+    updatePlace(id: ID!, input: UpdatePlaceInput!): Place!
+    approvePlace(id: ID!): Place!
+    rejectPlace(id: ID!): Place!
+    deletePlace(id: ID!): Boolean!
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs];
+const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs];
 
 const resolvers = {
   Query: {
@@ -68,6 +80,7 @@ const resolvers = {
     ...chatResolvers.Query,
     ...inviteResolvers.Query,
     ...policyResolvers.Query,
+    ...placeResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -76,9 +89,11 @@ const resolvers = {
     ...chatResolvers.Mutation,
     ...inviteResolvers.Mutation,
     ...policyResolvers.Mutation,
+    ...placeResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   ChatMessage: chatResolvers.ChatMessage,
+  Place: placeResolvers.Place,
 };
 
 /* ── WebSocket connection registry ── */

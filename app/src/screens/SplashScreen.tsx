@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { colors } from '../theme';
@@ -9,14 +9,30 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
+  const logoScale = useRef(new Animated.Value(0.3)).current;
+  const logoOpacity = useRef(new Animated.Value(0)).current;
+  const textOpacity = useRef(new Animated.Value(0)).current;
+  const textTranslateY = useRef(new Animated.Value(20)).current;
+
   useEffect(() => {
+    Animated.sequence([
+      Animated.parallel([
+        Animated.spring(logoScale, { toValue: 1, friction: 6, tension: 80, useNativeDriver: true }),
+        Animated.timing(logoOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(textOpacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+        Animated.timing(textTranslateY, { toValue: 0, duration: 500, useNativeDriver: true }),
+      ]),
+    ]).start();
+
     const timer = setTimeout(onFinish, 2500);
     return () => clearTimeout(timer);
-  }, [onFinish]);
+  }, [onFinish, logoScale, logoOpacity, textOpacity, textTranslateY]);
 
   return (
     <View style={styles.container}>
-      <View style={styles.logoContainer}>
+      <Animated.View style={[styles.logoContainer, { opacity: logoOpacity, transform: [{ scale: logoScale }] }]}>
         <LinearGradient
           colors={[colors.primaryLight, colors.primary]}
           style={styles.logoBox}
@@ -25,9 +41,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         >
           <MaterialCommunityIcons name="account-group" size={36} color={colors.white} />
         </LinearGradient>
-      </View>
-      <Text style={styles.appName}>PartyWings</Text>
-      <Text style={styles.tagline}>Trust-based communities</Text>
+      </Animated.View>
+      <Animated.View style={{ opacity: textOpacity, transform: [{ translateY: textTranslateY }] }}>
+        <Text style={styles.appName}>PartyWings</Text>
+        <Text style={styles.tagline}>Trust-based communities</Text>
+      </Animated.View>
     </View>
   );
 };

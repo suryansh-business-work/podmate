@@ -1,13 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Image,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { colors, spacing, borderRadius } from '../theme';
 import { GradientButton } from '../components/GradientButton';
 import ContactPicker from '../components/ContactPicker';
+import { useImageKitUpload } from '../hooks/useImageKitUpload';
 import { CREATE_POD } from '../graphql/mutations';
 import { GET_PODS } from '../graphql/queries';
 
@@ -38,9 +51,13 @@ const podSchema = Yup.object().shape({
 
 const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
   const [showInvite, setShowInvite] = useState(false);
-  const [createdPodId, setCreatedPodId] = useState<string>('');
+  const [createdPodId, setCreatedPodId] = useState('');
   const [createdTitle, setCreatedTitle] = useState('');
-  const [dateTime] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString());
+  const [dateTime, setDateTime] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const { pickAndUploadImage, pickAndUploadVideo, uploading, progress } = useImageKitUpload();
 
   const [createPod, { loading }] = useMutation(CREATE_POD, {
     refetchQueries: [{ query: GET_PODS, variables: { page: 1, limit: 20 } }],
@@ -65,15 +82,16 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
             title: values.title.trim(),
             description: values.description.trim(),
             category: values.category,
+            imageUrl: imageUrl || undefined,
             feePerPerson: feeNum,
             maxSeats: values.maxSeats,
-            dateTime,
+            dateTime: dateTime.toISOString(),
             location: values.location.trim(),
             locationDetail: values.locationDetail.trim() || 'TBD',
           },
         },
       });
-      const newPodId = result?.data?.createPod?.id;
+      const newPodId = result?.data?.createPod?.id as string | undefined;
       if (newPodId) {
         setCreatedPodId(newPodId);
         setCreatedTitle(values.title);
@@ -114,8 +132,32 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
           return (
             <>
               <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                <Text style={styles.title}>Let's set up your Pod.</Text>
+                <Text style={styles.title}>Let&apos;s set up your Pod.</Text>
                 <Text style={styles.subtitle}>Create a space for your micro-community event.</Text>
+
+                {/* Cover Media Upload */}
+                <Text style={styles.inputLabel}>COVER MEDIA</Text>
+                <View style={styles.mediaRow}>
+                  <TouchableOpacity style={styles.uploadBox} onPress={() => pickAndUploadImage('/pods').then(r => r && setImageUrl(r.url))} disabled={uploading}>
+                    {imageUrl && !uploading ? (
+                      <Image source={{ uri: imageUrl }} style={styles.uploadPreview} />
+                    ) : uploading ? (
+                      <View style={styles.uploadingCenter}>
+                        <ActivityIndicator size="small" color={colors.primary} />
+                        <Text style={styles.uploadProgressText}>{Math.round(progress * 100)}%</Text>
+                      </View>
+                    ) : (
+                      <>
+                        <MaterialIcons name="add-a-photo" size={28} color={colors.primary} />
+                        <Text style={styles.uploadLabel}>Add Photo</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.uploadBox} onPress={() => pickAndUploadVideo('/pods').then(r => r && setImageUrl(r.url))} disabled={uploading}>
+                    <MaterialIcons name="videocam" size={28} color={colors.secondary} />
+                    <Text style={styles.uploadLabel}>Add Video</Text>
+                  </TouchableOpacity>
+                </View>
 
                 <Text style={styles.inputLabel}>POD TITLE</Text>
                 <TextInput
@@ -199,11 +241,46 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
                 </View>
 
                 <Text style={styles.inputLabel}>WHEN</Text>
-                <TouchableOpacity style={styles.datePickerRow}>
-                  <MaterialIcons name="event" size={20} color={colors.textSecondary} />
-                  <Text style={styles.dateText}>Select Date & Time</Text>
-                  <MaterialIcons name="chevron-right" size={20} color={colors.textTertiary} />
+                <TouchableOpacity style={styles.datePickerRow} onPress={() => setShowDatePicker(true)}>
+                  <MaterialIcons name="event" size={20} color={colors.primary} />
+                  <Text style={styles.dateText}>
+                    {dateTime.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                  <MaterialIcons name="edit" size={18} color={colors.textTertiary} />
                 </TouchableOpacity>
+
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={dateTime}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    minimumDate={new Date()}
+                    onChange={(_evt: { type: string }, date?: Date) => {
+                      setShowDatePicker(false);
+                      if (date) {
+                        const nd = new Date(dateTime);
+                        nd.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+                        setDateTime(nd);
+                        if (Platform.OS === 'android') setTimeout(() => setShowTimePicker(true), 300);
+                      }
+                    }}
+                  />
+                )}
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={dateTime}
+                    mode="time"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(_evt: { type: string }, time?: Date) => {
+                      setShowTimePicker(false);
+                      if (time) {
+                        const nd = new Date(dateTime);
+                        nd.setHours(time.getHours(), time.getMinutes());
+                        setDateTime(nd);
+                      }
+                    }}
+                  />
+                )}
 
                 <View style={styles.payoutCard}>
                   <View style={styles.payoutHeader}>
@@ -276,8 +353,14 @@ const styles = StyleSheet.create({
   counterButton: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, backgroundColor: colors.surface },
   counterButtonText: { fontSize: 18, color: colors.textSecondary },
   counterValue: { flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '600', color: colors.text },
-  datePickerRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.md, padding: spacing.lg, gap: spacing.md },
-  dateText: { flex: 1, fontSize: 15, color: colors.textSecondary },
+  datePickerRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: borderRadius.md, padding: spacing.lg, gap: spacing.md, backgroundColor: colors.surface },
+  dateText: { flex: 1, fontSize: 15, color: colors.text, fontWeight: '500' },
+  mediaRow: { flexDirection: 'row', gap: spacing.md },
+  uploadBox: { flex: 1, height: 120, borderWidth: 2, borderStyle: 'dashed', borderColor: colors.border, borderRadius: borderRadius.md, justifyContent: 'center', alignItems: 'center', overflow: 'hidden', backgroundColor: colors.surface },
+  uploadPreview: { width: '100%', height: '100%', resizeMode: 'cover' },
+  uploadingCenter: { justifyContent: 'center', alignItems: 'center', gap: spacing.xs },
+  uploadProgressText: { fontSize: 12, color: colors.primary, fontWeight: '600' },
+  uploadLabel: { fontSize: 13, color: colors.textSecondary, marginTop: spacing.xs, fontWeight: '500' },
   payoutCard: { backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.xl, marginTop: spacing.xxl, marginBottom: spacing.xxxl },
   payoutHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg },
   payoutTitle: { fontSize: 16, fontWeight: '700', color: colors.text },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../theme';
 
@@ -8,6 +8,7 @@ interface GradientButtonProps {
   onPress: () => void;
   disabled?: boolean;
   style?: object;
+  children?: React.ReactNode;
 }
 
 export const GradientButton: React.FC<GradientButtonProps> = ({
@@ -15,20 +16,24 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   onPress,
   disabled = false,
   style,
+  children,
 }) => {
   return (
-    <View style={[styles.container, style]}>
+    <TouchableOpacity
+      style={[styles.container, style]}
+      onPress={onPress}
+      disabled={disabled}
+      activeOpacity={0.8}
+    >
       <LinearGradient
         colors={[colors.gradientStart, colors.gradientEnd]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={[styles.gradient, disabled && styles.disabled]}
       >
-        <Text style={styles.text} onPress={disabled ? undefined : onPress}>
-          {title}
-        </Text>
+        {children || <Text style={styles.text}>{title}</Text>}
       </LinearGradient>
-    </View>
+    </TouchableOpacity>
   );
 };
 

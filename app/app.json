@@ -4,19 +4,24 @@
     "slug": "partywings",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon-and-splash/logo-1024x1024.png",
     "userInterfaceStyle": "light",
+    "platforms": ["ios", "android"],
     "splash": {
-      "backgroundColor": "#ffffff"
+      "image": "./assets/icon-and-splash/logo-1284x2778.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#111827"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.partywings.app"
+      "bundleIdentifier": "com.partywings.app",
+      "icon": "./assets/icon-and-splash/logo-1024x1024.png"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icon-and-splash/logo-1024x1024.png",
+        "backgroundColor": "#111827"
       },
       "package": "com.partywings.app"
     }

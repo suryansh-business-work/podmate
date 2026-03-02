@@ -11,7 +11,7 @@ const seedPods: Pod[] = [
     description:
       'Join us for an intimate evening learning the art of Nigiri. Chef Kenji will guide us through fish selection, rice preparation, and knife skills.\n\nThe session includes all ingredients, sake tasting, and a 12-piece omakase dinner.',
     category: 'Social',
-    imageUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800',
+    imageUrl: '',
     hostId: 'user-1',
     feePerPerson: 1200,
     maxSeats: 10,
@@ -31,7 +31,7 @@ const seedPods: Pod[] = [
     title: 'Startup Networking Hike',
     description: 'A beautiful sunrise hike combined with startup networking.',
     category: 'Outdoor',
-    imageUrl: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800',
+    imageUrl: '',
     hostId: 'user-2',
     feePerPerson: 500,
     maxSeats: 20,
@@ -51,7 +51,7 @@ const seedPods: Pod[] = [
     title: 'Premium Wine Tasting Evening',
     description: 'Explore curated wines from top vineyards.',
     category: 'Social',
-    imageUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800',
+    imageUrl: '',
     hostId: 'user-3',
     feePerPerson: 2500,
     maxSeats: 12,
@@ -71,7 +71,7 @@ const seedPods: Pod[] = [
     title: 'Tokyo-Style Sushi Masterclass',
     description: 'An intimate evening learning the art of Nigiri.',
     category: 'Learning',
-    imageUrl: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=800',
+    imageUrl: '',
     hostId: 'user-4',
     feePerPerson: 1200,
     maxSeats: 10,
@@ -131,7 +131,7 @@ export function createPod(input: CreatePodInput, hostId: string): Pod {
     title: input.title,
     description: input.description,
     category: input.category,
-    imageUrl: input.imageUrl ?? 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800',
+    imageUrl: input.imageUrl ?? '',
     hostId,
     feePerPerson: input.feePerPerson,
     maxSeats: input.maxSeats,
@@ -191,6 +191,12 @@ export function leavePod(podId: string, userId: string): Pod {
   pod.currentSeats -= 1;
   pods.set(pod.id, pod);
   return pod;
+}
+
+export function getJoinedPods(userId: string): Pod[] {
+  return [...pods.values()].filter(
+    (p) => p.hostId === userId || p.attendeeIds.includes(userId),
+  );
 }
 
 export function resolveHost(hostId: string) {

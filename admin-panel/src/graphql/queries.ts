@@ -100,3 +100,34 @@ export const GET_POLICIES = gql`
     }
   }
 `;
+
+export const GET_PLACES = gql`
+  query GetPlaces($page: Int, $limit: Int, $search: String, $status: String, $sortBy: String, $order: String) {
+    places(page: $page, limit: $limit, search: $search, status: $status, sortBy: $sortBy, order: $order) {
+      items {
+        id
+        name
+        description
+        address
+        city
+        imageUrl
+        owner {
+          id
+          name
+          phone
+        }
+        category
+        phone
+        email
+        status
+        isVerified
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;

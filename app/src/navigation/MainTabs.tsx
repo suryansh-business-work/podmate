@@ -25,9 +25,10 @@ interface MainTabsProps {
   onCreatePress: () => void;
   onLogout: () => void;
   onMenuPress: () => void;
+  onNavigate?: (screen: string) => void;
 }
 
-const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout, onMenuPress }) => {
+const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout, onMenuPress, onNavigate }) => {
   const insets = useSafeAreaInsets();
   const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
 
@@ -43,6 +44,7 @@ const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textTertiary,
         tabBarLabelStyle: styles.tabLabel,
+        lazy: false,
         tabBarIcon: ({ focused, color }) => {
           if (route.name === 'Create') {
             return (
@@ -71,19 +73,18 @@ const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout
       })}
     >
       <Tab.Screen name="Home">{() => <HomeScreen onPodPress={onPodPress} onMenuPress={onMenuPress} />}</Tab.Screen>
-      <Tab.Screen name="Explore" component={ExploreScreen} />
+      <Tab.Screen name="Explore">{() => <ExploreScreen onPodPress={onPodPress} />}</Tab.Screen>
       <Tab.Screen
         name="Create"
-        component={View}
         listeners={{
           tabPress: (e) => {
             e.preventDefault();
             onCreatePress();
           },
         }}
-      />
-      <Tab.Screen name="Chat" component={ChatScreen} />
-      <Tab.Screen name="Profile">{() => <ProfileScreen onLogout={onLogout} />}</Tab.Screen>
+      >{() => <View />}</Tab.Screen>
+      <Tab.Screen name="Chat">{() => <ChatScreen />}</Tab.Screen>
+      <Tab.Screen name="Profile">{() => <ProfileScreen onLogout={onLogout} onNavigate={onNavigate} />}</Tab.Screen>
     </Tab.Navigator>
   );
 };

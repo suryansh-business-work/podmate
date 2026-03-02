@@ -1,17 +1,33 @@
 import ImageKit from 'imagekit';
+import logger from './logger';
 
-const imagekit = new ImageKit({
-  publicKey: process.env.IMAGEKIT_PUBLIC_KEY ?? 'your_public_key',
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY ?? 'your_private_key',
-  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINTS ?? 'https://ik.imagekit.io/your_id',
-});
+let imagekitInstance: ImageKit | null = null;
+
+function getImageKit(): ImageKit {
+  if (imagekitInstance) return imagekitInstance;
+
+  const publicKey = process.env.IMAGEKIT_PUBLIC_KEY ?? '';
+  const privateKey = process.env.IMAGEKIT_PRIVATE_KEY ?? '';
+  const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINTS ?? '';
+
+  if (!publicKey || !privateKey || !urlEndpoint) {
+    throw new Error(
+      'ImageKit credentials not configured. Set IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, and IMAGEKIT_URL_ENDPOINTS in .env',
+    );
+  }
+
+  imagekitInstance = new ImageKit({ publicKey, privateKey, urlEndpoint });
+  logger.info('ImageKit initialized successfully');
+  return imagekitInstance;
+}
 
 export function getImageKitAuthParams(): { token: string; expire: number; signature: string } {
-  return imagekit.getAuthenticationParameters() as {
+  const ik = getImageKit();
+  return ik.getAuthenticationParameters() as {
     token: string;
     expire: number;
     signature: string;
   };
 }
 
-export default imagekit;
+export default { getImageKitAuthParams };

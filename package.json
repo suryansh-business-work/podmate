@@ -14,7 +14,11 @@
     "format": "pnpm -r format",
     "format:check": "pnpm -r format:check",
     "test": "pnpm -r test",
-    "type-check": "pnpm -r type-check"
+    "type-check": "pnpm -r type-check",
+    "build:apk": "pnpm --filter partywings-app build:apk",
+    "build:ios": "pnpm --filter partywings-app build:ios",
+    "build:apk:dev": "pnpm --filter partywings-app build:apk:dev",
+    "build:ios:dev": "pnpm --filter partywings-app build:ios:dev"
   },
   "devDependencies": {
     "prettier": "^3.2.5",

@@ -13,6 +13,8 @@ import {
   Dimensions,
   StyleSheet,
   Platform,
+  BackHandler,
+  Alert,
 } from 'react-native';
 import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
@@ -50,6 +52,8 @@ const RootNavigator: React.FC = () => {
   const [otpPhone, setOtpPhone] = useState('');
   const [isNewUser, setIsNewUser] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
   const drawerAnim = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayAnim = useRef(new Animated.Value(0)).current;
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
@@ -61,6 +65,28 @@ const RootNavigator: React.FC = () => {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  /* ── Back-press exit confirmation ── */
+  useEffect(() => {
+    const onBackPress = () => {
+      if (drawerOpen) {
+        closeDrawer();
+        return true;
+      }
+      const nav = navigationRef.current;
+      if (nav && nav.canGoBack()) {
+        nav.goBack();
+        return true;
+      }
+      Alert.alert('Exit PartyWings', 'Are you sure you want to exit?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Exit', style: 'destructive', onPress: () => BackHandler.exitApp() },
+      ]);
+      return true;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [drawerOpen]);
 
   const checkAuth = async () => {
     try {
@@ -78,16 +104,20 @@ const RootNavigator: React.FC = () => {
   };
 
   const handleSendOtp = async (phone: string) => {
+    setSendingOtp(true);
     try {
       await sendOtpMutation({ variables: { phone } });
       setOtpPhone(phone);
     } catch {
       // Fallback: still navigate to OTP screen
       setOtpPhone(phone);
+    } finally {
+      setSendingOtp(false);
     }
   };
 
   const handleVerifyOtp = async (otp: string) => {
+    setVerifyingOtp(true);
     try {
       const { data } = await verifyOtpMutation({
         variables: { phone: otpPhone, otp },
@@ -101,12 +131,9 @@ const RootNavigator: React.FC = () => {
         setOtpPhone('');
       }
     } catch {
-      // Fallback for development
-      if (otp === '123456') {
-        await AsyncStorage.setItem('token', 'dev-token-' + Date.now());
-        setIsAuthenticated(true);
-        setOtpPhone('');
-      }
+      // OTP verification failed — handled by Apollo error state in OtpScreen
+    } finally {
+      setVerifyingOtp(false);
     }
   };
 
@@ -149,11 +176,44 @@ const RootNavigator: React.FC = () => {
     ]).start(() => setDrawerOpen(false));
   }, [drawerAnim, overlayAnim]);
 
+  const handleProfileNavigate = (screen: string, navigation: { navigate: (name: string, params?: Record<string, unknown>) => void }) => {
+    switch (screen) {
+      case 'EditProfile':
+        // Stay on profile (future: open edit modal)
+        break;
+      case 'MyPods':
+        navigation.navigate('Main', { screen: 'Chat' } as never);
+        break;
+      case 'Notifications':
+        navigation.navigate('Notifications');
+        break;
+      case 'Payments':
+      case 'Privacy':
+      case 'Help':
+        // Placeholder: stay on profile; screens can be added later
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleDrawerNavigate = (screen: string) => {
     const nav = navigationRef.current;
     if (!nav) return;
 
     switch (screen) {
+      case 'Home':
+        nav.navigate('Main', { screen: 'Home' } as never);
+        break;
+      case 'Explore':
+        nav.navigate('Main', { screen: 'Explore' } as never);
+        break;
+      case 'Chat':
+        nav.navigate('Main', { screen: 'Chat' } as never);
+        break;
+      case 'Profile':
+        nav.navigate('Main', { screen: 'Profile' } as never);
+        break;
       case 'CreatePod':
         nav.navigate('CreatePod');
         break;
@@ -162,6 +222,15 @@ const RootNavigator: React.FC = () => {
         break;
       case 'RegisterPlace':
         nav.navigate('RegisterPlace');
+        break;
+      case 'Tickets':
+        nav.navigate('Main', { screen: 'Profile' } as never);
+        break;
+      case 'Payments':
+        nav.navigate('Main', { screen: 'Profile' } as never);
+        break;
+      case 'Help':
+        nav.navigate('Main', { screen: 'Profile' } as never);
         break;
       default:
         break;
@@ -179,12 +248,12 @@ const RootNavigator: React.FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <NavigationContainer ref={navigationRef}>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade_from_bottom', animationDuration: 250 }}>
           {!isAuthenticated ? (
             <>
               {!otpPhone ? (
                 <Stack.Screen name="Login">
-                  {() => <LoginScreen onSendOtp={handleSendOtp} />}
+                  {() => <LoginScreen onSendOtp={handleSendOtp} loading={sendingOtp} />}
                 </Stack.Screen>
               ) : (
                 <Stack.Screen name="Otp">
@@ -193,6 +262,7 @@ const RootNavigator: React.FC = () => {
                       phone={otpPhone}
                       onVerify={handleVerifyOtp}
                       onBack={() => setOtpPhone('')}
+                      loading={verifyingOtp}
                     />
                   )}
                 </Stack.Screen>
@@ -217,6 +287,7 @@ const RootNavigator: React.FC = () => {
                     onCreatePress={() => navigation.navigate('CreatePod')}
                     onLogout={handleLogout}
                     onMenuPress={openDrawer}
+                    onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
                   />
                 )}
               </Stack.Screen>

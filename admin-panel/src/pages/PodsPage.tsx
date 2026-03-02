@@ -22,11 +22,22 @@ import {
   AvatarGroup,
   Tooltip,
   LinearProgress,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
-import { useQuery } from '@apollo/client';
+import AddIcon from '@mui/icons-material/Add';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_PODS } from '../graphql/queries';
+import { CREATE_POD } from '../graphql/mutations';
 
 type Order = 'ASC' | 'DESC';
 
@@ -89,8 +100,20 @@ const PodsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState('createdAt');
   const [order, setOrder] = useState<Order>('DESC');
   const [searchInput, setSearchInput] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newPod, setNewPod] = useState({
+    title: '',
+    description: '',
+    category: 'Social',
+    feePerPerson: 0,
+    maxSeats: 10,
+    dateTime: '',
+    location: '',
+    locationDetail: '',
+  });
+  const [createError, setCreateError] = useState('');
 
-  const { data, loading, error } = useQuery<PodsData>(GET_PODS, {
+  const { data, loading, error, refetch } = useQuery<PodsData>(GET_PODS, {
     variables: {
       page: page + 1,
       limit: rowsPerPage,
@@ -100,6 +123,8 @@ const PodsPage: React.FC = () => {
     },
     fetchPolicy: 'cache-and-network',
   });
+
+  const [createPod, { loading: creating }] = useMutation(CREATE_POD);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -114,6 +139,35 @@ const PodsPage: React.FC = () => {
     e.preventDefault();
     setSearch(searchInput);
     setPage(0);
+  };
+
+  const handleCreatePod = async () => {
+    setCreateError('');
+    if (!newPod.title.trim() || !newPod.location.trim() || !newPod.dateTime) {
+      setCreateError('Title, location and date/time are required');
+      return;
+    }
+    try {
+      await createPod({
+        variables: {
+          input: {
+            title: newPod.title.trim(),
+            description: newPod.description.trim() || 'No description',
+            category: newPod.category,
+            feePerPerson: Number(newPod.feePerPerson),
+            maxSeats: Number(newPod.maxSeats),
+            dateTime: new Date(newPod.dateTime).toISOString(),
+            location: newPod.location.trim(),
+            locationDetail: newPod.locationDetail.trim(),
+          },
+        },
+      });
+      setCreateOpen(false);
+      setNewPod({ title: '', description: '', category: 'Social', feePerPerson: 0, maxSeats: 10, dateTime: '', location: '', locationDetail: '' });
+      await refetch();
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to create pod');
+    }
   };
 
   const formatDate = (dateStr: string): string => {
@@ -151,23 +205,28 @@ const PodsPage: React.FC = () => {
         <Typography variant="h5" fontWeight={700}>
           Pods
         </Typography>
-        <Box component="form" onSubmit={handleSearch}>
-          <TextField
-            size="small"
-            placeholder="Search pods..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            sx={{ width: 300 }}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+        <Box display="flex" gap={2} alignItems="center">
+          <Box component="form" onSubmit={handleSearch}>
+            <TextField
+              size="small"
+              placeholder="Search pods..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              sx={{ width: 300 }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+          </Box>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+            Create Pod
+          </Button>
         </Box>
       </Box>
 
@@ -350,6 +409,82 @@ const PodsPage: React.FC = () => {
           />
         )}
       </Card>
+
+      {/* Create Pod Dialog */}
+      <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Create Pod</DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+          {createError && <Alert severity="error">{createError}</Alert>}
+          <TextField
+            label="Title"
+            value={newPod.title}
+            onChange={(e) => setNewPod({ ...newPod, title: e.target.value })}
+            fullWidth
+          />
+          <TextField
+            label="Description"
+            value={newPod.description}
+            onChange={(e) => setNewPod({ ...newPod, description: e.target.value })}
+            multiline
+            rows={3}
+            fullWidth
+          />
+          <FormControl fullWidth>
+            <InputLabel>Category</InputLabel>
+            <Select
+              value={newPod.category}
+              label="Category"
+              onChange={(e) => setNewPod({ ...newPod, category: e.target.value })}
+            >
+              <MenuItem value="Social">Social</MenuItem>
+              <MenuItem value="Learning">Learning</MenuItem>
+              <MenuItem value="Outdoor">Outdoor</MenuItem>
+            </Select>
+          </FormControl>
+          <Box display="flex" gap={2}>
+            <TextField
+              label="Fee Per Person (₹)"
+              type="number"
+              value={newPod.feePerPerson}
+              onChange={(e) => setNewPod({ ...newPod, feePerPerson: Number(e.target.value) })}
+              fullWidth
+            />
+            <TextField
+              label="Max Seats"
+              type="number"
+              value={newPod.maxSeats}
+              onChange={(e) => setNewPod({ ...newPod, maxSeats: Number(e.target.value) })}
+              fullWidth
+            />
+          </Box>
+          <TextField
+            label="Date & Time"
+            type="datetime-local"
+            value={newPod.dateTime}
+            onChange={(e) => setNewPod({ ...newPod, dateTime: e.target.value })}
+            fullWidth
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+          <TextField
+            label="Location"
+            value={newPod.location}
+            onChange={(e) => setNewPod({ ...newPod, location: e.target.value })}
+            fullWidth
+          />
+          <TextField
+            label="Location Detail"
+            value={newPod.locationDetail}
+            onChange={(e) => setNewPod({ ...newPod, locationDetail: e.target.value })}
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreatePod} disabled={creating}>
+            {creating ? <CircularProgress size={20} /> : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

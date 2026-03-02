@@ -1,8 +1,10 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4039/graphql';
+
 const httpLink = createHttpLink({
-  uri: 'http://localhost:4039/graphql',
+  uri: API_URL,
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -17,5 +19,16 @@ const authLink = setContext((_, { headers }) => {
 
 export const client = new ApolloClient({
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          users: { merge: false },
+          pods: { merge: false },
+          policies: { merge: false },
+          places: { merge: false },
+        },
+      },
+    },
+  }),
 });

@@ -101,3 +101,13 @@ export const COMPLETE_PROFILE = gql`
     }
   }
 `;
+
+export const GET_IMAGEKIT_AUTH = gql`
+  mutation GetImageKitAuth {
+    getImageKitAuth {
+      token
+      expire
+      signature
+    }
+  }
+`;

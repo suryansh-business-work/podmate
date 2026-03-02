@@ -2,6 +2,7 @@ import type { GraphQLContext } from '../auth/auth.models';
 import type { CreatePodInput, UpdatePodInput } from './pod.models';
 import { UserRole } from '../user/user.models';
 import { requireAuth, requireRole } from '../auth/auth.services';
+// UserRole kept for createPod/updatePod role checks
 import * as podService from './pod.services';
 
 const podResolvers = {
@@ -25,8 +26,8 @@ const podResolvers = {
     },
 
     myPods: (_: unknown, __: unknown, context: GraphQLContext) => {
-      const auth = requireRole(context, UserRole.PLACE_OWNER, UserRole.ADMIN);
-      return podService.getMyPods(auth.userId);
+      const auth = requireAuth(context);
+      return podService.getJoinedPods(auth.userId);
     },
   },
 

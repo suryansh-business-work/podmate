@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert,
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Formik } from 'formik';
@@ -10,6 +10,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing, borderRadius } from '../theme';
 import { GET_POLICIES } from '../graphql/queries';
 import { GradientButton } from '../components/GradientButton';
+import { useImageKitUpload } from '../hooks/useImageKitUpload';
 
 interface RegisterPlaceScreenProps {
   onClose: () => void;
@@ -52,6 +53,11 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
   });
   const [policiesAccepted, setPoliciesAccepted] = useState(false);
   const [hasScrolledPolicies, setHasScrolledPolicies] = useState(false);
+  const [businessLicenseUrl, setBusinessLicenseUrl] = useState('');
+  const [permitsUrl, setPermitsUrl] = useState('');
+  const [venuePhotos, setVenuePhotos] = useState<string[]>([]);
+
+  const { pickAndUploadImage, uploading, progress } = useImageKitUpload();
 
   const { data: policiesData, loading: policiesLoading } = useQuery(GET_POLICIES, {
     variables: { type: 'VENUE' },
@@ -167,26 +173,65 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
         Upload your business license, food/liquor permits, and venue photos. This helps us verify your venue faster.
       </Text>
 
-      <TouchableOpacity style={styles.uploadBox} activeOpacity={0.7}>
-        <MaterialIcons name="cloud-upload" size={36} color={colors.primary} />
-        <Text style={styles.uploadTitle}>Business License</Text>
-        <Text style={styles.uploadSubtext}>Tap to upload (PDF, JPG, PNG)</Text>
+      <TouchableOpacity style={styles.uploadBox} activeOpacity={0.7} disabled={uploading} onPress={async () => {
+        const result = await pickAndUploadImage('/venues/licenses');
+        if (result) setBusinessLicenseUrl(result.url);
+      }}>
+        {businessLicenseUrl ? (
+          <Image source={{ uri: businessLicenseUrl }} style={styles.uploadPreviewImg} />
+        ) : (
+          <>
+            <MaterialIcons name="cloud-upload" size={36} color={colors.primary} />
+            <Text style={styles.uploadTitle}>Business License</Text>
+            <Text style={styles.uploadSubtext}>Tap to upload (JPG, PNG)</Text>
+          </>
+        )}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.uploadBox} activeOpacity={0.7}>
-        <MaterialIcons name="verified-user" size={36} color={colors.primary} />
-        <Text style={styles.uploadTitle}>Permits &amp; Licenses</Text>
-        <Text style={styles.uploadSubtext}>Food / Liquor / Music permits</Text>
+      <TouchableOpacity style={styles.uploadBox} activeOpacity={0.7} disabled={uploading} onPress={async () => {
+        const result = await pickAndUploadImage('/venues/permits');
+        if (result) setPermitsUrl(result.url);
+      }}>
+        {permitsUrl ? (
+          <Image source={{ uri: permitsUrl }} style={styles.uploadPreviewImg} />
+        ) : (
+          <>
+            <MaterialIcons name="verified-user" size={36} color={colors.primary} />
+            <Text style={styles.uploadTitle}>Permits &amp; Licenses</Text>
+            <Text style={styles.uploadSubtext}>Food / Liquor / Music permits</Text>
+          </>
+        )}
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.uploadBox} activeOpacity={0.7}>
-        <MaterialIcons name="photo-library" size={36} color={colors.primary} />
-        <Text style={styles.uploadTitle}>Venue Photos</Text>
-        <Text style={styles.uploadSubtext}>At least 3 photos of your venue</Text>
+      <TouchableOpacity style={styles.uploadBox} activeOpacity={0.7} disabled={uploading} onPress={async () => {
+        const result = await pickAndUploadImage('/venues/photos');
+        if (result) setVenuePhotos(prev => [...prev, result.url]);
+      }}>
+        {venuePhotos.length > 0 ? (
+          <View style={styles.photosRow}>
+            {venuePhotos.map((url, idx) => (
+              <Image key={`photo-${idx}`} source={{ uri: url }} style={styles.photoThumb} />
+            ))}
+            <Text style={styles.uploadSubtext}>{venuePhotos.length} photo(s) • Tap to add more</Text>
+          </View>
+        ) : (
+          <>
+            <MaterialIcons name="photo-library" size={36} color={colors.primary} />
+            <Text style={styles.uploadTitle}>Venue Photos</Text>
+            <Text style={styles.uploadSubtext}>At least 3 photos of your venue</Text>
+          </>
+        )}
       </TouchableOpacity>
+
+      {uploading && (
+        <View style={styles.uploadingRow}>
+          <ActivityIndicator size="small" color={colors.primary} />
+          <Text style={styles.uploadingText}>Uploading... {Math.round(progress * 100)}%</Text>
+        </View>
+      )}
 
       <View style={styles.btnContainer}>
-        <GradientButton title="Continue" onPress={handleStepTwoNext} />
+        <GradientButton title="Continue" onPress={handleStepTwoNext} disabled={uploading} />
       </View>
     </ScrollView>
   );
@@ -344,7 +389,12 @@ const styles = StyleSheet.create({
   categoryBtnActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   categoryBtnText: { fontSize: 13, fontWeight: '500', color: colors.textSecondary },
   categoryBtnTextActive: { color: colors.white },
-  uploadBox: { alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.border, borderStyle: 'dashed', borderRadius: borderRadius.md, paddingVertical: spacing.xxl, marginBottom: spacing.lg },
+  uploadBox: { alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.border, borderStyle: 'dashed', borderRadius: borderRadius.md, paddingVertical: spacing.xxl, marginBottom: spacing.lg, overflow: 'hidden' },
+  uploadPreviewImg: { width: '100%', height: 120, resizeMode: 'cover' },
+  photosRow: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, padding: spacing.sm },
+  photoThumb: { width: 60, height: 60, borderRadius: borderRadius.sm },
+  uploadingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, justifyContent: 'center', marginVertical: spacing.md },
+  uploadingText: { fontSize: 13, color: colors.primary, fontWeight: '500' },
   uploadTitle: { fontSize: 15, fontWeight: '600', color: colors.text, marginTop: spacing.sm },
   uploadSubtext: { fontSize: 13, color: colors.textTertiary, marginTop: 2 },
   policyCard: { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.lg, marginBottom: spacing.md },

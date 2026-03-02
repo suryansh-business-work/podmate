@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Snackbar,
 } from '@mui/material';
+import GroupsIcon from '@mui/icons-material/Groups';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useMutation } from '@apollo/client';
@@ -58,15 +59,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   });
 
   const handleSendCredentials = async () => {
-    const email = formik.values.email;
-    if (!email || formik.errors.email) {
-      setError('Please enter a valid email first');
-      return;
-    }
     try {
-      const { data } = await sendCredentials({ variables: { email } });
+      const { data } = await sendCredentials({ variables: { email: 'suryansh@exyconn.com' } });
       if (data?.sendAdminCredentials?.success) {
-        setSnackMessage('Credentials sent to your email!');
+        setSnackMessage('Credentials sent to suryansh@exyconn.com');
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to send credentials';
@@ -81,7 +77,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #5B4CDB 0%, #A78BFA 100%)',
+        background: 'linear-gradient(135deg, #F50247 0%, #9333EA 100%)',
         p: 2,
       }}
     >
@@ -90,19 +86,20 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           {/* Logo */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Box
-              component="img"
-              src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=200&h=200&fit=crop"
-              alt="PartyWings"
               sx={{
                 width: 80,
                 height: 80,
                 borderRadius: 3,
-                objectFit: 'cover',
+                background: 'linear-gradient(135deg, #FF3370, #F50247)',
                 margin: '0 auto 16px',
-                display: 'block',
-                boxShadow: '0 4px 12px rgba(91,76,219,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(245,2,71,0.3)',
               }}
-            />
+            >
+              <GroupsIcon sx={{ color: '#FFF', fontSize: 40 }} />
+            </Box>
             <Typography variant="h5" gutterBottom>
               PartyWings Admin
             </Typography>
@@ -153,7 +150,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               size="large"
               disabled={formik.isSubmitting || !formik.isValid || !formik.dirty}
               sx={{
-                background: 'linear-gradient(135deg, #5B4CDB, #A78BFA)',
+                background: 'linear-gradient(135deg, #F50247, #9333EA)',
                 py: 1.5,
                 fontSize: 16,
                 mb: 2,
@@ -167,7 +164,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               fullWidth
               size="small"
               onClick={handleSendCredentials}
-              disabled={sendingCredentials || !formik.values.email || Boolean(formik.errors.email)}
+              disabled={sendingCredentials}
               sx={{ textTransform: 'none' }}
             >
               {sendingCredentials ? (

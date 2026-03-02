@@ -18,7 +18,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import EventIcon from '@mui/icons-material/Event';
 import PolicyIcon from '@mui/icons-material/Policy';
-import SettingsIcon from '@mui/icons-material/Settings';
+import PlaceIcon from '@mui/icons-material/Place';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import GroupsIcon from '@mui/icons-material/Groups';
@@ -30,8 +30,8 @@ const navItems = [
   { icon: <DashboardIcon />, label: 'Dashboard', path: '/dashboard' },
   { icon: <PeopleIcon />, label: 'Users', path: '/users' },
   { icon: <EventIcon />, label: 'Pods', path: '/pods' },
+  { icon: <PlaceIcon />, label: 'Places', path: '/places' },
   { icon: <PolicyIcon />, label: 'Policies', path: '/policies' },
-  { icon: <SettingsIcon />, label: 'Settings', path: '/settings' },
 ];
 
 interface AdminLayoutProps {
@@ -54,7 +54,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             width: 40,
             height: 40,
             borderRadius: 2.5,
-            background: 'linear-gradient(135deg, #7B6EE8, #5B4CDB)',
+            background: 'linear-gradient(135deg, #FF3370, #F50247)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -88,9 +88,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
               borderRadius: 2,
               mb: 0.5,
               color: activeNav === item.path ? 'primary.main' : 'text.secondary',
-              bgcolor: activeNav === item.path ? 'rgba(91,76,219,0.08)' : 'transparent',
+              bgcolor: activeNav === item.path ? 'rgba(245,2,71,0.08)' : 'transparent',
               '&:hover': {
-                bgcolor: activeNav === item.path ? 'rgba(91,76,219,0.12)' : 'rgba(0,0,0,0.04)',
+                bgcolor: activeNav === item.path ? 'rgba(245,2,71,0.12)' : 'rgba(0,0,0,0.04)',
               },
             }}
           >

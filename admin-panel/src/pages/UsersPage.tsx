@@ -21,12 +21,23 @@ import {
   TableSortLabel,
   Breadcrumbs,
   Link,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import HomeIcon from '@mui/icons-material/Home';
-import { useQuery } from '@apollo/client';
+import AddIcon from '@mui/icons-material/Add';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_USERS } from '../graphql/queries';
+import { ADMIN_CREATE_USER } from '../graphql/mutations';
 
 type Order = 'ASC' | 'DESC';
 
@@ -63,8 +74,13 @@ const UsersPage: React.FC = () => {
   const [sortBy, setSortBy] = useState('createdAt');
   const [order, setOrder] = useState<Order>('DESC');
   const [searchInput, setSearchInput] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newUserPhone, setNewUserPhone] = useState('');
+  const [newUserName, setNewUserName] = useState('');
+  const [newUserRole, setNewUserRole] = useState('USER');
+  const [createError, setCreateError] = useState('');
 
-  const { data, loading, error } = useQuery<UsersData>(GET_USERS, {
+  const { data, loading, error, refetch } = useQuery<UsersData>(GET_USERS, {
     variables: {
       page: page + 1,
       limit: rowsPerPage,
@@ -74,6 +90,8 @@ const UsersPage: React.FC = () => {
     },
     fetchPolicy: 'cache-and-network',
   });
+
+  const [adminCreateUser, { loading: creating }] = useMutation(ADMIN_CREATE_USER);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -88,6 +106,26 @@ const UsersPage: React.FC = () => {
     e.preventDefault();
     setSearch(searchInput);
     setPage(0);
+  };
+
+  const handleCreateUser = async () => {
+    setCreateError('');
+    if (!newUserPhone.trim() || !newUserName.trim()) {
+      setCreateError('Phone and name are required');
+      return;
+    }
+    try {
+      await adminCreateUser({
+        variables: { phone: newUserPhone.trim(), name: newUserName.trim(), role: newUserRole },
+      });
+      setCreateOpen(false);
+      setNewUserPhone('');
+      setNewUserName('');
+      setNewUserRole('USER');
+      await refetch();
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to create user');
+    }
   };
 
   const formatDate = (dateStr: string): string => {
@@ -118,23 +156,28 @@ const UsersPage: React.FC = () => {
         <Typography variant="h5" fontWeight={700}>
           Users
         </Typography>
-        <Box component="form" onSubmit={handleSearch}>
-          <TextField
-            size="small"
-            placeholder="Search by name or phone..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            sx={{ width: 300 }}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+        <Box display="flex" gap={2} alignItems="center">
+          <Box component="form" onSubmit={handleSearch}>
+            <TextField
+              size="small"
+              placeholder="Search by name or phone..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              sx={{ width: 300 }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+          </Box>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+            Create User
+          </Button>
         </Box>
       </Box>
 
@@ -269,6 +312,45 @@ const UsersPage: React.FC = () => {
           />
         )}
       </Card>
+
+      {/* Create User Dialog */}
+      <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Create User</DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+          {createError && <Alert severity="error">{createError}</Alert>}
+          <TextField
+            label="Phone"
+            placeholder="+91XXXXXXXXXX"
+            value={newUserPhone}
+            onChange={(e) => setNewUserPhone(e.target.value)}
+            fullWidth
+          />
+          <TextField
+            label="Name"
+            value={newUserName}
+            onChange={(e) => setNewUserName(e.target.value)}
+            fullWidth
+          />
+          <FormControl fullWidth>
+            <InputLabel>Role</InputLabel>
+            <Select
+              value={newUserRole}
+              label="Role"
+              onChange={(e) => setNewUserRole(e.target.value)}
+            >
+              <MenuItem value="USER">User</MenuItem>
+              <MenuItem value="PLACE_OWNER">Place Owner</MenuItem>
+              <MenuItem value="ADMIN">Admin</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreateUser} disabled={creating}>
+            {creating ? <CircularProgress size={20} /> : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

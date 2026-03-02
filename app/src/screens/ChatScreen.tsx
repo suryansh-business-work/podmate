@@ -74,7 +74,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
       const token = await AsyncStorage.getItem('token');
       const userId = await AsyncStorage.getItem('userId');
       setMyUserId(userId ?? '');
-      ws = new WebSocket('ws://localhost:4039/ws');
+      ws = new WebSocket(process.env.EXPO_PUBLIC_WS_URL ?? 'ws://localhost:4039/ws');
       wsRef.current = ws;
       ws.onopen = () => {
         ws?.send(JSON.stringify({ type: 'join', token, podId: pod.id }));
@@ -111,7 +111,9 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
     return (
       <View style={[styles.msgRow, isMe && styles.msgRowMe]}>
         {!isMe && (
-          <Image source={{ uri: item.sender?.avatar || 'https://i.pravatar.cc/40' }} style={styles.msgAvatar} />
+          item.sender?.avatar
+            ? <Image source={{ uri: item.sender.avatar }} style={styles.msgAvatar} />
+            : <View style={[styles.msgAvatar, { backgroundColor: colors.surfaceVariant, justifyContent: 'center', alignItems: 'center' }]}><MaterialIcons name="person" size={16} color={colors.textTertiary} /></View>
         )}
         <View style={[styles.msgBubble, isMe ? styles.msgBubbleMe : styles.msgBubbleOther]}>
           {!isMe && <Text style={styles.msgSenderName}>{item.sender?.name ?? 'Unknown'}</Text>}
@@ -203,7 +205,10 @@ const ChatScreen: React.FC = () => {
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.chatRow} activeOpacity={0.7} onPress={() => setSelectedPod(item)}>
-            <Image source={{ uri: item.imageUrl || 'https://i.pravatar.cc/50' }} style={styles.avatar} />
+            {item.imageUrl
+              ? <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
+              : <View style={[styles.avatar, { backgroundColor: colors.surfaceVariant, justifyContent: 'center', alignItems: 'center' }]}><MaterialIcons name="groups" size={24} color={colors.textTertiary} /></View>
+            }
             <View style={styles.chatInfo}>
               <Text style={styles.chatName} numberOfLines={1}>{item.title}</Text>
               <View style={styles.metaRow}>

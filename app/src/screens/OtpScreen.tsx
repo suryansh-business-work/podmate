@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing } from '../theme';
@@ -8,11 +8,12 @@ import { GradientButton } from '../components/GradientButton';
 
 interface OtpScreenProps {
   phone: string;
-  onVerify: (otp: string) => void;
+  onVerify: (otp: string) => Promise<void> | void;
   onBack: () => void;
+  loading?: boolean;
 }
 
-const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack }) => {
+const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, loading }) => {
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
@@ -69,7 +70,9 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack }) => {
           )}
         </View>
 
-        <GradientButton title="Verify" onPress={() => onVerify(otp)} disabled={otp.length < 6} />
+        <GradientButton title={loading ? '' : 'Verify'} onPress={() => onVerify(otp)} disabled={otp.length < 6 || loading}>
+          {loading && <ActivityIndicator color={colors.white} size="small" />}
+        </GradientButton>
       </View>
     </SafeAreaView>
   );

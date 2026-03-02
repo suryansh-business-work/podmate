@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,7 +19,8 @@ import { colors, spacing, borderRadius } from '../theme';
 import { GradientButton } from '../components/GradientButton';
 
 interface LoginScreenProps {
-  onSendOtp: (phone: string) => void;
+  onSendOtp: (phone: string) => Promise<void> | void;
+  loading?: boolean;
 }
 
 interface LoginFormValues {
@@ -31,7 +33,7 @@ const loginSchema = Yup.object().shape({
     .required('Phone number is required'),
 });
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp, loading }) => {
   const [countryCode] = useState('+91');
   const initialValues: LoginFormValues = { phone: '' };
 
@@ -93,10 +95,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp }) => {
 
                 <View style={styles.bottomSection}>
                   <GradientButton
-                    title="Continue"
+                    title={loading ? '' : 'Continue'}
                     onPress={() => formSubmit()}
-                    disabled={!isValid || !dirty}
-                  />
+                    disabled={!isValid || !dirty || loading}
+                  >
+                    {loading && <ActivityIndicator color={colors.white} size="small" />}
+                  </GradientButton>
                   <Text style={styles.termsText}>
                     By continuing, you agree to our{' '}
                     <Text style={styles.termsLink}>Terms of Service</Text> and{' '}

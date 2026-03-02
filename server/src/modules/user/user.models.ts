@@ -24,6 +24,7 @@ export interface CreateUserInput {
   password?: string;
   name?: string;
   age?: number;
+  avatar?: string;
 }
 
 export interface UpdateUserInput {

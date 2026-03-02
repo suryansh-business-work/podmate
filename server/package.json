@@ -21,6 +21,7 @@
     "graphql": "^16.10.0",
     "imagekit": "^5.2.0",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.2.3",
     "nodemailer": "^8.0.1",
     "uuid": "^11.1.0",
     "winston": "^3.19.0",
@@ -39,6 +40,7 @@
     "eslint": "^9.20.0",
     "prettier": "^3.5.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.8.0",
+    "zod": "^4.3.6"
   }
 }

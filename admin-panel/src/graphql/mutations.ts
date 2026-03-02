@@ -64,3 +64,75 @@ export const DELETE_POLICY = gql`
     deletePolicy(id: $id)
   }
 `;
+
+export const ADMIN_CREATE_USER = gql`
+  mutation AdminCreateUser($phone: String!, $name: String!, $role: UserRole!) {
+    adminCreateUser(phone: $phone, name: $name, role: $role) {
+      id
+      phone
+      name
+      role
+      createdAt
+    }
+  }
+`;
+
+export const CREATE_POD = gql`
+  mutation CreatePod($input: CreatePodInput!) {
+    createPod(input: $input) {
+      id
+      title
+      description
+      category
+      feePerPerson
+      maxSeats
+      dateTime
+      location
+      locationDetail
+      status
+      createdAt
+    }
+  }
+`;
+
+export const ADMIN_CREATE_PLACE = gql`
+  mutation AdminCreatePlace($input: CreatePlaceInput!, $ownerId: ID!) {
+    adminCreatePlace(input: $input, ownerId: $ownerId) {
+      id
+      name
+      description
+      address
+      city
+      category
+      status
+      isVerified
+      createdAt
+    }
+  }
+`;
+
+export const APPROVE_PLACE = gql`
+  mutation ApprovePlace($id: ID!) {
+    approvePlace(id: $id) {
+      id
+      status
+      isVerified
+    }
+  }
+`;
+
+export const REJECT_PLACE = gql`
+  mutation RejectPlace($id: ID!) {
+    rejectPlace(id: $id) {
+      id
+      status
+      isVerified
+    }
+  }
+`;
+
+export const DELETE_PLACE = gql`
+  mutation DeletePlace($id: ID!) {
+    deletePlace(id: $id)
+  }
+`;

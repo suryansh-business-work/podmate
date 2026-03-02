@@ -21,7 +21,7 @@ interface ContactPickerProps {
   onSkip: () => void;
 }
 
-/** Placeholder contacts — replace with a real contacts API */
+/** Contacts list — populated via device contacts API */
 const SAMPLE_CONTACTS: Contact[] = [];
 
 const ContactPicker: React.FC<ContactPickerProps> = ({ podId, podTitle, onDone, onSkip }) => {

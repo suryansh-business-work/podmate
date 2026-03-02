@@ -68,8 +68,8 @@ const DashboardPage: React.FC = () => {
     {
       title: 'Total Users',
       value: statsData ? statsData.totalUsers.toLocaleString() : '0',
-      icon: <PeopleIcon sx={{ color: '#5b4cdb', fontSize: 32 }} />,
-      color: '#5b4cdb',
+      icon: <PeopleIcon sx={{ color: '#F50247', fontSize: 32 }} />,
+      color: '#F50247',
     },
     {
       title: 'Active Pods',
@@ -86,8 +86,8 @@ const DashboardPage: React.FC = () => {
     {
       title: 'Total Pods',
       value: statsData ? statsData.totalPods.toString() : '0',
-      icon: <TrendingUpIcon sx={{ color: '#6366f1', fontSize: 32 }} />,
-      color: '#6366f1',
+      icon: <TrendingUpIcon sx={{ color: '#9333EA', fontSize: 32 }} />,
+      color: '#9333EA',
     },
   ];
 

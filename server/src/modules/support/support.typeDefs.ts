@@ -12,6 +12,20 @@ const supportTypeDefs = `#graphql
     HIGH
   }
 
+  enum TicketReplySenderRole {
+    USER
+    ADMIN
+  }
+
+  type TicketReply {
+    id: ID!
+    senderId: ID!
+    sender: User
+    senderRole: TicketReplySenderRole!
+    content: String!
+    createdAt: String!
+  }
+
   type SupportTicket {
     id: ID!
     userId: ID!
@@ -21,6 +35,7 @@ const supportTypeDefs = `#graphql
     status: SupportTicketStatus!
     priority: SupportTicketPriority!
     adminReply: String!
+    replies: [TicketReply!]!
     createdAt: String!
     updatedAt: String!
   }

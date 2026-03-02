@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
   Box, Typography, TextField, MenuItem, CircularProgress,
-  Alert, InputAdornment, Breadcrumbs, Link,
+  Alert, InputAdornment, Breadcrumbs, Link, Button,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
+import AddIcon from '@mui/icons-material/Add';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_SUPPORT_TICKETS, GET_SUPPORT_TICKET_COUNTS } from '../../graphql/queries';
 import { UPDATE_SUPPORT_TICKET, DELETE_SUPPORT_TICKET } from '../../graphql/mutations';
@@ -14,6 +15,7 @@ import SupportTable from './SupportTable';
 import StatusCounts from './StatusCounts';
 import ViewTicketDialog from './ViewTicketDialog';
 import EditTicketDialog from './EditTicketDialog';
+import CreateTicketDialog from './CreateTicketDialog';
 
 const SupportPage: React.FC = () => {
   const [page, setPage] = useState(0);
@@ -29,6 +31,7 @@ const SupportPage: React.FC = () => {
   const [replyText, setReplyText] = useState('');
   const [newStatus, setNewStatus] = useState('');
   const [newPriority, setNewPriority] = useState('');
+  const [createOpen, setCreateOpen] = useState(false);
 
   const { data: countsData } = useQuery<SupportTicketCounts>(GET_SUPPORT_TICKET_COUNTS, {
     fetchPolicy: 'cache-and-network',
@@ -107,6 +110,12 @@ const SupportPage: React.FC = () => {
 
       <Typography variant="h5" fontWeight={700} mb={3}>Support Tickets</Typography>
 
+      <Box display="flex" justifyContent="flex-end" mb={2}>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+          Create Ticket
+        </Button>
+      </Box>
+
       {counts && (
         <StatusCounts
           open={counts.open}
@@ -168,12 +177,13 @@ const SupportPage: React.FC = () => {
         />
       )}
 
-      <ViewTicketDialog ticket={viewTicket} onClose={() => setViewTicket(null)} onReply={handleEdit} />
+      <ViewTicketDialog ticket={viewTicket} onClose={() => setViewTicket(null)} onReply={handleEdit} onRefetch={() => refetch()} />
       <EditTicketDialog
         ticket={editTicket} replyText={replyText} newStatus={newStatus} newPriority={newPriority} updating={updating}
         onReplyChange={setReplyText} onStatusChange={setNewStatus} onPriorityChange={setNewPriority}
         onSave={handleSaveEdit} onClose={() => setEditTicket(null)}
       />
+      <CreateTicketDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={() => refetch()} />
     </Box>
   );
 };

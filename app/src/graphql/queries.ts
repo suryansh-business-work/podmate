@@ -25,6 +25,9 @@ export const GET_PODS = gql`
           avatar
           isVerifiedHost
         }
+        attendees {
+          id
+        }
       }
       total
       page
@@ -73,7 +76,10 @@ export const GET_ME = gql`
     me {
       id
       phone
+      email
       name
+      username
+      dob
       avatar
       role
       isVerifiedHost
@@ -135,6 +141,16 @@ export const GET_MY_SUPPORT_TICKETS = gql`
       status
       priority
       adminReply
+      replies {
+        id
+        senderRole
+        content
+        createdAt
+        sender {
+          id
+          name
+        }
+      }
       createdAt
       updatedAt
     }
@@ -148,6 +164,52 @@ export const GET_CHATBOT_HISTORY = gql`
       role
       content
       createdAt
+    }
+  }
+`;
+
+export const GET_APPROVED_PLACES = gql`
+  query GetApprovedPlaces($search: String) {
+    approvedPlaces(search: $search) {
+      id
+      name
+      address
+      city
+    }
+  }
+`;
+
+export const GET_NOTIFICATIONS = gql`
+  query GetNotifications($page: Int, $limit: Int) {
+    notifications(page: $page, limit: $limit) {
+      items {
+        id
+        type
+        title
+        message
+        data
+        isRead
+        createdAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;
+
+export const GET_UNREAD_NOTIFICATION_COUNT = gql`
+  query GetUnreadNotificationCount {
+    unreadNotificationCount
+  }
+`;
+
+export const GET_APP_CONFIG = gql`
+  query GetAppConfig($keys: [String!]!) {
+    appConfig(keys: $keys) {
+      key
+      value
     }
   }
 `;

@@ -22,11 +22,11 @@ const authResolvers = {
 
     completeProfile: (
       _: unknown,
-      args: { name: string; age: number },
+      args: { username: string; name: string; dob: string },
       context: GraphQLContext,
     ) => {
       const auth = authService.requireAuth(context);
-      return authService.completeProfile(auth.userId, args.name, args.age);
+      return authService.completeProfile(auth.userId, args.username, args.name, args.dob);
     },
 
     getImageKitAuth: (_: unknown, __: unknown, context: GraphQLContext) => {

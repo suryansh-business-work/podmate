@@ -14,8 +14,9 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_PODS } from '../../graphql/queries';
+import { DELETE_POD } from '../../graphql/mutations';
 import { useDebounce } from '../../hooks/useDebounce';
 import { PodsData, Order } from './Pods.types';
 import PodsTable from './PodsTable';
@@ -35,6 +36,8 @@ const PodsPage: React.FC = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const [deletePodMutation] = useMutation(DELETE_POD);
+
   const handleSort = (column: string) => {
     if (sortBy === column) {
       setOrder(order === 'ASC' ? 'DESC' : 'ASC');
@@ -42,6 +45,14 @@ const PodsPage: React.FC = () => {
       setSortBy(column);
       setOrder('ASC');
     }
+  };
+
+  const handleDeletePod = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this pod?')) return;
+    try {
+      await deletePodMutation({ variables: { id } });
+      await refetch();
+    } catch { /* handled by Apollo */ }
   };
 
   return (
@@ -71,7 +82,7 @@ const PodsPage: React.FC = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
 
       <Card>
-        <PodsTable pods={data?.pods.items ?? []} loading={loading && !data} sortBy={sortBy} order={order} onSort={handleSort} />
+        <PodsTable pods={data?.pods.items ?? []} loading={loading && !data} sortBy={sortBy} order={order} onSort={handleSort} onDeletePod={handleDeletePod} />
         {data && (
           <TablePagination
             component="div"

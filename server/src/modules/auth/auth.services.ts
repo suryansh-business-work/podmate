@@ -131,9 +131,10 @@ export async function sendAdminCredentialsEmail(
 
 export async function completeProfile(
   userId: string,
+  username: string,
   name: string,
-  age: number,
+  dob: string,
 ): Promise<User> {
   logger.info(`Profile completed for user ${userId}`);
-  return userService.updateUser(userId, { name, age });
+  return userService.completeUserProfile(userId, username, name, dob);
 }

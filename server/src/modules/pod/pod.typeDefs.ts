@@ -7,6 +7,8 @@ const podTypeDefs = `#graphql
     imageUrl: String!
     mediaUrls: [String!]!
     host: User!
+    placeId: ID!
+    place: Place
     feePerPerson: Float!
     maxSeats: Int!
     currentSeats: Int!
@@ -47,6 +49,7 @@ const podTypeDefs = `#graphql
     category: String!
     imageUrl: String
     mediaUrls: [String!]
+    placeId: ID
     feePerPerson: Float!
     maxSeats: Int!
     dateTime: String!
@@ -57,17 +60,8 @@ const podTypeDefs = `#graphql
 
   input UpdatePodInput {
     title: String
-    description: String
-    category: String
     imageUrl: String
     mediaUrls: [String!]
-    feePerPerson: Float
-    maxSeats: Int
-    dateTime: String
-    location: String
-    locationDetail: String
-    status: PodStatus
-    closeReason: String
   }
 `;
 

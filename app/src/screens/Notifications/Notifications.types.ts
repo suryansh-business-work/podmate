@@ -3,8 +3,9 @@ export interface Notification {
   type: string;
   title: string;
   message: string;
-  time: string;
+  data: string;
   read: boolean;
+  createdAt: string;
 }
 
 export interface NotificationsScreenProps {
@@ -12,6 +13,10 @@ export interface NotificationsScreenProps {
 }
 
 export const NOTIFICATION_ICON_MAP: Record<string, { name: string; family: 'material' | 'community' }> = {
+  POD_JOIN: { name: 'group', family: 'material' },
+  POD_LEAVE: { name: 'group-remove', family: 'material' },
+  SUPPORT_REPLY: { name: 'support-agent', family: 'material' },
+  GENERAL: { name: 'notifications', family: 'material' },
   pod_join: { name: 'group', family: 'material' },
   pod_update: { name: 'confirmation-number', family: 'material' },
   invite: { name: 'email', family: 'material' },

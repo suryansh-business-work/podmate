@@ -3,38 +3,61 @@ import {
   View, Text, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { colors } from '../../theme';
-import { GET_MY_PODS } from '../../graphql/queries';
+import { GET_NOTIFICATIONS } from '../../graphql/queries';
+import { MARK_NOTIFICATION_READ, MARK_ALL_NOTIFICATIONS_READ } from '../../graphql/mutations';
 import { Notification, NotificationsScreenProps, NOTIFICATION_ICON_MAP } from './Notifications.types';
 import { styles } from './Notifications.styles';
 
+interface NotificationsResponse {
+  notifications: {
+    items: Notification[];
+    total: number;
+    page: number;
+    totalPages: number;
+  };
+}
+
+const formatTimeAgo = (dateStr: string): string => {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+};
+
 const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => {
-  const { data, loading, error, refetch } = useQuery(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
+  const { data, loading, error, refetch } = useQuery<NotificationsResponse>(GET_NOTIFICATIONS, {
+    variables: { page: 1, limit: 50 },
+    fetchPolicy: 'cache-and-network',
+  });
 
-  const notifications: Notification[] = (data?.myPods ?? []).map(
-    (pod: { id: string; title: string; status: string; category: string }, index: number) => ({
-      id: `notif-${pod.id}`,
-      type: index % 2 === 0 ? 'pod_update' : 'pod_join',
-      title: pod.status === 'ACTIVE' ? 'Pod Active' : 'Pod Update',
-      message: `"${pod.title}" - ${pod.category} pod is ${pod.status.toLowerCase()}.`,
-      time: 'Recently',
-      read: pod.status !== 'ACTIVE',
-    }),
-  );
+  const [markRead] = useMutation(MARK_NOTIFICATION_READ);
+  const [markAllRead] = useMutation(MARK_ALL_NOTIFICATIONS_READ);
 
-  const [readIds, setReadIds] = useState<Set<string>>(new Set());
-  const unreadCount = notifications.filter((n) => !n.read && !readIds.has(n.id)).length;
+  const notifications: Notification[] = data?.notifications?.items ?? [];
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const markAsRead = (id: string) => {
-    setReadIds((prev) => new Set([...prev, id]));
-  };
+  const handleMarkRead = useCallback(async (id: string) => {
+    try {
+      await markRead({ variables: { notificationId: id } });
+      await refetch();
+    } catch { /* silent */ }
+  }, [markRead, refetch]);
 
-  const markAllRead = () => {
-    setReadIds(new Set(notifications.map((n) => n.id)));
-  };
+  const handleMarkAllRead = useCallback(async () => {
+    try {
+      await markAllRead();
+      await refetch();
+    } catch { /* silent */ }
+  }, [markAllRead, refetch]);
 
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(async () => {
@@ -59,7 +82,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
         {unreadCount > 0 ? (
-          <TouchableOpacity onPress={markAllRead}>
+          <TouchableOpacity onPress={handleMarkAllRead}>
             <Text style={styles.markAllRead}>Mark all read</Text>
           </TouchableOpacity>
         ) : (
@@ -94,28 +117,25 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
-        renderItem={({ item }) => {
-          const isRead = item.read || readIds.has(item.id);
-          return (
-            <TouchableOpacity
-              style={[styles.notificationRow, !isRead && styles.notificationUnread]}
-              onPress={() => markAsRead(item.id)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.iconContainer}>
-                {renderIcon(item.type)}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={[styles.notificationRow, !item.read && styles.notificationUnread]}
+            onPress={() => !item.read && handleMarkRead(item.id)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.iconContainer}>
+              {renderIcon(item.type)}
+            </View>
+            <View style={styles.notificationContent}>
+              <View style={styles.notificationTop}>
+                <Text style={[styles.notificationTitle, !item.read && styles.notificationTitleUnread]}>{item.title}</Text>
+                <Text style={styles.notificationTime}>{formatTimeAgo(item.createdAt)}</Text>
               </View>
-              <View style={styles.notificationContent}>
-                <View style={styles.notificationTop}>
-                  <Text style={[styles.notificationTitle, !isRead && styles.notificationTitleUnread]}>{item.title}</Text>
-                  <Text style={styles.notificationTime}>{item.time}</Text>
-                </View>
-                <Text style={styles.notificationMessage} numberOfLines={2}>{item.message}</Text>
-              </View>
-              {!isRead && <View style={styles.unreadDot} />}
-            </TouchableOpacity>
-          );
-        }}
+              <Text style={styles.notificationMessage} numberOfLines={2}>{item.message}</Text>
+            </View>
+            {!item.read && <View style={styles.unreadDot} />}
+          </TouchableOpacity>
+        )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
           !loading && !error ? (

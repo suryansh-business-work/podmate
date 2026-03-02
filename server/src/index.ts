@@ -32,6 +32,8 @@ import paymentTypeDefs from './modules/payment/payment.typeDefs';
 import paymentResolvers from './modules/payment/payment.resolvers';
 import chatbotTypeDefs from './modules/chatbot/chatbot.typeDefs';
 import chatbotResolvers from './modules/chatbot/chatbot.resolvers';
+import notificationTypeDefs from './modules/notification/notification.typeDefs';
+import notificationResolvers from './modules/notification/notification.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -52,11 +54,14 @@ const rootSchema = `#graphql
     places(page: Int, limit: Int, search: String, status: String, sortBy: String, order: String): PaginatedPlaces!
     place(id: ID!): Place
     myPlaces: [Place!]!
+    approvedPlaces(search: String): [Place!]!
     mySupportTickets: [SupportTicket!]!
+    supportTicket(id: ID!): SupportTicket
     supportTickets(page: Int, limit: Int, search: String, status: String, priority: String, sortBy: String, order: String): PaginatedSupportTickets!
     supportTicketCounts: SupportTicketCounts!
     appSettings: [AppSetting!]!
     appSettingsByCategory(category: String!): [AppSetting!]!
+    appConfig(keys: [String!]!): [AppSetting!]!
     maintenanceMode: Boolean!
     maintenanceStatus: MaintenanceStatus!
     featureFlags(page: Int, limit: Int, search: String): PaginatedFeatureFlags!
@@ -66,6 +71,9 @@ const rootSchema = `#graphql
     payment(id: ID!): Payment
     paymentStats: PaymentStats!
     chatbotHistory(limit: Int): [ChatbotMessage!]!
+    notifications(page: Int, limit: Int): PaginatedNotifications!
+    unreadNotificationCount: Int!
+    openAiModels: [String!]!
   }
 
   type Mutation {
@@ -73,7 +81,7 @@ const rootSchema = `#graphql
     verifyOtp(phone: String!, otp: String!): AuthPayload!
     adminLogin(email: String!, password: String!): AdminAuthPayload!
     sendAdminCredentials(email: String!): SendCredentialsResponse!
-    completeProfile(name: String!, age: Int!): User!
+    completeProfile(username: String!, name: String!, dob: String!): User!
     createPod(input: CreatePodInput!): Pod!
     updatePod(id: ID!, input: UpdatePodInput!): Pod!
     deletePod(id: ID!): Boolean!
@@ -82,9 +90,10 @@ const rootSchema = `#graphql
     closePod(id: ID!, reason: String!): Pod!
     openPod(id: ID!): Pod!
     trackPodView(podId: ID!): Pod!
-    updateProfile(name: String, avatar: String): User!
+    updateProfile(name: String, avatar: String, email: String): User!
     updateUserRole(userId: ID!, role: UserRole!): User!
     adminCreateUser(phone: String!, name: String!, role: UserRole!): User!
+    deleteUser(userId: ID!): Boolean!
     getImageKitAuth: ImageKitAuth!
     sendMessage(podId: ID!, content: String!, messageType: ChatMessageType, mediaUrl: String): ChatMessage!
     sendInvites(podId: ID!, contacts: [InviteInput!]!): InviteResult!
@@ -98,6 +107,8 @@ const rootSchema = `#graphql
     rejectPlace(id: ID!): Place!
     deletePlace(id: ID!): Boolean!
     createSupportTicket(input: CreateSupportTicketInput!): SupportTicket!
+    adminCreateSupportTicket(userId: ID!, input: CreateSupportTicketInput!): SupportTicket!
+    replySupportTicket(id: ID!, content: String!): SupportTicket!
     updateSupportTicket(id: ID!, input: UpdateSupportTicketInput!): SupportTicket!
     deleteSupportTicket(id: ID!): Boolean!
     upsertSetting(input: UpsertSettingInput!): AppSetting!
@@ -116,10 +127,12 @@ const rootSchema = `#graphql
     completePayment(id: ID!, transactionId: String): Payment!
     askChatbot(message: String!): ChatbotResponse!
     clearChatbotHistory: Boolean!
+    markNotificationRead(id: ID!): Boolean!
+    markAllNotificationsRead: Boolean!
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs];
+const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs, notificationTypeDefs];
 
 const resolvers = {
   Query: {
@@ -134,6 +147,7 @@ const resolvers = {
     ...featureFlagResolvers.Query,
     ...paymentResolvers.Query,
     ...chatbotResolvers.Query,
+    ...notificationResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -148,11 +162,13 @@ const resolvers = {
     ...featureFlagResolvers.Mutation,
     ...paymentResolvers.Mutation,
     ...chatbotResolvers.Mutation,
+    ...notificationResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   ChatMessage: chatResolvers.ChatMessage,
   Place: placeResolvers.Place,
   SupportTicket: supportResolvers.SupportTicket,
+  TicketReply: supportResolvers.TicketReply,
   User: userResolvers.User,
   Payment: paymentResolvers.Payment,
 };

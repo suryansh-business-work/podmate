@@ -3,7 +3,8 @@ export interface User {
   phone: string;
   email: string;
   name: string;
-  age: number;
+  username: string;
+  dob: string;
   avatar: string;
   role: string;
   isVerifiedHost: boolean;

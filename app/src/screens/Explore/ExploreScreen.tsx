@@ -3,7 +3,7 @@ import { View, Text, FlatList, StatusBar, ActivityIndicator, RefreshControl, Ale
 import { useMutation, useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing } from '../../theme';
-import { GET_PODS } from '../../graphql/queries';
+import { GET_PODS, GET_ME } from '../../graphql/queries';
 import { JOIN_POD } from '../../graphql/mutations';
 import { Pod, ExploreScreenProps } from './Explore.types';
 import { styles, SCREEN_H } from './Explore.styles';
@@ -12,6 +12,9 @@ import PodCard from './PodCard';
 const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [joiningId, setJoiningId] = useState<string | null>(null);
+
+  const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
+  const currentUserId: string = (meData?.me?.id as string) ?? '';
 
   const { data, loading, error, refetch } = useQuery(GET_PODS, {
     variables: {
@@ -74,6 +77,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
           <PodCard
             item={item}
             activeCategory={activeCategory}
+            currentUserId={currentUserId}
             onCategoryChange={setActiveCategory}
             onDetailPress={onPodPress}
             onJoinPress={handleJoin}

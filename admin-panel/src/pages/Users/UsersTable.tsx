@@ -21,6 +21,7 @@ import {
 import VerifiedIcon from '@mui/icons-material/Verified';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useMutation } from '@apollo/client';
 import { UPDATE_USER_ROLE } from '../../graphql/mutations';
 import { User, Order, roleColor, formatDate } from './Users.types';
@@ -32,6 +33,7 @@ interface UsersTableProps {
   order: Order;
   onSort: (column: string) => void;
   onToggleUser: (user: User) => void;
+  onDeleteUser: (id: string) => void;
   onRefetch: () => void;
 }
 
@@ -42,6 +44,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
   order,
   onSort,
   onToggleUser,
+  onDeleteUser,
   onRefetch,
 }) => {
   const navigate = useNavigate();
@@ -172,6 +175,15 @@ const UsersTable: React.FC<UsersTableProps> = ({
                       onClick={() => onToggleUser(user)}
                     >
                       {user.isActive ? <BlockIcon fontSize="small" /> : <CheckCircleIcon fontSize="small" />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete User">
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => onDeleteUser(user.id)}
+                    >
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                 </TableCell>

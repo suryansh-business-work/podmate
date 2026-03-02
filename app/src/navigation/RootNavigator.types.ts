@@ -11,4 +11,5 @@ export type RootStackParamList = {
   Faq: undefined;
   Support: undefined;
   Chatbot: undefined;
+  EditProfile: undefined;
 };

@@ -50,11 +50,12 @@ export const JOIN_POD = gql`
 `;
 
 export const UPDATE_PROFILE = gql`
-  mutation UpdateProfile($name: String, $avatar: String) {
-    updateProfile(name: $name, avatar: $avatar) {
+  mutation UpdateProfile($name: String, $avatar: String, $email: String) {
+    updateProfile(name: $name, avatar: $avatar, email: $email) {
       id
       name
       avatar
+      email
     }
   }
 `;
@@ -92,12 +93,13 @@ export const SEND_INVITES = gql`
 `;
 
 export const COMPLETE_PROFILE = gql`
-  mutation CompleteProfile($name: String!, $age: Int!) {
-    completeProfile(name: $name, age: $age) {
+  mutation CompleteProfile($username: String!, $name: String!, $dob: String!) {
+    completeProfile(username: $username, name: $name, dob: $dob) {
       id
       phone
       name
-      age
+      username
+      dob
       avatar
       role
     }
@@ -148,5 +150,45 @@ export const TRACK_POD_VIEW = gql`
       id
       viewCount
     }
+  }
+`;
+
+export const REPLY_SUPPORT_TICKET = gql`
+  mutation ReplySupportTicket($ticketId: ID!, $content: String!) {
+    replySupportTicket(ticketId: $ticketId, content: $content) {
+      id
+      status
+      replies {
+        id
+        senderRole
+        content
+        createdAt
+        sender {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const MARK_NOTIFICATION_READ = gql`
+  mutation MarkNotificationRead($id: ID!) {
+    markNotificationRead(id: $id) {
+      id
+      isRead
+    }
+  }
+`;
+
+export const MARK_ALL_NOTIFICATIONS_READ = gql`
+  mutation MarkAllNotificationsRead {
+    markAllNotificationsRead
+  }
+`;
+
+export const DELETE_POD = gql`
+  mutation DeletePod($id: ID!) {
+    deletePod(id: $id)
   }
 `;

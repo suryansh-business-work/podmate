@@ -14,6 +14,7 @@ export interface Pod {
   rating: number;
   reviewCount: number;
   host: { id: string; name: string; avatar: string; isVerifiedHost: boolean };
+  attendees?: { id: string }[];
 }
 
 export interface PodNavigationCallback {

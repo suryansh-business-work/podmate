@@ -13,14 +13,28 @@ export async function findUserByPhone(phone: string): Promise<User | null> {
   return toUser(doc);
 }
 
+export async function findUserByUsername(username: string): Promise<User | null> {
+  const doc = await UserModel.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } }).lean({ virtuals: true });
+  return toUser(doc);
+}
+
+export async function isUsernameAvailable(username: string, excludeUserId?: string): Promise<boolean> {
+  const filter: Record<string, unknown> = { username: { $regex: new RegExp(`^${username}$`, 'i') } };
+  if (excludeUserId) filter._id = { $ne: excludeUserId };
+  const count = await UserModel.countDocuments(filter);
+  return count === 0;
+}
+
 export async function createUser(input: CreateUserInput): Promise<User> {
   const doc = await UserModel.create({
     _id: uuidv4(),
     phone: input.phone,
     email: input.email ?? '',
     password: input.password ?? '',
+    username: input.username ?? '',
     name: input.name ?? '',
     age: input.age ?? 0,
+    dob: input.dob ?? '',
     avatar: input.avatar ?? '',
     role: input.role ?? UserRole.USER,
     isVerifiedHost: false,
@@ -34,10 +48,31 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Us
   if (input.name !== undefined) update.name = input.name;
   if (input.avatar !== undefined) update.avatar = input.avatar;
   if (input.age !== undefined) update.age = input.age;
+  if (input.email !== undefined) update.email = input.email;
 
   const updated = await UserModel.findByIdAndUpdate(id, { $set: update }, { returnDocument: 'after' }).lean({
     virtuals: true,
   });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+  return result;
+}
+
+export async function completeUserProfile(
+  id: string,
+  username: string,
+  name: string,
+  dob: string,
+): Promise<User> {
+  /* Validate username uniqueness */
+  const available = await isUsernameAvailable(username, id);
+  if (!available) throw new Error('Username is already taken');
+
+  const updated = await UserModel.findByIdAndUpdate(
+    id,
+    { $set: { username, name, dob } },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
   const result = toUser(updated);
   if (!result) throw new Error('User not found');
   return result;
@@ -72,6 +107,7 @@ export async function getPaginatedUsers(input: PaginationInput): Promise<Paginat
       { name: { $regex: q, $options: 'i' } },
       { phone: { $regex: q, $options: 'i' } },
       { email: { $regex: q, $options: 'i' } },
+      { username: { $regex: q, $options: 'i' } },
     ];
   }
 
@@ -113,4 +149,27 @@ export async function toggleUserActive(id: string, isActive: boolean, reason: st
   }
 
   return result;
+}
+
+export async function deleteUser(id: string): Promise<boolean> {
+  /* Cascade: delete all user's pods */
+  const { PodModel } = await import('../pod/pod.models');
+  await PodModel.deleteMany({ hostId: id });
+
+  /* Remove user from all attended pods */
+  await PodModel.updateMany(
+    { attendeeIds: id },
+    { $pull: { attendeeIds: id }, $inc: { currentSeats: -1 } },
+  );
+
+  /* Delete user's support tickets */
+  const { SupportTicketModel } = await import('../support/support.models');
+  await SupportTicketModel.deleteMany({ userId: id });
+
+  /* Delete user's places */
+  const { PlaceModel } = await import('../place/place.models');
+  await PlaceModel.deleteMany({ ownerId: id });
+
+  const result = await UserModel.deleteOne({ _id: id });
+  return result.deletedCount > 0;
 }

@@ -14,8 +14,9 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_USERS } from '../../graphql/queries';
+import { DELETE_USER } from '../../graphql/mutations';
 import { useDebounce } from '../../hooks/useDebounce';
 import { UsersData, User, Order } from './Users.types';
 import UsersTable from './UsersTable';
@@ -37,6 +38,8 @@ const UsersPage: React.FC = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const [deleteUserMutation] = useMutation(DELETE_USER);
+
   const handleSort = (column: string) => {
     if (sortBy === column) {
       setOrder(order === 'ASC' ? 'DESC' : 'ASC');
@@ -44,6 +47,14 @@ const UsersPage: React.FC = () => {
       setSortBy(column);
       setOrder('ASC');
     }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this user? This will also delete all their pods, places, and tickets.')) return;
+    try {
+      await deleteUserMutation({ variables: { id } });
+      await refetch();
+    } catch { /* handled by Apollo */ }
   };
 
   return (
@@ -91,6 +102,7 @@ const UsersPage: React.FC = () => {
           order={order}
           onSort={handleSort}
           onToggleUser={(user) => setToggleUser(user)}
+          onDeleteUser={handleDeleteUser}
           onRefetch={() => refetch()}
         />
         {data && (

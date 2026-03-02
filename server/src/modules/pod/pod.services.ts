@@ -4,6 +4,7 @@ import { PodModel, toPod } from './pod.models';
 import type { User } from '../user/user.models';
 import { UserModel, toUser } from '../user/user.models';
 import { findUserById } from '../user/user.services';
+import { createNotification } from '../notification/notification.services';
 
 export async function getPaginatedPods(input: PodPaginationInput): Promise<PaginatedPods> {
   const filter: Record<string, unknown> = {};
@@ -58,6 +59,7 @@ export async function createPod(input: CreatePodInput, hostId: string): Promise<
     category: input.category,
     imageUrl: input.imageUrl ?? '',
     hostId,
+    placeId: input.placeId ?? '',
     feePerPerson: input.feePerPerson,
     maxSeats: input.maxSeats,
     dateTime: input.dateTime,
@@ -79,18 +81,11 @@ export async function updatePod(id: string, hostId: string, input: UpdatePodInpu
   if (!pod) throw new Error('Pod not found');
   if (pod.hostId !== hostId) throw new Error('You can only update your own pods');
 
+  /* Only title, imageUrl, and mediaUrls are editable by host */
   const update: Record<string, unknown> = {};
   if (input.title !== undefined) update.title = input.title;
-  if (input.description !== undefined) update.description = input.description;
-  if (input.category !== undefined) update.category = input.category;
   if (input.imageUrl !== undefined) update.imageUrl = input.imageUrl;
-  if (input.feePerPerson !== undefined) update.feePerPerson = input.feePerPerson;
-  if (input.maxSeats !== undefined) update.maxSeats = input.maxSeats;
-  if (input.dateTime !== undefined) update.dateTime = input.dateTime;
-  if (input.location !== undefined) update.location = input.location;
-  if (input.locationDetail !== undefined) update.locationDetail = input.locationDetail;
-  if (input.status !== undefined) update.status = input.status;
-  if (input.closeReason !== undefined) update.closeReason = input.closeReason;
+  if (input.mediaUrls !== undefined) update.mediaUrls = input.mediaUrls;
 
   const updated = await PodModel.findByIdAndUpdate(id, { $set: update }, { returnDocument: 'after' }).lean({
     virtuals: true,
@@ -101,6 +96,22 @@ export async function updatePod(id: string, hostId: string, input: UpdatePodInpu
 }
 
 export async function deletePod(id: string): Promise<boolean> {
+  const pod = await PodModel.findById(id);
+  if (!pod) throw new Error('Pod not found');
+  if (pod.currentSeats > 0) {
+    throw new Error('Cannot delete pod with active participants. Remove all participants first.');
+  }
+  const result = await PodModel.deleteOne({ _id: id });
+  return result.deletedCount > 0;
+}
+
+export async function hostDeletePod(id: string, hostId: string): Promise<boolean> {
+  const pod = await PodModel.findById(id);
+  if (!pod) throw new Error('Pod not found');
+  if (pod.hostId !== hostId) throw new Error('You can only delete your own pods');
+  if (pod.currentSeats > 0) {
+    throw new Error('Cannot delete pod after someone has joined');
+  }
   const result = await PodModel.deleteOne({ _id: id });
   return result.deletedCount > 0;
 }
@@ -118,6 +129,18 @@ export async function joinPod(podId: string, userId: string): Promise<Pod> {
   ).lean({ virtuals: true });
   const result = toPod(updated);
   if (!result) throw new Error('Pod not found');
+
+  /* Notify the host that someone joined their pod */
+  const joiner = await findUserById(userId);
+  const joinerName = joiner?.name || joiner?.username || 'Someone';
+  await createNotification(
+    pod.hostId,
+    'POD_JOIN',
+    'New Pod Member!',
+    `${joinerName} joined your pod "${pod.title}"`,
+    JSON.stringify({ podId, userId }),
+  );
+
   return result;
 }
 

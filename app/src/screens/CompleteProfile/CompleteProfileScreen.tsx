@@ -1,37 +1,51 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, KeyboardAvoidingView, Platform, Alert, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { colors } from '../../theme';
 import { GradientButton } from '../../components/GradientButton';
 import styles from './CompleteProfile.styles';
 
 interface CompleteProfileScreenProps {
-  onComplete: (name: string, age: number) => void | Promise<void>;
+  onComplete: (username: string, name: string, dob: string) => void | Promise<void>;
 }
 
 interface ProfileFormValues {
+  username: string;
   name: string;
-  age: string;
+  dob: string;
 }
 
 const profileSchema = Yup.object().shape({
-  name: Yup.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be under 50 characters').required('Name is required'),
-  age: Yup.number().typeError('Age must be a number').min(13, 'You must be at least 13 years old').max(120, 'Please enter a valid age').required('Age is required'),
+  username: Yup.string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username must be under 30 characters')
+    .matches(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers and underscores')
+    .required('Username is required'),
+  name: Yup.string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name must be under 50 characters')
+    .required('Name is required'),
+  dob: Yup.string().required('Date of birth is required'),
 });
 
-const initialValues: ProfileFormValues = { name: '', age: '' };
+const initialValues: ProfileFormValues = { username: '', name: '', dob: '' };
+
+const formatDob = (date: Date): string =>
+  date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
 const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({ onComplete }) => {
   const [submitting, setSubmitting] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleSubmit = async (values: ProfileFormValues) => {
     setSubmitting(true);
     try {
-      await onComplete(values.name.trim(), parseInt(values.age, 10));
+      await onComplete(values.username.trim(), values.name.trim(), values.dob);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to complete profile';
       Alert.alert('Error', msg);
@@ -57,8 +71,21 @@ const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({ onComplet
           <Text style={styles.subtitle}>Tell us a bit about yourself to get started.</Text>
 
           <Formik initialValues={initialValues} validationSchema={profileSchema} onSubmit={handleSubmit}>
-            {({ handleChange, handleBlur, handleSubmit: formSubmit, values, errors, touched, isValid, dirty }) => (
+            {({ handleChange, handleBlur, handleSubmit: formSubmit, values, errors, touched, isValid, dirty, setFieldValue }) => (
               <View>
+                <Text style={styles.inputLabel}>USERNAME</Text>
+                <TextInput
+                  style={[styles.textInput, touched.username && errors.username ? styles.textInputError : undefined]}
+                  placeholder="Choose a unique username"
+                  placeholderTextColor={colors.textTertiary}
+                  value={values.username}
+                  onChangeText={handleChange('username')}
+                  onBlur={handleBlur('username')}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                {touched.username && errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+
                 <Text style={styles.inputLabel}>YOUR NAME</Text>
                 <TextInput
                   style={[styles.textInput, touched.name && errors.name ? styles.textInputError : undefined]}
@@ -71,18 +98,33 @@ const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({ onComplet
                 />
                 {touched.name && errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
 
-                <Text style={styles.inputLabel}>YOUR AGE</Text>
-                <TextInput
-                  style={[styles.textInput, touched.age && errors.age ? styles.textInputError : undefined]}
-                  placeholder="Enter your age"
-                  placeholderTextColor={colors.textTertiary}
-                  keyboardType="number-pad"
-                  value={values.age}
-                  onChangeText={handleChange('age')}
-                  onBlur={handleBlur('age')}
-                  maxLength={3}
-                />
-                {touched.age && errors.age && <Text style={styles.errorText}>{errors.age}</Text>}
+                <Text style={styles.inputLabel}>DATE OF BIRTH</Text>
+                <TouchableOpacity
+                  style={[styles.textInput, touched.dob && errors.dob ? styles.textInputError : undefined]}
+                  onPress={() => setShowDatePicker(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ fontSize: 16, color: values.dob ? colors.text : colors.textTertiary }}>
+                    {values.dob ? formatDob(new Date(values.dob)) : 'Select your date of birth'}
+                  </Text>
+                </TouchableOpacity>
+                {touched.dob && errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
+
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={values.dob ? new Date(values.dob) : new Date(2000, 0, 1)}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    maximumDate={new Date()}
+                    minimumDate={new Date(1920, 0, 1)}
+                    onChange={(_, selectedDate) => {
+                      setShowDatePicker(Platform.OS === 'ios');
+                      if (selectedDate) {
+                        setFieldValue('dob', selectedDate.toISOString());
+                      }
+                    }}
+                  />
+                )}
 
                 <View style={styles.infoRow}>
                   <MaterialIcons name="info-outline" size={16} color={colors.primary} />

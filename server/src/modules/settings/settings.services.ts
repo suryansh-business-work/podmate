@@ -140,3 +140,29 @@ export async function testImageKitConnection(): Promise<{ success: boolean; mess
     return { success: false, message: `ImageKit test failed: ${message}` };
   }
 }
+
+/* ── OpenAI Models ── */
+
+export async function getOpenAiModels(): Promise<string[]> {
+  try {
+    const apiKey = await getConfigValue('openai_api_key', 'OPENAI_API_KEY');
+    if (!apiKey) return [];
+
+    const response = await fetch('https://api.openai.com/v1/models', {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+
+    if (!response.ok) return [];
+
+    const data = (await response.json()) as { data: Array<{ id: string }> };
+    const models = data.data
+      .map((m) => m.id)
+      .filter((id) => id.startsWith('gpt-') || id.startsWith('o'))
+      .sort();
+    return models;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    logger.error('Failed to fetch OpenAI models:', message);
+    return [];
+  }
+}

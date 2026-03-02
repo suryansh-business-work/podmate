@@ -1,3 +1,11 @@
+export interface TicketReply {
+  id: string;
+  senderRole: 'USER' | 'ADMIN';
+  content: string;
+  createdAt: string;
+  sender: { id: string; name: string } | null;
+}
+
 export interface SupportTicket {
   id: string;
   userId: string;
@@ -7,6 +15,7 @@ export interface SupportTicket {
   status: string;
   priority: string;
   adminReply: string;
+  replies: TicketReply[];
   createdAt: string;
   updatedAt: string;
 }

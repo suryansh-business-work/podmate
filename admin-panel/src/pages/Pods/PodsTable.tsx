@@ -14,9 +14,11 @@ import {
   Typography,
   Box,
   Tooltip,
+  IconButton,
   CircularProgress,
   LinearProgress,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Pod, Order, statusColor, formatDate, formatTime } from './Pods.types';
 
 interface PodsTableProps {
@@ -25,9 +27,10 @@ interface PodsTableProps {
   sortBy: string;
   order: Order;
   onSort: (column: string) => void;
+  onDeletePod: (id: string) => void;
 }
 
-const PodsTable: React.FC<PodsTableProps> = ({ pods, loading, sortBy, order, onSort }) => {
+const PodsTable: React.FC<PodsTableProps> = ({ pods, loading, sortBy, order, onSort, onDeletePod }) => {
   const navigate = useNavigate();
   const sortDir = (col: string) => (sortBy === col ? (order === 'ASC' ? 'asc' : 'desc') : 'asc');
 
@@ -51,16 +54,17 @@ const PodsTable: React.FC<PodsTableProps> = ({ pods, loading, sortBy, order, onS
               <TableSortLabel active={sortBy === 'dateTime'} direction={sortDir('dateTime')} onClick={() => onSort('dateTime')}>Date</TableSortLabel>
             </TableCell>
             <TableCell>Location</TableCell>
+            <TableCell align="center">Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={9} align="center" sx={{ py: 6 }}><CircularProgress size={32} /></TableCell>
+              <TableCell colSpan={10} align="center" sx={{ py: 6 }}><CircularProgress size={32} /></TableCell>
             </TableRow>
           ) : !pods.length ? (
             <TableRow>
-              <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+              <TableCell colSpan={10} align="center" sx={{ py: 6 }}>
                 <Typography color="text.secondary">No pods found</Typography>
               </TableCell>
             </TableRow>
@@ -117,6 +121,13 @@ const PodsTable: React.FC<PodsTableProps> = ({ pods, loading, sortBy, order, onS
                   <TableCell>
                     <Typography variant="body2" noWrap>{pod.location}</Typography>
                     <Typography variant="caption" color="text.secondary" noWrap>{pod.locationDetail}</Typography>
+                  </TableCell>
+                  <TableCell align="center" onClick={(e) => e.stopPropagation()}>
+                    <Tooltip title="Delete Pod">
+                      <IconButton size="small" color="error" onClick={() => onDeletePod(pod.id)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               );

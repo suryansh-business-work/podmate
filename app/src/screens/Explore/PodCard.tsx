@@ -9,6 +9,7 @@ import { styles } from './Explore.styles';
 interface PodCardProps {
   item: Pod;
   activeCategory: string;
+  currentUserId: string;
   onCategoryChange: (cat: string) => void;
   onDetailPress?: (podId: string) => void;
   onJoinPress: (podId: string) => void;
@@ -18,6 +19,7 @@ interface PodCardProps {
 const PodCard: React.FC<PodCardProps> = ({
   item,
   activeCategory,
+  currentUserId,
   onCategoryChange,
   onDetailPress,
   onJoinPress,
@@ -25,6 +27,7 @@ const PodCard: React.FC<PodCardProps> = ({
 }) => {
   const fillPct = Math.round((item.currentSeats / item.maxSeats) * 100);
   const isFull = item.currentSeats >= item.maxSeats;
+  const alreadyJoined = (item.attendees ?? []).some((a) => a.id === currentUserId);
 
   return (
     <View style={styles.slide}>
@@ -114,21 +117,28 @@ const PodCard: React.FC<PodCardProps> = ({
             <Text style={styles.priceLabel}>₹{item.feePerPerson.toLocaleString()}</Text>
             <Text style={styles.priceSub}>per person</Text>
           </View>
-          <TouchableOpacity
-            style={[styles.joinBtn, isFull && styles.joinBtnFull]}
-            activeOpacity={0.8}
-            onPress={() => (isFull ? null : onJoinPress(item.id))}
-            disabled={isFull || joiningId === item.id}
-          >
-            {joiningId === item.id ? (
-              <ActivityIndicator size="small" color={colors.white} />
-            ) : (
-              <>
-                <MaterialIcons name={isFull ? 'event-busy' : 'group-add'} size={18} color={colors.white} />
-                <Text style={styles.joinBtnText}>{isFull ? 'Full' : 'Join Pod'}</Text>
-              </>
-            )}
-          </TouchableOpacity>
+          {alreadyJoined ? (
+            <View style={[styles.joinBtn, { backgroundColor: colors.success }]}>
+              <MaterialIcons name="check-circle" size={18} color={colors.white} />
+              <Text style={styles.joinBtnText}>Joined</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[styles.joinBtn, isFull && styles.joinBtnFull]}
+              activeOpacity={0.8}
+              onPress={() => (isFull ? null : onJoinPress(item.id))}
+              disabled={isFull || joiningId === item.id}
+            >
+              {joiningId === item.id ? (
+                <ActivityIndicator size="small" color={colors.white} />
+              ) : (
+                <>
+                  <MaterialIcons name={isFull ? 'event-busy' : 'group-add'} size={18} color={colors.white} />
+                  <Text style={styles.joinBtnText}>{isFull ? 'Full' : 'Join Pod'}</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </View>

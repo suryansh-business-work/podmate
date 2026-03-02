@@ -1,13 +1,20 @@
 import * as Yup from 'yup';
 import { colors } from '../../theme';
 
+export interface TicketReply {
+  id: string;
+  senderRole: 'USER' | 'ADMIN';
+  content: string;
+  createdAt: string;
+}
+
 export interface SupportTicket {
   id: string;
   subject: string;
   message: string;
   status: string;
   priority: string;
-  adminReply: string;
+  replies: TicketReply[];
   createdAt: string;
   updatedAt: string;
 }

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Card, CardContent, Button, Tabs, Tab, TextField,
+  Box, Typography, Card, CardContent, Button, Tabs, Tab, TextField, MenuItem,
   CircularProgress, Alert, Breadcrumbs, Link, Divider, Switch, FormControlLabel, Stack,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import SaveIcon from '@mui/icons-material/Save';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_APP_SETTINGS } from '../../graphql/queries';
+import { GET_APP_SETTINGS, GET_OPENAI_MODELS } from '../../graphql/queries';
 import { UPSERT_SETTING, TEST_SMTP_CONNECTION, TEST_OPENAI_CONNECTION, TEST_IMAGEKIT_CONNECTION } from '../../graphql/mutations';
 import type {
   AppSetting, SettingsData, SmtpConfig, ImageKitConfig, OpenAiConfig, SlackConfig,
@@ -44,6 +44,7 @@ const ConfigurationPage: React.FC = () => {
   const [testResult, setTestResult] = useState<TestConnectionResult | null>(null);
 
   const { data, loading } = useQuery<SettingsData>(GET_APP_SETTINGS, { fetchPolicy: 'cache-and-network' });
+  const { data: modelsData, loading: modelsLoading } = useQuery<{ openAiModels: string[] }>(GET_OPENAI_MODELS, { fetchPolicy: 'cache-and-network' });
   const [upsertSetting, { loading: saving }] = useMutation(UPSERT_SETTING);
   const [testSmtp, { loading: testingSmtp }] = useMutation(TEST_SMTP_CONNECTION);
   const [testOpenAi, { loading: testingOpenAi }] = useMutation(TEST_OPENAI_CONNECTION);
@@ -224,9 +225,21 @@ const ConfigurationPage: React.FC = () => {
             <Stack spacing={2}>
               <TextField label="API Key" type="password" value={openai.apiKey}
                 onChange={(e) => setOpenai((p) => ({ ...p, apiKey: e.target.value }))} fullWidth />
-              <TextField label="Model" value={openai.model}
-                onChange={(e) => setOpenai((p) => ({ ...p, model: e.target.value }))} fullWidth
-                helperText="e.g. gpt-3.5-turbo, gpt-4, gpt-4o" />
+              <TextField
+                select
+                label="Model"
+                value={openai.model}
+                onChange={(e) => setOpenai((p) => ({ ...p, model: e.target.value }))}
+                fullWidth
+                helperText={modelsLoading ? 'Loading models...' : 'Select an OpenAI model'}
+              >
+                {(modelsData?.openAiModels ?? []).length === 0 && (
+                  <MenuItem value={openai.model || 'gpt-3.5-turbo'}>{openai.model || 'gpt-3.5-turbo'}</MenuItem>
+                )}
+                {(modelsData?.openAiModels ?? []).map((m) => (
+                  <MenuItem key={m} value={m}>{m}</MenuItem>
+                ))}
+              </TextField>
               <TextField label="Chatbot Pre-Prompt" value={openai.prePrompt}
                 onChange={(e) => setOpenai((p) => ({ ...p, prePrompt: e.target.value }))} fullWidth
                 multiline rows={4} helperText="System prompt sent to OpenAI before each conversation" />

@@ -32,6 +32,11 @@ const placeResolvers = {
       const auth = requireAuth(context);
       return placeService.getPlacesByOwner(auth.userId);
     },
+
+    approvedPlaces: (_: unknown, args: { search?: string }, context: GraphQLContext) => {
+      requireAuth(context);
+      return placeService.getApprovedPlaces(args.search);
+    },
   },
 
   Mutation: {

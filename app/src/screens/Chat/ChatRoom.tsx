@@ -120,27 +120,29 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
         </View>
       </View>
 
-      {loading ? (
-        <View style={styles.centered}><ActivityIndicator size="large" color={colors.primary} /></View>
-      ) : (
-        <FlatList
-          ref={flatListRef}
-          data={allMessages}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMessage}
-          contentContainerStyle={styles.messagesList}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-        />
-      )}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}>
+        {loading ? (
+          <View style={styles.centered}><ActivityIndicator size="large" color={colors.primary} /></View>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={allMessages}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMessage}
+            contentContainerStyle={styles.messagesList}
+            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            keyboardDismissMode="interactive"
+            keyboardShouldPersistTaps="handled"
+          />
+        )}
 
-      {uploading && (
-        <View style={styles.uploadingBar}>
-          <ActivityIndicator size="small" color={colors.primary} />
-          <Text style={styles.uploadingText}>Uploading media…</Text>
-        </View>
-      )}
+        {uploading && (
+          <View style={styles.uploadingBar}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={styles.uploadingText}>Uploading media…</Text>
+          </View>
+        )}
 
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={90}>
         <View style={styles.inputBar}>
           <TouchableOpacity onPress={() => setShowAttach(!showAttach)} style={styles.attachBtn}>
             <MaterialIcons name="add" size={24} color={showAttach ? colors.primary : colors.textSecondary} />

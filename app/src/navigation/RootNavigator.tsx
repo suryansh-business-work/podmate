@@ -13,6 +13,7 @@ import RegisterPlaceScreen from '../screens/RegisterPlace';
 import FaqScreen from '../screens/FaqScreen';
 import SupportScreen from '../screens/SupportScreen';
 import ChatbotScreen from '../screens/Chatbot';
+import EditProfileScreen from '../screens/EditProfile';
 import ChatbotFab from '../components/ChatbotFab';
 import NetworkBanner from '../components/NetworkBanner';
 import MainTabs from './MainTabs';
@@ -48,6 +49,7 @@ const RootNavigator: React.FC = () => {
 
   const handleProfileNavigate = (screen: string, navigation: { navigate: (name: string, params?: Record<string, unknown>) => void }) => {
     const map: Record<string, () => void> = {
+      EditProfile: () => navigation.navigate('EditProfile'),
       MyPods: () => navigation.navigate('Main', { screen: 'Chat' } as never),
       Notifications: () => navigation.navigate('Notifications'),
       Help: () => navigation.navigate('Faq'),
@@ -136,6 +138,9 @@ const RootNavigator: React.FC = () => {
               </Stack.Screen>
               <Stack.Screen name="Support" options={{ presentation: 'card' }}>
                 {({ navigation }) => <SupportScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="EditProfile" options={{ presentation: 'card' }}>
+                {({ navigation }) => <EditProfileScreen onBack={() => navigation.goBack()} />}
               </Stack.Screen>
               <Stack.Screen name="Chatbot" options={{ presentation: 'modal' }}>
                 {({ navigation }) => <ChatbotScreen onBack={() => navigation.goBack()} />}

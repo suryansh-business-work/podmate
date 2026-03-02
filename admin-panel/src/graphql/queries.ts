@@ -8,7 +8,8 @@ export const GET_USERS = gql`
         phone
         email
         name
-        age
+        username
+        dob
         avatar
         role
         isVerifiedHost
@@ -55,6 +56,7 @@ export const GET_PODS = gql`
         dateTime
         location
         locationDetail
+        placeId
         rating
         reviewCount
         status
@@ -72,6 +74,10 @@ export const GET_PODS = gql`
           id
           name
           avatar
+        }
+        place {
+          id
+          name
         }
       }
       total
@@ -155,6 +161,16 @@ export const GET_SUPPORT_TICKETS = gql`
         status
         priority
         adminReply
+        replies {
+          id
+          senderRole
+          content
+          createdAt
+          sender {
+            id
+            name
+          }
+        }
         createdAt
         updatedAt
       }
@@ -203,7 +219,8 @@ export const GET_USER = gql`
       phone
       email
       name
-      age
+      username
+      dob
       avatar
       role
       isVerifiedHost
@@ -230,6 +247,7 @@ export const GET_POD = gql`
       dateTime
       location
       locationDetail
+      placeId
       rating
       reviewCount
       status
@@ -247,6 +265,10 @@ export const GET_POD = gql`
         id
         name
         avatar
+      }
+      place {
+        id
+        name
       }
     }
   }
@@ -367,6 +389,60 @@ export const GET_SETTINGS_BY_CATEGORY = gql`
       value
       category
       updatedAt
+    }
+  }
+`;
+
+/* ── Support Ticket Detail ── */
+
+export const GET_SUPPORT_TICKET = gql`
+  query GetSupportTicket($id: ID!) {
+    supportTicket(id: $id) {
+      id
+      userId
+      user {
+        id
+        name
+        phone
+      }
+      subject
+      message
+      status
+      priority
+      adminReply
+      replies {
+        id
+        senderRole
+        content
+        createdAt
+        sender {
+          id
+          name
+        }
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+/* ── OpenAI Models ── */
+
+export const GET_OPENAI_MODELS = gql`
+  query GetOpenAiModels {
+    openAiModels
+  }
+`;
+
+/* ── Approved Places (for dropdowns) ── */
+
+export const GET_APPROVED_PLACES = gql`
+  query GetApprovedPlaces($search: String) {
+    approvedPlaces(search: $search) {
+      id
+      name
+      address
+      city
     }
   }
 `;

@@ -35,7 +35,7 @@ const userResolvers = {
   Mutation: {
     updateProfile: (
       _: unknown,
-      args: { name?: string; avatar?: string },
+      args: { name?: string; avatar?: string; email?: string },
       context: GraphQLContext,
     ) => {
       const auth = requireAuth(context);
@@ -62,6 +62,15 @@ const userResolvers = {
       return userService.createUser({ phone: args.phone, name: args.name, role: args.role });
     },
 
+    deleteUser: async (
+      _: unknown,
+      args: { userId: string },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return userService.deleteUser(args.userId);
+    },
+
     toggleUserActive: async (
       _: unknown,
       args: { userId: string; isActive: boolean; reason?: string },
@@ -69,7 +78,6 @@ const userResolvers = {
     ) => {
       requireRole(context, UserRole.ADMIN);
       const user = await userService.toggleUserActive(args.userId, args.isActive, args.reason ?? '');
-      const action = args.isActive ? 'enabled' : 'disabled';
       const smsMessage = args.isActive
         ? 'Your PartyWings account has been re-enabled. You can now access the app.'
         : `Your PartyWings account has been disabled. Reason: ${args.reason || 'Policy violation'}. Contact support for help.`;
@@ -80,7 +88,6 @@ const userResolvers = {
 
   User: {
     podCount: async (parent: { id: string }) => {
-      // Dynamically import to avoid circular deps
       const { PodModel } = await import('../pod/pod.models');
       return PodModel.countDocuments({
         $or: [{ hostId: parent.id }, { attendees: parent.id }],

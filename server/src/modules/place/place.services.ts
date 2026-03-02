@@ -111,6 +111,19 @@ export async function getPlacesByOwner(ownerId: string): Promise<Place[]> {
   return docs.map(toPlace).filter(Boolean) as Place[];
 }
 
+export async function getApprovedPlaces(search?: string): Promise<Place[]> {
+  const filter: Record<string, unknown> = { status: PlaceStatus.APPROVED };
+  if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { address: { $regex: search, $options: 'i' } },
+      { city: { $regex: search, $options: 'i' } },
+    ];
+  }
+  const docs = await PlaceModel.find(filter).sort({ name: 1 }).lean({ virtuals: true });
+  return docs.map(toPlace).filter(Boolean) as Place[];
+}
+
 export async function resolveOwner(ownerId: string): Promise<User | null> {
   return findUserById(ownerId);
 }

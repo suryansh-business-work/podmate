@@ -1,6 +1,6 @@
 import type { GraphQLContext } from '../auth/auth.models';
 import { UserRole } from '../user/user.models';
-import { requireRole } from '../auth/auth.services';
+import { requireAuth, requireRole } from '../auth/auth.services';
 import * as settingsService from './settings.services';
 
 const settingsResolvers = {
@@ -17,6 +17,21 @@ const settingsResolvers = {
     ) => {
       requireRole(context, UserRole.ADMIN);
       return settingsService.getSettingsByCategory(args.category);
+    },
+
+    appConfig: async (
+      _: unknown,
+      args: { keys: string[] },
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      const results = await Promise.all(args.keys.map((key) => settingsService.getSetting(key)));
+      return results.filter(Boolean);
+    },
+
+    openAiModels: async (_: unknown, __: unknown, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return settingsService.getOpenAiModels();
     },
 
     maintenanceMode: () => {

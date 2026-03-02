@@ -96,9 +96,9 @@ export const useAuth = () => {
     setState((prev) => ({ ...prev, isAuthenticated: false, otpPhone: '' }));
   };
 
-  const handleCompleteProfile = async (name: string, age: number) => {
+  const handleCompleteProfile = async (username: string, name: string, dob: string) => {
     try {
-      await completeProfileMutation({ variables: { name, age } });
+      await completeProfileMutation({ variables: { username, name, dob } });
     } catch {
       // Profile save failed — continue anyway
     }

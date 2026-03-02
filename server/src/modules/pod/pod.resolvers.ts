@@ -3,6 +3,7 @@ import type { CreatePodInput, UpdatePodInput } from './pod.models';
 import { UserRole } from '../user/user.models';
 import { requireAuth, requireRole } from '../auth/auth.services';
 import * as podService from './pod.services';
+import { getPlaceById } from '../place/place.services';
 
 const podResolvers = {
   Query: {
@@ -37,13 +38,16 @@ const podResolvers = {
     },
 
     updatePod: (_: unknown, args: { id: string; input: UpdatePodInput }, context: GraphQLContext) => {
-      const auth = requireRole(context, UserRole.PLACE_OWNER, UserRole.ADMIN);
+      const auth = requireAuth(context);
       return podService.updatePod(args.id, auth.userId, args.input);
     },
 
     deletePod: (_: unknown, args: { id: string }, context: GraphQLContext) => {
-      requireRole(context, UserRole.ADMIN);
-      return podService.deletePod(args.id);
+      const auth = requireAuth(context);
+      if (auth.role === UserRole.ADMIN) {
+        return podService.deletePod(args.id);
+      }
+      return podService.hostDeletePod(args.id, auth.userId);
     },
 
     joinPod: (_: unknown, args: { podId: string }, context: GraphQLContext) => {
@@ -75,6 +79,7 @@ const podResolvers = {
   Pod: {
     host: (pod: { hostId: string }) => podService.resolveHost(pod.hostId),
     attendees: (pod: { attendeeIds: string[] }) => podService.resolveAttendees(pod.attendeeIds),
+    place: (pod: { placeId: string }) => (pod.placeId ? getPlaceById(pod.placeId) : null),
   },
 };
 

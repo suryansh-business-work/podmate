@@ -325,3 +325,53 @@ export const TEST_IMAGEKIT_CONNECTION = gql`
     }
   }
 `;
+
+/* ── Delete User (cascade) ── */
+
+export const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id)
+  }
+`;
+
+/* ── Delete Pod ── */
+
+export const DELETE_POD = gql`
+  mutation DeletePod($id: ID!) {
+    deletePod(id: $id)
+  }
+`;
+
+/* ── Support Ticket Replies ── */
+
+export const REPLY_SUPPORT_TICKET = gql`
+  mutation ReplySupportTicket($ticketId: ID!, $content: String!) {
+    replySupportTicket(ticketId: $ticketId, content: $content) {
+      id
+      status
+      replies {
+        id
+        senderRole
+        content
+        createdAt
+        sender {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const ADMIN_CREATE_SUPPORT_TICKET = gql`
+  mutation AdminCreateSupportTicket($userId: ID!, $subject: String!, $message: String!, $priority: String) {
+    adminCreateSupportTicket(userId: $userId, subject: $subject, message: $message, priority: $priority) {
+      id
+      subject
+      message
+      status
+      priority
+      createdAt
+    }
+  }
+`;

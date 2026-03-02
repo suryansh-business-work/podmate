@@ -4,13 +4,18 @@ import { UserRole } from '../user/user.models';
 import { findUserById } from '../user/user.services';
 import * as supportService from './support.services';
 import { validateSupportTicketInput } from './support.validators';
-import type { CreateSupportTicketInput, UpdateSupportTicketInput } from './support.models';
+import type { CreateSupportTicketInput, UpdateSupportTicketInput, TicketReply } from './support.models';
 
 const supportResolvers = {
   Query: {
     mySupportTickets: (_: unknown, __: unknown, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return supportService.getMyTickets(auth.userId);
+    },
+
+    supportTicket: (_: unknown, args: { id: string }, context: GraphQLContext) => {
+      requireAuth(context);
+      return supportService.getTicketById(args.id);
     },
 
     supportTickets: (
@@ -58,6 +63,33 @@ const supportResolvers = {
       return supportService.createSupportTicket(auth.userId, args.input);
     },
 
+    adminCreateSupportTicket: (
+      _: unknown,
+      args: { userId: string; input: CreateSupportTicketInput },
+      context: GraphQLContext,
+    ) => {
+      const auth = requireRole(context, UserRole.ADMIN);
+      validateSupportTicketInput(args.input.subject, args.input.message);
+      return supportService.adminCreateSupportTicket(auth.userId, args.userId, args.input);
+    },
+
+    replySupportTicket: (
+      _: unknown,
+      args: { id: string; content: string },
+      context: GraphQLContext,
+    ) => {
+      const auth = requireAuth(context);
+      const content = args.content.trim();
+      if (!content || content.length < 1) {
+        throw new Error('Reply content cannot be empty');
+      }
+      if (content.length > 5000) {
+        throw new Error('Reply content must not exceed 5000 characters');
+      }
+      const senderRole = auth.role === UserRole.ADMIN ? 'ADMIN' : 'USER';
+      return supportService.replySupportTicket(args.id, auth.userId, senderRole, content);
+    },
+
     updateSupportTicket: (
       _: unknown,
       args: { id: string; input: UpdateSupportTicketInput },
@@ -79,6 +111,10 @@ const supportResolvers = {
 
   SupportTicket: {
     user: (ticket: { userId: string }) => findUserById(ticket.userId),
+  },
+
+  TicketReply: {
+    sender: (reply: TicketReply) => findUserById(reply.senderId),
   },
 };
 

@@ -126,3 +126,27 @@ export const CREATE_SUPPORT_TICKET = gql`
     }
   }
 `;
+
+export const ASK_CHATBOT = gql`
+  mutation AskChatbot($message: String!) {
+    askChatbot(message: $message) {
+      reply
+      messageId
+    }
+  }
+`;
+
+export const CLEAR_CHATBOT_HISTORY = gql`
+  mutation ClearChatbotHistory {
+    clearChatbotHistory
+  }
+`;
+
+export const TRACK_POD_VIEW = gql`
+  mutation TrackPodView($podId: ID!) {
+    trackPodView(podId: $podId) {
+      id
+      viewCount
+    }
+  }
+`;

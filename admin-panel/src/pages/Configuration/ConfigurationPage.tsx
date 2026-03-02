@@ -1,81 +1,136 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Card, CardContent, Button,
-  CircularProgress, Alert, Breadcrumbs, Link, Divider,
+  Box, Typography, Card, CardContent, Button, Tabs, Tab, TextField,
+  CircularProgress, Alert, Breadcrumbs, Link, Divider, Switch, FormControlLabel, Stack,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import SaveIcon from '@mui/icons-material/Save';
+import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_APP_SETTINGS } from '../../graphql/queries';
-import { UPSERT_SETTING } from '../../graphql/mutations';
-import { AppSetting, SettingsData, SmtpConfig, SMTP_KEYS, DEFAULT_SMTP } from './Configuration.types';
+import { UPSERT_SETTING, TEST_SMTP_CONNECTION, TEST_OPENAI_CONNECTION, TEST_IMAGEKIT_CONNECTION } from '../../graphql/mutations';
+import type {
+  AppSetting, SettingsData, SmtpConfig, ImageKitConfig, OpenAiConfig, SlackConfig,
+  AppConfig, DevConfig, TestConnectionResult,
+} from './Configuration.types';
+import {
+  DEFAULT_SMTP, DEFAULT_IMAGEKIT, DEFAULT_OPENAI, DEFAULT_SLACK,
+  DEFAULT_APP_CONFIG, DEFAULT_DEV_CONFIG,
+} from './Configuration.types';
 import SmtpFormFields from './SmtpFormFields';
 
+interface TabPanelProps {
+  children: React.ReactNode;
+  value: number;
+  index: number;
+}
+
+const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => (
+  <Box role="tabpanel" hidden={value !== index} sx={{ pt: 3 }}>
+    {value === index && children}
+  </Box>
+);
+
 const ConfigurationPage: React.FC = () => {
+  const [tab, setTab] = useState(0);
   const [smtp, setSmtp] = useState<SmtpConfig>({ ...DEFAULT_SMTP });
+  const [imagekit, setImagekit] = useState<ImageKitConfig>({ ...DEFAULT_IMAGEKIT });
+  const [openai, setOpenai] = useState<OpenAiConfig>({ ...DEFAULT_OPENAI });
+  const [slack, setSlack] = useState<SlackConfig>({ ...DEFAULT_SLACK });
+  const [appConfig, setAppConfig] = useState<AppConfig>({ ...DEFAULT_APP_CONFIG });
+  const [devConfig, setDevConfig] = useState<DevConfig>({ ...DEFAULT_DEV_CONFIG });
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [testResult, setTestResult] = useState<TestConnectionResult | null>(null);
 
-  const { data, loading } = useQuery<SettingsData>(GET_APP_SETTINGS, {
-    fetchPolicy: 'cache-and-network',
-  });
-
+  const { data, loading } = useQuery<SettingsData>(GET_APP_SETTINGS, { fetchPolicy: 'cache-and-network' });
   const [upsertSetting, { loading: saving }] = useMutation(UPSERT_SETTING);
+  const [testSmtp, { loading: testingSmtp }] = useMutation(TEST_SMTP_CONNECTION);
+  const [testOpenAi, { loading: testingOpenAi }] = useMutation(TEST_OPENAI_CONNECTION);
+  const [testImageKit, { loading: testingImageKit }] = useMutation(TEST_IMAGEKIT_CONNECTION);
 
   const populateFromSettings = useCallback((settings: AppSetting[]) => {
-    const smtpSettings = settings.filter((s) => s.category === 'smtp');
-    const newSmtp: SmtpConfig = { ...DEFAULT_SMTP };
-    smtpSettings.forEach((s) => {
-      const field = s.key.replace('smtp_', '') as keyof SmtpConfig;
-      if (field in newSmtp) {
-        newSmtp[field] = s.value;
-      }
+    const get = (cat: string, key: string) => settings.find((s) => s.category === cat && s.key === key)?.value ?? '';
+
+    setSmtp({
+      host: get('smtp', 'smtp_host') || DEFAULT_SMTP.host,
+      port: get('smtp', 'smtp_port') || DEFAULT_SMTP.port,
+      user: get('smtp', 'smtp_user') || DEFAULT_SMTP.user,
+      password: get('smtp', 'smtp_password') || DEFAULT_SMTP.password,
+      fromName: get('smtp', 'smtp_fromName') || DEFAULT_SMTP.fromName,
+      fromEmail: get('smtp', 'smtp_fromEmail') || DEFAULT_SMTP.fromEmail,
     });
-    setSmtp(newSmtp);
+    setImagekit({
+      publicKey: get('imagekit', 'imagekit_public_key') || DEFAULT_IMAGEKIT.publicKey,
+      privateKey: get('imagekit', 'imagekit_private_key') || DEFAULT_IMAGEKIT.privateKey,
+      urlEndpoint: get('imagekit', 'imagekit_url_endpoint') || DEFAULT_IMAGEKIT.urlEndpoint,
+    });
+    setOpenai({
+      apiKey: get('openai', 'openai_api_key') || DEFAULT_OPENAI.apiKey,
+      model: get('openai', 'openai_model') || DEFAULT_OPENAI.model,
+      prePrompt: get('openai', 'chatbot_pre_prompt') || DEFAULT_OPENAI.prePrompt,
+    });
+    setSlack({
+      webhookUrl: get('slack', 'slack_webhook_url') || DEFAULT_SLACK.webhookUrl,
+      channel: get('slack', 'slack_channel') || DEFAULT_SLACK.channel,
+      enabled: get('slack', 'slack_enabled') || DEFAULT_SLACK.enabled,
+    });
+    setAppConfig({
+      appName: get('app', 'app_name') || DEFAULT_APP_CONFIG.appName,
+      appDescription: get('app', 'app_description') || DEFAULT_APP_CONFIG.appDescription,
+      appLogo: get('app', 'app_logo') || DEFAULT_APP_CONFIG.appLogo,
+      splashVideoUrl: get('app', 'app_splash_video_url') || DEFAULT_APP_CONFIG.splashVideoUrl,
+    });
+    setDevConfig({
+      devMode: get('dev', 'dev_mode') || DEFAULT_DEV_CONFIG.devMode,
+      dummyCheckout: get('dev', 'dummy_checkout') || DEFAULT_DEV_CONFIG.dummyCheckout,
+    });
   }, []);
 
   useEffect(() => {
-    if (data?.appSettings) {
-      populateFromSettings(data.appSettings);
-    }
+    if (data?.appSettings) populateFromSettings(data.appSettings);
   }, [data, populateFromSettings]);
 
-  const handleSave = async () => {
+  const saveCategory = async (category: string, entries: Array<{ key: string; value: string }>) => {
     setError('');
     setSuccess('');
     try {
-      const promises = SMTP_KEYS.map(({ key }) =>
-        upsertSetting({
-          variables: {
-            input: { key: `smtp_${key}`, value: smtp[key], category: 'smtp' },
-          },
-        }),
+      await Promise.all(
+        entries.map((e) =>
+          upsertSetting({ variables: { input: { key: e.key, value: e.value, category } } }),
+        ),
       );
-      await Promise.all(promises);
-      setSuccess('SMTP configuration saved successfully');
+      setSuccess(`${category.toUpperCase()} configuration saved successfully`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save configuration');
+      setError(err instanceof Error ? err.message : 'Failed to save');
     }
   };
 
-  const handleChange = (key: keyof SmtpConfig, value: string) => {
-    setSmtp((prev) => ({ ...prev, [key]: value }));
+  const handleTest = async (type: 'smtp' | 'openai' | 'imagekit') => {
+    setTestResult(null);
+    try {
+      let result: { data?: Record<string, TestConnectionResult> };
+      if (type === 'smtp') result = await testSmtp();
+      else if (type === 'openai') result = await testOpenAi();
+      else result = await testImageKit();
+
+      const key = type === 'smtp' ? 'testSmtpConnection' : type === 'openai' ? 'testOpenAiConnection' : 'testImageKitConnection';
+      const data = result?.data?.[key];
+      if (data) setTestResult(data);
+    } catch (err) {
+      setTestResult({ success: false, message: err instanceof Error ? err.message : 'Test failed' });
+    }
   };
 
   if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" py={10}>
-        <CircularProgress />
-      </Box>
-    );
+    return <Box display="flex" justifyContent="center" py={10}><CircularProgress /></Box>;
   }
 
   return (
     <Box>
       <Breadcrumbs sx={{ mb: 2 }}>
-        <Link underline="hover" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} color="inherit">
-          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-          Dashboard
+        <Link underline="hover" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} color="inherit" href="/dashboard">
+          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" /> Dashboard
         </Link>
         <Typography color="text.primary" fontWeight={600}>Configuration</Typography>
       </Breadcrumbs>
@@ -84,27 +139,208 @@ const ConfigurationPage: React.FC = () => {
 
       {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
+      {testResult && (
+        <Alert severity={testResult.success ? 'success' : 'error'} sx={{ mb: 2 }} onClose={() => setTestResult(null)}>
+          {testResult.message}
+        </Alert>
+      )}
 
       <Card>
+        <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto">
+          <Tab label="SMTP" />
+          <Tab label="ImageKit" />
+          <Tab label="OpenAI" />
+          <Tab label="Slack" />
+          <Tab label="App Settings" />
+          <Tab label="Development" />
+        </Tabs>
+
         <CardContent>
-          <Typography variant="h6" mb={1}>Email / SMTP Configuration</Typography>
-          <Typography variant="body2" color="text.secondary" mb={3}>
-            Configure SMTP settings for sending emails (OTP, notifications, admin credentials).
-          </Typography>
-          <Divider sx={{ mb: 3 }} />
+          {/* SMTP Tab */}
+          <TabPanel value={tab} index={0}>
+            <Typography variant="h6" mb={1}>Email / SMTP Configuration</Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Configure SMTP settings for sending emails.
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <SmtpFormFields smtp={smtp} onChange={(k, v) => setSmtp((p) => ({ ...p, [k]: v }))} />
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
+              <Button variant="outlined" startIcon={testingSmtp ? <CircularProgress size={18} /> : <NetworkCheckIcon />}
+                onClick={() => handleTest('smtp')} disabled={testingSmtp}>
+                Test Connection
+              </Button>
+              <Button variant="contained" startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                onClick={() => saveCategory('smtp', [
+                  { key: 'smtp_host', value: smtp.host },
+                  { key: 'smtp_port', value: smtp.port },
+                  { key: 'smtp_user', value: smtp.user },
+                  { key: 'smtp_password', value: smtp.password },
+                  { key: 'smtp_fromName', value: smtp.fromName },
+                  { key: 'smtp_fromEmail', value: smtp.fromEmail },
+                ])} disabled={saving}>
+                Save
+              </Button>
+            </Stack>
+          </TabPanel>
 
-          <SmtpFormFields smtp={smtp} onChange={handleChange} />
+          {/* ImageKit Tab */}
+          <TabPanel value={tab} index={1}>
+            <Typography variant="h6" mb={1}>ImageKit Configuration</Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Configure ImageKit for media uploads and processing.
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Stack spacing={2}>
+              <TextField label="Public Key" value={imagekit.publicKey}
+                onChange={(e) => setImagekit((p) => ({ ...p, publicKey: e.target.value }))} fullWidth />
+              <TextField label="Private Key" type="password" value={imagekit.privateKey}
+                onChange={(e) => setImagekit((p) => ({ ...p, privateKey: e.target.value }))} fullWidth />
+              <TextField label="URL Endpoint" value={imagekit.urlEndpoint}
+                onChange={(e) => setImagekit((p) => ({ ...p, urlEndpoint: e.target.value }))} fullWidth />
+            </Stack>
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
+              <Button variant="outlined" startIcon={testingImageKit ? <CircularProgress size={18} /> : <NetworkCheckIcon />}
+                onClick={() => handleTest('imagekit')} disabled={testingImageKit}>
+                Test Connection
+              </Button>
+              <Button variant="contained" startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                onClick={() => saveCategory('imagekit', [
+                  { key: 'imagekit_public_key', value: imagekit.publicKey },
+                  { key: 'imagekit_private_key', value: imagekit.privateKey },
+                  { key: 'imagekit_url_endpoint', value: imagekit.urlEndpoint },
+                ])} disabled={saving}>
+                Save
+              </Button>
+            </Stack>
+          </TabPanel>
 
-          <Box display="flex" justifyContent="flex-end" mt={3}>
-            <Button
-              variant="contained"
-              startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? 'Saving...' : 'Save Configuration'}
-            </Button>
-          </Box>
+          {/* OpenAI Tab */}
+          <TabPanel value={tab} index={2}>
+            <Typography variant="h6" mb={1}>OpenAI Configuration</Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Configure OpenAI for the AI chatbot assistant.
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Stack spacing={2}>
+              <TextField label="API Key" type="password" value={openai.apiKey}
+                onChange={(e) => setOpenai((p) => ({ ...p, apiKey: e.target.value }))} fullWidth />
+              <TextField label="Model" value={openai.model}
+                onChange={(e) => setOpenai((p) => ({ ...p, model: e.target.value }))} fullWidth
+                helperText="e.g. gpt-3.5-turbo, gpt-4, gpt-4o" />
+              <TextField label="Chatbot Pre-Prompt" value={openai.prePrompt}
+                onChange={(e) => setOpenai((p) => ({ ...p, prePrompt: e.target.value }))} fullWidth
+                multiline rows={4} helperText="System prompt sent to OpenAI before each conversation" />
+            </Stack>
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
+              <Button variant="outlined" startIcon={testingOpenAi ? <CircularProgress size={18} /> : <NetworkCheckIcon />}
+                onClick={() => handleTest('openai')} disabled={testingOpenAi}>
+                Test Connection
+              </Button>
+              <Button variant="contained" startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                onClick={() => saveCategory('openai', [
+                  { key: 'openai_api_key', value: openai.apiKey },
+                  { key: 'openai_model', value: openai.model },
+                  { key: 'chatbot_pre_prompt', value: openai.prePrompt },
+                ])} disabled={saving}>
+                Save
+              </Button>
+            </Stack>
+          </TabPanel>
+
+          {/* Slack Tab */}
+          <TabPanel value={tab} index={3}>
+            <Typography variant="h6" mb={1}>Slack Configuration</Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Configure Slack webhook for notifications.
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Stack spacing={2}>
+              <TextField label="Webhook URL" value={slack.webhookUrl}
+                onChange={(e) => setSlack((p) => ({ ...p, webhookUrl: e.target.value }))} fullWidth />
+              <TextField label="Channel" value={slack.channel}
+                onChange={(e) => setSlack((p) => ({ ...p, channel: e.target.value }))} fullWidth />
+              <FormControlLabel control={
+                <Switch checked={slack.enabled === 'true'}
+                  onChange={(e) => setSlack((p) => ({ ...p, enabled: e.target.checked ? 'true' : 'false' }))} />
+              } label="Enable Slack Notifications" />
+            </Stack>
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
+              <Button variant="contained" startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                onClick={() => saveCategory('slack', [
+                  { key: 'slack_webhook_url', value: slack.webhookUrl },
+                  { key: 'slack_channel', value: slack.channel },
+                  { key: 'slack_enabled', value: slack.enabled },
+                ])} disabled={saving}>
+                Save
+              </Button>
+            </Stack>
+          </TabPanel>
+
+          {/* App Settings Tab */}
+          <TabPanel value={tab} index={4}>
+            <Typography variant="h6" mb={1}>App Settings</Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Configure app-level settings like name, logo, and splash video.
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Stack spacing={2}>
+              <TextField label="App Name" value={appConfig.appName}
+                onChange={(e) => setAppConfig((p) => ({ ...p, appName: e.target.value }))} fullWidth />
+              <TextField label="App Description" value={appConfig.appDescription}
+                onChange={(e) => setAppConfig((p) => ({ ...p, appDescription: e.target.value }))} fullWidth multiline rows={2} />
+              <TextField label="App Logo URL" value={appConfig.appLogo}
+                onChange={(e) => setAppConfig((p) => ({ ...p, appLogo: e.target.value }))} fullWidth
+                helperText="Upload via ImageKit and paste the URL" />
+              <TextField label="Splash Video URL" value={appConfig.splashVideoUrl}
+                onChange={(e) => setAppConfig((p) => ({ ...p, splashVideoUrl: e.target.value }))} fullWidth
+                helperText="Upload video via ImageKit and paste the URL" />
+            </Stack>
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
+              <Button variant="contained" startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                onClick={() => saveCategory('app', [
+                  { key: 'app_name', value: appConfig.appName },
+                  { key: 'app_description', value: appConfig.appDescription },
+                  { key: 'app_logo', value: appConfig.appLogo },
+                  { key: 'app_splash_video_url', value: appConfig.splashVideoUrl },
+                ])} disabled={saving}>
+                Save
+              </Button>
+            </Stack>
+          </TabPanel>
+
+          {/* Development Tab */}
+          <TabPanel value={tab} index={5}>
+            <Typography variant="h6" mb={1}>Development Settings</Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Configure development mode and testing options.
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Stack spacing={2}>
+              <FormControlLabel control={
+                <Switch checked={devConfig.devMode === 'true'}
+                  onChange={(e) => setDevConfig((p) => ({ ...p, devMode: e.target.checked ? 'true' : 'false' }))} />
+              } label="Development Mode" />
+              <Typography variant="caption" color="text.secondary">
+                When enabled, uses dev endpoints and shows debug info.
+              </Typography>
+              <FormControlLabel control={
+                <Switch checked={devConfig.dummyCheckout === 'true'}
+                  onChange={(e) => setDevConfig((p) => ({ ...p, dummyCheckout: e.target.checked ? 'true' : 'false' }))} />
+              } label="Dummy Payment Checkout" />
+              <Typography variant="caption" color="text.secondary">
+                When enabled, all payments will be simulated without real charges.
+              </Typography>
+            </Stack>
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
+              <Button variant="contained" startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                onClick={() => saveCategory('dev', [
+                  { key: 'dev_mode', value: devConfig.devMode },
+                  { key: 'dummy_checkout', value: devConfig.dummyCheckout },
+                ])} disabled={saving}>
+                Save
+              </Button>
+            </Stack>
+          </TabPanel>
         </CardContent>
       </Card>
     </Box>

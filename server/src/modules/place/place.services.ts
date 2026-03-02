@@ -66,7 +66,7 @@ export async function updatePlace(id: string, input: UpdatePlaceInput): Promise<
   if (input.phone !== undefined) update.phone = input.phone;
   if (input.email !== undefined) update.email = input.email;
 
-  const updated = await PlaceModel.findByIdAndUpdate(id, { $set: update }, { new: true }).lean({
+  const updated = await PlaceModel.findByIdAndUpdate(id, { $set: update }, { returnDocument: 'after' }).lean({
     virtuals: true,
   });
   const result = toPlace(updated);
@@ -78,7 +78,7 @@ export async function approvePlace(id: string): Promise<Place> {
   const updated = await PlaceModel.findByIdAndUpdate(
     id,
     { $set: { status: PlaceStatus.APPROVED, isVerified: true, updatedAt: new Date().toISOString() } },
-    { new: true },
+    { returnDocument: 'after' },
   ).lean({ virtuals: true });
   const result = toPlace(updated);
   if (!result) throw new Error('Place not found');
@@ -89,7 +89,7 @@ export async function rejectPlace(id: string): Promise<Place> {
   const updated = await PlaceModel.findByIdAndUpdate(
     id,
     { $set: { status: PlaceStatus.REJECTED, isVerified: false, updatedAt: new Date().toISOString() } },
-    { new: true },
+    { returnDocument: 'after' },
   ).lean({ virtuals: true });
   const result = toPlace(updated);
   if (!result) throw new Error('Place not found');

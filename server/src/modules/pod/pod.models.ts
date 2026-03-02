@@ -18,12 +18,14 @@ export interface Pod {
   rating: number;
   reviewCount: number;
   status: PodStatus;
+  closeReason: string;
+  viewCount: number;
   refundPolicy: string;
   attendeeIds: string[];
   createdAt: string;
 }
 
-export type PodStatus = 'NEW' | 'CONFIRMED' | 'PENDING' | 'COMPLETED' | 'CANCELLED';
+export type PodStatus = 'NEW' | 'CONFIRMED' | 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'OPEN' | 'CLOSED';
 
 export interface CreatePodInput {
   title: string;
@@ -50,6 +52,8 @@ export interface UpdatePodInput {
   dateTime?: string;
   location?: string;
   locationDetail?: string;
+  status?: PodStatus;
+  closeReason?: string;
 }
 
 export interface PodPaginationInput {
@@ -90,7 +94,9 @@ const PodSchema = new Schema<PodMongoDoc>(
     locationDetail: { type: String, default: '' },
     rating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },
-    status: { type: String, enum: ['NEW', 'CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED'], default: 'NEW' },
+    status: { type: String, enum: ['NEW', 'CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED', 'OPEN', 'CLOSED'], default: 'NEW' },
+    closeReason: { type: String, default: '' },
+    viewCount: { type: Number, default: 0 },
     refundPolicy: { type: String, default: '24h Refund' },
     attendeeIds: { type: [String], default: [] },
     createdAt: { type: String, default: () => new Date().toISOString() },
@@ -104,5 +110,15 @@ export const PodModel =
 
 export function toPod(doc: (PodMongoDoc & { id?: string }) | null): Pod | null {
   if (!doc) return null;
-  return { ...doc, id: doc.id ?? doc._id } as Pod;
+  return {
+    ...doc,
+    id: doc.id ?? doc._id,
+    mediaUrls: doc.mediaUrls ?? [],
+    attendeeIds: doc.attendeeIds ?? [],
+    imageUrl: doc.imageUrl ?? '',
+    status: doc.status ?? 'NEW',
+    closeReason: doc.closeReason ?? '',
+    viewCount: doc.viewCount ?? 0,
+    refundPolicy: doc.refundPolicy ?? '24h Refund',
+  } as Pod;
 }

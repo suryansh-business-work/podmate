@@ -14,7 +14,14 @@ export interface MaintenanceData {
   maintenanceMode: boolean;
 }
 
-export const CATEGORIES = ['general', 'app', 'website', 'notifications', 'smtp'];
+export interface MaintenanceStatusData {
+  maintenanceStatus: {
+    app: boolean;
+    website: boolean;
+  };
+}
+
+export const CATEGORIES = ['general', 'app', 'website', 'notifications', 'smtp', 'imagekit', 'openai', 'slack', 'dev'];
 
 export const formatDate = (dateStr: string): string =>
   new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });

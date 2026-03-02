@@ -58,6 +58,8 @@ export const GET_PODS = gql`
         rating
         reviewCount
         status
+        closeReason
+        viewCount
         refundPolicy
         createdAt
         host {
@@ -231,6 +233,8 @@ export const GET_POD = gql`
       rating
       reviewCount
       status
+      closeReason
+      viewCount
       refundPolicy
       createdAt
       host {
@@ -269,6 +273,99 @@ export const GET_PLACE = gql`
       status
       isVerified
       createdAt
+      updatedAt
+    }
+  }
+`;
+
+/* ── Feature Flags ── */
+
+export const GET_FEATURE_FLAGS = gql`
+  query GetFeatureFlags($page: Int, $limit: Int, $search: String) {
+    featureFlags(page: $page, limit: $limit, search: $search) {
+      items {
+        id
+        key
+        name
+        description
+        enabled
+        rolloutPercentage
+        platform
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;
+
+/* ── Payments ── */
+
+export const GET_PAYMENTS = gql`
+  query GetPayments($page: Int, $limit: Int, $search: String, $type: String, $status: String, $sortBy: String, $order: String) {
+    payments(page: $page, limit: $limit, search: $search, type: $type, status: $status, sortBy: $sortBy, order: $order) {
+      items {
+        id
+        userId
+        podId
+        amount
+        type
+        status
+        transactionId
+        gateway
+        notes
+        refundAmount
+        createdAt
+        updatedAt
+        user {
+          id
+          name
+          phone
+        }
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;
+
+export const GET_PAYMENT_STATS = gql`
+  query GetPaymentStats {
+    paymentStats {
+      totalRevenue
+      totalRefunds
+      netRevenue
+      totalTransactions
+      pendingPayments
+    }
+  }
+`;
+
+/* ── Maintenance ── */
+
+export const GET_MAINTENANCE_STATUS = gql`
+  query GetMaintenanceStatus {
+    maintenanceStatus {
+      app
+      website
+    }
+  }
+`;
+
+/* ── Settings by category ── */
+
+export const GET_SETTINGS_BY_CATEGORY = gql`
+  query GetSettingsByCategory($category: String!) {
+    appSettingsByCategory(category: $category) {
+      id
+      key
+      value
+      category
       updatedAt
     }
   }

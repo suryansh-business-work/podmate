@@ -16,6 +16,8 @@ const podTypeDefs = `#graphql
     rating: Float!
     reviewCount: Int!
     status: PodStatus!
+    closeReason: String!
+    viewCount: Int!
     refundPolicy: String!
     attendees: [User!]!
     createdAt: String!
@@ -27,6 +29,8 @@ const podTypeDefs = `#graphql
     PENDING
     COMPLETED
     CANCELLED
+    OPEN
+    CLOSED
   }
 
   type PaginatedPods {
@@ -62,6 +66,8 @@ const podTypeDefs = `#graphql
     dateTime: String
     location: String
     locationDetail: String
+    status: PodStatus
+    closeReason: String
   }
 `;
 

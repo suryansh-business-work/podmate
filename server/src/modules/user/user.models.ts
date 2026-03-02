@@ -82,5 +82,14 @@ export const UserModel =
 
 export function toUser(doc: (UserMongoDoc & { id?: string }) | null): User | null {
   if (!doc) return null;
-  return { ...doc, id: doc.id ?? doc._id } as User;
+  return {
+    ...doc,
+    id: doc.id ?? doc._id,
+    isActive: doc.isActive ?? true,
+    disableReason: doc.disableReason ?? '',
+    email: doc.email ?? '',
+    avatar: doc.avatar ?? '',
+    name: doc.name ?? '',
+    age: doc.age ?? 0,
+  } as User;
 }

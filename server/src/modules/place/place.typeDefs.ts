@@ -13,7 +13,7 @@ const placeTypeDefs = `#graphql
     city: String!
     imageUrl: String!
     mediaUrls: [String!]!
-    owner: User!
+    owner: User
     category: String!
     phone: String!
     email: String!

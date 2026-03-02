@@ -98,7 +98,7 @@ export async function updateSupportTicket(
   const updated = await SupportTicketModel.findByIdAndUpdate(
     id,
     { $set: update },
-    { new: true },
+    { returnDocument: 'after' },
   ).lean({ virtuals: true });
   const result = toSupportTicket(updated);
   if (!result) throw new Error('Support ticket not found');

@@ -9,13 +9,17 @@ import { Platform } from 'react-native';
  * Dynamically resolve the GraphQL API URL.
  * Priority:
  *  1. EXPO_PUBLIC_API_URL env variable (set in app.json / .env)
- *  2. Expo dev-server host (auto-detected from the debugger connection)
- *  3. Android emulator special alias 10.0.2.2
- *  4. localhost fallback
+ *  2. app.json extra.apiUrl (manual override)
+ *  3. Expo dev-server host (auto-detected from the debugger connection)
+ *  4. Android emulator special alias 10.0.2.2
+ *  5. localhost fallback
  */
 function resolveApiUrl(): string {
   const envUrl = process.env.EXPO_PUBLIC_API_URL;
   if (envUrl) return envUrl;
+
+  const extraApiUrl = Constants.expoConfig?.extra?.apiUrl;
+  if (extraApiUrl) return extraApiUrl;
 
   const SERVER_PORT = '4039';
 

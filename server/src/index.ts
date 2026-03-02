@@ -26,6 +26,12 @@ import supportTypeDefs from './modules/support/support.typeDefs';
 import supportResolvers from './modules/support/support.resolvers';
 import settingsTypeDefs from './modules/settings/settings.typeDefs';
 import settingsResolvers from './modules/settings/settings.resolvers';
+import featureFlagTypeDefs from './modules/featureFlag/featureFlag.typeDefs';
+import featureFlagResolvers from './modules/featureFlag/featureFlag.resolvers';
+import paymentTypeDefs from './modules/payment/payment.typeDefs';
+import paymentResolvers from './modules/payment/payment.resolvers';
+import chatbotTypeDefs from './modules/chatbot/chatbot.typeDefs';
+import chatbotResolvers from './modules/chatbot/chatbot.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -52,6 +58,14 @@ const rootSchema = `#graphql
     appSettings: [AppSetting!]!
     appSettingsByCategory(category: String!): [AppSetting!]!
     maintenanceMode: Boolean!
+    maintenanceStatus: MaintenanceStatus!
+    featureFlags(page: Int, limit: Int, search: String): PaginatedFeatureFlags!
+    featureFlag(key: String!): FeatureFlag
+    isFeatureEnabled(key: String!): Boolean!
+    payments(page: Int, limit: Int, search: String, type: String, status: String, userId: ID, podId: ID, sortBy: String, order: String): PaginatedPayments!
+    payment(id: ID!): Payment
+    paymentStats: PaymentStats!
+    chatbotHistory(limit: Int): [ChatbotMessage!]!
   }
 
   type Mutation {
@@ -65,6 +79,9 @@ const rootSchema = `#graphql
     deletePod(id: ID!): Boolean!
     joinPod(podId: ID!): Pod!
     leavePod(podId: ID!): Pod!
+    closePod(id: ID!, reason: String!): Pod!
+    openPod(id: ID!): Pod!
+    trackPodView(podId: ID!): Pod!
     updateProfile(name: String, avatar: String): User!
     updateUserRole(userId: ID!, role: UserRole!): User!
     adminCreateUser(phone: String!, name: String!, role: UserRole!): User!
@@ -84,12 +101,25 @@ const rootSchema = `#graphql
     updateSupportTicket(id: ID!, input: UpdateSupportTicketInput!): SupportTicket!
     deleteSupportTicket(id: ID!): Boolean!
     upsertSetting(input: UpsertSettingInput!): AppSetting!
+    upsertBulkSettings(inputs: [UpsertSettingInput!]!): [AppSetting!]!
     deleteSetting(key: String!): Boolean!
+    testSmtpConnection: TestConnectionResult!
+    testOpenAiConnection: TestConnectionResult!
+    testImageKitConnection: TestConnectionResult!
     toggleUserActive(userId: ID!, isActive: Boolean!, reason: String): User!
+    createFeatureFlag(input: CreateFeatureFlagInput!): FeatureFlag!
+    updateFeatureFlag(id: ID!, input: UpdateFeatureFlagInput!): FeatureFlag!
+    deleteFeatureFlag(id: ID!): Boolean!
+    toggleFeatureFlag(id: ID!): FeatureFlag!
+    createPayment(input: CreatePaymentInput!): Payment!
+    processRefund(input: ProcessRefundInput!): Payment!
+    completePayment(id: ID!, transactionId: String): Payment!
+    askChatbot(message: String!): ChatbotResponse!
+    clearChatbotHistory: Boolean!
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs];
+const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs];
 
 const resolvers = {
   Query: {
@@ -101,6 +131,9 @@ const resolvers = {
     ...placeResolvers.Query,
     ...supportResolvers.Query,
     ...settingsResolvers.Query,
+    ...featureFlagResolvers.Query,
+    ...paymentResolvers.Query,
+    ...chatbotResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -112,12 +145,16 @@ const resolvers = {
     ...placeResolvers.Mutation,
     ...supportResolvers.Mutation,
     ...settingsResolvers.Mutation,
+    ...featureFlagResolvers.Mutation,
+    ...paymentResolvers.Mutation,
+    ...chatbotResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   ChatMessage: chatResolvers.ChatMessage,
   Place: placeResolvers.Place,
   SupportTicket: supportResolvers.SupportTicket,
   User: userResolvers.User,
+  Payment: paymentResolvers.Payment,
 };
 
 /* ── WebSocket connection registry ── */

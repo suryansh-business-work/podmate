@@ -10,4 +10,5 @@ export type RootStackParamList = {
   RegisterPlace: undefined;
   Faq: undefined;
   Support: undefined;
+  Chatbot: undefined;
 };

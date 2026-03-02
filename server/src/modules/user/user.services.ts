@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { User, CreateUserInput, UpdateUserInput, PaginationInput, PaginatedResponse } from './user.models';
 import { UserModel, UserRole, toUser } from './user.models';
+import { disableUserPods, enableUserPods } from '../pod/pod.services';
 
 export async function findUserById(id: string): Promise<User | null> {
   const doc = await UserModel.findById(id).lean({ virtuals: true });
@@ -34,7 +35,7 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Us
   if (input.avatar !== undefined) update.avatar = input.avatar;
   if (input.age !== undefined) update.age = input.age;
 
-  const updated = await UserModel.findByIdAndUpdate(id, { $set: update }, { new: true }).lean({
+  const updated = await UserModel.findByIdAndUpdate(id, { $set: update }, { returnDocument: 'after' }).lean({
     virtuals: true,
   });
   const result = toUser(updated);
@@ -51,7 +52,7 @@ export async function updateUserRole(id: string, role: UserRole): Promise<User> 
   const updated = await UserModel.findByIdAndUpdate(
     id,
     { $set: { role } },
-    { new: true },
+    { returnDocument: 'after' },
   ).lean({ virtuals: true });
   const result = toUser(updated);
   if (!result) throw new Error('User not found');
@@ -99,9 +100,17 @@ export async function toggleUserActive(id: string, isActive: boolean, reason: st
   const updated = await UserModel.findByIdAndUpdate(
     id,
     { $set: { isActive, disableReason: isActive ? '' : reason } },
-    { new: true },
+    { returnDocument: 'after' },
   ).lean({ virtuals: true });
   const result = toUser(updated);
   if (!result) throw new Error('User not found');
+
+  /* Cascade: close/reopen all user's pods */
+  if (!isActive) {
+    await disableUserPods(id);
+  } else {
+    await enableUserPods(id);
+  }
+
   return result;
 }

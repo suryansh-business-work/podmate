@@ -2,7 +2,6 @@ import type { GraphQLContext } from '../auth/auth.models';
 import type { CreatePodInput, UpdatePodInput } from './pod.models';
 import { UserRole } from '../user/user.models';
 import { requireAuth, requireRole } from '../auth/auth.services';
-// UserRole kept for createPod/updatePod role checks
 import * as podService from './pod.services';
 
 const podResolvers = {
@@ -55,6 +54,21 @@ const podResolvers = {
     leavePod: (_: unknown, args: { podId: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return podService.leavePod(args.podId, auth.userId);
+    },
+
+    closePod: (_: unknown, args: { id: string; reason: string }, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return podService.closePod(args.id, args.reason);
+    },
+
+    openPod: (_: unknown, args: { id: string }, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return podService.openPod(args.id);
+    },
+
+    trackPodView: (_: unknown, args: { podId: string }, context: GraphQLContext) => {
+      const auth = requireAuth(context);
+      return podService.trackPodView(args.podId, auth.userId);
     },
   },
 

@@ -182,3 +182,146 @@ export const DELETE_SETTING = gql`
     deleteSetting(key: $key)
   }
 `;
+
+/* ── Pod Open/Close ── */
+
+export const CLOSE_POD = gql`
+  mutation ClosePod($id: ID!, $reason: String!) {
+    closePod(id: $id, reason: $reason) {
+      id
+      status
+      closeReason
+    }
+  }
+`;
+
+export const OPEN_POD = gql`
+  mutation OpenPod($id: ID!) {
+    openPod(id: $id) {
+      id
+      status
+      closeReason
+    }
+  }
+`;
+
+/* ── Feature Flags ── */
+
+export const CREATE_FEATURE_FLAG = gql`
+  mutation CreateFeatureFlag($input: CreateFeatureFlagInput!) {
+    createFeatureFlag(input: $input) {
+      id
+      key
+      name
+      description
+      enabled
+      rolloutPercentage
+      platform
+    }
+  }
+`;
+
+export const UPDATE_FEATURE_FLAG = gql`
+  mutation UpdateFeatureFlag($id: ID!, $input: UpdateFeatureFlagInput!) {
+    updateFeatureFlag(id: $id, input: $input) {
+      id
+      key
+      name
+      description
+      enabled
+      rolloutPercentage
+      platform
+    }
+  }
+`;
+
+export const DELETE_FEATURE_FLAG = gql`
+  mutation DeleteFeatureFlag($id: ID!) {
+    deleteFeatureFlag(id: $id)
+  }
+`;
+
+export const TOGGLE_FEATURE_FLAG = gql`
+  mutation ToggleFeatureFlag($id: ID!) {
+    toggleFeatureFlag(id: $id) {
+      id
+      enabled
+    }
+  }
+`;
+
+/* ── Payments ── */
+
+export const CREATE_PAYMENT = gql`
+  mutation CreatePayment($input: CreatePaymentInput!) {
+    createPayment(input: $input) {
+      id
+      amount
+      type
+      status
+    }
+  }
+`;
+
+export const PROCESS_REFUND = gql`
+  mutation ProcessRefund($input: ProcessRefundInput!) {
+    processRefund(input: $input) {
+      id
+      amount
+      refundAmount
+      status
+    }
+  }
+`;
+
+export const COMPLETE_PAYMENT = gql`
+  mutation CompletePayment($id: ID!, $transactionId: String) {
+    completePayment(id: $id, transactionId: $transactionId) {
+      id
+      status
+      transactionId
+    }
+  }
+`;
+
+/* ── Bulk Settings ── */
+
+export const UPSERT_BULK_SETTINGS = gql`
+  mutation UpsertBulkSettings($inputs: [UpsertSettingInput!]!) {
+    upsertBulkSettings(inputs: $inputs) {
+      id
+      key
+      value
+      category
+    }
+  }
+`;
+
+/* ── Test Connections ── */
+
+export const TEST_SMTP_CONNECTION = gql`
+  mutation TestSmtpConnection {
+    testSmtpConnection {
+      success
+      message
+    }
+  }
+`;
+
+export const TEST_OPENAI_CONNECTION = gql`
+  mutation TestOpenAiConnection {
+    testOpenAiConnection {
+      success
+      message
+    }
+  }
+`;
+
+export const TEST_IMAGEKIT_CONNECTION = gql`
+  mutation TestImageKitConnection {
+    testImageKitConnection {
+      success
+      message
+    }
+  }
+`;

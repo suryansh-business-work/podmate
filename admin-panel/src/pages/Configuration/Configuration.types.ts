@@ -19,6 +19,36 @@ export interface SmtpConfig {
   fromEmail: string;
 }
 
+export interface ImageKitConfig {
+  publicKey: string;
+  privateKey: string;
+  urlEndpoint: string;
+}
+
+export interface OpenAiConfig {
+  apiKey: string;
+  model: string;
+  prePrompt: string;
+}
+
+export interface SlackConfig {
+  webhookUrl: string;
+  channel: string;
+  enabled: string;
+}
+
+export interface AppConfig {
+  appName: string;
+  appDescription: string;
+  appLogo: string;
+  splashVideoUrl: string;
+}
+
+export interface DevConfig {
+  devMode: string;
+  dummyCheckout: string;
+}
+
 export const SMTP_KEYS: { key: keyof SmtpConfig; label: string; type?: string }[] = [
   { key: 'host', label: 'SMTP Host' },
   { key: 'port', label: 'SMTP Port' },
@@ -26,6 +56,24 @@ export const SMTP_KEYS: { key: keyof SmtpConfig; label: string; type?: string }[
   { key: 'password', label: 'SMTP Password', type: 'password' },
   { key: 'fromName', label: 'From Name' },
   { key: 'fromEmail', label: 'From Email', type: 'email' },
+];
+
+export const IMAGEKIT_KEYS: { key: keyof ImageKitConfig; label: string; type?: string }[] = [
+  { key: 'publicKey', label: 'Public Key' },
+  { key: 'privateKey', label: 'Private Key', type: 'password' },
+  { key: 'urlEndpoint', label: 'URL Endpoint' },
+];
+
+export const OPENAI_KEYS: { key: keyof OpenAiConfig; label: string; type?: string; multiline?: boolean }[] = [
+  { key: 'apiKey', label: 'API Key', type: 'password' },
+  { key: 'model', label: 'Model' },
+  { key: 'prePrompt', label: 'Chatbot Pre-Prompt', multiline: true },
+];
+
+export const SLACK_KEYS: { key: keyof SlackConfig; label: string }[] = [
+  { key: 'webhookUrl', label: 'Webhook URL' },
+  { key: 'channel', label: 'Channel' },
+  { key: 'enabled', label: 'Enabled (true/false)' },
 ];
 
 export const DEFAULT_SMTP: SmtpConfig = {
@@ -36,3 +84,38 @@ export const DEFAULT_SMTP: SmtpConfig = {
   fromName: '',
   fromEmail: '',
 };
+
+export const DEFAULT_IMAGEKIT: ImageKitConfig = {
+  publicKey: '',
+  privateKey: '',
+  urlEndpoint: '',
+};
+
+export const DEFAULT_OPENAI: OpenAiConfig = {
+  apiKey: '',
+  model: 'gpt-3.5-turbo',
+  prePrompt: 'You are PartyWings assistant. Help users with questions about events, pods, places, and the PartyWings platform.',
+};
+
+export const DEFAULT_SLACK: SlackConfig = {
+  webhookUrl: '',
+  channel: '#general',
+  enabled: 'false',
+};
+
+export const DEFAULT_APP_CONFIG: AppConfig = {
+  appName: 'PartyWings',
+  appDescription: '',
+  appLogo: '',
+  splashVideoUrl: '',
+};
+
+export const DEFAULT_DEV_CONFIG: DevConfig = {
+  devMode: 'false',
+  dummyCheckout: 'false',
+};
+
+export interface TestConnectionResult {
+  success: boolean;
+  message: string;
+}

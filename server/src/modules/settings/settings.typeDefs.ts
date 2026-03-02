@@ -12,6 +12,16 @@ const settingsTypeDefs = `#graphql
     value: String!
     category: String!
   }
+
+  type TestConnectionResult {
+    success: Boolean!
+    message: String!
+  }
+
+  type MaintenanceStatus {
+    app: Boolean!
+    website: Boolean!
+  }
 `;
 
 export default settingsTypeDefs;

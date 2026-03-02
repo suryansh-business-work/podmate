@@ -12,6 +12,9 @@ import NotificationsScreen from '../screens/NotificationsScreen';
 import RegisterPlaceScreen from '../screens/RegisterPlace';
 import FaqScreen from '../screens/FaqScreen';
 import SupportScreen from '../screens/SupportScreen';
+import ChatbotScreen from '../screens/Chatbot';
+import ChatbotFab from '../components/ChatbotFab';
+import NetworkBanner from '../components/NetworkBanner';
 import MainTabs from './MainTabs';
 import DrawerMenu from '../components/DrawerMenu';
 import { RootStackParamList } from './RootNavigator.types';
@@ -82,6 +85,7 @@ const RootNavigator: React.FC = () => {
 
   return (
     <View style={{ flex: 1 }}>
+      <NetworkBanner />
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade_from_bottom', animationDuration: 250 }}>
           {!auth.isAuthenticated ? (
@@ -133,10 +137,17 @@ const RootNavigator: React.FC = () => {
               <Stack.Screen name="Support" options={{ presentation: 'card' }}>
                 {({ navigation }) => <SupportScreen onBack={() => navigation.goBack()} />}
               </Stack.Screen>
+              <Stack.Screen name="Chatbot" options={{ presentation: 'modal' }}>
+                {({ navigation }) => <ChatbotScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
             </>
           )}
         </Stack.Navigator>
       </NavigationContainer>
+
+      {auth.isAuthenticated && !auth.isNewUser && (
+        <ChatbotFab onPress={() => navigationRef.current?.navigate('Chatbot')} />
+      )}
 
       {drawer.drawerOpen && (
         <>

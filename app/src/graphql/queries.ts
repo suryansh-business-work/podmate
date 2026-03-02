@@ -140,3 +140,14 @@ export const GET_MY_SUPPORT_TICKETS = gql`
     }
   }
 `;
+
+export const GET_CHATBOT_HISTORY = gql`
+  query GetChatbotHistory {
+    chatbotHistory {
+      id
+      role
+      content
+      createdAt
+    }
+  }
+`;

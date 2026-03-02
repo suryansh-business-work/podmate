@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Video, ResizeMode } from 'expo-av';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { colors } from '../../theme';
 import { ChatMessage } from './Chat.types';
 import { styles } from './Chat.styles';
@@ -17,6 +17,8 @@ const formatTime = (iso: string): string =>
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ item, isMe, onPreviewMedia }) => {
   const isMedia = item.messageType === 'IMAGE' || item.messageType === 'VIDEO';
+  const videoSource = useMemo(() => item.messageType === 'VIDEO' && item.mediaUrl ? { uri: item.mediaUrl } : null, [item.messageType, item.mediaUrl]);
+  const videoPlayer = useVideoPlayer(videoSource, (p) => { p.muted = true; });
 
   const renderMedia = () => {
     if (item.messageType === 'IMAGE' && item.mediaUrl) {
@@ -26,10 +28,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ item, isMe, onPreviewMedi
         </TouchableOpacity>
       );
     }
-    if (item.messageType === 'VIDEO' && item.mediaUrl) {
+    if (item.messageType === 'VIDEO' && item.mediaUrl && videoPlayer) {
       return (
         <TouchableOpacity activeOpacity={0.85} onPress={() => onPreviewMedia(item.mediaUrl, 'VIDEO')} style={styles.videoThumbWrap}>
-          <Video source={{ uri: item.mediaUrl }} style={styles.mediaThumbnail} resizeMode={ResizeMode.COVER} shouldPlay={false} />
+          <VideoView player={videoPlayer} style={styles.mediaThumbnail} nativeControls={false} contentFit="cover" />
           <View style={styles.playOverlay}>
             <MaterialIcons name="play-circle-fill" size={42} color="rgba(255,255,255,0.9)" />
           </View>

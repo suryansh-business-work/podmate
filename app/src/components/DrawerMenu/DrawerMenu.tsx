@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator,
+  View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,12 +8,14 @@ import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing } from '../../theme';
 import { GET_ME } from '../../graphql/queries';
+import { useThemeMode } from '../../contexts/ThemeContext';
 import { DrawerMenuProps, NavItem, MAIN_NAV, QUICK_ACTIONS, ACCOUNT_ITEMS } from './DrawerMenu.types';
 import styles from './DrawerMenu.styles';
 
 const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }) => {
   const { data, loading } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const user = data?.me;
+  const { isDark, toggleTheme } = useThemeMode();
 
   const handleNavigate = (id: string) => {
     onClose();
@@ -91,6 +93,21 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }
 
         <Text style={styles.sectionLabel}>Account</Text>
         {ACCOUNT_ITEMS.map((item) => renderMenuItem(item))}
+
+        <View style={styles.divider} />
+
+        <View style={styles.menuRow}>
+          <View style={[styles.iconCircle, { backgroundColor: '#6366F1' + '18' }]}>
+            <MaterialIcons name={isDark ? 'dark-mode' : 'light-mode'} size={18} color="#6366F1" />
+          </View>
+          <Text style={[styles.menuLabel, { flex: 1 }]}>Dark Mode</Text>
+          <Switch
+            value={isDark}
+            onValueChange={toggleTheme}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor={colors.white}
+          />
+        </View>
 
         <View style={styles.divider} />
 

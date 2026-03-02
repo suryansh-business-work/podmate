@@ -22,6 +22,14 @@ const settingsResolvers = {
     maintenanceMode: () => {
       return settingsService.isMaintenanceMode();
     },
+
+    maintenanceStatus: (_: unknown, __: unknown, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return {
+        app: settingsService.isAppMaintenanceMode(),
+        website: settingsService.isWebsiteMaintenanceMode(),
+      };
+    },
   },
 
   Mutation: {
@@ -34,6 +42,15 @@ const settingsResolvers = {
       return settingsService.upsertSetting(args.input.key, args.input.value, args.input.category);
     },
 
+    upsertBulkSettings: (
+      _: unknown,
+      args: { inputs: Array<{ key: string; value: string; category: string }> },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return settingsService.upsertBulkSettings(args.inputs);
+    },
+
     deleteSetting: (
       _: unknown,
       args: { key: string },
@@ -41,6 +58,21 @@ const settingsResolvers = {
     ) => {
       requireRole(context, UserRole.ADMIN);
       return settingsService.deleteSetting(args.key);
+    },
+
+    testSmtpConnection: (_: unknown, __: unknown, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return settingsService.testSmtpConnection();
+    },
+
+    testOpenAiConnection: (_: unknown, __: unknown, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return settingsService.testOpenAiConnection();
+    },
+
+    testImageKitConnection: (_: unknown, __: unknown, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return settingsService.testImageKitConnection();
     },
   },
 };

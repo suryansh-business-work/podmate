@@ -173,3 +173,55 @@ export async function deleteUser(id: string): Promise<boolean> {
   const result = await UserModel.deleteOne({ _id: id });
   return result.deletedCount > 0;
 }
+
+export async function bulkDeleteUsers(ids: string[]): Promise<number> {
+  let deleted = 0;
+  for (const id of ids) {
+    const success = await deleteUser(id);
+    if (success) deleted += 1;
+  }
+  return deleted;
+}
+
+export async function savePod(userId: string, podId: string): Promise<User> {
+  const updated = await UserModel.findByIdAndUpdate(
+    userId,
+    { $addToSet: { savedPodIds: podId } },
+    { new: true },
+  ).lean({ virtuals: true });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+  return result;
+}
+
+export async function unsavePod(userId: string, podId: string): Promise<User> {
+  const updated = await UserModel.findByIdAndUpdate(
+    userId,
+    { $pull: { savedPodIds: podId } },
+    { new: true },
+  ).lean({ virtuals: true });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+  return result;
+}
+
+export async function getSavedPodIds(userId: string): Promise<string[]> {
+  const doc = await UserModel.findById(userId).lean({ virtuals: true });
+  if (!doc) return [];
+  const userDoc = doc as unknown as { savedPodIds?: string[] };
+  return userDoc.savedPodIds ?? [];
+}
+
+export async function updateThemePreference(userId: string, themePreference: string): Promise<User> {
+  if (!['light', 'dark'].includes(themePreference)) {
+    throw new Error('Invalid theme preference. Must be "light" or "dark".');
+  }
+  const updated = await UserModel.findByIdAndUpdate(
+    userId,
+    { themePreference },
+    { new: true },
+  ).lean({ virtuals: true });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+  return result;
+}

@@ -14,6 +14,7 @@ import {
   Tooltip,
   IconButton,
   CircularProgress,
+  Checkbox,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -26,21 +27,34 @@ interface PlacesTableProps {
   loading: boolean;
   sortBy: string;
   order: Order;
+  selectedIds: string[];
   onSort: (column: string) => void;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onDelete: (id: string) => void;
+  onToggleSelect: (id: string) => void;
+  onToggleSelectAll: () => void;
 }
 
-const PlacesTable: React.FC<PlacesTableProps> = ({ places, loading, sortBy, order, onSort, onApprove, onReject, onDelete }) => {
+const PlacesTable: React.FC<PlacesTableProps> = ({ places, loading, sortBy, order, selectedIds, onSort, onApprove, onReject, onDelete, onToggleSelect, onToggleSelectAll }) => {
   const navigate = useNavigate();
   const sortDir = (col: string) => (sortBy === col ? (order === 'ASC' ? 'asc' : 'desc') : 'asc');
+  const allSelected = places.length > 0 && selectedIds.length === places.length;
+  const someSelected = selectedIds.length > 0 && selectedIds.length < places.length;
 
   return (
     <TableContainer>
       <Table size="small">
         <TableHead>
           <TableRow>
+            <TableCell padding="checkbox">
+              <Checkbox
+                indeterminate={someSelected}
+                checked={allSelected}
+                onChange={onToggleSelectAll}
+                size="small"
+              />
+            </TableCell>
             <TableCell>
               <TableSortLabel active={sortBy === 'name'} direction={sortDir('name')} onClick={() => onSort('name')}>Place</TableSortLabel>
             </TableCell>
@@ -58,17 +72,20 @@ const PlacesTable: React.FC<PlacesTableProps> = ({ places, loading, sortBy, orde
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={8} align="center" sx={{ py: 6 }}><CircularProgress size={32} /></TableCell>
+              <TableCell colSpan={9} align="center" sx={{ py: 6 }}><CircularProgress size={32} /></TableCell>
             </TableRow>
           ) : !places.length ? (
             <TableRow>
-              <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
+              <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
                 <Typography color="text.secondary">No places found</Typography>
               </TableCell>
             </TableRow>
           ) : (
             places.map((place) => (
-              <TableRow key={place.id} hover sx={{ cursor: 'pointer', '&:last-child td': { border: 0 } }} onClick={() => navigate(`/places/${place.id}`)}>
+              <TableRow key={place.id} hover selected={selectedIds.includes(place.id)} sx={{ cursor: 'pointer', '&:last-child td': { border: 0 } }} onClick={() => navigate(`/places/${place.id}`)}>
+                <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                  <Checkbox size="small" checked={selectedIds.includes(place.id)} onChange={() => onToggleSelect(place.id)} />
+                </TableCell>
                 <TableCell>
                   <Box>
                     <Typography variant="body2" fontWeight={600} noWrap>{place.name}</Typography>

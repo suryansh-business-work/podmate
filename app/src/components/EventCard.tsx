@@ -15,6 +15,7 @@ interface EventCardProps {
   category: string;
   hostName: string;
   hostAvatar: string;
+  isJoined?: boolean;
   onPress: (id: string) => void;
 }
 
@@ -30,6 +31,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   status,
   hostName,
   hostAvatar,
+  isJoined = false,
   onPress,
 }) => {
   const date = new Date(dateTime);
@@ -61,6 +63,13 @@ export const EventCard: React.FC<EventCardProps> = ({
       <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
         <Text style={styles.statusText}>{status}</Text>
       </View>
+
+      {/* Joined Badge */}
+      {isJoined && (
+        <View style={[styles.statusBadge, { backgroundColor: colors.success, top: 38 }]}>
+          <Text style={styles.statusText}>✓ Joined</Text>
+        </View>
+      )}
 
       {/* Content */}
       <View style={styles.content}>

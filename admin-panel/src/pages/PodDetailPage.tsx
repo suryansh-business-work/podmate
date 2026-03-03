@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -15,13 +15,21 @@ import {
   Divider,
   Grid2 as Grid,
   LinearProgress,
-  AvatarGroup,
   Tooltip,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Snackbar,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useQuery } from '@apollo/client';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_POD } from '../graphql/queries';
+import { REMOVE_ATTENDEE } from '../graphql/mutations';
+import RemoveAttendeeDialog from './Pods/RemoveAttendeeDialog';
 
 interface Host {
   id: string;
@@ -73,12 +81,36 @@ const PodDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  const [removeTarget, setRemoveTarget] = useState<Attendee | null>(null);
+  const [snackMsg, setSnackMsg] = useState('');
+
   const { data, loading, error } = useQuery<{ pod: PodDetail }>(GET_POD, {
     variables: { id },
     skip: !id,
   });
 
+  const [removeAttendeeMutation, { loading: removing }] = useMutation(REMOVE_ATTENDEE);
+
   const pod = data?.pod;
+
+  const handleRemoveConfirm = async (issueRefund: boolean) => {
+    if (!removeTarget || !pod) return;
+    try {
+      const { data: result } = await removeAttendeeMutation({
+        variables: { podId: pod.id, userId: removeTarget.id, issueRefund },
+      });
+      const refunded = result?.removeAttendee?.refunded;
+      const amount = result?.removeAttendee?.refundAmount ?? 0;
+      setSnackMsg(
+        refunded
+          ? `Removed ${removeTarget.name} and refunded ₹${amount.toLocaleString()}`
+          : `Removed ${removeTarget.name} (no refund)`
+      );
+      setRemoveTarget(null);
+    } catch {
+      /* Apollo error handler */
+    }
+  };
 
   const formatDateTime = (d: string) => new Date(d).toLocaleString('en-IN', {
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
@@ -166,13 +198,36 @@ const PodDetailPage: React.FC = () => {
               {/* Attendees */}
               <Typography variant="subtitle2" mb={1}>Attendees ({pod.attendees.length})</Typography>
               {pod.attendees.length > 0 ? (
-                <AvatarGroup max={10} sx={{ justifyContent: 'flex-start', '& .MuiAvatar-root': { width: 32, height: 32, fontSize: 13 } }}>
+                <List dense disablePadding>
                   {pod.attendees.map((a) => (
-                    <Tooltip key={a.id} title={a.name}>
-                      <Avatar src={a.avatar}>{a.name?.[0]}</Avatar>
-                    </Tooltip>
+                    <ListItem
+                      key={a.id}
+                      secondaryAction={
+                        <Tooltip title="Remove attendee">
+                          <IconButton
+                            edge="end"
+                            color="warning"
+                            size="small"
+                            onClick={() => setRemoveTarget(a)}
+                          >
+                            <PersonRemoveIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      }
+                      sx={{ px: 0 }}
+                    >
+                      <ListItemAvatar>
+                        <Avatar src={a.avatar} sx={{ width: 32, height: 32 }}>
+                          {a.name?.[0]}
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={a.name}
+                        primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
+                      />
+                    </ListItem>
                   ))}
-                </AvatarGroup>
+                </List>
               ) : (
                 <Typography variant="body2" color="text.secondary">No attendees yet</Typography>
               )}
@@ -180,6 +235,23 @@ const PodDetailPage: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
+
+      <RemoveAttendeeDialog
+        open={!!removeTarget}
+        attendee={removeTarget}
+        podTitle={pod.title}
+        feePerPerson={pod.feePerPerson}
+        loading={removing}
+        onClose={() => setRemoveTarget(null)}
+        onConfirm={handleRemoveConfirm}
+      />
+
+      <Snackbar
+        open={!!snackMsg}
+        autoHideDuration={4000}
+        onClose={() => setSnackMsg('')}
+        message={snackMsg}
+      />
     </Box>
   );
 };

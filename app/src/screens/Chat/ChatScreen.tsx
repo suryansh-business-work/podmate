@@ -33,7 +33,7 @@ const ChatScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <Text style={styles.header}>Messages</Text>
       {loading && !data && (
         <View style={styles.centered}>

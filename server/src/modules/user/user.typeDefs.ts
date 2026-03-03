@@ -19,6 +19,8 @@ const userTypeDefs = `#graphql
     isActive: Boolean!
     disableReason: String!
     podCount: Int
+    savedPodIds: [ID!]!
+    themePreference: String!
     createdAt: String!
   }
 

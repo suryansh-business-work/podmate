@@ -15,6 +15,8 @@ const podTypeDefs = `#graphql
     dateTime: String!
     location: String!
     locationDetail: String!
+    latitude: Float!
+    longitude: Float!
     rating: Float!
     reviewCount: Int!
     status: PodStatus!
@@ -55,6 +57,8 @@ const podTypeDefs = `#graphql
     dateTime: String!
     location: String!
     locationDetail: String!
+    latitude: Float
+    longitude: Float
     refundPolicy: String
   }
 
@@ -62,6 +66,8 @@ const podTypeDefs = `#graphql
     title: String
     imageUrl: String
     mediaUrls: [String!]
+    latitude: Float
+    longitude: Float
   }
 
   type CheckoutResult {
@@ -69,6 +75,18 @@ const podTypeDefs = `#graphql
     pod: Pod!
     paymentId: ID!
     isDummy: Boolean!
+  }
+
+  type RemoveAttendeeResult {
+    pod: Pod!
+    refunded: Boolean!
+    refundAmount: Float!
+  }
+
+  type ForceDeletePodResult {
+    success: Boolean!
+    removedAttendees: Int!
+    totalRefunded: Float!
   }
 `;
 

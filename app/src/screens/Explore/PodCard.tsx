@@ -1,15 +1,18 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { View, Text, Image, TouchableOpacity, FlatList, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import { View, Text, Image, TouchableOpacity, FlatList, NativeScrollEvent, NativeSyntheticEvent, Share, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useMutation } from '@apollo/client';
 import { colors } from '../../theme';
 import { Pod, CATEGORIES, formatDate, formatTime } from './Explore.types';
 import { styles, SCREEN_W } from './Explore.styles';
+import { SAVE_POD, UNSAVE_POD } from '../../graphql/mutations';
 
 interface PodCardProps {
   item: Pod;
   activeCategory: string;
   currentUserId: string;
+  savedPodIds: string[];
   onCategoryChange: (cat: string) => void;
   onDetailPress?: (podId: string) => void;
   onJoinPress: (podId: string) => void;
@@ -20,6 +23,7 @@ const PodCard: React.FC<PodCardProps> = ({
   item,
   activeCategory,
   currentUserId,
+  savedPodIds,
   onCategoryChange,
   onDetailPress,
   onJoinPress,
@@ -28,8 +32,35 @@ const PodCard: React.FC<PodCardProps> = ({
   const fillPct = Math.round((item.currentSeats / item.maxSeats) * 100);
   const isFull = item.currentSeats >= item.maxSeats;
   const alreadyJoined = (item.attendees ?? []).some((a) => a.id === currentUserId);
+  const isSaved = savedPodIds.includes(item.id);
   const [activeSlide, setActiveSlide] = useState(0);
   const sliderRef = useRef<FlatList<string>>(null);
+
+  const [savePodMutation] = useMutation(SAVE_POD);
+  const [unsavePodMutation] = useMutation(UNSAVE_POD);
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Check out "${item.title}" on PartyWings! 🎉\n📍 ${item.location}\n📅 ${formatDate(item.dateTime)} at ${formatTime(item.dateTime)}\n💰 ₹${item.feePerPerson.toLocaleString()} per person`,
+        title: item.title,
+      });
+    } catch {
+      Alert.alert('Error', 'Unable to share this pod');
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      if (isSaved) {
+        await unsavePodMutation({ variables: { podId: item.id } });
+      } else {
+        await savePodMutation({ variables: { podId: item.id } });
+      }
+    } catch {
+      Alert.alert('Error', 'Unable to save this pod');
+    }
+  };
 
   const allImages: string[] = (() => {
     const urls: string[] = [];
@@ -108,13 +139,13 @@ const PodCard: React.FC<PodCardProps> = ({
           <MaterialIcons name="info-outline" size={28} color={colors.white} />
           <Text style={styles.sideBtnText}>Details</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sideBtn}>
+        <TouchableOpacity style={styles.sideBtn} onPress={handleShare}>
           <MaterialIcons name="share" size={28} color={colors.white} />
           <Text style={styles.sideBtnText}>Share</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sideBtn}>
-          <MaterialIcons name="bookmark-border" size={28} color={colors.white} />
-          <Text style={styles.sideBtnText}>Save</Text>
+        <TouchableOpacity style={styles.sideBtn} onPress={handleSave}>
+          <MaterialIcons name={isSaved ? 'bookmark' : 'bookmark-border'} size={28} color={isSaved ? colors.accent : colors.white} />
+          <Text style={styles.sideBtnText}>{isSaved ? 'Saved' : 'Save'}</Text>
         </TouchableOpacity>
         {item.host.avatar ? (
           <Image source={{ uri: item.host.avatar }} style={styles.hostAvatarSide} />

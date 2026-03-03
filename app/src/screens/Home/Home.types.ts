@@ -15,12 +15,16 @@ export interface PodItem {
     avatar: string;
     isVerifiedHost: boolean;
   };
+  attendees?: { id: string }[];
 }
 
 export interface PodsQueryData {
   pods: {
     items: PodItem[];
     total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
   };
 }
 

@@ -56,12 +56,22 @@ export function requireRole(context: GraphQLContext, ...roles: UserRole[]): Auth
 }
 
 export async function sendOtp(phone: string): Promise<{ success: boolean; message: string }> {
+  const isDev = process.env.NODE_ENV !== 'production';
   const otp = generateOtp();
   otpStore.set(phone, { otp, expiresAt: Date.now() + OTP_EXPIRY_MS });
 
+  // In dev mode, log OTP directly for faster development
+  if (isDev) {
+    logger.info(`[DEV] OTP for ${phone}: ${otp}`);
+  }
+
+  // Fire-and-forget SMS delivery (non-blocking) for faster response
   const otpMessage = `Your PartyWings OTP is: ${otp}. Valid for 5 minutes.`;
-  await sendSMS(phone, otpMessage);
-  logger.info(`OTP sent to ${phone}`);
+  sendSMS(phone, otpMessage).catch((err) => {
+    logger.error(`Failed to send OTP SMS to ${phone}:`, err);
+  });
+
+  logger.info(`OTP generated for ${phone}`);
   return { success: true, message: `OTP sent to ${phone}` };
 }
 

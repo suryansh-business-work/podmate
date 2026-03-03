@@ -35,6 +35,8 @@ const initialValues: PodFormValues = {
   placeId: '',
   location: '',
   locationDetail: '',
+  latitude: 0,
+  longitude: 0,
   category: 'Social',
 };
 
@@ -90,6 +92,8 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
             dateTime: dateTime.toISOString(),
             location: values.location.trim(),
             locationDetail: values.locationDetail.trim() || 'TBD',
+            latitude: values.latitude || undefined,
+            longitude: values.longitude || undefined,
           },
         },
       });

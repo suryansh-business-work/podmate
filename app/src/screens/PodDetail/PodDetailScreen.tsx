@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, Alert, RefreshControl, Platform } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, Alert, RefreshControl, Platform, Share, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -29,6 +29,19 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
       onCheckout(podId);
     } else {
       Alert.alert('Error', 'Checkout is not available');
+    }
+  };
+
+  const handleShare = async () => {
+    if (!data?.pod) return;
+    const p = data.pod;
+    try {
+      await Share.share({
+        message: `Check out "${p.title}" on PartyWings! 🎉\n📍 ${p.location}\n💰 ₹${p.feePerPerson} per person`,
+        title: p.title as string,
+      });
+    } catch {
+      Alert.alert('Error', 'Unable to share this pod');
     }
   };
 
@@ -65,6 +78,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
   return (
     <View style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
           keyboardShouldPersistTaps="handled"
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
         >
@@ -74,7 +88,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
             <TouchableOpacity style={styles.iconButton} onPress={onBack}>
               <MaterialIcons name="arrow-back" size={20} color={colors.white} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
               <MaterialIcons name="share" size={20} color={colors.white} />
             </TouchableOpacity>
           </SafeAreaView>
@@ -130,6 +144,40 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
               <Text style={styles.infoSubValue}>Escrow Secured</Text>
             </View>
           </View>
+
+          {/* Map Preview */}
+          {pod.latitude !== undefined && pod.longitude !== undefined && pod.latitude !== 0 && pod.longitude !== 0 && (
+            <View style={{ marginTop: 16, marginBottom: 8 }}>
+              <Text style={styles.sectionTitle}>Location</Text>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => {
+                  const url = Platform.select({
+                    ios: `maps:0,0?q=${pod.latitude},${pod.longitude}`,
+                    android: `geo:${pod.latitude},${pod.longitude}?q=${pod.latitude},${pod.longitude}(${encodeURIComponent(pod.location)})`,
+                  }) ?? `https://maps.google.com/?q=${pod.latitude},${pod.longitude}`;
+                  Linking.openURL(url).catch(() => {
+                    Linking.openURL(`https://maps.google.com/?q=${pod.latitude},${pod.longitude}`);
+                  });
+                }}
+                style={{ borderRadius: 12, overflow: 'hidden', marginTop: 8 }}
+              >
+                <Image
+                  source={{
+                    uri: `https://maps.googleapis.com/maps/api/staticmap?center=${pod.latitude},${pod.longitude}&zoom=15&size=600x200&scale=2&markers=color:red%7C${pod.latitude},${pod.longitude}&key=GOOGLE_MAPS_KEY`,
+                  }}
+                  style={{ width: '100%', height: 160, borderRadius: 12, backgroundColor: colors.surfaceVariant }}
+                  resizeMode="cover"
+                />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                  <MaterialIcons name="place" size={16} color={colors.primary} />
+                  <Text style={{ color: colors.text, fontSize: 14, fontWeight: '500', flex: 1 }}>{pod.location}</Text>
+                  <MaterialIcons name="open-in-new" size={14} color={colors.textSecondary} />
+                  <Text style={{ color: colors.textSecondary, fontSize: 12 }}>Open in Maps</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <View style={styles.attendeesSection}>
             <View style={styles.attendeesHeader}>

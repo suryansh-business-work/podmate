@@ -17,6 +17,7 @@ import {
   CircularProgress,
   Select,
   MenuItem,
+  Checkbox,
 } from '@mui/material';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import BlockIcon from '@mui/icons-material/Block';
@@ -31,10 +32,13 @@ interface UsersTableProps {
   loading: boolean;
   sortBy: string;
   order: Order;
+  selectedIds: string[];
   onSort: (column: string) => void;
   onToggleUser: (user: User) => void;
   onDeleteUser: (id: string) => void;
   onRefetch: () => void;
+  onToggleSelect: (id: string) => void;
+  onToggleSelectAll: () => void;
 }
 
 const UsersTable: React.FC<UsersTableProps> = ({
@@ -42,13 +46,18 @@ const UsersTable: React.FC<UsersTableProps> = ({
   loading,
   sortBy,
   order,
+  selectedIds,
   onSort,
   onToggleUser,
   onDeleteUser,
   onRefetch,
+  onToggleSelect,
+  onToggleSelectAll,
 }) => {
   const navigate = useNavigate();
   const [updateUserRole] = useMutation(UPDATE_USER_ROLE);
+  const allSelected = users.length > 0 && selectedIds.length === users.length;
+  const someSelected = selectedIds.length > 0 && selectedIds.length < users.length;
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
@@ -66,6 +75,14 @@ const UsersTable: React.FC<UsersTableProps> = ({
       <Table size="small">
         <TableHead>
           <TableRow>
+            <TableCell padding="checkbox">
+              <Checkbox
+                indeterminate={someSelected}
+                checked={allSelected}
+                onChange={onToggleSelectAll}
+                size="small"
+              />
+            </TableCell>
             <TableCell>
               <TableSortLabel active={sortBy === 'name'} direction={sortDir('name')} onClick={() => onSort('name')}>
                 User
@@ -95,13 +112,13 @@ const UsersTable: React.FC<UsersTableProps> = ({
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
+              <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
                 <CircularProgress size={32} />
               </TableCell>
             </TableRow>
           ) : !users.length ? (
             <TableRow>
-              <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
+              <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
                 <Typography color="text.secondary">No users found</Typography>
               </TableCell>
             </TableRow>
@@ -110,9 +127,13 @@ const UsersTable: React.FC<UsersTableProps> = ({
               <TableRow
                 key={user.id}
                 hover
+                selected={selectedIds.includes(user.id)}
                 sx={{ cursor: 'pointer', '&:last-child td': { border: 0 } }}
                 onClick={() => navigate(`/users/${user.id}`)}
               >
+                <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                  <Checkbox size="small" checked={selectedIds.includes(user.id)} onChange={() => onToggleSelect(user.id)} />
+                </TableCell>
                 <TableCell>
                   <Box display="flex" alignItems="center" gap={1.5}>
                     <Avatar src={user.avatar} sx={{ width: 36, height: 36 }}>{user.name?.[0] || '?'}</Avatar>

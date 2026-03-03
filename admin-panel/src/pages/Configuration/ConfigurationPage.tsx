@@ -7,15 +7,15 @@ import HomeIcon from '@mui/icons-material/Home';
 import SaveIcon from '@mui/icons-material/Save';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_APP_SETTINGS, GET_OPENAI_MODELS } from '../../graphql/queries';
-import { UPSERT_SETTING, TEST_SMTP_CONNECTION, TEST_OPENAI_CONNECTION, TEST_IMAGEKIT_CONNECTION } from '../../graphql/mutations';
+import { GET_APP_SETTINGS } from '../../graphql/queries';
+import { UPSERT_SETTING, TEST_SMTP_CONNECTION, TEST_IMAGEKIT_CONNECTION } from '../../graphql/mutations';
 import type {
-  AppSetting, SettingsData, SmtpConfig, ImageKitConfig, OpenAiConfig, SlackConfig,
-  AppConfig, DevConfig, TestConnectionResult,
+  AppSetting, SettingsData, SmtpConfig, ImageKitConfig, SlackConfig,
+  AppConfig, DevConfig, StripeConfig, GoogleMapsConfig, TestConnectionResult,
 } from './Configuration.types';
 import {
-  DEFAULT_SMTP, DEFAULT_IMAGEKIT, DEFAULT_OPENAI, DEFAULT_SLACK,
-  DEFAULT_APP_CONFIG, DEFAULT_DEV_CONFIG,
+  DEFAULT_SMTP, DEFAULT_IMAGEKIT, DEFAULT_SLACK,
+  DEFAULT_APP_CONFIG, DEFAULT_DEV_CONFIG, DEFAULT_STRIPE, DEFAULT_GOOGLE_MAPS,
 } from './Configuration.types';
 import SmtpFormFields from './SmtpFormFields';
 
@@ -35,19 +35,18 @@ const ConfigurationPage: React.FC = () => {
   const [tab, setTab] = useState(0);
   const [smtp, setSmtp] = useState<SmtpConfig>({ ...DEFAULT_SMTP });
   const [imagekit, setImagekit] = useState<ImageKitConfig>({ ...DEFAULT_IMAGEKIT });
-  const [openai, setOpenai] = useState<OpenAiConfig>({ ...DEFAULT_OPENAI });
   const [slack, setSlack] = useState<SlackConfig>({ ...DEFAULT_SLACK });
   const [appConfig, setAppConfig] = useState<AppConfig>({ ...DEFAULT_APP_CONFIG });
   const [devConfig, setDevConfig] = useState<DevConfig>({ ...DEFAULT_DEV_CONFIG });
+  const [stripe, setStripe] = useState<StripeConfig>({ ...DEFAULT_STRIPE });
+  const [googleMaps, setGoogleMaps] = useState<GoogleMapsConfig>({ ...DEFAULT_GOOGLE_MAPS });
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [testResult, setTestResult] = useState<TestConnectionResult | null>(null);
 
   const { data, loading } = useQuery<SettingsData>(GET_APP_SETTINGS, { fetchPolicy: 'cache-and-network' });
-  const { data: modelsData, loading: modelsLoading } = useQuery<{ openAiModels: string[] }>(GET_OPENAI_MODELS, { fetchPolicy: 'cache-and-network' });
   const [upsertSetting, { loading: saving }] = useMutation(UPSERT_SETTING);
   const [testSmtp, { loading: testingSmtp }] = useMutation(TEST_SMTP_CONNECTION);
-  const [testOpenAi, { loading: testingOpenAi }] = useMutation(TEST_OPENAI_CONNECTION);
   const [testImageKit, { loading: testingImageKit }] = useMutation(TEST_IMAGEKIT_CONNECTION);
 
   const populateFromSettings = useCallback((settings: AppSetting[]) => {
@@ -66,11 +65,6 @@ const ConfigurationPage: React.FC = () => {
       privateKey: get('imagekit', 'imagekit_private_key') || DEFAULT_IMAGEKIT.privateKey,
       urlEndpoint: get('imagekit', 'imagekit_url_endpoint') || DEFAULT_IMAGEKIT.urlEndpoint,
     });
-    setOpenai({
-      apiKey: get('openai', 'openai_api_key') || DEFAULT_OPENAI.apiKey,
-      model: get('openai', 'openai_model') || DEFAULT_OPENAI.model,
-      prePrompt: get('openai', 'chatbot_pre_prompt') || DEFAULT_OPENAI.prePrompt,
-    });
     setSlack({
       webhookUrl: get('slack', 'slack_webhook_url') || DEFAULT_SLACK.webhookUrl,
       channel: get('slack', 'slack_channel') || DEFAULT_SLACK.channel,
@@ -85,6 +79,16 @@ const ConfigurationPage: React.FC = () => {
     setDevConfig({
       devMode: get('dev', 'dev_mode') || DEFAULT_DEV_CONFIG.devMode,
       dummyCheckout: get('dev', 'dummy_checkout') || DEFAULT_DEV_CONFIG.dummyCheckout,
+    });
+    setStripe({
+      publishableKey: get('stripe', 'stripe_publishable_key') || DEFAULT_STRIPE.publishableKey,
+      secretKey: get('stripe', 'stripe_secret_key') || DEFAULT_STRIPE.secretKey,
+      webhookSecret: get('stripe', 'stripe_webhook_secret') || DEFAULT_STRIPE.webhookSecret,
+      enabled: get('stripe', 'stripe_enabled') || DEFAULT_STRIPE.enabled,
+    });
+    setGoogleMaps({
+      apiKey: get('googlemaps', 'google_maps_api_key') || DEFAULT_GOOGLE_MAPS.apiKey,
+      enabled: get('googlemaps', 'google_maps_enabled') || DEFAULT_GOOGLE_MAPS.enabled,
     });
   }, []);
 
@@ -107,15 +111,14 @@ const ConfigurationPage: React.FC = () => {
     }
   };
 
-  const handleTest = async (type: 'smtp' | 'openai' | 'imagekit') => {
+  const handleTest = async (type: 'smtp' | 'imagekit') => {
     setTestResult(null);
     try {
       let result: { data?: Record<string, TestConnectionResult> };
       if (type === 'smtp') result = await testSmtp();
-      else if (type === 'openai') result = await testOpenAi();
       else result = await testImageKit();
 
-      const key = type === 'smtp' ? 'testSmtpConnection' : type === 'openai' ? 'testOpenAiConnection' : 'testImageKitConnection';
+      const key = type === 'smtp' ? 'testSmtpConnection' : 'testImageKitConnection';
       const data = result?.data?.[key];
       if (data) setTestResult(data);
     } catch (err) {
@@ -150,8 +153,9 @@ const ConfigurationPage: React.FC = () => {
         <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto">
           <Tab label="SMTP" />
           <Tab label="ImageKit" />
-          <Tab label="OpenAI" />
           <Tab label="Slack" />
+          <Tab label="Stripe" />
+          <Tab label="Google Maps" />
           <Tab label="App Settings" />
           <Tab label="Development" />
         </Tabs>
@@ -215,53 +219,8 @@ const ConfigurationPage: React.FC = () => {
             </Stack>
           </TabPanel>
 
-          {/* OpenAI Tab */}
-          <TabPanel value={tab} index={2}>
-            <Typography variant="h6" mb={1}>OpenAI Configuration</Typography>
-            <Typography variant="body2" color="text.secondary" mb={3}>
-              Configure OpenAI for the AI chatbot assistant.
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-            <Stack spacing={2}>
-              <TextField label="API Key" type="password" value={openai.apiKey}
-                onChange={(e) => setOpenai((p) => ({ ...p, apiKey: e.target.value }))} fullWidth />
-              <TextField
-                select
-                label="Model"
-                value={openai.model}
-                onChange={(e) => setOpenai((p) => ({ ...p, model: e.target.value }))}
-                fullWidth
-                helperText={modelsLoading ? 'Loading models...' : 'Select an OpenAI model'}
-              >
-                {(modelsData?.openAiModels ?? []).length === 0 && (
-                  <MenuItem value={openai.model || 'gpt-4o-mini'}>{openai.model || 'gpt-4o-mini'}</MenuItem>
-                )}
-                {(modelsData?.openAiModels ?? []).map((m) => (
-                  <MenuItem key={m} value={m}>{m}</MenuItem>
-                ))}
-              </TextField>
-              <TextField label="Chatbot Pre-Prompt" value={openai.prePrompt}
-                onChange={(e) => setOpenai((p) => ({ ...p, prePrompt: e.target.value }))} fullWidth
-                multiline rows={4} helperText="System prompt sent to OpenAI before each conversation" />
-            </Stack>
-            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
-              <Button variant="outlined" startIcon={testingOpenAi ? <CircularProgress size={18} /> : <NetworkCheckIcon />}
-                onClick={() => handleTest('openai')} disabled={testingOpenAi}>
-                Test Connection
-              </Button>
-              <Button variant="contained" startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
-                onClick={() => saveCategory('openai', [
-                  { key: 'openai_api_key', value: openai.apiKey },
-                  { key: 'openai_model', value: openai.model },
-                  { key: 'chatbot_pre_prompt', value: openai.prePrompt },
-                ])} disabled={saving}>
-                Save
-              </Button>
-            </Stack>
-          </TabPanel>
-
           {/* Slack Tab */}
-          <TabPanel value={tab} index={3}>
+          <TabPanel value={tab} index={2}>
             <Typography variant="h6" mb={1}>Slack Configuration</Typography>
             <Typography variant="body2" color="text.secondary" mb={3}>
               Configure Slack webhook for notifications.
@@ -289,8 +248,70 @@ const ConfigurationPage: React.FC = () => {
             </Stack>
           </TabPanel>
 
-          {/* App Settings Tab */}
+          {/* Stripe Tab */}
+          <TabPanel value={tab} index={3}>
+            <Typography variant="h6" mb={1}>Stripe Payment Configuration</Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Configure Stripe API keys for processing payments and refunds.
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Stack spacing={2}>
+              <TextField label="Publishable Key" value={stripe.publishableKey}
+                onChange={(e) => setStripe((p) => ({ ...p, publishableKey: e.target.value }))} fullWidth
+                helperText="Starts with pk_test_ or pk_live_" />
+              <TextField label="Secret Key" type="password" value={stripe.secretKey}
+                onChange={(e) => setStripe((p) => ({ ...p, secretKey: e.target.value }))} fullWidth
+                helperText="Starts with sk_test_ or sk_live_" />
+              <TextField label="Webhook Secret" type="password" value={stripe.webhookSecret}
+                onChange={(e) => setStripe((p) => ({ ...p, webhookSecret: e.target.value }))} fullWidth
+                helperText="Starts with whsec_" />
+              <FormControlLabel control={
+                <Switch checked={stripe.enabled === 'true'}
+                  onChange={(e) => setStripe((p) => ({ ...p, enabled: e.target.checked ? 'true' : 'false' }))} />
+              } label="Enable Stripe Payments" />
+            </Stack>
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
+              <Button variant="contained" startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                onClick={() => saveCategory('stripe', [
+                  { key: 'stripe_publishable_key', value: stripe.publishableKey },
+                  { key: 'stripe_secret_key', value: stripe.secretKey },
+                  { key: 'stripe_webhook_secret', value: stripe.webhookSecret },
+                  { key: 'stripe_enabled', value: stripe.enabled },
+                ])} disabled={saving}>
+                Save
+              </Button>
+            </Stack>
+          </TabPanel>
+
+          {/* Google Maps Tab */}
           <TabPanel value={tab} index={4}>
+            <Typography variant="h6" mb={1}>Google Maps Configuration</Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              Configure Google Maps & Places API for location services.
+            </Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Stack spacing={2}>
+              <TextField label="API Key" value={googleMaps.apiKey}
+                onChange={(e) => setGoogleMaps((p) => ({ ...p, apiKey: e.target.value }))} fullWidth
+                helperText="Google Maps Platform API key with Maps SDK & Places API enabled" />
+              <FormControlLabel control={
+                <Switch checked={googleMaps.enabled === 'true'}
+                  onChange={(e) => setGoogleMaps((p) => ({ ...p, enabled: e.target.checked ? 'true' : 'false' }))} />
+              } label="Enable Google Maps" />
+            </Stack>
+            <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>
+              <Button variant="contained" startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                onClick={() => saveCategory('googlemaps', [
+                  { key: 'google_maps_api_key', value: googleMaps.apiKey },
+                  { key: 'google_maps_enabled', value: googleMaps.enabled },
+                ])} disabled={saving}>
+                Save
+              </Button>
+            </Stack>
+          </TabPanel>
+
+          {/* App Settings Tab */}
+          <TabPanel value={tab} index={5}>
             <Typography variant="h6" mb={1}>App Settings</Typography>
             <Typography variant="body2" color="text.secondary" mb={3}>
               Configure app-level settings like name, logo, and splash video.
@@ -322,7 +343,7 @@ const ConfigurationPage: React.FC = () => {
           </TabPanel>
 
           {/* Development Tab */}
-          <TabPanel value={tab} index={5}>
+          <TabPanel value={tab} index={6}>
             <Typography variant="h6" mb={1}>Development Settings</Typography>
             <Typography variant="body2" color="text.secondary" mb={3}>
               Configure development mode and testing options.

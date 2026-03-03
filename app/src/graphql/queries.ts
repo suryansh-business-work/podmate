@@ -16,6 +16,8 @@ export const GET_PODS = gql`
         dateTime
         location
         locationDetail
+        latitude
+        longitude
         rating
         reviewCount
         status
@@ -52,6 +54,8 @@ export const GET_POD = gql`
       dateTime
       location
       locationDetail
+      latitude
+      longitude
       rating
       reviewCount
       status
@@ -83,6 +87,8 @@ export const GET_ME = gql`
       avatar
       role
       isVerifiedHost
+      savedPodIds
+      themePreference
     }
   }
 `;

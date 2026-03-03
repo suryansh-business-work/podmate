@@ -107,6 +107,113 @@ export async function deletePod(id: string): Promise<boolean> {
   return result.deletedCount > 0;
 }
 
+export async function bulkDeletePods(ids: string[], issueRefunds: boolean): Promise<number> {
+  let deleted = 0;
+  for (const id of ids) {
+    const pod = await PodModel.findById(id);
+    if (!pod) continue;
+    if (pod.currentSeats > 0) {
+      await forceDeletePod(id, issueRefunds);
+    } else {
+      await PodModel.deleteOne({ _id: id });
+    }
+    deleted += 1;
+  }
+  return deleted;
+}
+
+export interface RemoveAttendeeResult {
+  pod: Pod;
+  refunded: boolean;
+  refundAmount: number;
+}
+
+export async function removeAttendee(
+  podId: string,
+  userId: string,
+  issueRefund: boolean,
+): Promise<RemoveAttendeeResult> {
+  const pod = await PodModel.findById(podId);
+  if (!pod) throw new Error('Pod not found');
+  if (!(pod.attendeeIds as string[]).includes(userId)) throw new Error('User is not an attendee of this pod');
+
+  /* Remove attendee */
+  const updated = await PodModel.findByIdAndUpdate(
+    podId,
+    { $pull: { attendeeIds: userId }, $inc: { currentSeats: -1 } },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
+  const result = toPod(updated);
+  if (!result) throw new Error('Pod not found');
+
+  let refunded = false;
+  let refundAmt = 0;
+
+  /* Issue refund if requested */
+  if (issueRefund) {
+    const { PaymentModel } = await import('../payment/payment.models');
+    const payment = await PaymentModel.findOne({
+      userId,
+      podId,
+      type: 'PAYMENT',
+      status: 'COMPLETED',
+    }).lean();
+
+    if (payment) {
+      const { processRefund } = await import('../payment/payment.services');
+      refundAmt = (payment.amount as number) - ((payment.refundAmount as number) || 0);
+      if (refundAmt > 0) {
+        await processRefund({
+          paymentId: (payment._id as string).toString(),
+          amount: refundAmt,
+          notes: 'Admin removed attendee – automatic refund',
+        });
+        refunded = true;
+      }
+    }
+  }
+
+  /* Notify user */
+  await createNotification(
+    userId,
+    'POD_UPDATE',
+    'Removed from Pod',
+    `You have been removed from "${pod.title}"${refunded ? ` and refunded ₹${refundAmt}` : ''}`,
+    JSON.stringify({ podId }),
+  );
+
+  return { pod: result, refunded, refundAmount: refundAmt };
+}
+
+export interface ForceDeletePodResult {
+  success: boolean;
+  removedAttendees: number;
+  totalRefunded: number;
+}
+
+export async function forceDeletePod(podId: string, issueRefunds: boolean): Promise<ForceDeletePodResult> {
+  const pod = await PodModel.findById(podId);
+  if (!pod) throw new Error('Pod not found');
+
+  const attendeeIds = pod.attendeeIds as string[];
+  let totalRefunded = 0;
+
+  /* Remove each attendee and optionally refund */
+  for (const userId of attendeeIds) {
+    try {
+      const result = await removeAttendee(podId, userId, issueRefunds);
+      totalRefunded += result.refundAmount;
+    } catch {
+      /* Continue even if one fails */
+    }
+  }
+
+  /* Now delete the pod */
+  await PodModel.deleteOne({ _id: podId });
+
+  return { success: true, removedAttendees: attendeeIds.length, totalRefunded };
+}
+
 export async function hostDeletePod(id: string, hostId: string): Promise<boolean> {
   const pod = await PodModel.findById(id);
   if (!pod) throw new Error('Pod not found');

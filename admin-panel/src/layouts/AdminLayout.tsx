@@ -15,12 +15,16 @@ import {
   Divider,
   Menu,
   MenuItem,
+  Tooltip,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import MenuIcon from '@mui/icons-material/Menu';
 import GroupsIcon from '@mui/icons-material/Groups';
 import LogoutIcon from '@mui/icons-material/Logout';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import { DRAWER_WIDTH, AdminLayoutProps, navItems } from './AdminLayout.types';
+import { useAdminTheme } from '../contexts/ThemeContext';
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -28,6 +32,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const activeNav = location.pathname;
+  const { isDark, toggleTheme } = useAdminTheme();
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -117,6 +122,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             <MenuIcon />
           </IconButton>
           <Box sx={{ flex: 1 }} />
+          <Tooltip title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+            <IconButton onClick={toggleTheme} sx={{ mr: 1 }}>
+              {isDark ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
+          </Tooltip>
           <IconButton
             onClick={(e) => setAnchorEl(e.currentTarget)}
             sx={{ p: 0, ml: 1 }}

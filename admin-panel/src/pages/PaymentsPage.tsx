@@ -178,18 +178,18 @@ const PaymentsPage: React.FC = () => {
             onChange={(e) => setSearch(e.target.value)}
             sx={{ minWidth: 200 }}
           />
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          <FormControl size="small" sx={{ minWidth: 120, zIndex: 2 }}>
             <InputLabel>Type</InputLabel>
-            <Select label="Type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+            <Select label="Type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} MenuProps={{ disablePortal: false }}>
               <MenuItem value="">All</MenuItem>
               <MenuItem value="PAYMENT">Payment</MenuItem>
               <MenuItem value="REFUND">Refund</MenuItem>
               <MenuItem value="PARTIAL_REFUND">Partial Refund</MenuItem>
             </Select>
           </FormControl>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          <FormControl size="small" sx={{ minWidth: 120, zIndex: 2 }}>
             <InputLabel>Status</InputLabel>
-            <Select label="Status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <Select label="Status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} MenuProps={{ disablePortal: false }}>
               <MenuItem value="">All</MenuItem>
               <MenuItem value="PENDING">Pending</MenuItem>
               <MenuItem value="COMPLETED">Completed</MenuItem>

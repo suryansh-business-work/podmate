@@ -1,7 +1,7 @@
 import mongoose, { Schema, model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
-export type NotificationType = 'POD_JOIN' | 'POD_LEAVE' | 'SUPPORT_REPLY' | 'GENERAL';
+export type NotificationType = 'POD_JOIN' | 'POD_LEAVE' | 'POD_UPDATE' | 'SUPPORT_REPLY' | 'GENERAL';
 
 export interface Notification {
   id: string;

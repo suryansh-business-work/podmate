@@ -16,6 +16,8 @@ export interface Pod {
   dateTime: string;
   location: string;
   locationDetail: string;
+  latitude: number;
+  longitude: number;
   rating: number;
   reviewCount: number;
   status: PodStatus;
@@ -40,6 +42,8 @@ export interface CreatePodInput {
   dateTime: string;
   location: string;
   locationDetail: string;
+  latitude?: number;
+  longitude?: number;
   refundPolicy?: string;
 }
 
@@ -54,6 +58,8 @@ export interface UpdatePodInput {
   dateTime?: string;
   location?: string;
   locationDetail?: string;
+  latitude?: number;
+  longitude?: number;
   status?: PodStatus;
   closeReason?: string;
 }
@@ -95,6 +101,8 @@ const PodSchema = new Schema<PodMongoDoc>(
     dateTime: { type: String, required: true },
     location: { type: String, default: '' },
     locationDetail: { type: String, default: '' },
+    latitude: { type: Number, default: 0 },
+    longitude: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },
     status: { type: String, enum: ['NEW', 'CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED', 'OPEN', 'CLOSED'], default: 'NEW' },
@@ -120,6 +128,8 @@ export function toPod(doc: (PodMongoDoc & { id?: string }) | null): Pod | null {
     attendeeIds: doc.attendeeIds ?? [],
     imageUrl: doc.imageUrl ?? '',
     placeId: doc.placeId ?? '',
+    latitude: doc.latitude ?? 0,
+    longitude: doc.longitude ?? 0,
     status: doc.status ?? 'NEW',
     closeReason: doc.closeReason ?? '',
     viewCount: doc.viewCount ?? 0,

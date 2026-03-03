@@ -49,6 +49,18 @@ export interface DevConfig {
   dummyCheckout: string;
 }
 
+export interface StripeConfig {
+  publishableKey: string;
+  secretKey: string;
+  webhookSecret: string;
+  enabled: string;
+}
+
+export interface GoogleMapsConfig {
+  apiKey: string;
+  enabled: string;
+}
+
 export const SMTP_KEYS: { key: keyof SmtpConfig; label: string; type?: string }[] = [
   { key: 'host', label: 'SMTP Host' },
   { key: 'port', label: 'SMTP Port' },
@@ -113,6 +125,18 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
 export const DEFAULT_DEV_CONFIG: DevConfig = {
   devMode: 'false',
   dummyCheckout: 'false',
+};
+
+export const DEFAULT_STRIPE: StripeConfig = {
+  publishableKey: '',
+  secretKey: '',
+  webhookSecret: '',
+  enabled: 'false',
+};
+
+export const DEFAULT_GOOGLE_MAPS: GoogleMapsConfig = {
+  apiKey: '',
+  enabled: 'false',
 };
 
 export interface TestConnectionResult {

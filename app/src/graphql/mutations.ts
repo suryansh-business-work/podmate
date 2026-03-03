@@ -212,3 +212,30 @@ export const DELETE_POD = gql`
     deletePod(id: $id)
   }
 `;
+
+export const SAVE_POD = gql`
+  mutation SavePod($podId: ID!) {
+    savePod(podId: $podId) {
+      id
+      savedPodIds
+    }
+  }
+`;
+
+export const UNSAVE_POD = gql`
+  mutation UnsavePod($podId: ID!) {
+    unsavePod(podId: $podId) {
+      id
+      savedPodIds
+    }
+  }
+`;
+
+export const UPDATE_THEME_PREFERENCE = gql`
+  mutation UpdateThemePreference($themePreference: String!) {
+    updateThemePreference(themePreference: $themePreference) {
+      id
+      themePreference
+    }
+  }
+`;

@@ -18,12 +18,13 @@ import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_PLACES } from '../../graphql/queries';
-import { APPROVE_PLACE, REJECT_PLACE, DELETE_PLACE } from '../../graphql/mutations';
+import { APPROVE_PLACE, REJECT_PLACE, DELETE_PLACE, BULK_DELETE_PLACES } from '../../graphql/mutations';
 import { useDebounce } from '../../hooks/useDebounce';
 import { PlacesData, Place, Order, STATUS_TABS } from './Places.types';
 import PlacesTable from './PlacesTable';
 import CreatePlaceDialog from './CreatePlaceDialog';
 import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
+import BulkActionToolbar from '../../components/BulkActionToolbar';
 
 const PlacesPage: React.FC = () => {
   const [page, setPage] = useState(0);
@@ -35,6 +36,8 @@ const PlacesPage: React.FC = () => {
   const [statusTab, setStatusTab] = useState(0);
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Place | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const statusFilter = STATUS_TABS[statusTab] === 'ALL' ? undefined : STATUS_TABS[statusTab];
 
@@ -46,6 +49,9 @@ const PlacesPage: React.FC = () => {
   const [approvePlace] = useMutation(APPROVE_PLACE);
   const [rejectPlace] = useMutation(REJECT_PLACE);
   const [deletePlaceMutation, { loading: deleting }] = useMutation(DELETE_PLACE);
+  const [bulkDeletePlacesMutation, { loading: bulkDeleting }] = useMutation(BULK_DELETE_PLACES);
+
+  const places = data?.places.items ?? [];
 
   const handleSort = (column: string) => {
     if (sortBy === column) setOrder(order === 'ASC' ? 'DESC' : 'ASC');
@@ -55,8 +61,22 @@ const PlacesPage: React.FC = () => {
   const handleApprove = async (id: string) => { await approvePlace({ variables: { id } }); await refetch(); };
   const handleReject = async (id: string) => { await rejectPlace({ variables: { id } }); await refetch(); };
   const handleDelete = (id: string) => {
-    const place = data?.places.items.find((p) => p.id === id);
+    const place = places.find((p) => p.id === id);
     if (place) setDeleteTarget(place);
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedIds.length === places.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(places.map((p) => p.id));
+    }
   };
 
   const confirmDelete = async () => {
@@ -64,6 +84,16 @@ const PlacesPage: React.FC = () => {
     try {
       await deletePlaceMutation({ variables: { id: deleteTarget.id } });
       setDeleteTarget(null);
+      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
+      await refetch();
+    } catch { /* handled by Apollo */ }
+  };
+
+  const confirmBulkDelete = async () => {
+    try {
+      await bulkDeletePlacesMutation({ variables: { ids: selectedIds } });
+      setSelectedIds([]);
+      setBulkDeleteOpen(false);
       await refetch();
     } catch { /* handled by Apollo */ }
   };
@@ -99,15 +129,25 @@ const PlacesPage: React.FC = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
 
       <Card>
+        <BulkActionToolbar
+          selectedCount={selectedIds.length}
+          entityType="place"
+          loading={bulkDeleting}
+          onDelete={() => setBulkDeleteOpen(true)}
+          onClearSelection={() => setSelectedIds([])}
+        />
         <PlacesTable
-          places={data?.places.items ?? []}
+          places={places}
           loading={loading && !data}
           sortBy={sortBy}
           order={order}
+          selectedIds={selectedIds}
           onSort={handleSort}
           onApprove={handleApprove}
           onReject={handleReject}
           onDelete={handleDelete}
+          onToggleSelect={handleToggleSelect}
+          onToggleSelectAll={handleToggleSelectAll}
         />
         {data && (
           <TablePagination
@@ -132,6 +172,16 @@ const PlacesPage: React.FC = () => {
         loading={deleting}
         onClose={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
+      />
+
+      <ConfirmDeleteDialog
+        open={bulkDeleteOpen}
+        title={`Delete ${selectedIds.length} Places`}
+        entityName={`${selectedIds.length} places`}
+        entityType="places"
+        loading={bulkDeleting}
+        onClose={() => setBulkDeleteOpen(false)}
+        onConfirm={confirmBulkDelete}
       />
     </Box>
   );

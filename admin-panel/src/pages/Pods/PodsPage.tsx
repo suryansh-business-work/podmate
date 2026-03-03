@@ -10,18 +10,21 @@ import {
   Breadcrumbs,
   Link,
   Button,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_PODS } from '../../graphql/queries';
-import { DELETE_POD } from '../../graphql/mutations';
+import { DELETE_POD, FORCE_DELETE_POD, BULK_DELETE_PODS } from '../../graphql/mutations';
 import { useDebounce } from '../../hooks/useDebounce';
 import { PodsData, Pod, Order } from './Pods.types';
 import PodsTable from './PodsTable';
 import CreatePodDialog from './CreatePodDialog';
 import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
+import BulkActionToolbar from '../../components/BulkActionToolbar';
 
 const PodsPage: React.FC = () => {
   const [page, setPage] = useState(0);
@@ -32,6 +35,9 @@ const PodsPage: React.FC = () => {
   const [order, setOrder] = useState<Order>('DESC');
   const [createOpen, setCreateOpen] = useState(false);
   const [deletePod, setDeletePod] = useState<Pod | null>(null);
+  const [issueRefunds, setIssueRefunds] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const { data, loading, error, refetch } = useQuery<PodsData>(GET_PODS, {
     variables: { page: page + 1, limit: rowsPerPage, search: debouncedSearch || undefined, sortBy, order },
@@ -39,6 +45,10 @@ const PodsPage: React.FC = () => {
   });
 
   const [deletePodMutation, { loading: deleting }] = useMutation(DELETE_POD);
+  const [forceDeletePodMutation, { loading: forceDeleting }] = useMutation(FORCE_DELETE_POD);
+  const [bulkDeletePodsMutation, { loading: bulkDeleting }] = useMutation(BULK_DELETE_PODS);
+
+  const pods = data?.pods.items ?? [];
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -49,19 +59,57 @@ const PodsPage: React.FC = () => {
     }
   };
 
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedIds.length === pods.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(pods.map((p) => p.id));
+    }
+  };
+
   const handleDeletePod = (id: string) => {
-    const pod = data?.pods.items.find((p) => p.id === id);
+    const pod = pods.find((p) => p.id === id);
     if (pod) setDeletePod(pod);
   };
 
   const confirmDelete = async () => {
     if (!deletePod) return;
     try {
-      await deletePodMutation({ variables: { id: deletePod.id } });
+      const hasAttendees = deletePod.attendees.length > 0;
+      if (hasAttendees) {
+        await forceDeletePodMutation({
+          variables: { id: deletePod.id, issueRefunds },
+        });
+      } else {
+        await deletePodMutation({ variables: { id: deletePod.id } });
+      }
       setDeletePod(null);
+      setIssueRefunds(true);
+      setSelectedIds((prev) => prev.filter((id) => id !== deletePod.id));
       await refetch();
     } catch { /* handled by Apollo */ }
   };
+
+  const confirmBulkDelete = async () => {
+    try {
+      await bulkDeletePodsMutation({ variables: { ids: selectedIds, issueRefunds } });
+      setSelectedIds([]);
+      setBulkDeleteOpen(false);
+      setIssueRefunds(true);
+      await refetch();
+    } catch { /* handled by Apollo */ }
+  };
+
+  const attendeeCount = deletePod?.attendees.length ?? 0;
+  const bulkAttendeeCount = pods
+    .filter((p) => selectedIds.includes(p.id))
+    .reduce((sum, p) => sum + p.attendees.length, 0);
 
   return (
     <Box>
@@ -90,7 +138,24 @@ const PodsPage: React.FC = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
 
       <Card>
-        <PodsTable pods={data?.pods.items ?? []} loading={loading && !data} sortBy={sortBy} order={order} onSort={handleSort} onDeletePod={handleDeletePod} />
+        <BulkActionToolbar
+          selectedCount={selectedIds.length}
+          entityType="pod"
+          loading={bulkDeleting}
+          onDelete={() => setBulkDeleteOpen(true)}
+          onClearSelection={() => setSelectedIds([])}
+        />
+        <PodsTable
+          pods={pods}
+          loading={loading && !data}
+          sortBy={sortBy}
+          order={order}
+          selectedIds={selectedIds}
+          onSort={handleSort}
+          onDeletePod={handleDeletePod}
+          onToggleSelect={handleToggleSelect}
+          onToggleSelectAll={handleToggleSelectAll}
+        />
         {data && (
           <TablePagination
             component="div"
@@ -106,15 +171,66 @@ const PodsPage: React.FC = () => {
 
       <CreatePodDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={() => refetch()} />
 
+      {/* Single delete dialog */}
       <ConfirmDeleteDialog
         open={!!deletePod}
         title="Delete Pod"
         entityName={deletePod?.title ?? ''}
         entityType="pod"
-        loading={deleting}
-        onClose={() => setDeletePod(null)}
+        loading={deleting || forceDeleting}
+        onClose={() => { setDeletePod(null); setIssueRefunds(true); }}
         onConfirm={confirmDelete}
-      />
+      >
+        {attendeeCount > 0 && (
+          <Box sx={{ mb: 2 }}>
+            <Alert severity="warning" sx={{ mb: 1 }}>
+              This pod has <strong>{attendeeCount}</strong> active attendee{attendeeCount > 1 ? 's' : ''}.
+              All attendees will be removed before deleting the pod.
+            </Alert>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={issueRefunds}
+                  onChange={(e) => setIssueRefunds(e.target.checked)}
+                />
+              }
+              label={
+                <Typography variant="body2">
+                  Issue refunds to all attendees (₹{((deletePod?.feePerPerson ?? 0) * attendeeCount).toLocaleString()} total)
+                </Typography>
+              }
+            />
+          </Box>
+        )}
+      </ConfirmDeleteDialog>
+
+      {/* Bulk delete dialog */}
+      <ConfirmDeleteDialog
+        open={bulkDeleteOpen}
+        title={`Delete ${selectedIds.length} Pods`}
+        entityName={`${selectedIds.length} pods`}
+        entityType="pods"
+        loading={bulkDeleting}
+        onClose={() => { setBulkDeleteOpen(false); setIssueRefunds(true); }}
+        onConfirm={confirmBulkDelete}
+      >
+        {bulkAttendeeCount > 0 && (
+          <Box sx={{ mb: 2 }}>
+            <Alert severity="warning" sx={{ mb: 1 }}>
+              These pods have a total of <strong>{bulkAttendeeCount}</strong> active attendee{bulkAttendeeCount > 1 ? 's' : ''}.
+            </Alert>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={issueRefunds}
+                  onChange={(e) => setIssueRefunds(e.target.checked)}
+                />
+              }
+              label={<Typography variant="body2">Issue refunds to all attendees</Typography>}
+            />
+          </Box>
+        )}
+      </ConfirmDeleteDialog>
     </Box>
   );
 };

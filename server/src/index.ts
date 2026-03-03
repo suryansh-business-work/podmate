@@ -92,10 +92,17 @@ const rootSchema = `#graphql
     closePod(id: ID!, reason: String!): Pod!
     openPod(id: ID!): Pod!
     trackPodView(podId: ID!): Pod!
+    removeAttendee(podId: ID!, userId: ID!, issueRefund: Boolean!): RemoveAttendeeResult!
+    forceDeletePod(id: ID!, issueRefunds: Boolean!): ForceDeletePodResult!
+    bulkDeletePods(ids: [ID!]!, issueRefunds: Boolean!): Int!
     updateProfile(name: String, avatar: String, email: String): User!
+    savePod(podId: ID!): User!
+    unsavePod(podId: ID!): User!
+    updateThemePreference(themePreference: String!): User!
     updateUserRole(userId: ID!, role: UserRole!): User!
     adminCreateUser(phone: String!, name: String!, role: UserRole!): User!
     deleteUser(userId: ID!): Boolean!
+    bulkDeleteUsers(ids: [ID!]!): Int!
     getImageKitAuth: ImageKitAuth!
     sendMessage(podId: ID!, content: String!, messageType: ChatMessageType, mediaUrl: String): ChatMessage!
     sendInvites(podId: ID!, contacts: [InviteInput!]!): InviteResult!
@@ -108,6 +115,7 @@ const rootSchema = `#graphql
     approvePlace(id: ID!): Place!
     rejectPlace(id: ID!): Place!
     deletePlace(id: ID!): Boolean!
+    bulkDeletePlaces(ids: [ID!]!): Int!
     createSupportTicket(input: CreateSupportTicketInput!): SupportTicket!
     adminCreateSupportTicket(userId: ID!, input: CreateSupportTicketInput!): SupportTicket!
     replySupportTicket(id: ID!, content: String!): SupportTicket!

@@ -329,8 +329,8 @@ export const TEST_IMAGEKIT_CONNECTION = gql`
 /* ── Delete User (cascade) ── */
 
 export const DELETE_USER = gql`
-  mutation DeleteUser($id: ID!) {
-    deleteUser(id: $id)
+  mutation DeleteUser($userId: ID!) {
+    deleteUser(userId: $userId)
   }
 `;
 
@@ -339,6 +339,54 @@ export const DELETE_USER = gql`
 export const DELETE_POD = gql`
   mutation DeletePod($id: ID!) {
     deletePod(id: $id)
+  }
+`;
+
+/* ── Remove Attendee ── */
+
+export const REMOVE_ATTENDEE = gql`
+  mutation RemoveAttendee($podId: ID!, $userId: ID!, $issueRefund: Boolean!) {
+    removeAttendee(podId: $podId, userId: $userId, issueRefund: $issueRefund) {
+      pod {
+        id
+        currentSeats
+        attendees { id name avatar }
+      }
+      refunded
+      refundAmount
+    }
+  }
+`;
+
+/* ── Force Delete Pod ── */
+
+export const FORCE_DELETE_POD = gql`
+  mutation ForceDeletePod($id: ID!, $issueRefunds: Boolean!) {
+    forceDeletePod(id: $id, issueRefunds: $issueRefunds) {
+      success
+      removedAttendees
+      totalRefunded
+    }
+  }
+`;
+
+/* ── Bulk Delete Mutations ── */
+
+export const BULK_DELETE_PODS = gql`
+  mutation BulkDeletePods($ids: [ID!]!, $issueRefunds: Boolean!) {
+    bulkDeletePods(ids: $ids, issueRefunds: $issueRefunds)
+  }
+`;
+
+export const BULK_DELETE_USERS = gql`
+  mutation BulkDeleteUsers($ids: [ID!]!) {
+    bulkDeleteUsers(ids: $ids)
+  }
+`;
+
+export const BULK_DELETE_PLACES = gql`
+  mutation BulkDeletePlaces($ids: [ID!]!) {
+    bulkDeletePlaces(ids: $ids)
   }
 `;
 
@@ -372,6 +420,15 @@ export const ADMIN_CREATE_SUPPORT_TICKET = gql`
       status
       priority
       createdAt
+    }
+  }
+`;
+
+export const UPDATE_THEME_PREFERENCE = gql`
+  mutation UpdateThemePreference($themePreference: String!) {
+    updateThemePreference(themePreference: $themePreference) {
+      id
+      themePreference
     }
   }
 `;

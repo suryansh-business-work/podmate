@@ -14,7 +14,7 @@ async function getImageKitCredentials(): Promise<{
     const pubDoc = await AppSettingsModel.findOne({ key: 'imagekit_public_key' }).lean();
     const privDoc = await AppSettingsModel.findOne({ key: 'imagekit_private_key' }).lean();
     const urlDoc = await AppSettingsModel.findOne({ key: 'imagekit_url_endpoint' }).lean();
-
+    console.log(pubDoc, privDoc, urlDoc);
     const publicKey = (pubDoc?.value || process.env.IMAGEKIT_PUBLIC_KEY) ?? '';
     const privateKey = (privDoc?.value || process.env.IMAGEKIT_PRIVATE_KEY) ?? '';
     const urlEndpoint = (urlDoc?.value || process.env.IMAGEKIT_URL_ENDPOINTS) ?? '';

@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
+import { useQuery, useMutation } from '@apollo/client';
+import { GET_ME } from '../graphql/queries';
+import { UPDATE_THEME_PREFERENCE } from '../graphql/mutations';
 import { colors as lightColors } from '../theme';
 
 const THEME_STORAGE_KEY = '@partywings_theme_mode';
@@ -122,6 +125,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [mode, setModeState] = useState<ThemeMode>('light');
   const [loaded, setLoaded] = useState(false);
 
+  const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
+  const [updateThemeMutation] = useMutation(UPDATE_THEME_PREFERENCE);
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -138,6 +144,15 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     load();
   }, []);
 
+  // Sync from server when user data arrives
+  useEffect(() => {
+    const serverPref = meData?.me?.themePreference as string | undefined;
+    if (serverPref === 'dark' || serverPref === 'light') {
+      setModeState(serverPref);
+      AsyncStorage.setItem(THEME_STORAGE_KEY, serverPref).catch(() => {});
+    }
+  }, [meData?.me?.themePreference]);
+
   const setMode = useCallback(async (newMode: ThemeMode) => {
     setModeState(newMode);
     try {
@@ -145,7 +160,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     } catch {
       // Silent fail
     }
-  }, []);
+    // Persist to server
+    updateThemeMutation({ variables: { themePreference: newMode } }).catch(() => {});
+  }, [updateThemeMutation]);
 
   const toggleTheme = useCallback(() => {
     setMode(mode === 'light' ? 'dark' : 'light');

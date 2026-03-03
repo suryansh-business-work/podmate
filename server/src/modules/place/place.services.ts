@@ -101,6 +101,11 @@ export async function deletePlace(id: string): Promise<boolean> {
   return result.deletedCount > 0;
 }
 
+export async function bulkDeletePlaces(ids: string[]): Promise<number> {
+  const result = await PlaceModel.deleteMany({ _id: { $in: ids } });
+  return result.deletedCount;
+}
+
 export async function getPlaceById(id: string): Promise<Place | null> {
   const doc = await PlaceModel.findById(id).lean({ virtuals: true });
   return toPlace(doc);

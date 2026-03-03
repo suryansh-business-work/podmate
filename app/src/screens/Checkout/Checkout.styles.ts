@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
     gap: spacing.md,
   },
   headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text },
-  scrollContent: { padding: spacing.lg, paddingBottom: 120 },
+  scrollContent: { padding: spacing.lg, paddingBottom: 120, flexGrow: 1 },
   podCard: {
     flexDirection: 'row',
     backgroundColor: colors.surface,

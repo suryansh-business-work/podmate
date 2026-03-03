@@ -8,6 +8,7 @@ import {
   Modal,
   FlatList,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { FormikProps } from 'formik';
@@ -16,6 +17,7 @@ import { colors } from '../../theme';
 import { GradientButton } from '../../components/GradientButton';
 import MediaUploader, { MediaItem } from '../../components/MediaUploader';
 import { GET_APPROVED_PLACES } from '../../graphql/queries';
+import { useLocation } from '../../hooks/useLocation';
 import { PodFormValues, ApprovedPlace, CATEGORIES } from './CreatePod.types';
 import PayoutCard from './PayoutCard';
 import LogisticsSection from './LogisticsSection';
@@ -67,6 +69,19 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
   const approvedPlaces = placesData?.approvedPlaces ?? [];
 
+  const { location: gpsLocation, loading: gpsLoading, requestLocation } = useLocation();
+
+  const handleUseMyLocation = useCallback(async () => {
+    const loc = await requestLocation();
+    if (loc) {
+      setFieldValue('latitude', loc.latitude);
+      setFieldValue('longitude', loc.longitude);
+      if (loc.address && !values.location) {
+        setFieldValue('location', loc.address);
+      }
+    }
+  }, [requestLocation, setFieldValue, values.location]);
+
   const handleSelectPlace = useCallback(
     (place: ApprovedPlace) => {
       setFieldValue('placeId', place.id);
@@ -82,7 +97,7 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
   return (
     <>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
         <Text style={styles.title}>Let&apos;s set up your Pod.</Text>
         <Text style={styles.subtitle}>Create a space for your micro-community event.</Text>
 
@@ -152,6 +167,54 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
             {values.locationDetail}
           </Text>
         ) : null}
+
+        {/* Use My Location Button */}
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            paddingVertical: 10,
+            paddingHorizontal: 14,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: colors.primary,
+            alignSelf: 'flex-start',
+            marginTop: 8,
+            marginBottom: 4,
+          }}
+          onPress={handleUseMyLocation}
+          disabled={gpsLoading}
+          activeOpacity={0.7}
+        >
+          {gpsLoading ? (
+            <ActivityIndicator size="small" color={colors.primary} />
+          ) : (
+            <MaterialIcons name="my-location" size={18} color={colors.primary} />
+          )}
+          <Text style={{ color: colors.primary, fontWeight: '600', fontSize: 14 }}>
+            {gpsLoading ? 'Getting location...' : 'Use My Location'}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Map Preview */}
+        {values.latitude !== 0 && values.longitude !== 0 && (
+          <View style={{ marginTop: 8, marginBottom: 12, borderRadius: 12, overflow: 'hidden' }}>
+            <Image
+              source={{
+                uri: `https://maps.googleapis.com/maps/api/staticmap?center=${values.latitude},${values.longitude}&zoom=15&size=600x200&scale=2&markers=color:red%7C${values.latitude},${values.longitude}&key=GOOGLE_MAPS_KEY`,
+              }}
+              style={{ width: '100%', height: 140, borderRadius: 12, backgroundColor: colors.surfaceVariant }}
+              resizeMode="cover"
+            />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
+              <MaterialIcons name="place" size={14} color={colors.textSecondary} />
+              <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
+                {values.latitude.toFixed(4)}, {values.longitude.toFixed(4)}
+              </Text>
+            </View>
+          </View>
+        )}
 
         <Modal visible={placeModalVisible} animationType="slide" transparent>
           <View style={{ flex: 1, backgroundColor: colors.overlay }}>

@@ -2,6 +2,7 @@ const notificationTypeDefs = `#graphql
   enum NotificationType {
     POD_JOIN
     POD_LEAVE
+    POD_UPDATE
     SUPPORT_REPLY
     GENERAL
   }

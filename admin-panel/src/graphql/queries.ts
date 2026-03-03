@@ -1,5 +1,17 @@
 import { gql } from '@apollo/client';
 
+export const GET_ADMIN_ME = gql`
+  query GetAdminMe {
+    me {
+      id
+      name
+      email
+      role
+      themePreference
+    }
+  }
+`;
+
 export const GET_USERS = gql`
   query GetUsers($page: Int, $limit: Int, $search: String, $sortBy: String, $order: String) {
     users(page: $page, limit: $limit, search: $search, sortBy: $sortBy, order: $order) {
@@ -56,6 +68,8 @@ export const GET_PODS = gql`
         dateTime
         location
         locationDetail
+        latitude
+        longitude
         placeId
         rating
         reviewCount
@@ -247,6 +261,8 @@ export const GET_POD = gql`
       dateTime
       location
       locationDetail
+      latitude
+      longitude
       placeId
       rating
       reviewCount

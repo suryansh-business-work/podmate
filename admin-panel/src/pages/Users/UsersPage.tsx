@@ -16,13 +16,14 @@ import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_USERS } from '../../graphql/queries';
-import { DELETE_USER } from '../../graphql/mutations';
+import { DELETE_USER, BULK_DELETE_USERS } from '../../graphql/mutations';
 import { useDebounce } from '../../hooks/useDebounce';
 import { UsersData, User, Order } from './Users.types';
 import UsersTable from './UsersTable';
 import CreateUserDialog from './CreateUserDialog';
 import ToggleUserDialog from './ToggleUserDialog';
 import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
+import BulkActionToolbar from '../../components/BulkActionToolbar';
 
 const UsersPage: React.FC = () => {
   const [page, setPage] = useState(0);
@@ -34,6 +35,8 @@ const UsersPage: React.FC = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [toggleUser, setToggleUser] = useState<User | null>(null);
   const [deleteUser, setDeleteUser] = useState<User | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const { data, loading, error, refetch } = useQuery<UsersData>(GET_USERS, {
     variables: { page: page + 1, limit: rowsPerPage, search: debouncedSearch || undefined, sortBy, order },
@@ -41,6 +44,9 @@ const UsersPage: React.FC = () => {
   });
 
   const [deleteUserMutation, { loading: deleting }] = useMutation(DELETE_USER);
+  const [bulkDeleteUsersMutation, { loading: bulkDeleting }] = useMutation(BULK_DELETE_USERS);
+
+  const users = data?.users.items ?? [];
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -52,15 +58,39 @@ const UsersPage: React.FC = () => {
   };
 
   const handleDeleteUser = (id: string) => {
-    const user = data?.users.items.find((u) => u.id === id);
+    const user = users.find((u) => u.id === id);
     if (user) setDeleteUser(user);
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedIds.length === users.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(users.map((u) => u.id));
+    }
   };
 
   const confirmDelete = async () => {
     if (!deleteUser) return;
     try {
-      await deleteUserMutation({ variables: { id: deleteUser.id } });
+      await deleteUserMutation({ variables: { userId: deleteUser.id } });
       setDeleteUser(null);
+      setSelectedIds((prev) => prev.filter((id) => id !== deleteUser.id));
+      await refetch();
+    } catch { /* handled by Apollo */ }
+  };
+
+  const confirmBulkDelete = async () => {
+    try {
+      await bulkDeleteUsersMutation({ variables: { ids: selectedIds } });
+      setSelectedIds([]);
+      setBulkDeleteOpen(false);
       await refetch();
     } catch { /* handled by Apollo */ }
   };
@@ -103,15 +133,25 @@ const UsersPage: React.FC = () => {
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
 
       <Card>
+        <BulkActionToolbar
+          selectedCount={selectedIds.length}
+          entityType="user"
+          loading={bulkDeleting}
+          onDelete={() => setBulkDeleteOpen(true)}
+          onClearSelection={() => setSelectedIds([])}
+        />
         <UsersTable
-          users={data?.users.items ?? []}
+          users={users}
           loading={loading && !data}
           sortBy={sortBy}
           order={order}
+          selectedIds={selectedIds}
           onSort={handleSort}
           onToggleUser={(user) => setToggleUser(user)}
           onDeleteUser={handleDeleteUser}
           onRefetch={() => refetch()}
+          onToggleSelect={handleToggleSelect}
+          onToggleSelectAll={handleToggleSelectAll}
         />
         {data && (
           <TablePagination
@@ -147,6 +187,16 @@ const UsersPage: React.FC = () => {
         loading={deleting}
         onClose={() => setDeleteUser(null)}
         onConfirm={confirmDelete}
+      />
+
+      <ConfirmDeleteDialog
+        open={bulkDeleteOpen}
+        title={`Delete ${selectedIds.length} Users`}
+        entityName={`${selectedIds.length} users`}
+        entityType="users"
+        loading={bulkDeleting}
+        onClose={() => setBulkDeleteOpen(false)}
+        onConfirm={confirmBulkDelete}
       />
     </Box>
   );

@@ -72,6 +72,11 @@ const placeResolvers = {
       requireRole(context, UserRole.ADMIN);
       return placeService.deletePlace(args.id);
     },
+
+    bulkDeletePlaces: (_: unknown, args: { ids: string[] }, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return placeService.bulkDeletePlaces(args.ids);
+    },
   },
 
   Place: {

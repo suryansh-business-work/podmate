@@ -6,6 +6,8 @@ export interface PodFormValues {
   placeId: string;
   location: string;
   locationDetail: string;
+  latitude: number;
+  longitude: number;
   category: string;
 }
 

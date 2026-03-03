@@ -79,6 +79,21 @@ const podResolvers = {
       const auth = requireAuth(context);
       return podService.trackPodView(args.podId, auth.userId);
     },
+
+    removeAttendee: (_: unknown, args: { podId: string; userId: string; issueRefund: boolean }, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return podService.removeAttendee(args.podId, args.userId, args.issueRefund);
+    },
+
+    forceDeletePod: (_: unknown, args: { id: string; issueRefunds: boolean }, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return podService.forceDeletePod(args.id, args.issueRefunds);
+    },
+
+    bulkDeletePods: (_: unknown, args: { ids: string[]; issueRefunds: boolean }, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return podService.bulkDeletePods(args.ids, args.issueRefunds);
+    },
   },
 
   Pod: {

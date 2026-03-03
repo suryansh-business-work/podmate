@@ -19,6 +19,8 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
   entityName,
   entityType,
   loading = false,
+  disableConfirm = false,
+  children,
   onClose,
   onConfirm,
 }) => {
@@ -41,6 +43,7 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
         <Alert severity="error" sx={{ mb: 2 }}>
           This action is permanent and cannot be undone. All associated data will be deleted.
         </Alert>
+        {children}
         <Typography variant="body2" sx={{ mb: 2 }}>
           To confirm deletion of this {entityType}, please type{' '}
           <Box component="span" sx={{ fontWeight: 700, color: 'error.main' }}>
@@ -67,7 +70,7 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
           variant="contained"
           color="error"
           onClick={onConfirm}
-          disabled={!isMatch || loading}
+          disabled={!isMatch || loading || disableConfirm}
         >
           {loading ? 'Deleting…' : 'Delete'}
         </Button>

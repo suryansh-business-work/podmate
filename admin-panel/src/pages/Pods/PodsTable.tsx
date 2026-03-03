@@ -17,6 +17,7 @@ import {
   IconButton,
   CircularProgress,
   LinearProgress,
+  Checkbox,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Pod, Order, statusColor, formatDate, formatTime } from './Pods.types';
@@ -26,19 +27,32 @@ interface PodsTableProps {
   loading: boolean;
   sortBy: string;
   order: Order;
+  selectedIds: string[];
   onSort: (column: string) => void;
   onDeletePod: (id: string) => void;
+  onToggleSelect: (id: string) => void;
+  onToggleSelectAll: () => void;
 }
 
-const PodsTable: React.FC<PodsTableProps> = ({ pods, loading, sortBy, order, onSort, onDeletePod }) => {
+const PodsTable: React.FC<PodsTableProps> = ({ pods, loading, sortBy, order, selectedIds, onSort, onDeletePod, onToggleSelect, onToggleSelectAll }) => {
   const navigate = useNavigate();
   const sortDir = (col: string) => (sortBy === col ? (order === 'ASC' ? 'asc' : 'desc') : 'asc');
+  const allSelected = pods.length > 0 && selectedIds.length === pods.length;
+  const someSelected = selectedIds.length > 0 && selectedIds.length < pods.length;
 
   return (
     <TableContainer>
       <Table size="small">
         <TableHead>
           <TableRow>
+            <TableCell padding="checkbox">
+              <Checkbox
+                indeterminate={someSelected}
+                checked={allSelected}
+                onChange={onToggleSelectAll}
+                size="small"
+              />
+            </TableCell>
             <TableCell>
               <TableSortLabel active={sortBy === 'title'} direction={sortDir('title')} onClick={() => onSort('title')}>Pod</TableSortLabel>
             </TableCell>
@@ -60,19 +74,23 @@ const PodsTable: React.FC<PodsTableProps> = ({ pods, loading, sortBy, order, onS
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={10} align="center" sx={{ py: 6 }}><CircularProgress size={32} /></TableCell>
+              <TableCell colSpan={11} align="center" sx={{ py: 6 }}><CircularProgress size={32} /></TableCell>
             </TableRow>
           ) : !pods.length ? (
             <TableRow>
-              <TableCell colSpan={10} align="center" sx={{ py: 6 }}>
+              <TableCell colSpan={11} align="center" sx={{ py: 6 }}>
                 <Typography color="text.secondary">No pods found</Typography>
               </TableCell>
             </TableRow>
           ) : (
             pods.map((pod) => {
               const fillPercent = Math.round((pod.currentSeats / pod.maxSeats) * 100);
+              const isSelected = selectedIds.includes(pod.id);
               return (
-                <TableRow key={pod.id} hover sx={{ cursor: 'pointer', '&:last-child td': { border: 0 } }} onClick={() => navigate(`/pods/${pod.id}`)}>
+                <TableRow key={pod.id} hover selected={isSelected} sx={{ cursor: 'pointer', '&:last-child td': { border: 0 } }} onClick={() => navigate(`/pods/${pod.id}`)}>
+                  <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                    <Checkbox size="small" checked={isSelected} onChange={() => onToggleSelect(pod.id)} />
+                  </TableCell>
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={1.5}>
                       <Avatar variant="rounded" src={pod.imageUrl} sx={{ width: 40, height: 40 }} />

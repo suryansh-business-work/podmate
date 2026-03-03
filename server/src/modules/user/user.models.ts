@@ -21,6 +21,8 @@ export interface User {
   isVerifiedHost: boolean;
   isActive: boolean;
   disableReason: string;
+  savedPodIds: string[];
+  themePreference: string;
   createdAt: string;
 }
 
@@ -78,6 +80,8 @@ const UserSchema = new Schema<UserMongoDoc>(
     isVerifiedHost: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     disableReason: { type: String, default: '' },
+    savedPodIds: { type: [String], default: [] },
+    themePreference: { type: String, default: 'light' },
     createdAt: { type: String, default: () => new Date().toISOString() },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } },
@@ -100,5 +104,7 @@ export function toUser(doc: (UserMongoDoc & { id?: string }) | null): User | nul
     username: doc.username ?? '',
     age: doc.age ?? 0,
     dob: doc.dob ?? '',
+    savedPodIds: doc.savedPodIds ?? [],
+    themePreference: doc.themePreference ?? 'light',
   } as User;
 }

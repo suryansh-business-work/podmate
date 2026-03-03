@@ -1,18 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ThemeProvider, CssBaseline } from '@mui/material';
 import { ApolloProvider } from '@apollo/client';
-import theme from './theme';
 import { client } from './graphql/client';
+import { AdminThemeProvider } from './contexts/ThemeContext';
 import App from './App';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ApolloProvider client={client}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+      <AdminThemeProvider>
         <App />
-      </ThemeProvider>
+      </AdminThemeProvider>
     </ApolloProvider>
   </React.StrictMode>,
 );

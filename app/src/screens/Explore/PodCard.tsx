@@ -1,12 +1,21 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { View, Text, Image, TouchableOpacity, FlatList, NativeScrollEvent, NativeSyntheticEvent, Share, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useMutation } from '@apollo/client';
 import { colors } from '../../theme';
 import { Pod, CATEGORIES, formatDate, formatTime } from './Explore.types';
 import { styles, SCREEN_W } from './Explore.styles';
 import { SAVE_POD, UNSAVE_POD } from '../../graphql/mutations';
+import SafeImage from '../../components/SafeImage';
+
+const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v'];
+
+function isVideoUrl(url: string): boolean {
+  const path = url.split('?')[0].toLowerCase();
+  return VIDEO_EXTENSIONS.some((ext) => path.endsWith(ext));
+}
 
 interface PodCardProps {
   item: Pod;
@@ -64,13 +73,13 @@ const PodCard: React.FC<PodCardProps> = ({
 
   const allImages: string[] = (() => {
     const urls: string[] = [];
-    if (item.imageUrl) urls.push(item.imageUrl);
+    if (item.imageUrl && item.imageUrl.trim().length > 0) urls.push(item.imageUrl);
     if (item.mediaUrls) {
       item.mediaUrls.forEach((url) => {
-        if (url && !urls.includes(url)) urls.push(url);
+        if (url && url.trim().length > 0 && !urls.includes(url)) urls.push(url);
       });
     }
-    return urls.length > 0 ? urls : [];
+    return urls;
   })();
 
   const handleSliderScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -78,9 +87,41 @@ const PodCard: React.FC<PodCardProps> = ({
     setActiveSlide(idx);
   }, []);
 
-  const renderSliderImage = useCallback(({ item: uri }: { item: string }) => (
-    <Image source={{ uri }} style={[styles.bgImage, { width: SCREEN_W, height: slideHeight, position: 'relative' }]} resizeMode="cover" />
-  ), [slideHeight]);
+  /* First video URL for autoplay in the list card */
+  const firstVideoUrl = useMemo(
+    () => allImages.find((url) => isVideoUrl(url)) ?? null,
+    [allImages],
+  );
+  const videoSource = useMemo(
+    () => (firstVideoUrl ? { uri: firstVideoUrl } : null),
+    [firstVideoUrl],
+  );
+  const videoPlayer = useVideoPlayer(videoSource, (p) => {
+    p.loop = true;
+    p.muted = true;
+    p.play();
+  });
+
+  const renderSliderItem = useCallback(({ item: uri }: { item: string }) => {
+    if (isVideoUrl(uri)) {
+      return (
+        <View style={[styles.bgImage, { width: SCREEN_W, height: slideHeight, position: 'relative' }]}>
+          <VideoView
+            player={videoPlayer}
+            style={{ width: SCREEN_W, height: slideHeight }}
+            nativeControls={false}
+            contentFit="cover"
+          />
+          <View style={{ position: 'absolute', bottom: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2 }}>
+            <MaterialIcons name="videocam" size={16} color={colors.white} />
+          </View>
+        </View>
+      );
+    }
+    return (
+      <Image source={{ uri }} style={[styles.bgImage, { width: SCREEN_W, height: slideHeight, position: 'relative' }]} resizeMode="cover" />
+    );
+  }, [slideHeight, videoPlayer]);
 
   return (
     <View style={[styles.slide, { height: slideHeight }]}>
@@ -90,7 +131,7 @@ const PodCard: React.FC<PodCardProps> = ({
             ref={sliderRef}
             data={allImages}
             keyExtractor={(uri, idx) => `${uri}-${idx}`}
-            renderItem={renderSliderImage}
+            renderItem={renderSliderItem}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
@@ -107,7 +148,21 @@ const PodCard: React.FC<PodCardProps> = ({
           )}
         </>
       ) : allImages.length === 1 ? (
-        <Image source={{ uri: allImages[0] }} style={[styles.bgImage, { height: slideHeight }]} />
+        isVideoUrl(allImages[0]) ? (
+          <View style={[styles.bgImage, { height: slideHeight }]}>
+            <VideoView
+              player={videoPlayer}
+              style={{ width: SCREEN_W, height: slideHeight }}
+              nativeControls={false}
+              contentFit="cover"
+            />
+            <View style={{ position: 'absolute', bottom: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2 }}>
+              <MaterialIcons name="videocam" size={16} color={colors.white} />
+            </View>
+          </View>
+        ) : (
+          <Image source={{ uri: allImages[0] }} style={[styles.bgImage, { height: slideHeight }]} />
+        )
       ) : (
         <View style={[styles.bgImage, { backgroundColor: colors.darkBg }]}>
           <MaterialIcons name="celebration" size={80} color={colors.textTertiary} />
@@ -147,13 +202,9 @@ const PodCard: React.FC<PodCardProps> = ({
           <MaterialIcons name={isSaved ? 'bookmark' : 'bookmark-border'} size={28} color={isSaved ? colors.accent : colors.white} />
           <Text style={styles.sideBtnText}>{isSaved ? 'Saved' : 'Save'}</Text>
         </TouchableOpacity>
-        {item.host.avatar ? (
-          <Image source={{ uri: item.host.avatar }} style={styles.hostAvatarSide} />
-        ) : (
-          <View style={[styles.hostAvatarSide, { backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center' }]}>
-            <MaterialIcons name="person" size={18} color={colors.white} />
-          </View>
-        )}
+        <SafeImage uri={item.host.avatar} style={styles.hostAvatarSide} fallbackIcon="person" fallbackIconSize={18}
+          fallbackStyle={{ backgroundColor: colors.primary }}
+        />
       </View>
 
       <View style={styles.bottomContent}>

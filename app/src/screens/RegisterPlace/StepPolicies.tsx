@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing } from '../../theme';
@@ -19,11 +19,23 @@ interface StepPoliciesProps {
 const StepPolicies: React.FC<StepPoliciesProps> = ({
   policies, policiesLoading, policiesAccepted, hasScrolledPolicies,
   onToggleAccepted, onScrolledToBottom, onSubmit,
-}) => (
+}) => {
+  const layoutHeightRef = useRef(0);
+
+  return (
   <ScrollView
     style={styles.scrollContent}
     showsVerticalScrollIndicator={false}
     keyboardShouldPersistTaps="handled"
+    onLayout={(e) => {
+      layoutHeightRef.current = e.nativeEvent.layout.height;
+    }}
+    onContentSizeChange={(_, contentHeight) => {
+      /* If content is shorter than the viewport, no scroll is possible — unlock immediately */
+      if (layoutHeightRef.current > 0 && contentHeight <= layoutHeightRef.current) {
+        onScrolledToBottom();
+      }
+    }}
     onScroll={({ nativeEvent }) => {
       const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
       const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 40;
@@ -78,6 +90,7 @@ const StepPolicies: React.FC<StepPoliciesProps> = ({
         disabled={!policiesAccepted && policies.length > 0} />
     </View>
   </ScrollView>
-);
+  );
+};
 
 export default StepPolicies;

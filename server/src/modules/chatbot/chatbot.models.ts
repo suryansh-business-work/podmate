@@ -10,8 +10,8 @@ export interface ChatbotMessage {
 }
 
 export interface ChatbotResponse {
-  message: string;
-  conversationId: string;
+  reply: string;
+  messageId: string;
 }
 
 /* ── Mongoose ── */

@@ -1,4 +1,4 @@
-import { ImageKit } from '@imagekit/nodejs';
+import { ImageKit, toFile } from '@imagekit/nodejs';
 import logger from './logger';
 
 let imagekitInstance: ImageKit | null = null;
@@ -14,7 +14,7 @@ async function getImageKitCredentials(): Promise<{
     const pubDoc = await AppSettingsModel.findOne({ key: 'imagekit_public_key' }).lean();
     const privDoc = await AppSettingsModel.findOne({ key: 'imagekit_private_key' }).lean();
     const urlDoc = await AppSettingsModel.findOne({ key: 'imagekit_url_endpoint' }).lean();
-    console.log(pubDoc, privDoc, urlDoc);
+
     const publicKey = (pubDoc?.value || process.env.IMAGEKIT_PUBLIC_KEY) ?? '';
     const privateKey = (privDoc?.value || process.env.IMAGEKIT_PRIVATE_KEY) ?? '';
     const urlEndpoint = (urlDoc?.value || process.env.IMAGEKIT_URL_ENDPOINTS) ?? '';
@@ -44,6 +44,35 @@ async function getImageKit(): Promise<ImageKit> {
   return imagekitInstance;
 }
 
+export interface ImageKitUploadResult {
+  url: string;
+  fileId: string;
+  name: string;
+  filePath: string;
+  fileType: string;
+}
+
+/**
+ * Upload a file to ImageKit via server-side SDK (avoids client-side signature issues).
+ */
+export async function uploadToImageKit(
+  file: Buffer | string,
+  fileName: string,
+  folder: string,
+): Promise<ImageKitUploadResult> {
+  const ik = await getImageKit();
+  const uploadableFile = typeof file === 'string' ? file : await toFile(file, fileName);
+  const result = await ik.files.upload({ file: uploadableFile, fileName, folder });
+
+  return {
+    url: result.url ?? '',
+    fileId: result.fileId ?? '',
+    name: result.name ?? fileName,
+    filePath: result.filePath ?? '',
+    fileType: result.fileType ?? 'image',
+  };
+}
+
 export async function getImageKitAuthParams(): Promise<{ token: string; expire: number; signature: string; publicKey: string }> {
   const { publicKey } = await getImageKitCredentials();
   const ik = await getImageKit();
@@ -55,4 +84,4 @@ export async function getImageKitAuthParams(): Promise<{ token: string; expire: 
   return { ...authParams, publicKey };
 }
 
-export default { getImageKitAuthParams };
+export default { getImageKitAuthParams, uploadToImageKit };

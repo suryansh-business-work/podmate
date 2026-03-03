@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { colors, spacing, borderRadius } from '../theme';
+import SafeImage from './SafeImage';
 
 interface EventCardProps {
   id: string;
@@ -57,7 +58,7 @@ export const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(id)} activeOpacity={0.85}>
-      <Image source={{ uri: imageUrl }} style={styles.image} />
+      <SafeImage uri={imageUrl} style={styles.image} fallbackIcon="celebration" fallbackIconSize={48} />
 
       {/* Status Badge */}
       <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
@@ -87,7 +88,7 @@ export const EventCard: React.FC<EventCardProps> = ({
 
         <View style={styles.bottomRow}>
           <View style={styles.hostRow}>
-            <Image source={{ uri: hostAvatar }} style={styles.hostAvatar} />
+            <SafeImage uri={hostAvatar} style={styles.hostAvatar} fallbackIcon="person" fallbackIconSize={14} />
             <Text style={styles.hostName}>{hostName}</Text>
           </View>
           <View style={styles.priceRow}>

@@ -76,7 +76,7 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
     const assistantContent = data.choices[0]?.message?.content ?? 'Sorry, I could not generate a response.';
 
     /* Save assistant message */
-    await ChatbotMessageModel.create({
+    const assistantDoc = await ChatbotMessageModel.create({
       _id: uuidv4(),
       userId,
       role: 'assistant',
@@ -85,8 +85,8 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
     });
 
     return {
-      message: assistantContent,
-      conversationId: userId,
+      reply: assistantContent,
+      messageId: assistantDoc._id,
     };
   } catch (err) {
     const errMessage = err instanceof Error ? err.message : 'Unknown error';

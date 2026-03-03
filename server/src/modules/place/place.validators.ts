@@ -6,6 +6,7 @@ export const createPlaceSchema = z.object({
   address: z.string().min(5).max(500),
   city: z.string().min(2).max(100),
   imageUrl: z.string().optional(),
+  mediaUrls: z.array(z.string()).optional(),
   category: z.string().min(1).max(50),
   phone: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),

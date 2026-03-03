@@ -8,8 +8,8 @@ const chatbotTypeDefs = `#graphql
   }
 
   type ChatbotResponse {
-    message: String!
-    conversationId: String!
+    reply: String!
+    messageId: String!
   }
 `;
 

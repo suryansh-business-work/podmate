@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, Alert, Platform, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../theme';
 import { GET_POLICIES } from '../../graphql/queries';
+import { CREATE_PLACE } from '../../graphql/mutations';
 import { MediaItem } from '../../components/MediaUploader';
 import { useImageKitUpload } from '../../hooks/useImageKitUpload';
 import { VenueFormValues, PolicyItem } from './RegisterPlace.types';
@@ -31,6 +32,8 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
 
   const { pickAndUploadImage, uploading, progress } = useImageKitUpload();
 
+  const [createPlaceMutation, { loading: submitting }] = useMutation(CREATE_PLACE);
+
   const { data: policiesData, loading: policiesLoading } = useQuery(GET_POLICIES, {
     variables: { type: 'VENUE' },
     fetchPolicy: 'cache-and-network',
@@ -45,13 +48,35 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
     setStep(1);
   }, []);
 
-  const handleFinalSubmit = useCallback(() => {
-    Alert.alert(
-      'Registration Submitted',
-      `Your venue "${formValues.name}" has been submitted for review. We'll notify you once approved.`,
-      [{ text: 'OK', onPress: onClose }],
-    );
-  }, [formValues.name, onClose]);
+  const handleFinalSubmit = useCallback(async () => {
+    try {
+      const mediaUrls = venueMedia.map((m) => m.url);
+      const imageUrl = businessLicenseUrl || (mediaUrls.length > 0 ? mediaUrls[0] : '');
+
+      await createPlaceMutation({
+        variables: {
+          input: {
+            name: formValues.name,
+            description: formValues.description,
+            address: formValues.address,
+            city: formValues.city,
+            category: formValues.category,
+            imageUrl,
+            mediaUrls,
+          },
+        },
+      });
+
+      Alert.alert(
+        'Registration Submitted',
+        `Your venue "${formValues.name}" has been submitted for review. We'll notify you once approved.`,
+        [{ text: 'OK', onPress: onClose }],
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to submit venue registration';
+      Alert.alert('Error', message);
+    }
+  }, [formValues, businessLicenseUrl, venueMedia, createPlaceMutation, onClose]);
 
   const handleUploadLicense = useCallback(async () => {
     const result = await pickAndUploadImage('/venues/licenses');

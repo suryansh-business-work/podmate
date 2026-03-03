@@ -1,17 +1,11 @@
 import { useState, useCallback } from 'react';
 import { Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useMutation } from '@apollo/client';
-import { GET_IMAGEKIT_AUTH } from '../graphql/mutations';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '../graphql/client';
 
-interface ImageKitAuthResponse {
-  getImageKitAuth: {
-    token: string;
-    expire: number;
-    signature: string;
-    publicKey: string;
-  };
-}
+/** Derive the upload endpoint from the GraphQL URL */
+const UPLOAD_URL = API_URL.replace('/graphql', '/api/upload');
 
 interface UploadedFile {
   uri: string;
@@ -30,7 +24,6 @@ interface UseImageKitUploadReturn {
 export function useImageKitUpload(): UseImageKitUploadReturn {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [getAuth] = useMutation<ImageKitAuthResponse>(GET_IMAGEKIT_AUTH);
 
   const requestPermissions = useCallback(async (): Promise<boolean> => {
     if (Platform.OS !== 'web') {
@@ -43,19 +36,21 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
     return true;
   }, []);
 
-  const uploadToImageKit = useCallback(
+  /**
+   * Upload a file to the server's /api/upload endpoint which proxies to ImageKit.
+   * This avoids client-side signature issues with ImageKit's upload API.
+   */
+  const uploadToServer = useCallback(
     async (
       localUri: string,
       fileName: string,
       folder: string,
     ): Promise<string | null> => {
       try {
-        const { data } = await getAuth();
-        if (!data?.getImageKitAuth) {
-          throw new Error('Failed to get upload credentials');
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          throw new Error('Please log in to upload files');
         }
-
-        const { token, expire, signature, publicKey } = data.getImageKitAuth;
 
         const formData = new FormData();
 
@@ -78,23 +73,22 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
         } as unknown as Blob);
         formData.append('fileName', fileName);
         formData.append('folder', folder);
-        formData.append('token', token);
-        formData.append('expire', String(expire));
-        formData.append('signature', signature);
-        formData.append('publicKey', publicKey);
 
         setProgress(0.3);
 
-        const response = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+        const response = await fetch(UPLOAD_URL, {
           method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           body: formData,
         });
 
         setProgress(0.8);
 
         if (!response.ok) {
-          const errText = await response.text();
-          throw new Error(`Upload failed: ${errText}`);
+          const errBody = await response.json().catch(() => ({ error: 'Upload failed' })) as { error?: string };
+          throw new Error(errBody.error ?? `Upload failed: ${response.status}`);
         }
 
         const result = (await response.json()) as { url: string };
@@ -102,11 +96,12 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
         return result.url;
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Upload failed';
+        console.error('Upload error Suryansh:', err);
         Alert.alert('Upload Error', message);
         return null;
       }
     },
-    [getAuth],
+    [],
   );
 
   const pickAndUploadImage = useCallback(
@@ -128,7 +123,7 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
 
       try {
         const fileName = `pod-${Date.now()}.${asset.uri.split('.').pop() ?? 'jpg'}`;
-        const url = await uploadToImageKit(asset.uri, fileName, folder);
+        const url = await uploadToServer(asset.uri, fileName, folder);
         if (!url) return null;
 
         return {
@@ -142,7 +137,7 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
         setProgress(0);
       }
     },
-    [requestPermissions, uploadToImageKit],
+    [requestPermissions, uploadToServer],
   );
 
   const pickAndUploadVideo = useCallback(
@@ -164,7 +159,7 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
 
       try {
         const fileName = `pod-video-${Date.now()}.${asset.uri.split('.').pop() ?? 'mp4'}`;
-        const url = await uploadToImageKit(asset.uri, fileName, folder);
+        const url = await uploadToServer(asset.uri, fileName, folder);
         if (!url) return null;
 
         return {
@@ -178,7 +173,7 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
         setProgress(0);
       }
     },
-    [requestPermissions, uploadToImageKit],
+    [requestPermissions, uploadToServer],
   );
 
   return { pickAndUploadImage, pickAndUploadVideo, uploading, progress };

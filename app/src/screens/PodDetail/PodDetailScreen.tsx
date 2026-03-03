@@ -1,15 +1,25 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, Alert, RefreshControl, Platform, Share, Linking } from 'react-native';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity, Alert, RefreshControl, Platform, Share, Linking, FlatList, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../theme';
 import { SkeletonDetail } from '../../components/Skeleton';
+import SafeImage from '../../components/SafeImage';
 import { GET_POD } from '../../graphql/queries';
 import { PodDetailScreenProps, PodAttendee } from './PodDetail.types';
 import styles from './PodDetail.styles';
+
+const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v'];
+const SCREEN_W = Dimensions.get('window').width;
+
+function isVideoUrl(url: string): boolean {
+  const path = url.split('?')[0].toLowerCase();
+  return VIDEO_EXTENSIONS.some((ext) => path.endsWith(ext));
+}
 
 const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onCheckout }) => {
   const { data, loading, error, refetch } = useQuery(GET_POD, { variables: { id: podId }, skip: !podId });
@@ -75,6 +85,39 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
   const formattedDate = date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
   const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
+  /* Collect all media (hero image + mediaUrls), filter out empty URIs */
+  const allMedia: string[] = useMemo(() => {
+    const urls: string[] = [];
+    if (pod.imageUrl && pod.imageUrl.trim().length > 0) urls.push(pod.imageUrl);
+    if (pod.mediaUrls) {
+      pod.mediaUrls.forEach((u: string) => {
+        if (u && u.trim().length > 0 && !urls.includes(u)) urls.push(u);
+      });
+    }
+    return urls;
+  }, [pod.imageUrl, pod.mediaUrls]);
+
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const firstVideoUrl = useMemo(
+    () => allMedia.find((url) => isVideoUrl(url)) ?? null,
+    [allMedia],
+  );
+  const videoSource = useMemo(
+    () => (firstVideoUrl ? { uri: firstVideoUrl } : null),
+    [firstVideoUrl],
+  );
+  const videoPlayer = useVideoPlayer(videoSource, (p) => {
+    p.loop = true;
+    p.muted = true;
+    p.play();
+  });
+
+  const handleMediaScroll = useCallback((e: { nativeEvent: { contentOffset: { x: number } } }) => {
+    const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
+    setActiveSlide(idx);
+  }, []);
+
   return (
     <View style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}
@@ -83,7 +126,53 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
         >
         <View style={styles.heroContainer}>
-          <Image source={{ uri: pod.imageUrl }} style={styles.heroImage} />
+          {allMedia.length > 1 ? (
+            <>
+              <FlatList
+                data={allMedia}
+                keyExtractor={(uri, idx) => `${uri}-${idx}`}
+                renderItem={({ item: uri }) =>
+                  isVideoUrl(uri) ? (
+                    <View style={[styles.heroImage, { width: SCREEN_W }]}>
+                      <VideoView
+                        player={videoPlayer}
+                        style={{ width: SCREEN_W, height: 280 }}
+                        nativeControls
+                        contentFit="cover"
+                      />
+                    </View>
+                  ) : (
+                    <Image source={{ uri: uri.trim() }} style={[styles.heroImage, { width: SCREEN_W }]} />
+                  )
+                }
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onMomentumScrollEnd={handleMediaScroll}
+                bounces={false}
+              />
+              <View style={{ position: 'absolute', bottom: 40, alignSelf: 'center', flexDirection: 'row', gap: 6 }}>
+                {allMedia.map((_, idx) => (
+                  <View key={idx} style={{ width: activeSlide === idx ? 20 : 8, height: 8, borderRadius: 4, backgroundColor: activeSlide === idx ? colors.white : 'rgba(255,255,255,0.5)' }} />
+                ))}
+              </View>
+            </>
+          ) : allMedia.length === 1 && isVideoUrl(allMedia[0]) ? (
+            <View style={styles.heroImage}>
+              <VideoView
+                player={videoPlayer}
+                style={{ width: SCREEN_W, height: 280 }}
+                nativeControls
+                contentFit="cover"
+              />
+            </View>
+          ) : allMedia.length > 0 ? (
+            <Image source={{ uri: allMedia[0] }} style={styles.heroImage} />
+          ) : (
+            <View style={[styles.heroImage, { backgroundColor: colors.darkBg, justifyContent: 'center', alignItems: 'center' }]}>
+              <MaterialIcons name="celebration" size={80} color={colors.textTertiary} />
+            </View>
+          )}
           <SafeAreaView style={styles.heroOverlay}>
             <TouchableOpacity style={styles.iconButton} onPress={onBack}>
               <MaterialIcons name="arrow-back" size={20} color={colors.white} />
@@ -107,7 +196,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
             <View style={styles.hostInfo}>
               <Text style={styles.hostedBy}>HOSTED BY</Text>
               <View style={styles.hostNameRow}>
-                <Image source={{ uri: pod.host?.avatar }} style={styles.hostAvatar} />
+                <SafeImage uri={pod.host?.avatar} style={styles.hostAvatar} fallbackIcon="person" fallbackIconSize={18} />
                 <Text style={styles.hostName}>{pod.host?.name}</Text>
                 {pod.host?.isVerifiedHost && <MaterialIcons name="check-circle" size={16} color={colors.primary} />}
               </View>
@@ -186,7 +275,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
             </View>
             <View style={styles.attendeesRow}>
               {(pod.attendees ?? []).slice(0, 3).map((a: PodAttendee, i: number) => (
-                <Image key={a.id} source={{ uri: a.avatar }} style={[styles.attendeeAvatar, { marginLeft: i > 0 ? -10 : 0 }]} />
+                <SafeImage key={a.id} uri={a.avatar} style={[styles.attendeeAvatar, { marginLeft: i > 0 ? -10 : 0 }]} fallbackIcon="person" fallbackIconSize={14} />
               ))}
               {pod.currentSeats > 3 && (
                 <View style={styles.moreAttendees}>

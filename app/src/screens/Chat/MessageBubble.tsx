@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import SafeImage from '../../components/SafeImage';
 import { colors } from '../../theme';
 import { ChatMessage } from './Chat.types';
 import { styles } from './Chat.styles';
@@ -45,7 +46,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ item, isMe, onPreviewMedi
     <View style={[styles.msgRow, isMe && styles.msgRowMe]}>
       {!isMe && (
         item.sender?.avatar
-          ? <Image source={{ uri: item.sender.avatar }} style={styles.msgAvatar} />
+          ? <SafeImage uri={item.sender.avatar} style={styles.msgAvatar} fallbackIcon="person" fallbackIconSize={14} />
           : (
             <View style={[styles.msgAvatar, { backgroundColor: colors.surfaceVariant, justifyContent: 'center', alignItems: 'center' }]}>
               <MaterialIcons name="person" size={16} color={colors.textTertiary} />

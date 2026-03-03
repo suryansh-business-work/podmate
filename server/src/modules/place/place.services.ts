@@ -19,6 +19,7 @@ export async function createPlace(input: CreatePlaceInput, ownerId: string): Pro
     address: input.address,
     city: input.city,
     imageUrl: input.imageUrl ?? '',
+    mediaUrls: input.mediaUrls ?? [],
     ownerId,
     category: input.category,
     phone: input.phone ?? '',

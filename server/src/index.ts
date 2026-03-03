@@ -3,10 +3,12 @@ import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
+import multer from 'multer';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import type { GraphQLContext } from './modules/auth/auth.models';
 import { getUserFromRequest, verifyToken } from './modules/auth/auth.services';
+import { uploadToImageKit } from './lib/imagekit';
 import userTypeDefs from './modules/user/user.typeDefs';
 import podTypeDefs from './modules/pod/pod.typeDefs';
 import authTypeDefs from './modules/auth/auth.typeDefs';
@@ -219,6 +221,35 @@ async function main(): Promise<void> {
 
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', service: 'partywings-server', port: PORT });
+  });
+
+  /* ── File Upload REST endpoint ── */
+  const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
+
+  app.post('/api/upload', upload.single('file'), async (req, res) => {
+    try {
+      const user = getUserFromRequest(req);
+      if (!user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const file = req.file;
+      if (!file) {
+        res.status(400).json({ error: 'No file provided' });
+        return;
+      }
+
+      const fileName = (req.body as Record<string, string>).fileName || file.originalname || `upload-${Date.now()}`;
+      const folder = (req.body as Record<string, string>).folder || '/uploads';
+
+      const result = await uploadToImageKit(file.buffer, fileName, folder);
+      res.json(result);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Upload failed';
+      logger.error('Upload error:', message);
+      res.status(500).json({ error: message });
+    }
   });
 
   app.use(

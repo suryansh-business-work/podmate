@@ -239,3 +239,13 @@ export const UPDATE_THEME_PREFERENCE = gql`
     }
   }
 `;
+
+export const CREATE_PLACE = gql`
+  mutation CreatePlace($input: CreatePlaceInput!) {
+    createPlace(input: $input) {
+      id
+      name
+      status
+    }
+  }
+`;

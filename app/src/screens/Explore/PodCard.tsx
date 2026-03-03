@@ -1,10 +1,10 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useRef, useCallback } from 'react';
+import { View, Text, Image, TouchableOpacity, FlatList, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing } from '../../theme';
+import { colors } from '../../theme';
 import { Pod, CATEGORIES, formatDate, formatTime } from './Explore.types';
-import { styles } from './Explore.styles';
+import { styles, SCREEN_W } from './Explore.styles';
 
 interface PodCardProps {
   item: Pod;
@@ -13,7 +13,7 @@ interface PodCardProps {
   onCategoryChange: (cat: string) => void;
   onDetailPress?: (podId: string) => void;
   onJoinPress: (podId: string) => void;
-  joiningId: string | null;
+  slideHeight: number;
 }
 
 const PodCard: React.FC<PodCardProps> = ({
@@ -23,16 +23,60 @@ const PodCard: React.FC<PodCardProps> = ({
   onCategoryChange,
   onDetailPress,
   onJoinPress,
-  joiningId,
+  slideHeight,
 }) => {
   const fillPct = Math.round((item.currentSeats / item.maxSeats) * 100);
   const isFull = item.currentSeats >= item.maxSeats;
   const alreadyJoined = (item.attendees ?? []).some((a) => a.id === currentUserId);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const sliderRef = useRef<FlatList<string>>(null);
+
+  const allImages: string[] = (() => {
+    const urls: string[] = [];
+    if (item.imageUrl) urls.push(item.imageUrl);
+    if (item.mediaUrls) {
+      item.mediaUrls.forEach((url) => {
+        if (url && !urls.includes(url)) urls.push(url);
+      });
+    }
+    return urls.length > 0 ? urls : [];
+  })();
+
+  const handleSliderScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
+    setActiveSlide(idx);
+  }, []);
+
+  const renderSliderImage = useCallback(({ item: uri }: { item: string }) => (
+    <Image source={{ uri }} style={[styles.bgImage, { width: SCREEN_W, height: slideHeight, position: 'relative' }]} resizeMode="cover" />
+  ), [slideHeight]);
 
   return (
-    <View style={styles.slide}>
-      {item.imageUrl ? (
-        <Image source={{ uri: item.imageUrl }} style={styles.bgImage} />
+    <View style={[styles.slide, { height: slideHeight }]}>
+      {allImages.length > 1 ? (
+        <>
+          <FlatList
+            ref={sliderRef}
+            data={allImages}
+            keyExtractor={(uri, idx) => `${uri}-${idx}`}
+            renderItem={renderSliderImage}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={handleSliderScroll}
+            style={[styles.bgImage, { height: slideHeight }]}
+            bounces={false}
+          />
+          {allImages.length > 1 && (
+            <View style={styles.paginationDots}>
+              {allImages.map((_, idx) => (
+                <View key={idx} style={[styles.dot, activeSlide === idx && styles.dotActive]} />
+              ))}
+            </View>
+          )}
+        </>
+      ) : allImages.length === 1 ? (
+        <Image source={{ uri: allImages[0] }} style={[styles.bgImage, { height: slideHeight }]} />
       ) : (
         <View style={[styles.bgImage, { backgroundColor: colors.darkBg }]}>
           <MaterialIcons name="celebration" size={80} color={colors.textTertiary} />
@@ -127,16 +171,10 @@ const PodCard: React.FC<PodCardProps> = ({
               style={[styles.joinBtn, isFull && styles.joinBtnFull]}
               activeOpacity={0.8}
               onPress={() => (isFull ? null : onJoinPress(item.id))}
-              disabled={isFull || joiningId === item.id}
+              disabled={isFull}
             >
-              {joiningId === item.id ? (
-                <ActivityIndicator size="small" color={colors.white} />
-              ) : (
-                <>
-                  <MaterialIcons name={isFull ? 'event-busy' : 'group-add'} size={18} color={colors.white} />
-                  <Text style={styles.joinBtnText}>{isFull ? 'Full' : 'Join Pod'}</Text>
-                </>
-              )}
+              <MaterialIcons name={isFull ? 'event-busy' : 'group-add'} size={18} color={colors.white} />
+              <Text style={styles.joinBtnText}>{isFull ? 'Full' : 'Join Pod'}</Text>
             </TouchableOpacity>
           )}
         </View>

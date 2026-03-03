@@ -126,7 +126,7 @@ const PaymentsPage: React.FC = () => {
   }, [completePayment, refetch]);
 
   return (
-    <Box>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <Breadcrumbs sx={{ mb: 2 }}>
         <Link underline="hover" color="inherit" href="/dashboard">Dashboard</Link>
         <Typography color="text.primary">Payments</Typography>

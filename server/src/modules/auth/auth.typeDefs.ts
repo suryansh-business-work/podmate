@@ -19,6 +19,7 @@ const authTypeDefs = `#graphql
     token: String!
     expire: Int!
     signature: String!
+    publicKey: String!
   }
 
   type SendCredentialsResponse {

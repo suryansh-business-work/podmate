@@ -1,6 +1,6 @@
 import type { GraphQLContext } from '../auth/auth.models';
 import { UserRole } from '../user/user.models';
-import { requireRole } from '../auth/auth.services';
+import { requireAuth, requireRole } from '../auth/auth.services';
 import type { CreatePaymentInput, ProcessRefundInput } from './payment.models';
 import * as paymentService from './payment.services';
 
@@ -43,6 +43,15 @@ const paymentResolvers = {
     paymentStats: (_: unknown, __: unknown, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return paymentService.getPaymentStats();
+    },
+
+    myPayments: (
+      _: unknown,
+      args: { page?: number; limit?: number },
+      context: GraphQLContext,
+    ) => {
+      const user = requireAuth(context);
+      return paymentService.getMyPayments(user.userId, args.page ?? 1, args.limit ?? 20);
     },
   },
 

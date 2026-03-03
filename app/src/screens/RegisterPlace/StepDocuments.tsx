@@ -22,7 +22,7 @@ const StepDocuments: React.FC<StepDocumentsProps> = ({
   businessLicenseUrl, permitsUrl, venueMedia, uploading, progress,
   onUploadLicense, onUploadPermits, onMediaChange, onContinue,
 }) => (
-  <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
+  <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
     <Text style={styles.sectionTitle}>Upload Documents</Text>
     <Text style={styles.helperText}>
       Upload your business license, food/liquor permits, and venue photos. This helps us verify your venue faster.

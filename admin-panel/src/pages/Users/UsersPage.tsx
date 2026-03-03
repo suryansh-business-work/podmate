@@ -22,6 +22,7 @@ import { UsersData, User, Order } from './Users.types';
 import UsersTable from './UsersTable';
 import CreateUserDialog from './CreateUserDialog';
 import ToggleUserDialog from './ToggleUserDialog';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
 
 const UsersPage: React.FC = () => {
   const [page, setPage] = useState(0);
@@ -32,13 +33,14 @@ const UsersPage: React.FC = () => {
   const [order, setOrder] = useState<Order>('DESC');
   const [createOpen, setCreateOpen] = useState(false);
   const [toggleUser, setToggleUser] = useState<User | null>(null);
+  const [deleteUser, setDeleteUser] = useState<User | null>(null);
 
   const { data, loading, error, refetch } = useQuery<UsersData>(GET_USERS, {
     variables: { page: page + 1, limit: rowsPerPage, search: debouncedSearch || undefined, sortBy, order },
     fetchPolicy: 'cache-and-network',
   });
 
-  const [deleteUserMutation] = useMutation(DELETE_USER);
+  const [deleteUserMutation, { loading: deleting }] = useMutation(DELETE_USER);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -49,10 +51,16 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this user? This will also delete all their pods, places, and tickets.')) return;
+  const handleDeleteUser = (id: string) => {
+    const user = data?.users.items.find((u) => u.id === id);
+    if (user) setDeleteUser(user);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteUser) return;
     try {
-      await deleteUserMutation({ variables: { id } });
+      await deleteUserMutation({ variables: { id: deleteUser.id } });
+      setDeleteUser(null);
       await refetch();
     } catch { /* handled by Apollo */ }
   };
@@ -130,6 +138,16 @@ const UsersPage: React.FC = () => {
           currentActive={toggleUser.isActive}
         />
       )}
+
+      <ConfirmDeleteDialog
+        open={!!deleteUser}
+        title="Delete User"
+        entityName={deleteUser?.name ?? ''}
+        entityType="user"
+        loading={deleting}
+        onClose={() => setDeleteUser(null)}
+        onConfirm={confirmDelete}
+      />
     </Box>
   );
 };

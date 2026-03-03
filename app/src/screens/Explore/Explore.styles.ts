@@ -6,11 +6,15 @@ const STATUS_BAR_H = StatusBar.currentHeight ?? 44;
 
 export { SCREEN_W, SCREEN_H };
 
+export function getSlideHeight(tabBarHeight: number): number {
+  return SCREEN_H - tabBarHeight;
+}
+
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.black },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.black },
-  slide: { width: SCREEN_W, height: SCREEN_H, position: 'relative' },
-  bgImage: { ...StyleSheet.absoluteFillObject, width: SCREEN_W, height: SCREEN_H, justifyContent: 'center', alignItems: 'center' },
+  slide: { width: SCREEN_W, position: 'relative' },
+  bgImage: { ...StyleSheet.absoluteFillObject, width: SCREEN_W, justifyContent: 'center', alignItems: 'center' },
   gradient: { ...StyleSheet.absoluteFillObject },
 
   topBar: {
@@ -92,4 +96,26 @@ export const styles = StyleSheet.create({
   },
   joinBtnFull: { backgroundColor: colors.textTertiary },
   joinBtnText: { fontSize: 15, fontWeight: '700', color: colors.white },
+
+  paginationDots: {
+    position: 'absolute',
+    top: STATUS_BAR_H + 50,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+    zIndex: 10,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  dotActive: {
+    width: 20,
+    borderRadius: 3,
+    backgroundColor: colors.white,
+  },
 });

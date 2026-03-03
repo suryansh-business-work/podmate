@@ -18,9 +18,10 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_PODS } from '../../graphql/queries';
 import { DELETE_POD } from '../../graphql/mutations';
 import { useDebounce } from '../../hooks/useDebounce';
-import { PodsData, Order } from './Pods.types';
+import { PodsData, Pod, Order } from './Pods.types';
 import PodsTable from './PodsTable';
 import CreatePodDialog from './CreatePodDialog';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
 
 const PodsPage: React.FC = () => {
   const [page, setPage] = useState(0);
@@ -30,13 +31,14 @@ const PodsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState('createdAt');
   const [order, setOrder] = useState<Order>('DESC');
   const [createOpen, setCreateOpen] = useState(false);
+  const [deletePod, setDeletePod] = useState<Pod | null>(null);
 
   const { data, loading, error, refetch } = useQuery<PodsData>(GET_PODS, {
     variables: { page: page + 1, limit: rowsPerPage, search: debouncedSearch || undefined, sortBy, order },
     fetchPolicy: 'cache-and-network',
   });
 
-  const [deletePodMutation] = useMutation(DELETE_POD);
+  const [deletePodMutation, { loading: deleting }] = useMutation(DELETE_POD);
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
@@ -47,10 +49,16 @@ const PodsPage: React.FC = () => {
     }
   };
 
-  const handleDeletePod = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this pod?')) return;
+  const handleDeletePod = (id: string) => {
+    const pod = data?.pods.items.find((p) => p.id === id);
+    if (pod) setDeletePod(pod);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletePod) return;
     try {
-      await deletePodMutation({ variables: { id } });
+      await deletePodMutation({ variables: { id: deletePod.id } });
+      setDeletePod(null);
       await refetch();
     } catch { /* handled by Apollo */ }
   };
@@ -97,6 +105,16 @@ const PodsPage: React.FC = () => {
       </Card>
 
       <CreatePodDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={() => refetch()} />
+
+      <ConfirmDeleteDialog
+        open={!!deletePod}
+        title="Delete Pod"
+        entityName={deletePod?.title ?? ''}
+        entityType="pod"
+        loading={deleting}
+        onClose={() => setDeletePod(null)}
+        onConfirm={confirmDelete}
+      />
     </Box>
   );
 };

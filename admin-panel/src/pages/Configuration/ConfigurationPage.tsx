@@ -234,7 +234,7 @@ const ConfigurationPage: React.FC = () => {
                 helperText={modelsLoading ? 'Loading models...' : 'Select an OpenAI model'}
               >
                 {(modelsData?.openAiModels ?? []).length === 0 && (
-                  <MenuItem value={openai.model || 'gpt-3.5-turbo'}>{openai.model || 'gpt-3.5-turbo'}</MenuItem>
+                  <MenuItem value={openai.model || 'gpt-4o-mini'}>{openai.model || 'gpt-4o-mini'}</MenuItem>
                 )}
                 {(modelsData?.openAiModels ?? []).map((m) => (
                   <MenuItem key={m} value={m}>{m}</MenuItem>

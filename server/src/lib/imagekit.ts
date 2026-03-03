@@ -1,4 +1,4 @@
-import ImageKit from 'imagekit';
+import { ImageKit } from '@imagekit/nodejs';
 import logger from './logger';
 
 let imagekitInstance: ImageKit | null = null;
@@ -38,19 +38,21 @@ async function getImageKit(): Promise<ImageKit> {
     );
   }
 
-  /* Recreate instance if credentials may have changed (reset singleton) */
-  imagekitInstance = new ImageKit({ publicKey, privateKey, urlEndpoint });
+  /* @imagekit/nodejs v7 constructor only accepts privateKey; publicKey and urlEndpoint are managed separately */
+  imagekitInstance = new ImageKit({ privateKey });
   logger.info('ImageKit initialized successfully');
   return imagekitInstance;
 }
 
-export async function getImageKitAuthParams(): Promise<{ token: string; expire: number; signature: string }> {
+export async function getImageKitAuthParams(): Promise<{ token: string; expire: number; signature: string; publicKey: string }> {
+  const { publicKey } = await getImageKitCredentials();
   const ik = await getImageKit();
-  return ik.getAuthenticationParameters() as {
+  const authParams = ik.helper.getAuthenticationParameters() as {
     token: string;
     expire: number;
     signature: string;
   };
+  return { ...authParams, publicKey };
 }
 
 export default { getImageKitAuthParams };

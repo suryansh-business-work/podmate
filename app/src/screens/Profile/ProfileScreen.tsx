@@ -47,6 +47,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout, onNavigate }) =
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
+        keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
       >
         <View style={styles.profileHeader}>

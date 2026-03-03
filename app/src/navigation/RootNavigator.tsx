@@ -14,6 +14,9 @@ import FaqScreen from '../screens/FaqScreen';
 import SupportScreen from '../screens/SupportScreen';
 import ChatbotScreen from '../screens/Chatbot';
 import EditProfileScreen from '../screens/EditProfile';
+import PaymentsScreen from '../screens/Payments';
+import PrivacySecurityScreen from '../screens/PrivacySecurity';
+import CheckoutScreen from '../screens/Checkout';
 import ChatbotFab from '../components/ChatbotFab';
 import NetworkBanner from '../components/NetworkBanner';
 import MainTabs from './MainTabs';
@@ -51,7 +54,9 @@ const RootNavigator: React.FC = () => {
     const map: Record<string, () => void> = {
       EditProfile: () => navigation.navigate('EditProfile'),
       MyPods: () => navigation.navigate('Main', { screen: 'Chat' } as never),
+      Payments: () => navigation.navigate('Payments'),
       Notifications: () => navigation.navigate('Notifications'),
+      Privacy: () => navigation.navigate('Privacy'),
       Help: () => navigation.navigate('Faq'),
     };
     map[screen]?.();
@@ -118,11 +123,21 @@ const RootNavigator: React.FC = () => {
                     onLogout={auth.handleLogout}
                     onMenuPress={drawer.openDrawer}
                     onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
+                    onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
                   />
                 )}
               </Stack.Screen>
               <Stack.Screen name="PodDetail" options={{ presentation: 'card' }}>
-                {({ navigation, route }) => <PodDetailScreen podId={(route.params as { podId: string })?.podId} onBack={() => navigation.goBack()} />}
+                {({ navigation, route }) => <PodDetailScreen podId={(route.params as { podId: string })?.podId} onBack={() => navigation.goBack()} onCheckout={(id: string) => navigation.navigate('Checkout', { podId: id })} />}
+              </Stack.Screen>
+              <Stack.Screen name="Checkout" options={{ presentation: 'card' }}>
+                {({ navigation, route }) => (
+                  <CheckoutScreen
+                    podId={(route.params as { podId: string })?.podId}
+                    onBack={() => navigation.goBack()}
+                    onSuccess={() => navigation.navigate('Main')}
+                  />
+                )}
               </Stack.Screen>
               <Stack.Screen name="CreatePod" options={{ presentation: 'modal' }}>
                 {({ navigation }) => <CreatePodScreen onClose={() => navigation.goBack()} />}
@@ -141,6 +156,12 @@ const RootNavigator: React.FC = () => {
               </Stack.Screen>
               <Stack.Screen name="EditProfile" options={{ presentation: 'card' }}>
                 {({ navigation }) => <EditProfileScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="Payments" options={{ presentation: 'card' }}>
+                {({ navigation }) => <PaymentsScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="Privacy" options={{ presentation: 'card' }}>
+                {({ navigation }) => <PrivacySecurityScreen onBack={() => navigation.goBack()} />}
               </Stack.Screen>
               <Stack.Screen name="Chatbot" options={{ presentation: 'modal' }}>
                 {({ navigation }) => <ChatbotScreen onBack={() => navigation.goBack()} />}

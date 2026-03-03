@@ -26,9 +26,10 @@ interface MainTabsProps {
   onLogout: () => void;
   onMenuPress: () => void;
   onNavigate?: (screen: string) => void;
+  onCheckout?: (podId: string) => void;
 }
 
-const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout, onMenuPress, onNavigate }) => {
+const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout, onMenuPress, onNavigate, onCheckout }) => {
   const insets = useSafeAreaInsets();
   const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
 
@@ -73,7 +74,7 @@ const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout
       })}
     >
       <Tab.Screen name="Home">{() => <HomeScreen onPodPress={onPodPress} onMenuPress={onMenuPress} />}</Tab.Screen>
-      <Tab.Screen name="Explore">{() => <ExploreScreen onPodPress={onPodPress} />}</Tab.Screen>
+      <Tab.Screen name="Explore">{() => <ExploreScreen onPodPress={onPodPress} onCheckout={onCheckout} />}</Tab.Screen>
       <Tab.Screen
         name="Create"
         listeners={{

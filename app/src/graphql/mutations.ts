@@ -49,6 +49,25 @@ export const JOIN_POD = gql`
   }
 `;
 
+export const CHECKOUT_POD = gql`
+  mutation CheckoutPod($podId: ID!) {
+    checkoutPod(podId: $podId) {
+      success
+      pod {
+        id
+        currentSeats
+        attendees {
+          id
+          name
+          avatar
+        }
+      }
+      paymentId
+      isDummy
+    }
+  }
+`;
+
 export const UPDATE_PROFILE = gql`
   mutation UpdateProfile($name: String, $avatar: String, $email: String) {
     updateProfile(name: $name, avatar: $avatar, email: $email) {
@@ -112,6 +131,7 @@ export const GET_IMAGEKIT_AUTH = gql`
       token
       expire
       signature
+      publicKey
     }
   }
 `;

@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "extra": {
-      "apiUrl": "http://192.168.68.57:4039/graphql"
+      "apiUrl": "http://192.168.68.83:4039/graphql"
     },
     "icon": "./assets/icon-and-splash/logo-1024x1024.png",
     "userInterfaceStyle": "light",

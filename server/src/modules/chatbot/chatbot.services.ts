@@ -11,7 +11,7 @@ interface OpenAiMessage {
 
 export async function askChatbot(userId: string, message: string): Promise<ChatbotResponse> {
   const apiKey = await getConfigValue('openai_api_key', 'OPENAI_API_KEY');
-  const model = await getConfigValue('openai_model', 'OPENAI_MODEL') || 'gpt-3.5-turbo';
+  const model = await getConfigValue('openai_model', 'OPENAI_MODEL') || 'gpt-4o-mini';
   const prePrompt = await getConfigValue('chatbot_pre_prompt', 'CHATBOT_PRE_PROMPT') ||
     'You are PartyWings assistant. Help users with questions about events, pods, places, and the PartyWings platform. Be friendly and concise.';
 
@@ -19,8 +19,14 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
     throw new Error('AI chatbot is not configured. Please set up OpenAI API key in settings.');
   }
 
+  /* Get recent conversation history BEFORE saving current message (last 10 messages) */
+  const history = await ChatbotMessageModel.find({ userId })
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .lean({ virtuals: true });
+
   /* Save user message */
-  const userMsg = await ChatbotMessageModel.create({
+  await ChatbotMessageModel.create({
     _id: uuidv4(),
     userId,
     role: 'user',
@@ -28,18 +34,13 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
     createdAt: new Date().toISOString(),
   });
 
-  /* Get recent conversation history (last 10 messages) */
-  const history = await ChatbotMessageModel.find({ userId })
-    .sort({ createdAt: -1 })
-    .limit(10)
-    .lean({ virtuals: true });
-
   const messages: OpenAiMessage[] = [
     { role: 'system', content: prePrompt },
     ...history.reverse().map((msg) => ({
       role: msg.role as 'user' | 'assistant',
       content: msg.content,
     })),
+    { role: 'user' as const, content: message },
   ];
 
   try {
@@ -52,7 +53,7 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
       body: JSON.stringify({
         model,
         messages,
-        max_tokens: 500,
+        max_completion_tokens: 500,
         temperature: 0.7,
       }),
     });
@@ -60,7 +61,12 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
     if (!response.ok) {
       const errorBody = await response.text();
       logger.error('OpenAI API error:', errorBody);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      let detail = `OpenAI API error: ${response.status}`;
+      try {
+        const parsed = JSON.parse(errorBody) as { error?: { message?: string } };
+        if (parsed.error?.message) detail = parsed.error.message;
+      } catch { /* use default */ }
+      throw new Error(detail);
     }
 
     const data = await response.json() as {

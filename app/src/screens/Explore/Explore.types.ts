@@ -4,6 +4,7 @@ export interface Pod {
   description: string;
   category: string;
   imageUrl: string;
+  mediaUrls?: string[];
   feePerPerson: number;
   location: string;
   locationDetail: string;
@@ -23,6 +24,7 @@ export interface PodNavigationCallback {
 
 export interface ExploreScreenProps {
   onPodPress?: PodNavigationCallback;
+  onCheckout?: PodNavigationCallback;
 }
 
 export const CATEGORIES = ['All', 'Social', 'Learning', 'Outdoor'];

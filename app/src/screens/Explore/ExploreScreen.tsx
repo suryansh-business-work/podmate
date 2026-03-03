@@ -1,17 +1,18 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, StatusBar, ActivityIndicator, RefreshControl, Alert } from 'react-native';
-import { useMutation, useQuery } from '@apollo/client';
+import { View, Text, FlatList, StatusBar, ActivityIndicator, RefreshControl } from 'react-native';
+import { useQuery } from '@apollo/client';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing } from '../../theme';
 import { GET_PODS, GET_ME } from '../../graphql/queries';
-import { JOIN_POD } from '../../graphql/mutations';
 import { Pod, ExploreScreenProps } from './Explore.types';
-import { styles, SCREEN_H } from './Explore.styles';
+import { styles, getSlideHeight } from './Explore.styles';
 import PodCard from './PodCard';
 
-const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
+const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress, onCheckout }) => {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [joiningId, setJoiningId] = useState<string | null>(null);
+  const tabBarHeight = useBottomTabBarHeight();
+  const slideHeight = getSlideHeight(tabBarHeight);
 
   const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const currentUserId: string = (meData?.me?.id as string) ?? '';
@@ -25,22 +26,13 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const [joinPodMutation] = useMutation(JOIN_POD);
-
   const pods: Pod[] = data?.pods?.items ?? [];
 
-  const handleJoin = useCallback(async (podId: string) => {
-    setJoiningId(podId);
-    try {
-      await joinPodMutation({ variables: { podId } });
-      await refetch();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to join pod';
-      Alert.alert('Error', msg);
-    } finally {
-      setJoiningId(null);
+  const handleJoin = useCallback((podId: string) => {
+    if (onCheckout) {
+      onCheckout(podId);
     }
-  }, [joinPodMutation, refetch]);
+  }, [onCheckout]);
 
   const [refreshing, setRefreshing] = useState(false);
   const handleRefresh = useCallback(async () => {
@@ -81,16 +73,16 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress }) => {
             onCategoryChange={setActiveCategory}
             onDetailPress={onPodPress}
             onJoinPress={handleJoin}
-            joiningId={joiningId}
+            slideHeight={slideHeight}
           />
         )}
         pagingEnabled
         showsVerticalScrollIndicator={false}
-        snapToInterval={SCREEN_H}
+        snapToInterval={slideHeight}
         decelerationRate="fast"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
         ListEmptyComponent={
-          <View style={[styles.slide, { justifyContent: 'center', alignItems: 'center', backgroundColor: colors.darkBg }]}>
+          <View style={[styles.slide, { height: slideHeight, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.darkBg }]}>
             <MaterialIcons name="explore-off" size={64} color={colors.textTertiary} />
             <Text style={[styles.podTitle, { textAlign: 'center', marginTop: spacing.md }]}>No pods found</Text>
             <Text style={[styles.podDesc, { textAlign: 'center' }]}>Try a different category</Text>

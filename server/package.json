@@ -15,11 +15,11 @@
   },
   "dependencies": {
     "@apollo/server": "^4.13.0",
+    "@imagekit/nodejs": "^7.3.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.0",
     "graphql": "^16.10.0",
-    "imagekit": "^5.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.2.3",
     "nodemailer": "^8.0.1",

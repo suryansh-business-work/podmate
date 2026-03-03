@@ -82,7 +82,7 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
   return (
     <>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>Let&apos;s set up your Pod.</Text>
         <Text style={styles.subtitle}>Create a space for your micro-community event.</Text>
 

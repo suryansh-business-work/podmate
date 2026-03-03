@@ -93,7 +93,7 @@ export const DEFAULT_IMAGEKIT: ImageKitConfig = {
 
 export const DEFAULT_OPENAI: OpenAiConfig = {
   apiKey: '',
-  model: 'gpt-3.5-turbo',
+  model: 'gpt-4o-mini',
   prePrompt: 'You are PartyWings assistant. Help users with questions about events, pods, places, and the PartyWings platform.',
 };
 

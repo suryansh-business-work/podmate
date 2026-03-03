@@ -4,14 +4,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { useMutation } from '@apollo/client';
 import { GET_IMAGEKIT_AUTH } from '../graphql/mutations';
 
-const IMAGEKIT_URL_ENDPOINT =
-  process.env.EXPO_PUBLIC_IMAGEKIT_URL ?? 'https://ik.imagekit.io/your_id';
-
 interface ImageKitAuthResponse {
   getImageKitAuth: {
     token: string;
     expire: number;
     signature: string;
+    publicKey: string;
   };
 }
 
@@ -57,7 +55,7 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
           throw new Error('Failed to get upload credentials');
         }
 
-        const { token, expire, signature } = data.getImageKitAuth;
+        const { token, expire, signature, publicKey } = data.getImageKitAuth;
 
         const formData = new FormData();
 
@@ -83,10 +81,7 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
         formData.append('token', token);
         formData.append('expire', String(expire));
         formData.append('signature', signature);
-        formData.append(
-          'publicKey',
-          process.env.EXPO_PUBLIC_IMAGEKIT_PUBLIC_KEY ?? '',
-        );
+        formData.append('publicKey', publicKey);
 
         setProgress(0.3);
 

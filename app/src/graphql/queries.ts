@@ -213,3 +213,25 @@ export const GET_APP_CONFIG = gql`
     }
   }
 `;
+
+export const GET_MY_PAYMENTS = gql`
+  query GetMyPayments($page: Int, $limit: Int) {
+    myPayments(page: $page, limit: $limit) {
+      items {
+        id
+        amount
+        type
+        status
+        transactionId
+        gateway
+        notes
+        refundAmount
+        createdAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;

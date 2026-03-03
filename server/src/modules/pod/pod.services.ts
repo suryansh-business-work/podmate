@@ -5,6 +5,8 @@ import type { User } from '../user/user.models';
 import { UserModel, toUser } from '../user/user.models';
 import { findUserById } from '../user/user.services';
 import { createNotification } from '../notification/notification.services';
+import { createPayment, completePayment } from '../payment/payment.services';
+import { getConfigValue } from '../settings/settings.services';
 
 export async function getPaginatedPods(input: PodPaginationInput): Promise<PaginatedPods> {
   const filter: Record<string, unknown> = {};
@@ -142,6 +144,60 @@ export async function joinPod(podId: string, userId: string): Promise<Pod> {
   );
 
   return result;
+}
+
+export interface CheckoutResult {
+  success: boolean;
+  pod: Pod;
+  paymentId: string;
+  isDummy: boolean;
+}
+
+export async function checkoutPod(podId: string, userId: string): Promise<CheckoutResult> {
+  const pod = await PodModel.findById(podId);
+  if (!pod) throw new Error('Pod not found');
+  if (pod.currentSeats >= pod.maxSeats) throw new Error('Pod is full');
+  if ((pod.attendeeIds as string[]).includes(userId)) throw new Error('Already joined this pod');
+
+  const dummyCheckout = await getConfigValue('dummy_checkout', 'DUMMY_CHECKOUT');
+  const isDummy = dummyCheckout === 'true';
+
+  /* Create payment record */
+  const payment = await createPayment({
+    userId,
+    podId,
+    amount: pod.feePerPerson,
+    type: 'PAYMENT',
+    gateway: isDummy ? 'DUMMY' : 'PENDING',
+    notes: isDummy ? 'Dummy checkout – payment simulated' : '',
+  });
+
+  /* If dummy checkout, auto-complete the payment */
+  if (isDummy) {
+    await completePayment(payment.id, `DUMMY-${uuidv4().slice(0, 8).toUpperCase()}`);
+  }
+
+  /* Join the pod */
+  const updated = await PodModel.findByIdAndUpdate(
+    podId,
+    { $push: { attendeeIds: userId }, $inc: { currentSeats: 1 } },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
+  const result = toPod(updated);
+  if (!result) throw new Error('Pod not found');
+
+  /* Notify the host */
+  const joiner = await findUserById(userId);
+  const joinerName = joiner?.name || joiner?.username || 'Someone';
+  await createNotification(
+    pod.hostId,
+    'POD_JOIN',
+    'New Pod Member!',
+    `${joinerName} joined your pod "${pod.title}"`,
+    JSON.stringify({ podId, userId }),
+  );
+
+  return { success: true, pod: result, paymentId: payment.id, isDummy };
 }
 
 export async function leavePod(podId: string, userId: string): Promise<Pod> {

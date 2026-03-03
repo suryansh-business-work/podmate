@@ -20,9 +20,10 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_PLACES } from '../../graphql/queries';
 import { APPROVE_PLACE, REJECT_PLACE, DELETE_PLACE } from '../../graphql/mutations';
 import { useDebounce } from '../../hooks/useDebounce';
-import { PlacesData, Order, STATUS_TABS } from './Places.types';
+import { PlacesData, Place, Order, STATUS_TABS } from './Places.types';
 import PlacesTable from './PlacesTable';
 import CreatePlaceDialog from './CreatePlaceDialog';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
 
 const PlacesPage: React.FC = () => {
   const [page, setPage] = useState(0);
@@ -33,6 +34,7 @@ const PlacesPage: React.FC = () => {
   const [order, setOrder] = useState<Order>('DESC');
   const [statusTab, setStatusTab] = useState(0);
   const [createOpen, setCreateOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Place | null>(null);
 
   const statusFilter = STATUS_TABS[statusTab] === 'ALL' ? undefined : STATUS_TABS[statusTab];
 
@@ -43,7 +45,7 @@ const PlacesPage: React.FC = () => {
 
   const [approvePlace] = useMutation(APPROVE_PLACE);
   const [rejectPlace] = useMutation(REJECT_PLACE);
-  const [deletePlace] = useMutation(DELETE_PLACE);
+  const [deletePlaceMutation, { loading: deleting }] = useMutation(DELETE_PLACE);
 
   const handleSort = (column: string) => {
     if (sortBy === column) setOrder(order === 'ASC' ? 'DESC' : 'ASC');
@@ -52,7 +54,19 @@ const PlacesPage: React.FC = () => {
 
   const handleApprove = async (id: string) => { await approvePlace({ variables: { id } }); await refetch(); };
   const handleReject = async (id: string) => { await rejectPlace({ variables: { id } }); await refetch(); };
-  const handleDelete = async (id: string) => { await deletePlace({ variables: { id } }); await refetch(); };
+  const handleDelete = (id: string) => {
+    const place = data?.places.items.find((p) => p.id === id);
+    if (place) setDeleteTarget(place);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deletePlaceMutation({ variables: { id: deleteTarget.id } });
+      setDeleteTarget(null);
+      await refetch();
+    } catch { /* handled by Apollo */ }
+  };
 
   return (
     <Box>
@@ -109,6 +123,16 @@ const PlacesPage: React.FC = () => {
       </Card>
 
       <CreatePlaceDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={() => refetch()} />
+
+      <ConfirmDeleteDialog
+        open={!!deleteTarget}
+        title="Delete Place"
+        entityName={deleteTarget?.name ?? ''}
+        entityType="place"
+        loading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
     </Box>
   );
 };

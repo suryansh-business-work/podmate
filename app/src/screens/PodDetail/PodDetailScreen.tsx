@@ -1,19 +1,20 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, Alert, RefreshControl, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useQuery, useMutation } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../theme';
 import { SkeletonDetail } from '../../components/Skeleton';
 import { GET_POD } from '../../graphql/queries';
-import { JOIN_POD } from '../../graphql/mutations';
 import { PodDetailScreenProps, PodAttendee } from './PodDetail.types';
 import styles from './PodDetail.styles';
 
-const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack }) => {
+const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onCheckout }) => {
   const { data, loading, error, refetch } = useQuery(GET_POD, { variables: { id: podId }, skip: !podId });
-  const [joinPod, { loading: joining }] = useMutation(JOIN_POD);
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 16) : insets.bottom;
 
   const [refreshing, setRefreshing] = useState(false);
   const handleRefresh = useCallback(async () => {
@@ -22,14 +23,12 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack }) => {
     setRefreshing(false);
   }, [refetch]);
 
-  const handleJoin = async () => {
+  const handleJoin = () => {
     if (!podId) return;
-    try {
-      await joinPod({ variables: { podId } });
-      Alert.alert('Joined!', 'You have successfully joined this pod.');
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to join pod';
-      Alert.alert('Error', errorMessage);
+    if (onCheckout) {
+      onCheckout(podId);
+    } else {
+      Alert.alert('Error', 'Checkout is not available');
     }
   };
 
@@ -66,6 +65,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack }) => {
   return (
     <View style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
         >
         <View style={styles.heroContainer}>
@@ -164,15 +164,15 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack }) => {
         </View>
       </ScrollView>
 
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: 16 + bottomPadding }]}>
         <View style={styles.priceInfo}>
           <Text style={styles.totalLabel}>Total Price</Text>
           <Text style={styles.totalPrice}>₹{pod.feePerPerson.toLocaleString()}</Text>
           <Text style={styles.perPerson}>/ person</Text>
         </View>
-        <TouchableOpacity style={styles.joinButton} onPress={handleJoin} disabled={joining}>
+        <TouchableOpacity style={styles.joinButton} onPress={handleJoin}>
           <LinearGradient colors={[colors.secondary, '#EF4444']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.joinGradient}>
-            <Text style={styles.joinText}>{joining ? 'Joining...' : 'Join Pod →'}</Text>
+            <Text style={styles.joinText}>Join Pod →</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>

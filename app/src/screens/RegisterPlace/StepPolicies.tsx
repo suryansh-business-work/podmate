@@ -23,6 +23,7 @@ const StepPolicies: React.FC<StepPoliciesProps> = ({
   <ScrollView
     style={styles.scrollContent}
     showsVerticalScrollIndicator={false}
+    keyboardShouldPersistTaps="handled"
     onScroll={({ nativeEvent }) => {
       const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
       const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 40;

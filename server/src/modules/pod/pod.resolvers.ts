@@ -55,6 +55,11 @@ const podResolvers = {
       return podService.joinPod(args.podId, auth.userId);
     },
 
+    checkoutPod: (_: unknown, args: { podId: string }, context: GraphQLContext) => {
+      const auth = requireAuth(context);
+      return podService.checkoutPod(args.podId, auth.userId);
+    },
+
     leavePod: (_: unknown, args: { podId: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return podService.leavePod(args.podId, auth.userId);

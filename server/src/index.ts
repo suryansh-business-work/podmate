@@ -70,6 +70,7 @@ const rootSchema = `#graphql
     payments(page: Int, limit: Int, search: String, type: String, status: String, userId: ID, podId: ID, sortBy: String, order: String): PaginatedPayments!
     payment(id: ID!): Payment
     paymentStats: PaymentStats!
+    myPayments(page: Int, limit: Int): PaginatedPayments!
     chatbotHistory(limit: Int): [ChatbotMessage!]!
     notifications(page: Int, limit: Int): PaginatedNotifications!
     unreadNotificationCount: Int!
@@ -86,6 +87,7 @@ const rootSchema = `#graphql
     updatePod(id: ID!, input: UpdatePodInput!): Pod!
     deletePod(id: ID!): Boolean!
     joinPod(podId: ID!): Pod!
+    checkoutPod(podId: ID!): CheckoutResult!
     leavePod(podId: ID!): Pod!
     closePod(id: ID!, reason: String!): Pod!
     openPod(id: ID!): Pod!

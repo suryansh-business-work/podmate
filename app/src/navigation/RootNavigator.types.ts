@@ -5,6 +5,7 @@ export type RootStackParamList = {
   CompleteProfile: undefined;
   Main: undefined;
   PodDetail: { podId: string };
+  Checkout: { podId: string };
   CreatePod: undefined;
   Notifications: undefined;
   RegisterPlace: undefined;
@@ -12,4 +13,6 @@ export type RootStackParamList = {
   Support: undefined;
   Chatbot: undefined;
   EditProfile: undefined;
+  Payments: undefined;
+  Privacy: undefined;
 };

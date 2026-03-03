@@ -104,7 +104,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.roomHeader}>
         <TouchableOpacity onPress={onBack} style={styles.backBtn}>
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
@@ -120,7 +120,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
         </View>
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}>
         {loading ? (
           <View style={styles.centered}><ActivityIndicator size="large" color={colors.primary} /></View>
         ) : (

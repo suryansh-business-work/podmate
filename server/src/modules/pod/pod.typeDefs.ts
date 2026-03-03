@@ -63,6 +63,13 @@ const podTypeDefs = `#graphql
     imageUrl: String
     mediaUrls: [String!]
   }
+
+  type CheckoutResult {
+    success: Boolean!
+    pod: Pod!
+    paymentId: ID!
+    isDummy: Boolean!
+  }
 `;
 
 export default podTypeDefs;

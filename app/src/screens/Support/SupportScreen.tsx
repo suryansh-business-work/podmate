@@ -50,6 +50,7 @@ const SupportScreen: React.FC<SupportScreenProps> = ({ onBack }) => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={loading} onRefresh={() => refetch()} />}
       >
         {showForm && <TicketForm creating={creating} onSubmit={handleCreate} />}

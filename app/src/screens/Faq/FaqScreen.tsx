@@ -71,7 +71,7 @@ const FaqScreen: React.FC<FaqScreenProps> = ({ onBack, initialTab = 'faq' }) => 
             style={[styles.tab, activeTab === tab.key && styles.tabActive]}
             onPress={() => setActiveTab(tab.key)}
           >
-            <MaterialIcons name={tab.icon} size={16} color={activeTab === tab.key ? colors.white : colors.textSecondary} />
+            <MaterialIcons name={tab.icon} size={14} color={activeTab === tab.key ? colors.white : colors.textSecondary} />
             <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>{tab.label}</Text>
           </TouchableOpacity>
         ))}

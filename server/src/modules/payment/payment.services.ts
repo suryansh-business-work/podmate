@@ -63,6 +63,27 @@ export async function getPaymentById(id: string): Promise<Payment | null> {
   return toPayment(doc);
 }
 
+export async function getMyPayments(userId: string, page = 1, limit = 20): Promise<PaginatedPayments> {
+  const filter = { userId };
+  const total = await PaymentModel.countDocuments(filter);
+  const totalPages = Math.ceil(total / limit);
+  const skip = (page - 1) * limit;
+
+  const docs = await PaymentModel.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean({ virtuals: true });
+
+  return {
+    items: docs.map(toPayment).filter(Boolean) as Payment[],
+    total,
+    page,
+    limit,
+    totalPages,
+  };
+}
+
 export async function createPayment(input: CreatePaymentInput): Promise<Payment> {
   const doc = await PaymentModel.create({
     _id: uuidv4(),

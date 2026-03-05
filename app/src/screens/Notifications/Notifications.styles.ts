@@ -1,7 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing } from '../../theme';
 
-export const styles = StyleSheet.create({
+import { ThemeUtils } from '../../hooks/useThemedStyles';
+
+export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.xl, paddingVertical: spacing.md },
   backBtn: { width: 36, height: 36, justifyContent: 'center', alignItems: 'center' },

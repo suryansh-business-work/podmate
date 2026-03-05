@@ -1,11 +1,14 @@
 import React, { useRef, useCallback } from 'react';
-import { TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity, Animated} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import type { ChatbotFabProps } from './ChatbotFab.types';
+import { useThemedStyles, useAppColors, ThemeUtils } from '../../hooks/useThemedStyles';
 
 const ChatbotFab: React.FC<ChatbotFabProps> = ({ onPress }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
@@ -44,7 +47,7 @@ const ChatbotFab: React.FC<ChatbotFabProps> = ({ onPress }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: {
     position: 'absolute',
     bottom: 90,

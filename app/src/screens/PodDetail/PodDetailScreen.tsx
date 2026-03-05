@@ -6,12 +6,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { SkeletonDetail } from '../../components/Skeleton';
 import SafeImage from '../../components/SafeImage';
 import { GET_POD, GET_ME, GET_APP_CONFIG } from '../../graphql/queries';
 import { PodDetailScreenProps, PodAttendee } from './PodDetail.types';
-import styles from './PodDetail.styles';
+import { createStyles } from './PodDetail.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v'];
 const SCREEN_W = Dimensions.get('window').width;
@@ -22,6 +23,8 @@ function isVideoUrl(url: string): boolean {
 }
 
 const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onCheckout, onReviews, onGoLive, onUserProfile }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { data, loading, error, refetch } = useQuery(GET_POD, { variables: { id: podId }, skip: !podId });
   const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const { data: configData } = useQuery(GET_APP_CONFIG, {
@@ -383,7 +386,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
           <Text style={styles.perPerson}>/ person</Text>
         </View>
         {isJoined ? (
-          <View style={[styles.joinButton, { backgroundColor: colors.success, justifyContent: 'center', alignItems: 'center', borderRadius: 12 }]}>
+          <View style={[styles.joinButton, { backgroundColor: colors.success, justifyContent: 'center', alignItems: 'center', borderRadius: 12, paddingHorizontal: 24, paddingVertical: 16 }]}>
             <Text style={[styles.joinText, { color: colors.white }]}>✓ Joined</Text>
           </View>
         ) : (

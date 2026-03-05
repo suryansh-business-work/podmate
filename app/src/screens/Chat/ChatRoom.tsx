@@ -14,16 +14,17 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useQuery, useMutation } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_CHAT_MESSAGES } from '../../graphql/queries';
 import { SEND_MESSAGE } from '../../graphql/mutations';
 import { resolveWsUrl } from '../../graphql/client';
 import { useImageKitUpload } from '../../hooks/useImageKitUpload';
 import { ChatRoomProps, ChatMessage } from './Chat.types';
-import { styles } from './Chat.styles';
+import { createStyles } from './Chat.styles';
 import MediaPreview from './MediaPreview';
 import MessageBubble from './MessageBubble';
 import ChatInputBar from './ChatInputBar';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 /* ── Helpers ── */
 
@@ -69,6 +70,8 @@ function buildListItems(messages: ChatMessage[], myUserId: string): ListItem[] {
 /* ── Component ── */
 
 const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [messageText, setMessageText] = useState('');
   const [wsMessages, setWsMessages] = useState<ChatMessage[]>([]);
   const [previewMedia, setPreviewMedia] = useState<{ uri: string; type: 'IMAGE' | 'VIDEO' } | null>(null);

@@ -1,9 +1,10 @@
 import React, { memo } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import type { Review as ReviewType } from './Reviews.types';
-import { styles } from './Reviews.styles';
+import { createStyles } from './Reviews.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface ReviewCardProps {
   review: ReviewType;
@@ -11,7 +12,9 @@ interface ReviewCardProps {
   onReport: (reviewId: string) => void;
 }
 
-const Stars: React.FC<{ rating: number; size?: number }> = ({ rating, size = 14 }) => (
+const Stars: React.FC<{ rating: number; size?: number }> = ({ rating, size = 14 }) => {
+  const colors = useAppColors();
+  return (
   <View style={{ flexDirection: 'row', gap: 1 }}>
     {[1, 2, 3, 4, 5].map((i) => (
       <MaterialIcons
@@ -23,8 +26,11 @@ const Stars: React.FC<{ rating: number; size?: number }> = ({ rating, size = 14 
     ))}
   </View>
 );
+};
 
 const ReviewCard: React.FC<ReviewCardProps> = memo(({ review, onReply, onReport }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const timeAgo = new Date(review.createdAt).toLocaleDateString();
 
   return (

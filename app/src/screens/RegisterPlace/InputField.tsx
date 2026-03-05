@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, TextInput } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing } from '../../theme';
-import styles from './RegisterPlace.styles';
+import { spacing } from '../../theme';
+import { createStyles } from './RegisterPlace.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface InputFieldProps {
   label: string;
@@ -19,7 +20,10 @@ interface InputFieldProps {
 
 const InputField: React.FC<InputFieldProps> = ({
   label, icon, value, onChangeText, onBlur, error, placeholder, multiline, numberOfLines, keyboardType,
-}) => (
+}) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
+  return (
   <View style={styles.fieldContainer}>
     <Text style={styles.fieldLabel}>{label}</Text>
     <View style={[styles.inputRow, error ? styles.inputRowError : null]}>
@@ -39,5 +43,6 @@ const InputField: React.FC<InputFieldProps> = ({
     {error ? <Text style={styles.errorText}>{error}</Text> : null}
   </View>
 );
+}
 
 export default InputField;

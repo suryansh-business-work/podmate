@@ -6,13 +6,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing } from '../../theme';
+import { spacing } from '../../theme';
 import { GET_ME } from '../../graphql/queries';
 import { useThemeMode } from '../../contexts/ThemeContext';
 import { DrawerMenuProps, NavItem, MAIN_NAV, QUICK_ACTIONS, ACCOUNT_ITEMS } from './DrawerMenu.types';
-import styles from './DrawerMenu.styles';
+import { createStyles } from './DrawerMenu.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { data, loading } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const user = data?.me;
   const { isDark, toggleTheme } = useThemeMode();

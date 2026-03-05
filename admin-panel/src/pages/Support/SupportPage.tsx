@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import {
   Box, Typography, TextField, MenuItem, CircularProgress,
-  Alert, InputAdornment, Breadcrumbs, Link, Button,
+  Alert, InputAdornment, Breadcrumbs, Link, Button, Tabs, Tab,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import AddIcon from '@mui/icons-material/Add';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import PhoneCallbackIcon from '@mui/icons-material/PhoneCallback';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_SUPPORT_TICKETS, GET_SUPPORT_TICKET_COUNTS } from '../../graphql/queries';
 import { UPDATE_SUPPORT_TICKET, DELETE_SUPPORT_TICKET } from '../../graphql/mutations';
@@ -16,8 +18,22 @@ import StatusCounts from './StatusCounts';
 import ViewTicketDialog from './ViewTicketDialog';
 import EditTicketDialog from './EditTicketDialog';
 import CreateTicketDialog from './CreateTicketDialog';
+import CallbackRequestsTab from './CallbackRequestsTab';
+
+interface TabPanelProps {
+  children: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => (
+  <Box role="tabpanel" hidden={value !== index} sx={{ pt: 3 }}>
+    {value === index && children}
+  </Box>
+);
 
 const SupportPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchInput, setSearchInput] = useState('');
@@ -105,85 +121,98 @@ const SupportPage: React.FC = () => {
         <Link underline="hover" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} color="inherit">
           <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" /> Dashboard
         </Link>
-        <Typography color="text.primary" fontWeight={600}>Support Tickets</Typography>
+        <Typography color="text.primary" fontWeight={600}>Support & Callbacks</Typography>
       </Breadcrumbs>
 
-      <Typography variant="h5" fontWeight={700} mb={3}>Support Tickets</Typography>
+      <Typography variant="h5" fontWeight={700} mb={2}>Support & Callbacks</Typography>
 
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
-          Create Ticket
-        </Button>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs value={activeTab} onChange={(_, v: number) => setActiveTab(v)}>
+          <Tab icon={<SupportAgentIcon />} iconPosition="start" label="Support Tickets" />
+          <Tab icon={<PhoneCallbackIcon />} iconPosition="start" label="Callback Requests" />
+        </Tabs>
       </Box>
 
-      {counts && (
-        <StatusCounts
-          open={counts.open}
-          inProgress={counts.inProgress}
-          resolved={counts.resolved}
-          closed={counts.closed}
+      <TabPanel value={activeTab} index={0}>
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+            Create Ticket
+          </Button>
+        </Box>
+
+        {counts && (
+          <StatusCounts
+            open={counts.open}
+            inProgress={counts.inProgress}
+            resolved={counts.resolved}
+            closed={counts.closed}
+          />
+        )}
+
+        <Box display="flex" gap={2} mb={3} flexWrap="wrap">
+          <TextField
+            size="small"
+            placeholder="Search tickets…"
+            value={searchInput}
+            onChange={(e) => { setSearchInput(e.target.value); setPage(0); }}
+            slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
+            sx={{ minWidth: 250 }}
+          />
+          <TextField
+            select size="small" label="Status" value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="OPEN">Open</MenuItem>
+            <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
+            <MenuItem value="RESOLVED">Resolved</MenuItem>
+            <MenuItem value="CLOSED">Closed</MenuItem>
+          </TextField>
+          <TextField
+            select size="small" label="Priority" value={priorityFilter}
+            onChange={(e) => { setPriorityFilter(e.target.value); setPage(0); }}
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="LOW">Low</MenuItem>
+            <MenuItem value="MEDIUM">Medium</MenuItem>
+            <MenuItem value="HIGH">High</MenuItem>
+          </TextField>
+        </Box>
+
+        {loading && !data && <Box display="flex" justifyContent="center" py={6}><CircularProgress /></Box>}
+        {!loading && tickets.length === 0 && <Alert severity="info">No support tickets found.</Alert>}
+
+        {tickets.length > 0 && (
+          <SupportTable
+            tickets={tickets}
+            total={total}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            sortBy={sortBy}
+            order={order}
+            onSort={handleSort}
+            onPageChange={setPage}
+            onRowsPerPageChange={(size) => { setRowsPerPage(size); setPage(0); }}
+            onView={setViewTicket}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
+
+        <ViewTicketDialog ticket={viewTicket} onClose={() => setViewTicket(null)} onReply={handleEdit} onRefetch={() => refetch()} />
+        <EditTicketDialog
+          ticket={editTicket} replyText={replyText} newStatus={newStatus} newPriority={newPriority} updating={updating}
+          onReplyChange={setReplyText} onStatusChange={setNewStatus} onPriorityChange={setNewPriority}
+          onSave={handleSaveEdit} onClose={() => setEditTicket(null)}
         />
-      )}
+        <CreateTicketDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={() => refetch()} />
+      </TabPanel>
 
-      <Box display="flex" gap={2} mb={3} flexWrap="wrap">
-        <TextField
-          size="small"
-          placeholder="Search tickets…"
-          value={searchInput}
-          onChange={(e) => { setSearchInput(e.target.value); setPage(0); }}
-          slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
-          sx={{ minWidth: 250 }}
-        />
-        <TextField
-          select size="small" label="Status" value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
-          sx={{ minWidth: 150 }}
-        >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="OPEN">Open</MenuItem>
-          <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-          <MenuItem value="RESOLVED">Resolved</MenuItem>
-          <MenuItem value="CLOSED">Closed</MenuItem>
-        </TextField>
-        <TextField
-          select size="small" label="Priority" value={priorityFilter}
-          onChange={(e) => { setPriorityFilter(e.target.value); setPage(0); }}
-          sx={{ minWidth: 150 }}
-        >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="LOW">Low</MenuItem>
-          <MenuItem value="MEDIUM">Medium</MenuItem>
-          <MenuItem value="HIGH">High</MenuItem>
-        </TextField>
-      </Box>
-
-      {loading && !data && <Box display="flex" justifyContent="center" py={6}><CircularProgress /></Box>}
-      {!loading && tickets.length === 0 && <Alert severity="info">No support tickets found.</Alert>}
-
-      {tickets.length > 0 && (
-        <SupportTable
-          tickets={tickets}
-          total={total}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          sortBy={sortBy}
-          order={order}
-          onSort={handleSort}
-          onPageChange={setPage}
-          onRowsPerPageChange={(size) => { setRowsPerPage(size); setPage(0); }}
-          onView={setViewTicket}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
-
-      <ViewTicketDialog ticket={viewTicket} onClose={() => setViewTicket(null)} onReply={handleEdit} onRefetch={() => refetch()} />
-      <EditTicketDialog
-        ticket={editTicket} replyText={replyText} newStatus={newStatus} newPriority={newPriority} updating={updating}
-        onReplyChange={setReplyText} onStatusChange={setNewStatus} onPriorityChange={setNewPriority}
-        onSave={handleSaveEdit} onClose={() => setEditTicket(null)}
-      />
-      <CreateTicketDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={() => refetch()} />
+      <TabPanel value={activeTab} index={1}>
+        <CallbackRequestsTab />
+      </TabPanel>
     </Box>
   );
 };

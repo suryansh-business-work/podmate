@@ -3,9 +3,10 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import SafeImage from '../../components/SafeImage';
-import { colors } from '../../theme';
+
 import { MessageBubbleProps } from './Chat.types';
-import { styles } from './Chat.styles';
+import { createStyles } from './Chat.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const formatTime = (iso: string): string =>
   new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -17,6 +18,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   showSenderName,
   onPreviewMedia,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const isMedia = item.messageType === 'IMAGE' || item.messageType === 'VIDEO';
 
   const videoSource = useMemo(

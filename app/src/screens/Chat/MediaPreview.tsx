@@ -2,8 +2,9 @@ import React, { useMemo } from 'react';
 import { View, Image, TouchableOpacity, Modal } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { colors } from '../../theme';
-import { pvStyles } from './Chat.styles';
+
+import { createPvStyles } from './Chat.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface MediaPreviewProps {
   visible: boolean;
@@ -13,6 +14,8 @@ interface MediaPreviewProps {
 }
 
 const MediaPreview: React.FC<MediaPreviewProps> = ({ visible, uri, type, onClose }) => {
+  const pvStyles = useThemedStyles(createPvStyles);
+  const colors = useAppColors();
   const videoSource = useMemo(() => type === 'VIDEO' && uri ? { uri } : null, [type, uri]);
   const player = useVideoPlayer(videoSource, (p) => { p.play(); });
 

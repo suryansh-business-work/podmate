@@ -10,10 +10,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_MY_PAYMENTS } from '../../graphql/queries';
 import { PaymentItem, PaymentsScreenProps } from './Payments.types';
-import styles from './Payments.styles';
+import { createStyles } from './Payments.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface PaymentsResponse {
   myPayments: {
@@ -24,17 +25,20 @@ interface PaymentsResponse {
   };
 }
 
-const TYPE_CONFIG: Record<string, { icon: string; label: string; color: string; bgColor: string }> = {
-  PAYMENT: { icon: 'arrow-upward', label: 'Payment', color: colors.primary, bgColor: colors.primary + '15' },
-  REFUND: { icon: 'arrow-downward', label: 'Refund', color: colors.success, bgColor: colors.success + '15' },
-  PARTIAL_REFUND: { icon: 'swap-vert', label: 'Partial Refund', color: colors.warning, bgColor: colors.warning + '15' },
-};
+interface TypeConfigItem { icon: string; label: string; color: string; bgColor: string }
+interface StatusConfigItem { bg: string; color: string }
 
-const STATUS_CONFIG: Record<string, { bg: string; color: string }> = {
-  COMPLETED: { bg: colors.success + '20', color: colors.success },
-  PENDING: { bg: colors.warning + '20', color: colors.warning },
-  FAILED: { bg: colors.error + '20', color: colors.error },
-};
+const getTypeConfig = (c: Record<string, string>): Record<string, TypeConfigItem> => ({
+  PAYMENT: { icon: 'arrow-upward', label: 'Payment', color: c.primary, bgColor: c.primary + '15' },
+  REFUND: { icon: 'arrow-downward', label: 'Refund', color: c.success, bgColor: c.success + '15' },
+  PARTIAL_REFUND: { icon: 'swap-vert', label: 'Partial Refund', color: c.warning, bgColor: c.warning + '15' },
+});
+
+const getStatusConfig = (c: Record<string, string>): Record<string, StatusConfigItem> => ({
+  COMPLETED: { bg: c.success + '20', color: c.success },
+  PENDING: { bg: c.warning + '20', color: c.warning },
+  FAILED: { bg: c.error + '20', color: c.error },
+});
 
 const formatDate = (dateStr: string): string => {
   const date = new Date(dateStr);
@@ -46,6 +50,8 @@ const formatDate = (dateStr: string): string => {
 };
 
 const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [page] = useState(1);
 
   const { data, loading, error, refetch } = useQuery<PaymentsResponse>(
@@ -66,8 +72,10 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ onBack }) => {
   }, [refetch]);
 
   const renderPaymentCard = ({ item }: { item: PaymentItem }) => {
+    const TYPE_CONFIG = getTypeConfig(colors as unknown as Record<string, string>);
+    const STATUS_CONFIG_MAP = getStatusConfig(colors as unknown as Record<string, string>);
     const typeConf = TYPE_CONFIG[item.type] ?? TYPE_CONFIG.PAYMENT;
-    const statusConf = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.PENDING;
+    const statusConf = STATUS_CONFIG_MAP[item.status] ?? STATUS_CONFIG_MAP.PENDING;
     const isRefund = item.type === 'REFUND' || item.type === 'PARTIAL_REFUND';
 
     return (

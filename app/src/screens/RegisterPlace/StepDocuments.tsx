@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GradientButton } from '../../components/GradientButton';
-import styles from './RegisterPlace.styles';
+import { createStyles } from './RegisterPlace.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface StepDocumentsProps {
   businessLicenseUrl: string;
@@ -18,7 +19,10 @@ interface StepDocumentsProps {
 const StepDocuments: React.FC<StepDocumentsProps> = ({
   businessLicenseUrl, permitsUrl, uploading, progress,
   onUploadLicense, onUploadPermits, onContinue,
-}) => (
+}) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
+  return (
   <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
     <Text style={styles.sectionTitle}>Upload Documents</Text>
     <Text style={styles.helperText}>
@@ -58,5 +62,6 @@ const StepDocuments: React.FC<StepDocumentsProps> = ({
     </View>
   </ScrollView>
 );
+}
 
 export default StepDocuments;

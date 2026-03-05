@@ -3,15 +3,18 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Ref
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_MY_SUPPORT_TICKETS } from '../../graphql/queries';
 import { CREATE_SUPPORT_TICKET } from '../../graphql/mutations';
 import { SupportTicket, SupportScreenProps } from './Support.types';
 import TicketForm from './TicketForm';
 import TicketCard from './TicketCard';
-import styles from './Support.styles';
+import { createStyles } from './Support.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const SupportScreen: React.FC<SupportScreenProps> = ({ onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [showForm, setShowForm] = useState(false);
 
   const { data, loading, refetch } = useQuery<{ mySupportTickets: SupportTicket[] }>(

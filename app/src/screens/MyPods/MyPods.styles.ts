@@ -1,7 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
 
-const styles = StyleSheet.create({
+import { ThemeUtils } from '../../hooks/useThemedStyles';
+
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   header: {
     flexDirection: 'row',
@@ -52,4 +53,4 @@ const styles = StyleSheet.create({
   statusText: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
 });
 
-export default styles;
+export { createStyles };

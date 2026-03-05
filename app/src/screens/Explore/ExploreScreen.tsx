@@ -3,15 +3,18 @@ import { View, Text, FlatList, StatusBar, ActivityIndicator, RefreshControl } fr
 import { useQuery } from '@apollo/client';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing } from '../../theme';
+import { spacing } from '../../theme';
 import { GET_PODS, GET_ME } from '../../graphql/queries';
 import { Pod, ExploreScreenProps } from './Explore.types';
-import { styles, getSlideHeight } from './Explore.styles';
+import { createStyles, getSlideHeight } from './Explore.styles';
 import PodCard from './PodCard';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const PAGE_SIZE = 20;
 
 const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress, onCheckout }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [activeCategory, setActiveCategory] = useState('All');
   const tabBarHeight = useBottomTabBarHeight();
   const slideHeight = getSlideHeight(tabBarHeight);

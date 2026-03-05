@@ -1,7 +1,7 @@
 import { StyleSheet, Platform } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
+import { ThemeUtils } from '../../hooks/useThemedStyles';
 
-export const styles = StyleSheet.create({
+export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   content: { flex: 1, paddingHorizontal: spacing.xl },
   topSection: { paddingTop: 60, flex: 1 },

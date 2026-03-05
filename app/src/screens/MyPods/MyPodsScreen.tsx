@@ -10,20 +10,23 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import SafeImage from '../../components/SafeImage';
 import { GET_MY_PODS } from '../../graphql/queries';
 import { MyPodItem, MyPodsScreenProps } from './MyPods.types';
-import styles from './MyPods.styles';
+import { createStyles } from './MyPods.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
-const STATUS_CONFIG: Record<string, { bg: string; color: string }> = {
+const getStatusConfig = (colors: Record<string, string>): Record<string, { bg: string; color: string }> => ({
   CONFIRMED: { bg: colors.success + '20', color: colors.success },
   PENDING: { bg: colors.warning + '20', color: colors.warning },
   NEW: { bg: colors.primary + '20', color: colors.primary },
   CANCELLED: { bg: colors.error + '20', color: colors.error },
-};
+});
 
 const MyPodsScreen: React.FC<MyPodsScreenProps> = ({ onBack, onPodPress }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { data, loading, error, refetch } = useQuery<{ myPods: MyPodItem[] }>(
     GET_MY_PODS,
     { fetchPolicy: 'cache-and-network' },
@@ -39,6 +42,7 @@ const MyPodsScreen: React.FC<MyPodsScreenProps> = ({ onBack, onPodPress }) => {
   }, [refetch]);
 
   const renderPodCard = ({ item }: { item: MyPodItem }) => {
+    const STATUS_CONFIG = getStatusConfig(colors as unknown as Record<string, string>);
     const statusConf = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.PENDING;
     return (
       <TouchableOpacity

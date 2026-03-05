@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import {
   PrivacySecurityScreenProps,
   SettingRowItem,
@@ -17,9 +17,12 @@ import {
   SECURITY_SETTINGS,
   ACCOUNT_ACTIONS,
 } from './PrivacySecurity.types';
-import styles from './PrivacySecurity.styles';
+import { createStyles } from './PrivacySecurity.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const PrivacySecurityScreen: React.FC<PrivacySecurityScreenProps> = ({ onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [toggles, setToggles] = useState<Record<string, boolean>>({
     profile_visibility: true,
     hide_location: false,

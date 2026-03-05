@@ -6,16 +6,19 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_USER_PROFILE, GET_USER_PODS, GET_FOLLOW_STATS } from '../../graphql/queries';
 import { FOLLOW_USER, UNFOLLOW_USER } from '../../graphql/mutations';
 import type { UserProfileScreenProps, UserProfileUser, UserProfilePod } from './UserProfile.types';
 import type { FollowStats } from '../FollowList/FollowList.types';
-import { styles } from './UserProfile.styles';
+import { createStyles } from './UserProfile.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
   userId, onBack, onPodPress, onFollowers, onFollowing,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { data: userData, loading: loadingUser } = useQuery<{ userProfile: UserProfileUser }>(
     GET_USER_PROFILE,
     { variables: { userId } },

@@ -29,7 +29,8 @@ import NetworkBanner from '../components/NetworkBanner';
 import MainTabs from './MainTabs';
 import DrawerMenu from '../components/DrawerMenu';
 import { RootStackParamList } from './RootNavigator.types';
-import { drawerStyles } from './RootNavigator.styles';
+import { createDrawerStyles } from './RootNavigator.styles';
+import { useThemedStyles } from '../hooks/useThemedStyles';
 import { useAuth } from './hooks/useAuth';
 import { useDrawer, DRAWER_WIDTH } from './hooks/useDrawer';
 
@@ -40,6 +41,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator: React.FC = () => {
   const auth = useAuth();
   const drawer = useDrawer();
+  const drawerStyles = useThemedStyles(createDrawerStyles);
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   useEffect(() => {

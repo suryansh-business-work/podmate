@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, Animated, TouchableOpacity } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '../../theme';
+import { useThemedStyles, useAppColors, ThemeUtils } from '../../hooks/useThemedStyles';
+
 
 const NetworkBanner: React.FC = () => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const insets = useSafeAreaInsets();
   const [isConnected, setIsConnected] = useState(true);
   const [wasDisconnected, setWasDisconnected] = useState(false);
@@ -89,7 +92,7 @@ const NetworkBanner: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: {
     position: 'absolute',
     top: 0,

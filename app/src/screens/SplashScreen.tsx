@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Animated, Dimensions } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors } from '../theme';
+import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
@@ -15,6 +15,8 @@ interface SplashScreenProps {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const logoOpacity = useRef(new Animated.Value(0)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const finishedRef = useRef(false);
@@ -62,7 +64,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.black },
   video: { width: SCREEN_W, height: SCREEN_H, position: 'absolute', top: 0, left: 0 },
   logoWrap: { position: 'absolute', bottom: 48, alignSelf: 'center', alignItems: 'center', gap: 8 },

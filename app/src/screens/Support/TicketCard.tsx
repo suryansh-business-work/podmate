@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useMutation } from '@apollo/client';
-import { colors, spacing, borderRadius } from '../../theme';
+import { spacing, borderRadius } from '../../theme';
 import { REPLY_SUPPORT_TICKET } from '../../graphql/mutations';
 import { GET_MY_SUPPORT_TICKETS } from '../../graphql/queries';
 import { SupportTicket, TicketReply, STATUS_COLORS } from './Support.types';
-import styles from './Support.styles';
+import { createStyles } from './Support.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface TicketCardProps {
   ticket: SupportTicket;
 }
 
 const ReplyBubble: React.FC<{ reply: TicketReply }> = ({ reply }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const isAdmin = reply.senderRole === 'ADMIN';
   return (
     <View
@@ -44,6 +47,8 @@ const ReplyBubble: React.FC<{ reply: TicketReply }> = ({ reply }) => {
 };
 
 const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [expanded, setExpanded] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [replyTicket, { loading: replying }] = useMutation(REPLY_SUPPORT_TICKET, {

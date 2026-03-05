@@ -9,10 +9,11 @@ import {
 } from 'react-native';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_POLICIES } from '../../graphql/queries';
 import { Policy } from './Login.types';
-import { styles } from './Login.styles';
+import { createStyles } from './Login.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface PolicyModalProps {
   policyType: 'USER' | 'VENUE' | 'HOST' | null;
@@ -26,6 +27,8 @@ const MODAL_TITLES: Record<string, string> = {
 };
 
 const PolicyModal: React.FC<PolicyModalProps> = ({ policyType, onClose }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { data, loading } = useQuery<{ policies: Policy[] }>(GET_POLICIES, {
     variables: { type: policyType },
     skip: !policyType,

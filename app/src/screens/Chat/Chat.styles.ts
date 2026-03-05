@@ -1,5 +1,5 @@
 import { StyleSheet, Platform, Dimensions } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
+import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 export const MEDIA_MAX_WIDTH = SCREEN_WIDTH * 0.6;
@@ -11,7 +11,7 @@ const INPUT_MAX_HEIGHT = 100;
 const SEND_BTN_SIZE = 40;
 
 /* ── Chat list (pod selector) ── */
-export const styles = StyleSheet.create({
+export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   /* Shared */
   container: { flex: 1, backgroundColor: colors.white },
   centered: {
@@ -260,7 +260,7 @@ export const styles = StyleSheet.create({
 });
 
 /* ─── Media preview modal ─── */
-export const pvStyles = StyleSheet.create({
+export const createPvStyles = ({ colors }: ThemeUtils) => StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.92)',

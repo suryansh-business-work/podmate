@@ -7,9 +7,18 @@ export interface Policy {
   createdAt: string;
 }
 
+export type TabKey = 'faq' | 'user' | 'venue' | 'host' | 'support' | 'callback';
+
 export interface FaqScreenProps {
   onBack: () => void;
-  initialTab?: 'faq' | 'user' | 'venue' | 'host';
+  onNavigateSupport?: () => void;
+  initialTab?: TabKey;
+}
+
+export interface TabItem {
+  key: TabKey;
+  label: string;
+  icon: string;
 }
 
 export const FAQ_ITEMS = [
@@ -21,9 +30,11 @@ export const FAQ_ITEMS = [
   { q: 'How do I contact support?', a: 'Visit the Help & Support section in your profile or use the Support page to submit a query.' },
 ];
 
-export const TABS: { key: 'faq' | 'user' | 'venue' | 'host'; label: string; icon: string }[] = [
+export const TABS: TabItem[] = [
   { key: 'faq', label: 'FAQs', icon: 'help-outline' },
   { key: 'user', label: 'User Policy', icon: 'person' },
   { key: 'venue', label: 'Venue Policy', icon: 'place' },
   { key: 'host', label: 'Host Policy', icon: 'verified-user' },
+  { key: 'support', label: 'Support Tickets', icon: 'support-agent' },
+  { key: 'callback', label: 'Request Callback', icon: 'phone-callback' },
 ];

@@ -5,15 +5,18 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_FOLLOWERS, GET_FOLLOWING } from '../../graphql/queries';
 import { FOLLOW_USER, UNFOLLOW_USER } from '../../graphql/mutations';
 import type { FollowListScreenProps, Follow, FollowTab, FollowUser } from './FollowList.types';
-import { styles } from './FollowList.styles';
+import { createStyles } from './FollowList.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const FollowListScreen: React.FC<FollowListScreenProps> = ({
   userId, userName, initialTab = 'followers', onBack, onUserPress,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [activeTab, setActiveTab] = useState<FollowTab>(initialTab);
 
   const { data: followersData, loading: loadingFollowers, refetch: refetchFollowers } = useQuery<{

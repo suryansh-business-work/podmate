@@ -4,13 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { SkeletonProfile } from '../../components/Skeleton';
 import { GET_ME, GET_MY_PODS } from '../../graphql/queries';
 import { ProfileScreenProps, MENU_ITEMS } from './Profile.types';
-import { styles } from './Profile.styles';
+import { createStyles } from './Profile.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout, onNavigate }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { data: meData, loading: meLoading, error: meError, refetch: refetchMe } = useQuery(GET_ME, { fetchPolicy: 'cache-and-network' });
   const { data: podsData, refetch: refetchPods } = useQuery(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
 

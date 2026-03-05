@@ -474,3 +474,24 @@ export const DELETE_PLATFORM_FEE_OVERRIDE = gql`
     deletePlatformFeeOverride(id: $id)
   }
 `;
+
+/* ── Callback Requests ── */
+
+export const UPDATE_CALLBACK_REQUEST = gql`
+  mutation UpdateCallbackRequest($id: ID!, $input: UpdateCallbackRequestInput!) {
+    updateCallbackRequest(id: $id, input: $input) {
+      id
+      status
+      adminNote
+      scheduledAt
+      completedAt
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_CALLBACK_REQUEST = gql`
+  mutation DeleteCallbackRequest($id: ID!) {
+    deleteCallbackRequest(id: $id)
+  }
+`;

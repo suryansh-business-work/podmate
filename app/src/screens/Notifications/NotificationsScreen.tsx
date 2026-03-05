@@ -6,11 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { colors } from '../../theme';
+
 import { GET_NOTIFICATIONS } from '../../graphql/queries';
 import { MARK_NOTIFICATION_READ, MARK_ALL_NOTIFICATIONS_READ } from '../../graphql/mutations';
 import { Notification, NotificationsScreenProps, NOTIFICATION_ICON_MAP } from './Notifications.types';
-import { styles } from './Notifications.styles';
+import { createStyles } from './Notifications.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface NotificationsResponse {
   notifications: {
@@ -34,6 +35,8 @@ const formatTimeAgo = (dateStr: string): string => {
 };
 
 const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { data, loading, error, refetch } = useQuery<NotificationsResponse>(GET_NOTIFICATIONS, {
     variables: { page: 1, limit: 50 },
     fetchPolicy: 'cache-and-network',

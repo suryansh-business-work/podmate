@@ -13,7 +13,7 @@ import {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { FormikProps } from 'formik';
 import { useQuery } from '@apollo/client';
-import { colors } from '../../theme';
+
 import { GradientButton } from '../../components/GradientButton';
 import MediaUploader, { MediaItem } from '../../components/MediaUploader';
 import { GET_APPROVED_PLACES, GET_APP_CONFIG } from '../../graphql/queries';
@@ -21,7 +21,8 @@ import { useLocation } from '../../hooks/useLocation';
 import { PodFormValues, ApprovedPlace, CATEGORIES } from './CreatePod.types';
 import PayoutCard from './PayoutCard';
 import LogisticsSection from './LogisticsSection';
-import styles from './CreatePod.styles';
+import { createStyles } from './CreatePod.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface PodFormBodyProps {
   formik: FormikProps<PodFormValues>;
@@ -52,6 +53,8 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
   onDismissDatePicker,
   onDismissTimePicker,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const {
     handleChange, handleBlur, handleSubmit, values,
     errors, touched, isValid, dirty, setFieldValue,

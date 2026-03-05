@@ -1,9 +1,9 @@
 import { StyleSheet, Dimensions } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
+import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 const { width } = Dimensions.get('window');
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   scrollView: { flex: 1 },
   heroContainer: { height: 280, position: 'relative' },
@@ -53,4 +53,4 @@ const styles = StyleSheet.create({
   joinText: { color: colors.white, fontSize: 16, fontWeight: '700' },
 });
 
-export default styles;
+export { createStyles };

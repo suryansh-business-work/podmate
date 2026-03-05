@@ -6,9 +6,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { colors } from '../../theme';
+
 import { GradientButton } from '../../components/GradientButton';
-import styles from './CompleteProfile.styles';
+import { createStyles } from './CompleteProfile.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface CompleteProfileScreenProps {
   onComplete: (username: string, name: string, dob: string) => void | Promise<void>;
@@ -39,6 +40,8 @@ const formatDob = (date: Date): string =>
   date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
 const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({ onComplete }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [submitting, setSubmitting] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
 

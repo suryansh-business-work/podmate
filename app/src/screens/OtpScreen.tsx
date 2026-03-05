@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing } from '../theme';
+import { spacing } from '../theme';
 import { OtpInput } from '../components/OtpInput';
 import { GradientButton } from '../components/GradientButton';
+import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 
 interface OtpScreenProps {
   phone: string;
@@ -16,6 +17,8 @@ interface OtpScreenProps {
 }
 
 const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, onResend, loading, error }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
@@ -94,7 +97,7 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, onResend
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.white,

@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing } from '../../theme';
+import { spacing } from '../../theme';
 import { GradientButton } from '../../components/GradientButton';
 import { PolicyItem } from './RegisterPlace.types';
-import styles from './RegisterPlace.styles';
+import { createStyles } from './RegisterPlace.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface StepPoliciesProps {
   policies: PolicyItem[];
@@ -21,6 +22,8 @@ const StepPolicies: React.FC<StepPoliciesProps> = ({
   policies, policiesLoading, policiesAccepted, hasScrolledPolicies, submitting,
   onToggleAccepted, onScrolledToBottom, onSubmit,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const layoutHeightRef = useRef(0);
 
   return (

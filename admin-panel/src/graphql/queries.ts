@@ -513,3 +513,46 @@ export const GET_PLATFORM_FEE_OVERRIDES = gql`
     }
   }
 `;
+
+/* ── Callback Requests ── */
+
+export const GET_CALLBACK_REQUESTS = gql`
+  query GetCallbackRequests($page: Int, $limit: Int, $search: String, $status: String, $sortBy: String, $order: String) {
+    callbackRequests(page: $page, limit: $limit, search: $search, status: $status, sortBy: $sortBy, order: $order) {
+      items {
+        id
+        userId
+        user {
+          id
+          name
+          phone
+        }
+        phone
+        reason
+        preferredTime
+        status
+        adminNote
+        scheduledAt
+        completedAt
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;
+
+export const GET_CALLBACK_REQUEST_COUNTS = gql`
+  query GetCallbackRequestCounts {
+    callbackRequestCounts {
+      pending
+      scheduled
+      completed
+      cancelled
+      total
+    }
+  }
+`;

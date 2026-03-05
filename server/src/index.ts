@@ -48,6 +48,8 @@ import podIdeaTypeDefs from './modules/podIdea/podIdea.typeDefs';
 import podIdeaResolvers from './modules/podIdea/podIdea.resolvers';
 import goLiveTypeDefs from './modules/goLive/goLive.typeDefs';
 import goLiveResolvers from './modules/goLive/goLive.resolvers';
+import callbackTypeDefs from './modules/callback/callback.typeDefs';
+import callbackResolvers from './modules/callback/callback.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -105,6 +107,10 @@ const rootSchema = `#graphql
     myPodIdeas: [PodIdea!]!
     activeLiveSessions(page: Int, limit: Int): PaginatedLiveSessions!
     liveSessionForPod(podId: ID!): LiveSession
+    myCallbackRequests: [CallbackRequest!]!
+    callbackRequest(id: ID!): CallbackRequest
+    callbackRequests(page: Int, limit: Int, search: String, status: String, sortBy: String, order: String): PaginatedCallbackRequests!
+    callbackRequestCounts: CallbackRequestCounts!
   }
 
   type Mutation {
@@ -191,10 +197,13 @@ const rootSchema = `#graphql
     endLiveSession(id: ID!): LiveSession!
     joinLiveSession(id: ID!): LiveSession!
     leaveLiveSession(id: ID!): LiveSession!
+    requestCallback(input: CreateCallbackRequestInput!): CallbackRequest!
+    updateCallbackRequest(id: ID!, input: UpdateCallbackRequestInput!): CallbackRequest!
+    deleteCallbackRequest(id: ID!): Boolean!
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs, notificationTypeDefs, platformFeeTypeDefs, reviewTypeDefs, followTypeDefs, feedbackTypeDefs, podIdeaTypeDefs, goLiveTypeDefs];
+const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs, notificationTypeDefs, platformFeeTypeDefs, reviewTypeDefs, followTypeDefs, feedbackTypeDefs, podIdeaTypeDefs, goLiveTypeDefs, callbackTypeDefs];
 
 const resolvers = {
   Query: {
@@ -216,6 +225,7 @@ const resolvers = {
     ...feedbackResolvers.Query,
     ...podIdeaResolvers.Query,
     ...goLiveResolvers.Query,
+    ...callbackResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -237,6 +247,7 @@ const resolvers = {
     ...feedbackResolvers.Mutation,
     ...podIdeaResolvers.Mutation,
     ...goLiveResolvers.Mutation,
+    ...callbackResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   Review: reviewResolvers.Review,
@@ -248,6 +259,7 @@ const resolvers = {
   Place: placeResolvers.Place,
   SupportTicket: supportResolvers.SupportTicket,
   TicketReply: supportResolvers.TicketReply,
+  CallbackRequest: callbackResolvers.CallbackRequest,
   User: userResolvers.User,
   Payment: paymentResolvers.Payment,
 };

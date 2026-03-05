@@ -1,7 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
 
-const styles = StyleSheet.create({
+import { ThemeUtils } from '../../hooks/useThemedStyles';
+
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   header: {
     flexDirection: 'row',
@@ -64,4 +65,4 @@ const styles = StyleSheet.create({
   notesText: { fontSize: 12, color: colors.textSecondary, fontStyle: 'italic' },
 });
 
-export default styles;
+export { createStyles };

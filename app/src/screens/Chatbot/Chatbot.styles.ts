@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
+import { ThemeUtils } from '../../hooks/useThemedStyles';
 
-export const chatbotStyles = StyleSheet.create({
+export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

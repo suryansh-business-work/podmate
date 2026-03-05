@@ -1,15 +1,19 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
-import styles from './RegisterPlace.styles';
+
+import { createStyles } from './RegisterPlace.styles';
 import { STEPS } from './RegisterPlace.types';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface StepIndicatorProps {
   step: number;
 }
 
-const StepIndicator: React.FC<StepIndicatorProps> = ({ step }) => (
+const StepIndicator: React.FC<StepIndicatorProps> = ({ step }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
+  return (
   <View style={styles.stepIndicator}>
     {STEPS.map((label, i) => (
       <View key={label} style={styles.stepItem}>
@@ -28,5 +32,6 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ step }) => (
     ))}
   </View>
 );
+}
 
 export default StepIndicator;

@@ -5,13 +5,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { SEND_INVITES } from '../../graphql/mutations';
 import type { ContactPickerProps, DeviceContact } from './ContactPicker.types';
 import { useDeviceContacts } from './useDeviceContacts';
-import styles from './ContactPicker.styles';
+import { createStyles } from './ContactPicker.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const ContactPicker: React.FC<ContactPickerProps> = ({ podId, podTitle, onDone, onSkip }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { contacts, loading: loadingContacts, permissionDenied, refresh } = useDeviceContacts();
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);

@@ -16,12 +16,13 @@ import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Formik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
-import { colors } from '../../theme';
+
 import { GET_ME } from '../../graphql/queries';
 import { UPDATE_PROFILE } from '../../graphql/mutations';
 import { useImageKitUpload } from '../../hooks/useImageKitUpload';
 import { EditProfileScreenProps, EditProfileFormValues } from './EditProfile.types';
-import { styles } from './EditProfile.styles';
+import { createStyles } from './EditProfile.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string()
@@ -34,6 +35,8 @@ const validationSchema = Yup.object().shape({
 });
 
 const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { data: meData, loading: meLoading } = useQuery(GET_ME, {
     fetchPolicy: 'cache-and-network',
   });

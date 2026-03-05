@@ -13,13 +13,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Formik } from 'formik';
-import { colors } from '../../theme';
+
 import { GradientButton } from '../../components/GradientButton';
 import { LoginScreenProps, LoginFormValues, loginSchema } from './Login.types';
-import { styles } from './Login.styles';
+import { createStyles } from './Login.styles';
 import PolicyModal from './PolicyModal';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp, loading }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [countryCode] = useState('+91');
   const [policyModal, setPolicyModal] = useState<'USER' | 'VENUE' | 'HOST' | null>(null);
   const initialValues: LoginFormValues = { phone: '' };

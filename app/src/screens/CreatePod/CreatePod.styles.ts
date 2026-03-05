@@ -1,7 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
 
-const styles = StyleSheet.create({
+import { ThemeUtils } from '../../hooks/useThemedStyles';
+
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: spacing.xl, paddingVertical: spacing.md },
   headerTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
@@ -47,4 +48,4 @@ const styles = StyleSheet.create({
   verifiedText: { fontSize: 13, color: colors.textSecondary },
 });
 
-export default styles;
+export { createStyles };

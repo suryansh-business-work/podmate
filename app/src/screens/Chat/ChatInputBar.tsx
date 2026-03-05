@@ -6,9 +6,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { ChatInputBarProps } from './Chat.types';
-import { styles } from './Chat.styles';
+import { createStyles } from './Chat.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const ChatInputBar: React.FC<ChatInputBarProps> = ({
   value,
@@ -19,6 +20,8 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
   onSendImage,
   onSendVideo,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [showAttach, setShowAttach] = useState(false);
   const canSend = value.trim().length > 0 && !sending;
 

@@ -11,13 +11,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_POD } from '../../graphql/queries';
 import { CHECKOUT_POD } from '../../graphql/mutations';
 import { CheckoutScreenProps, CheckoutPodData, CheckoutResultData } from './Checkout.types';
-import { styles } from './Checkout.styles';
+import { createStyles } from './Checkout.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSuccess }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [checkoutDone, setCheckoutDone] = useState(false);
 
   const { data, loading: podLoading } = useQuery<{ pod: CheckoutPodData }>(GET_POD, {

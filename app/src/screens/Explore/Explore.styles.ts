@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions, StatusBar } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
+import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 const STATUS_BAR_H = StatusBar.currentHeight ?? 44;
@@ -10,7 +10,7 @@ export function getSlideHeight(tabBarHeight: number): number {
   return SCREEN_H - tabBarHeight;
 }
 
-export const styles = StyleSheet.create({
+export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.black },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.black },
   slide: { width: SCREEN_W, position: 'relative' },

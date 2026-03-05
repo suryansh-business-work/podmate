@@ -11,13 +11,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_MY_PODS } from '../../graphql/queries';
 import { Pod } from './Chat.types';
-import { styles } from './Chat.styles';
+import { createStyles } from './Chat.styles';
 import ChatRoom from './ChatRoom';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const ChatScreen: React.FC = () => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [selectedPod, setSelectedPod] = useState<Pod | null>(null);
   const { data, loading, error, refetch } = useQuery<{ myPods: Pod[] }>(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
 

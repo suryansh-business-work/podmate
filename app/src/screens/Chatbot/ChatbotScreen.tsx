@@ -14,16 +14,19 @@ import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { GET_CHATBOT_HISTORY } from '../../graphql/queries';
 import { ASK_CHATBOT, CLEAR_CHATBOT_HISTORY } from '../../graphql/mutations';
-import { colors } from '../../theme';
-import { chatbotStyles as styles } from './Chatbot.styles';
+
+import { createStyles } from './Chatbot.styles';
 import type {
   ChatbotScreenProps,
   ChatbotMessage,
   AskChatbotResult,
   ChatbotHistoryResult,
 } from './Chatbot.types';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList<ChatbotMessage>>(null);
   const [message, setMessage] = useState('');

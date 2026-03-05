@@ -1,7 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
 
-const styles = StyleSheet.create({
+import { ThemeUtils } from '../../hooks/useThemedStyles';
+
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.white },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -74,4 +75,4 @@ const styles = StyleSheet.create({
   retryBtnText: { fontSize: 14, fontWeight: '600', color: colors.white },
 });
 
-export default styles;
+export { createStyles };

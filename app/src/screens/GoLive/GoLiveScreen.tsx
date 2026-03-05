@@ -6,14 +6,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_ACTIVE_LIVE_SESSIONS } from '../../graphql/queries';
 import {
   START_LIVE_SESSION, END_LIVE_SESSION,
   JOIN_LIVE_SESSION, LEAVE_LIVE_SESSION,
 } from '../../graphql/mutations';
 import type { GoLiveScreenProps, LiveSession } from './GoLive.types';
-import { styles } from './GoLive.styles';
+import { createStyles } from './GoLive.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const formatElapsed = (startedAt: string): string => {
   const diff = Date.now() - Number(startedAt);
@@ -24,6 +25,8 @@ const formatElapsed = (startedAt: string): string => {
 };
 
 const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

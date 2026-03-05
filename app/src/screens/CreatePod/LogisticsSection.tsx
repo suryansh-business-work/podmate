@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Platform } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { colors } from '../../theme';
-import styles from './CreatePod.styles';
+
+import { createStyles } from './CreatePod.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface LogisticsSectionProps {
   fee: string;
@@ -26,7 +27,10 @@ const LogisticsSection: React.FC<LogisticsSectionProps> = ({
   onFeeChange, onMaxSeatsChange,
   onShowDatePicker, onDateChange, onTimeChange,
   onDismissDatePicker, onDismissTimePicker,
-}) => (
+}) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
+  return (
   <>
     <Text style={styles.sectionTitle}>Logistics</Text>
     <View style={styles.logisticsRow}>
@@ -93,5 +97,6 @@ const LogisticsSection: React.FC<LogisticsSectionProps> = ({
     )}
   </>
 );
+}
 
 export default LogisticsSection;

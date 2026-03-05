@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing, borderRadius } from '../theme';
+import { spacing, borderRadius } from '../theme';
 import SafeImage from './SafeImage';
+import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 
 const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v'];
 
@@ -45,6 +46,8 @@ export const EventCard: React.FC<EventCardProps> = ({
   isJoined = false,
   onPress,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const date = new Date(dateTime);
   const formattedDate = date.toLocaleDateString('en-US', {
     weekday: 'short',
@@ -124,7 +127,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   card: {
     borderRadius: borderRadius.lg,
     backgroundColor: colors.white,

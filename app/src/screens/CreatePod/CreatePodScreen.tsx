@@ -5,14 +5,15 @@ import { useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { colors } from '../../theme';
+
 import ContactPicker from '../../components/ContactPicker';
 import { MediaItem } from '../../components/MediaUploader';
 import { CREATE_POD } from '../../graphql/mutations';
 import { GET_PODS } from '../../graphql/queries';
 import { PodFormValues, CATEGORIES } from './CreatePod.types';
 import PodFormBody from './PodFormBody';
-import styles from './CreatePod.styles';
+import { createStyles } from './CreatePod.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface CreatePodScreenProps {
   onClose: () => void;
@@ -41,6 +42,8 @@ const initialValues: PodFormValues = {
 };
 
 const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [showInvite, setShowInvite] = useState(false);
   const [createdPodId, setCreatedPodId] = useState('');
   const [createdTitle, setCreatedTitle] = useState('');

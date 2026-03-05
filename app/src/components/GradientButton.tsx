@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors } from '../theme';
+import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 
 interface GradientButtonProps {
   title: string;
@@ -18,6 +18,8 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   style,
   children,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   return (
     <TouchableOpacity
       style={[styles.container, style]}
@@ -37,7 +39,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: {
     borderRadius: 28,
     overflow: 'hidden',

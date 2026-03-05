@@ -9,9 +9,10 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import * as Location from 'expo-location';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing, borderRadius } from '../../theme';
+import { spacing, borderRadius } from '../../theme';
+import { getCurrentLocation } from '../../utils/locationService';
+import { useAppColors, useThemedStyles, ThemeUtils } from '../../hooks/useThemedStyles';
 
 export interface LocationResult {
   address: string;
@@ -55,6 +56,8 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
   googleMapsApiKey,
   onLocationChange,
 }) => {
+  const colors = useAppColors();
+  const pickerStyles = useThemedStyles(createPickerStyles);
   const [mode, setMode] = useState<LocationMode>('search');
   const [searchQuery, setSearchQuery] = useState(address || '');
   const [predictions, setPredictions] = useState<PlacePrediction[]>([]);
@@ -148,26 +151,18 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
   const handleUseMyLocation = useCallback(async () => {
     setLoadingGps(true);
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
+      const locationData = await getCurrentLocation();
+      if (!locationData) {
         setLoadingGps(false);
         return;
       }
-      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-      const [rev] = await Location.reverseGeocodeAsync({
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-      });
-      const addr = [rev.street, rev.streetNumber, rev.district, rev.city, rev.subregion]
-        .filter(Boolean)
-        .join(', ');
       onLocationChange({
-        address: addr,
-        city: rev.city ?? rev.subregion ?? '',
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
+        address: locationData.address,
+        city: locationData.city,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
       });
-      setSearchQuery(addr);
+      setSearchQuery(locationData.address);
     } catch {
       // ignore
     } finally {
@@ -331,7 +326,7 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
   );
 };
 
-const pickerStyles = StyleSheet.create({
+const createPickerStyles = ({ colors }: ThemeUtils) => StyleSheet.create({
   container: {
     marginBottom: spacing.lg,
   },

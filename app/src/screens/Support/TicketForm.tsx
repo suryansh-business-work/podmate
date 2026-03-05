@@ -1,16 +1,20 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
-import { colors } from '../../theme';
+
 import { ticketSchema } from './Support.types';
-import styles from './Support.styles';
+import { createStyles } from './Support.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface TicketFormProps {
   creating: boolean;
   onSubmit: (values: { subject: string; message: string }) => void;
 }
 
-const TicketForm: React.FC<TicketFormProps> = ({ creating, onSubmit }) => (
+const TicketForm: React.FC<TicketFormProps> = ({ creating, onSubmit }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
+  return (
   <View style={styles.formCard}>
     <Text style={styles.formTitle}>New Support Ticket</Text>
     <Formik
@@ -67,5 +71,6 @@ const TicketForm: React.FC<TicketFormProps> = ({ creating, onSubmit }) => (
     </Formik>
   </View>
 );
+}
 
 export default TicketForm;

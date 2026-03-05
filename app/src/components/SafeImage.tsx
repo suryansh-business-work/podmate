@@ -1,7 +1,8 @@
 import React from 'react';
 import { Image, View, type ImageStyle, type StyleProp, type ViewStyle } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../theme';
+import { useAppColors } from '../hooks/useThemedStyles';
+
 
 interface SafeImageProps {
   uri: string | null | undefined;
@@ -25,6 +26,7 @@ const SafeImage: React.FC<SafeImageProps> = ({
   fallbackIconSize = 24,
   fallbackStyle,
 }) => {
+  const colors = useAppColors();
   if (uri && uri.trim().length > 0) {
     return <Image source={{ uri }} style={style} resizeMode={resizeMode} />;
   }

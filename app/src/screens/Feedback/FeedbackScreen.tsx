@@ -6,11 +6,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_MY_FEEDBACK } from '../../graphql/queries';
 import { SUBMIT_FEEDBACK } from '../../graphql/mutations';
 import type { FeedbackScreenProps, Feedback } from './Feedback.types';
-import { styles } from './Feedback.styles';
+import { createStyles } from './Feedback.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const TYPES = ['BUG', 'FEATURE', 'GENERAL'] as const;
 type FeedbackType = (typeof TYPES)[number];
@@ -22,6 +23,8 @@ const TYPE_ICONS: Record<FeedbackType, string> = {
 };
 
 const StatusBadge: React.FC<{ status: Feedback['status'] }> = ({ status }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const badgeStyle = status === 'PENDING' ? styles.badgePending
     : status === 'REVIEWED' ? styles.badgeReviewed : styles.badgeResolved;
   const textStyle = status === 'PENDING' ? styles.badgePendingText
@@ -34,6 +37,8 @@ const StatusBadge: React.FC<{ status: Feedback['status'] }> = ({ status }) => {
 };
 
 const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [showModal, setShowModal] = useState(false);
   const [type, setType] = useState<FeedbackType>('GENERAL');
   const [title, setTitle] = useState('');

@@ -7,7 +7,8 @@ import MediaUploader, { MediaItem } from '../../components/MediaUploader';
 import { VenueFormValues, CATEGORIES } from './RegisterPlace.types';
 import InputField from './InputField';
 import VenueLocationPicker from './VenueLocationPicker';
-import styles from './RegisterPlace.styles';
+import { createStyles } from './RegisterPlace.styles';
+import { useThemedStyles } from '../../hooks/useThemedStyles';
 
 const venueSchema = Yup.object().shape({
   name: Yup.string().min(3, 'Min 3 characters').required('Venue name required'),
@@ -36,7 +37,9 @@ const StepVenueDetails: React.FC<StepVenueDetailsProps> = ({
   googleMapsApiKey,
   onMediaChange,
   onSubmit,
-}) => (
+}) => {
+  const styles = useThemedStyles(createStyles);
+  return (
   <Formik
     initialValues={formValues}
     validationSchema={venueSchema}
@@ -145,6 +148,7 @@ const StepVenueDetails: React.FC<StepVenueDetailsProps> = ({
       </ScrollView>
     )}
   </Formik>
-);
+  );
+};
 
 export default StepVenueDetails;

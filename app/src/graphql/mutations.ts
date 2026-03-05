@@ -404,3 +404,15 @@ export const LEAVE_LIVE_SESSION = gql`
     }
   }
 `;
+
+export const REQUEST_CALLBACK = gql`
+  mutation RequestCallback($input: CreateCallbackRequestInput!) {
+    requestCallback(input: $input) {
+      id
+      reason
+      preferredTime
+      status
+      createdAt
+    }
+  }
+`;

@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing } from '../../theme';
-import styles from './CreatePod.styles';
+import { spacing } from '../../theme';
+import { createStyles } from './CreatePod.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface PayoutCardProps {
   feePerPerson: number;
@@ -10,6 +11,8 @@ interface PayoutCardProps {
 }
 
 const PayoutCard: React.FC<PayoutCardProps> = ({ feePerPerson, maxSeats }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const grossRevenue = feePerPerson * maxSeats;
   const platformFee = grossRevenue * 0.05;
   const netRevenue = grossRevenue - platformFee;

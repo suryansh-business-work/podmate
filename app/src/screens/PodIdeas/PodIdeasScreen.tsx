@@ -6,13 +6,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_POD_IDEAS } from '../../graphql/queries';
 import { SUBMIT_POD_IDEA, UPVOTE_POD_IDEA, REMOVE_UPVOTE } from '../../graphql/mutations';
 import type { PodIdeasScreenProps, PodIdea } from './PodIdeas.types';
-import { styles } from './PodIdeas.styles';
+import { createStyles } from './PodIdeas.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const StatusBadge: React.FC<{ status: PodIdea['status'] }> = ({ status }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const bgStyle = status === 'PENDING' ? styles.statusPending
     : status === 'APPROVED' ? styles.statusApproved : styles.statusRejected;
   const txtStyle = status === 'PENDING' ? styles.statusPendingText
@@ -25,6 +28,8 @@ const StatusBadge: React.FC<{ status: PodIdea['status'] }> = ({ status }) => {
 };
 
 const PodIdeasScreen: React.FC<PodIdeasScreenProps> = ({ onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

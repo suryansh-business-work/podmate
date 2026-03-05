@@ -4,11 +4,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useMutation } from '@apollo/client';
-import { colors } from '../../theme';
+
 import { Pod, CATEGORIES, formatDate, formatTime } from './Explore.types';
-import { styles, SCREEN_W } from './Explore.styles';
+import { createStyles, SCREEN_W } from './Explore.styles';
 import { SAVE_POD, UNSAVE_POD } from '../../graphql/mutations';
 import SafeImage from '../../components/SafeImage';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v'];
 
@@ -38,6 +39,8 @@ const PodCard: React.FC<PodCardProps> = ({
   onJoinPress,
   slideHeight,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const fillPct = Math.round((item.currentSeats / item.maxSeats) * 100);
   const isFull = item.currentSeats >= item.maxSeats;
   const alreadyJoined = (item.attendees ?? []).some((a) => a.id === currentUserId);

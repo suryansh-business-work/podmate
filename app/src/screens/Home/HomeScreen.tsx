@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { colors } from '../../theme';
+
 import { CategoryChip } from '../../components/CategoryChip';
 import { EventCard } from '../../components/EventCard';
 import { SkeletonFeed } from '../../components/Skeleton';
@@ -22,11 +22,14 @@ import { useDebounce } from '../../hooks/useDebounce';
 import { useLocation } from '../../hooks/useLocation';
 import { GET_PODS, GET_ME } from '../../graphql/queries';
 import { PodItem, PodsQueryData, HomeScreenProps, CATEGORIES } from './Home.types';
-import { styles } from './Home.styles';
+import { createStyles } from './Home.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const PAGE_SIZE = 20;
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 400);

@@ -6,14 +6,17 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors } from '../../theme';
+
 import { GET_REVIEWS, GET_REVIEW_STATS } from '../../graphql/queries';
 import { CREATE_REVIEW, REPLY_TO_REVIEW, REPORT_REVIEW } from '../../graphql/mutations';
 import type { ReviewsScreenProps, Review, ReviewStats } from './Reviews.types';
 import { ReviewCard, Stars } from './ReviewCard';
-import { styles } from './Reviews.styles';
+import { createStyles } from './Reviews.styles';
+import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, targetTitle, onBack }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const [showModal, setShowModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');

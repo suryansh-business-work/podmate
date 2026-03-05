@@ -1,10 +1,10 @@
 import React from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator,
-} from 'react-native';
+import { StyleSheet,
+  View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { colors, spacing, borderRadius } from '../theme';
+import { spacing, borderRadius } from '../theme';
 import { useImageKitUpload } from '../hooks/useImageKitUpload';
+import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 
 export interface MediaItem {
   url: string;
@@ -21,6 +21,8 @@ interface MediaUploaderProps {
 const MediaUploader: React.FC<MediaUploaderProps> = ({
   mediaItems = [], onMediaChange, folder, maxItems = 10,
 }) => {
+  const styles = useThemedStyles(createStyles);
+  const colors = useAppColors();
   const { pickAndUploadImage, pickAndUploadVideo, uploading, progress } = useImageKitUpload();
   const items = mediaItems ?? [];
 
@@ -82,7 +84,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { marginBottom: spacing.md },
   scroll: { paddingVertical: spacing.sm, gap: spacing.sm },
   thumb: { width: 90, height: 90, borderRadius: borderRadius.md, overflow: 'hidden', position: 'relative' },

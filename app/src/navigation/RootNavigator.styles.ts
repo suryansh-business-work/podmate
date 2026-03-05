@@ -1,7 +1,7 @@
 import { StyleSheet, Platform } from 'react-native';
-import { colors } from '../theme';
+import { ThemeUtils } from '../hooks/useThemedStyles';
 
-export const drawerStyles = StyleSheet.create({
+export const createDrawerStyles = ({ colors }: ThemeUtils) => StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.overlay,

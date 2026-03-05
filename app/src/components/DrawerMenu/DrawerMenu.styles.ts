@@ -1,7 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius } from '../../theme';
 
-const styles = StyleSheet.create({
+import { ThemeUtils } from '../../hooks/useThemedStyles';
+
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FAFBFC' },
 
   /* Gradient header */
@@ -84,4 +85,4 @@ const styles = StyleSheet.create({
   footerText: { fontSize: 11, color: colors.textTertiary, letterSpacing: 0.3 },
 });
 
-export default styles;
+export { createStyles };

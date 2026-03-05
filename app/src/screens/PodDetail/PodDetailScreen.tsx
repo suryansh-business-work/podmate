@@ -21,7 +21,7 @@ function isVideoUrl(url: string): boolean {
   return VIDEO_EXTENSIONS.some((ext) => path.endsWith(ext));
 }
 
-const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onCheckout }) => {
+const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onCheckout, onReviews, onGoLive, onUserProfile }) => {
   const { data, loading, error, refetch } = useQuery(GET_POD, { variables: { id: podId }, skip: !podId });
   const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const { data: configData } = useQuery(GET_APP_CONFIG, {
@@ -319,6 +319,51 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
           <View style={styles.planSection}>
             <Text style={styles.sectionTitle}>The Plan</Text>
             <Text style={styles.planText}>{pod.description}</Text>
+          </View>
+
+          {/* Reviews Section */}
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 16, borderTopWidth: 1, borderTopColor: colors.surfaceVariant }}
+            onPress={() => onReviews?.('POD', podId ?? '', pod.title as string)}
+            activeOpacity={0.7}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <MaterialIcons name="rate-review" size={22} color={colors.primary} />
+              <View>
+                <Text style={{ fontSize: 15, fontWeight: '600', color: colors.text }}>Reviews & Ratings</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                  <MaterialIcons name="star" size={14} color={colors.warning} />
+                  <Text style={{ fontSize: 13, color: colors.textSecondary }}>
+                    {pod.rating} ({pod.reviewCount} reviews)
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <MaterialIcons name="chevron-right" size={22} color={colors.textTertiary} />
+          </TouchableOpacity>
+
+          {/* Go Live / View Host Profile */}
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
+            {pod.host?.id === currentUserId && (
+              <TouchableOpacity
+                style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: colors.error + '15' }}
+                onPress={onGoLive}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="videocam" size={20} color={colors.error} />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.error }}>Go Live</Text>
+              </TouchableOpacity>
+            )}
+            {pod.host?.id && pod.host.id !== currentUserId && (
+              <TouchableOpacity
+                style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: colors.primary + '15' }}
+                onPress={() => onUserProfile?.(pod.host.id)}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="person" size={20} color={colors.primary} />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.primary }}>View Host Profile</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           <View style={styles.trustNote}>

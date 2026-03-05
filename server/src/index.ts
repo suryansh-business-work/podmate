@@ -38,6 +38,16 @@ import notificationTypeDefs from './modules/notification/notification.typeDefs';
 import notificationResolvers from './modules/notification/notification.resolvers';
 import platformFeeTypeDefs from './modules/platformFee/platformFee.typeDefs';
 import platformFeeResolvers from './modules/platformFee/platformFee.resolvers';
+import reviewTypeDefs from './modules/review/review.typeDefs';
+import reviewResolvers from './modules/review/review.resolvers';
+import followTypeDefs from './modules/follow/follow.typeDefs';
+import followResolvers from './modules/follow/follow.resolvers';
+import feedbackTypeDefs from './modules/feedback/feedback.typeDefs';
+import feedbackResolvers from './modules/feedback/feedback.resolvers';
+import podIdeaTypeDefs from './modules/podIdea/podIdea.typeDefs';
+import podIdeaResolvers from './modules/podIdea/podIdea.resolvers';
+import goLiveTypeDefs from './modules/goLive/goLive.typeDefs';
+import goLiveResolvers from './modules/goLive/goLive.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -47,10 +57,12 @@ const rootSchema = `#graphql
   type Query {
     me: User
     user(id: ID!): User
+    userProfile(userId: ID!): User
     users(page: Int, limit: Int, search: String, sortBy: String, order: String): PaginatedUsers!
     pods(category: String, page: Int, limit: Int, search: String, sortBy: String, order: String): PaginatedPods!
     pod(id: ID!): Pod
     myPods: [Pod!]!
+    userPods(userId: ID!): [Pod!]!
     chatMessages(podId: ID!): [ChatMessage!]!
     podInvites(podId: ID!): [Invite!]!
     policies(type: String): [Policy!]!
@@ -82,6 +94,17 @@ const rootSchema = `#graphql
     platformFees: PlatformFeeConfig!
     platformFeeOverrides(page: Int, limit: Int): PaginatedPlatformFeeOverrides!
     openAiModels: [String!]!
+    reviews(targetType: ReviewTargetType!, targetId: ID!, page: Int, limit: Int): PaginatedReviews!
+    reviewStats(targetType: ReviewTargetType!, targetId: ID!): ReviewStats!
+    followers(userId: ID!, page: Int, limit: Int): PaginatedFollows!
+    following(userId: ID!, page: Int, limit: Int): PaginatedFollows!
+    followStats(userId: ID!): FollowStats!
+    myFeedback: [Feedback!]!
+    allFeedback(page: Int, limit: Int, search: String, status: String): PaginatedFeedback!
+    podIdeas(page: Int, limit: Int, category: String): PaginatedPodIdeas!
+    myPodIdeas: [PodIdea!]!
+    activeLiveSessions(page: Int, limit: Int): PaginatedLiveSessions!
+    liveSessionForPod(podId: ID!): LiveSession
   }
 
   type Mutation {
@@ -150,10 +173,28 @@ const rootSchema = `#graphql
     upsertPlatformFee(globalFeePercent: Float!): PlatformFeeConfig!
     upsertPlatformFeeOverride(input: UpsertPlatformFeeOverrideInput!): PlatformFeeOverride!
     deletePlatformFeeOverride(id: ID!): Boolean!
+    createReview(input: CreateReviewInput!): Review!
+    replyToReview(input: ReplyReviewInput!): Review!
+    reportReview(input: ReportReviewInput!): Review!
+    deleteReview(id: ID!): Boolean!
+    followUser(userId: ID!): Follow!
+    unfollowUser(userId: ID!): Boolean!
+    submitFeedback(input: CreateFeedbackInput!): Feedback!
+    updateFeedbackStatus(id: ID!, input: UpdateFeedbackInput!): Feedback!
+    deleteFeedback(id: ID!): Boolean!
+    submitPodIdea(input: CreatePodIdeaInput!): PodIdea!
+    upvotePodIdea(id: ID!): PodIdea!
+    removeUpvote(id: ID!): PodIdea!
+    updatePodIdea(id: ID!, input: UpdatePodIdeaInput!): PodIdea!
+    deletePodIdea(id: ID!): Boolean!
+    startLiveSession(input: StartLiveInput!): LiveSession!
+    endLiveSession(id: ID!): LiveSession!
+    joinLiveSession(id: ID!): LiveSession!
+    leaveLiveSession(id: ID!): LiveSession!
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs, notificationTypeDefs, platformFeeTypeDefs];
+const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs, notificationTypeDefs, platformFeeTypeDefs, reviewTypeDefs, followTypeDefs, feedbackTypeDefs, podIdeaTypeDefs, goLiveTypeDefs];
 
 const resolvers = {
   Query: {
@@ -170,6 +211,11 @@ const resolvers = {
     ...chatbotResolvers.Query,
     ...notificationResolvers.Query,
     ...platformFeeResolvers.Query,
+    ...reviewResolvers.Query,
+    ...followResolvers.Query,
+    ...feedbackResolvers.Query,
+    ...podIdeaResolvers.Query,
+    ...goLiveResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -186,8 +232,18 @@ const resolvers = {
     ...chatbotResolvers.Mutation,
     ...notificationResolvers.Mutation,
     ...platformFeeResolvers.Mutation,
+    ...reviewResolvers.Mutation,
+    ...followResolvers.Mutation,
+    ...feedbackResolvers.Mutation,
+    ...podIdeaResolvers.Mutation,
+    ...goLiveResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
+  Review: reviewResolvers.Review,
+  Follow: followResolvers.Follow,
+  Feedback: feedbackResolvers.Feedback,
+  PodIdea: podIdeaResolvers.PodIdea,
+  LiveSession: goLiveResolvers.LiveSession,
   ChatMessage: chatResolvers.ChatMessage,
   Place: placeResolvers.Place,
   SupportTicket: supportResolvers.SupportTicket,

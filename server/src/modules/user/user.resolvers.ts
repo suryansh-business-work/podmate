@@ -16,6 +16,11 @@ const userResolvers = {
       return userService.findUserById(args.id);
     },
 
+    userProfile: (_: unknown, args: { userId: string }, context: GraphQLContext) => {
+      requireAuth(context);
+      return userService.findUserById(args.userId);
+    },
+
     users: (
       _: unknown,
       args: { page?: number; limit?: number; search?: string; sortBy?: string; order?: string },

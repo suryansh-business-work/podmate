@@ -15,6 +15,8 @@ export const MENU_ITEMS: MenuItem[] = [
   { icon: 'confirmation-number', label: 'My Pods', subtitle: 'Joined & hosted pods', action: 'MyPods' },
   { icon: 'credit-card', label: 'Payments', subtitle: 'Transactions & payouts', action: 'Payments' },
   { icon: 'notifications', label: 'Notifications', subtitle: 'Manage preferences', action: 'Notifications' },
+  { icon: 'feedback', label: 'Feedback', subtitle: 'Report bugs, suggest features', action: 'Feedback' },
+  { icon: 'emoji-objects', label: 'Pod Ideas', subtitle: 'Suggest & vote on ideas', action: 'PodIdeas' },
   { icon: 'security', label: 'Privacy & Security', subtitle: 'Account settings', action: 'Privacy' },
   { icon: 'help', label: 'Help & Support', subtitle: 'FAQs, contact us', action: 'Help' },
 ];

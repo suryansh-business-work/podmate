@@ -18,6 +18,12 @@ import PaymentsScreen from '../screens/Payments';
 import MyPodsScreen from '../screens/MyPods';
 import PrivacySecurityScreen from '../screens/PrivacySecurity';
 import CheckoutScreen from '../screens/Checkout';
+import ReviewsScreen from '../screens/Reviews/ReviewsScreen';
+import FeedbackScreen from '../screens/Feedback/FeedbackScreen';
+import PodIdeasScreen from '../screens/PodIdeas/PodIdeasScreen';
+import GoLiveScreen from '../screens/GoLive/GoLiveScreen';
+import FollowListScreen from '../screens/FollowList/FollowListScreen';
+import UserProfileScreen from '../screens/UserProfile/UserProfileScreen';
 import ChatbotFab from '../components/ChatbotFab';
 import NetworkBanner from '../components/NetworkBanner';
 import MainTabs from './MainTabs';
@@ -59,6 +65,8 @@ const RootNavigator: React.FC = () => {
       Notifications: () => navigation.navigate('Notifications'),
       Privacy: () => navigation.navigate('Privacy'),
       Help: () => navigation.navigate('Faq'),
+      Feedback: () => navigation.navigate('Feedback'),
+      PodIdeas: () => navigation.navigate('PodIdeas'),
     };
     map[screen]?.();
   };
@@ -79,6 +87,9 @@ const RootNavigator: React.FC = () => {
       Payments: () => nav.navigate('Payments'),
       Help: () => nav.navigate('Faq'),
       Support: () => nav.navigate('Support'),
+      Feedback: () => nav.navigate('Feedback'),
+      PodIdeas: () => nav.navigate('PodIdeas'),
+      GoLive: () => nav.navigate('GoLive'),
     };
     map[screen]?.();
   };
@@ -129,7 +140,16 @@ const RootNavigator: React.FC = () => {
                 )}
               </Stack.Screen>
               <Stack.Screen name="PodDetail" options={{ presentation: 'card' }}>
-                {({ navigation, route }) => <PodDetailScreen podId={(route.params as { podId: string })?.podId} onBack={() => navigation.goBack()} onCheckout={(id: string) => navigation.navigate('Checkout', { podId: id })} />}
+                {({ navigation, route }) => (
+                  <PodDetailScreen
+                    podId={(route.params as { podId: string })?.podId}
+                    onBack={() => navigation.goBack()}
+                    onCheckout={(id: string) => navigation.navigate('Checkout', { podId: id })}
+                    onReviews={(targetType, targetId, targetTitle) => navigation.navigate('Reviews', { targetType, targetId, targetTitle })}
+                    onGoLive={() => navigation.navigate('GoLive')}
+                    onUserProfile={(userId) => navigation.navigate('UserProfile', { userId })}
+                  />
+                )}
               </Stack.Screen>
               <Stack.Screen name="Checkout" options={{ presentation: 'card' }}>
                 {({ navigation, route }) => (
@@ -174,6 +194,56 @@ const RootNavigator: React.FC = () => {
               </Stack.Screen>
               <Stack.Screen name="Chatbot" options={{ presentation: 'modal' }}>
                 {({ navigation }) => <ChatbotScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="Reviews" options={{ presentation: 'card' }}>
+                {({ navigation, route }) => {
+                  const params = route.params as { targetType: 'POD' | 'PLACE'; targetId: string; targetTitle: string };
+                  return (
+                    <ReviewsScreen
+                      targetType={params.targetType}
+                      targetId={params.targetId}
+                      targetTitle={params.targetTitle}
+                      onBack={() => navigation.goBack()}
+                    />
+                  );
+                }}
+              </Stack.Screen>
+              <Stack.Screen name="Feedback" options={{ presentation: 'card' }}>
+                {({ navigation }) => <FeedbackScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="PodIdeas" options={{ presentation: 'card' }}>
+                {({ navigation }) => <PodIdeasScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="GoLive" options={{ presentation: 'card' }}>
+                {({ navigation }) => <GoLiveScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="FollowList" options={{ presentation: 'card' }}>
+                {({ navigation, route }) => {
+                  const params = route.params as { userId: string; userName: string; initialTab?: 'followers' | 'following' };
+                  return (
+                    <FollowListScreen
+                      userId={params.userId}
+                      userName={params.userName}
+                      initialTab={params.initialTab}
+                      onBack={() => navigation.goBack()}
+                      onUserPress={(id) => navigation.navigate('UserProfile', { userId: id })}
+                    />
+                  );
+                }}
+              </Stack.Screen>
+              <Stack.Screen name="UserProfile" options={{ presentation: 'card' }}>
+                {({ navigation, route }) => {
+                  const params = route.params as { userId: string };
+                  return (
+                    <UserProfileScreen
+                      userId={params.userId}
+                      onBack={() => navigation.goBack()}
+                      onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
+                      onFollowers={(id, name) => navigation.navigate('FollowList', { userId: id, userName: name, initialTab: 'followers' })}
+                      onFollowing={(id, name) => navigation.navigate('FollowList', { userId: id, userName: name, initialTab: 'following' })}
+                    />
+                  );
+                }}
               </Stack.Screen>
             </>
           )}

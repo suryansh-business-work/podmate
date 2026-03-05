@@ -29,6 +29,11 @@ const podResolvers = {
       const auth = requireAuth(context);
       return podService.getJoinedPods(auth.userId);
     },
+
+    userPods: (_: unknown, args: { userId: string }, context: GraphQLContext) => {
+      requireAuth(context);
+      return podService.getMyPods(args.userId);
+    },
   },
 
   Mutation: {

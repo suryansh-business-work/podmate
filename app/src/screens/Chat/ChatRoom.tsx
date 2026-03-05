@@ -8,8 +8,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -75,6 +76,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
   const wsRef = useRef<WebSocket | null>(null);
   const flatListRef = useRef<FlatList>(null);
   const isInitialLoad = useRef(true);
+  const insets = useSafeAreaInsets();
 
   const { pickAndUploadImage, pickAndUploadVideo, uploading } = useImageKitUpload();
 
@@ -145,6 +147,17 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
     }
     return undefined;
   }, [listItems.length]);
+
+  /* ── Scroll to bottom when keyboard appears (WhatsApp-like) ── */
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const sub = Keyboard.addListener(showEvent, () => {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 150);
+    });
+    return () => sub.remove();
+  }, []);
 
   /* ── Handlers ── */
   const handleSend = useCallback(async () => {
@@ -258,8 +271,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
       {/* ── Keyboard-aware body ── */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 56 : 0}
       >
         {/* Messages */}
         {loading && allMessages.length === 0 ? (

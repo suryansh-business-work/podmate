@@ -251,3 +251,156 @@ export const CREATE_PLACE = gql`
     }
   }
 `;
+
+/* ── Reviews ── */
+
+export const CREATE_REVIEW = gql`
+  mutation CreateReview($input: CreateReviewInput!) {
+    createReview(input: $input) {
+      id
+      rating
+      comment
+      createdAt
+      user {
+        id
+        name
+        avatar
+      }
+    }
+  }
+`;
+
+export const REPLY_TO_REVIEW = gql`
+  mutation ReplyToReview($input: ReplyReviewInput!) {
+    replyToReview(input: $input) {
+      id
+      comment
+      createdAt
+      user {
+        id
+        name
+        avatar
+      }
+    }
+  }
+`;
+
+export const REPORT_REVIEW = gql`
+  mutation ReportReview($input: ReportReviewInput!) {
+    reportReview(input: $input) {
+      id
+      isReported
+    }
+  }
+`;
+
+/* ── Follow ── */
+
+export const FOLLOW_USER = gql`
+  mutation FollowUser($userId: ID!) {
+    followUser(userId: $userId) {
+      id
+      followerId
+      followingId
+    }
+  }
+`;
+
+export const UNFOLLOW_USER = gql`
+  mutation UnfollowUser($userId: ID!) {
+    unfollowUser(userId: $userId)
+  }
+`;
+
+/* ── Feedback ── */
+
+export const SUBMIT_FEEDBACK = gql`
+  mutation SubmitFeedback($input: CreateFeedbackInput!) {
+    submitFeedback(input: $input) {
+      id
+      type
+      title
+      status
+      createdAt
+    }
+  }
+`;
+
+/* ── Pod Ideas ── */
+
+export const SUBMIT_POD_IDEA = gql`
+  mutation SubmitPodIdea($input: CreatePodIdeaInput!) {
+    submitPodIdea(input: $input) {
+      id
+      title
+      description
+      category
+      upvoteCount
+      createdAt
+    }
+  }
+`;
+
+export const UPVOTE_POD_IDEA = gql`
+  mutation UpvotePodIdea($id: ID!) {
+    upvotePodIdea(id: $id) {
+      id
+      upvoteCount
+      hasUpvoted
+    }
+  }
+`;
+
+export const REMOVE_UPVOTE = gql`
+  mutation RemoveUpvote($id: ID!) {
+    removeUpvote(id: $id) {
+      id
+      upvoteCount
+      hasUpvoted
+    }
+  }
+`;
+
+/* ── Go Live ── */
+
+export const START_LIVE_SESSION = gql`
+  mutation StartLiveSession($input: StartLiveInput!) {
+    startLiveSession(input: $input) {
+      id
+      title
+      status
+      viewerCount
+      startedAt
+    }
+  }
+`;
+
+export const END_LIVE_SESSION = gql`
+  mutation EndLiveSession($id: ID!) {
+    endLiveSession(id: $id) {
+      id
+      status
+      endedAt
+    }
+  }
+`;
+
+export const JOIN_LIVE_SESSION = gql`
+  mutation JoinLiveSession($id: ID!) {
+    joinLiveSession(id: $id) {
+      id
+      viewerCount
+      isViewing
+    }
+  }
+`;
+
+export const LEAVE_LIVE_SESSION = gql`
+  mutation LeaveLiveSession($id: ID!) {
+    leaveLiveSession(id: $id) {
+      id
+      viewerCount
+      isViewing
+    }
+  }
+`;

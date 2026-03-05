@@ -102,6 +102,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
           category={item.category}
           hostName={item.host.name}
           hostAvatar={item.host.avatar}
+          mediaUrls={item.mediaUrls}
           isJoined={isJoined}
           onPress={onPodPress}
         />

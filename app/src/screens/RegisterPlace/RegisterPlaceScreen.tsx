@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../theme';
-import { GET_POLICIES } from '../../graphql/queries';
+import { GET_POLICIES, GET_APP_CONFIG } from '../../graphql/queries';
 import { CREATE_PLACE } from '../../graphql/mutations';
 import { MediaItem } from '../../components/MediaUploader';
 import { useImageKitUpload } from '../../hooks/useImageKitUpload';
@@ -39,19 +39,33 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
     fetchPolicy: 'cache-and-network',
   });
 
+  const { data: configData } = useQuery(GET_APP_CONFIG, {
+    variables: { keys: ['google_maps_api_key'] },
+    fetchPolicy: 'cache-first',
+  });
+
+  const googleMapsApiKey: string =
+    (configData?.appConfig as Array<{ key: string; value: string }> | undefined)
+      ?.find((c) => c.key === 'google_maps_api_key')?.value ?? '';
+
   const policies: PolicyItem[] = (policiesData?.policies ?? []).filter(
     (p: PolicyItem) => p.isActive,
   );
 
   const handleStepOneSubmit = useCallback((values: VenueFormValues) => {
+    const hasImage = venueMedia.some((m) => m.type === 'image');
+    if (!hasImage) {
+      Alert.alert('Image Required', 'Please upload at least one image of your venue.');
+      return;
+    }
     setFormValues(values);
     setStep(1);
-  }, []);
+  }, [venueMedia]);
 
   const handleFinalSubmit = useCallback(async () => {
     try {
       const mediaUrls = venueMedia.map((m) => m.url);
-      const imageUrl = businessLicenseUrl || (mediaUrls.length > 0 ? mediaUrls[0] : '');
+      const imageUrl = mediaUrls.length > 0 ? mediaUrls[0] : businessLicenseUrl;
 
       await createPlaceMutation({
         variables: {
@@ -63,6 +77,8 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
             category: formValues.category,
             imageUrl,
             mediaUrls,
+            latitude: formValues.latitude,
+            longitude: formValues.longitude,
           },
         },
       });
@@ -106,17 +122,23 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
               <View style={styles.headerBtn} />
             </View>
             <StepIndicator step={step} />
-            {step === 0 && <StepVenueDetails formValues={formValues} onSubmit={handleStepOneSubmit} />}
+            {step === 0 && (
+              <StepVenueDetails
+                formValues={formValues}
+                venueMedia={venueMedia}
+                googleMapsApiKey={googleMapsApiKey}
+                onMediaChange={setVenueMedia}
+                onSubmit={handleStepOneSubmit}
+              />
+            )}
             {step === 1 && (
               <StepDocuments
                 businessLicenseUrl={businessLicenseUrl}
                 permitsUrl={permitsUrl}
-                venueMedia={venueMedia}
                 uploading={uploading}
                 progress={progress}
                 onUploadLicense={handleUploadLicense}
                 onUploadPermits={handleUploadPermits}
-                onMediaChange={setVenueMedia}
                 onContinue={() => setStep(2)}
               />
             )}
@@ -129,6 +151,7 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
                 onToggleAccepted={() => setPoliciesAccepted(!policiesAccepted)}
                 onScrolledToBottom={() => setHasScrolledPolicies(true)}
                 onSubmit={handleFinalSubmit}
+                submitting={submitting}
               />
             )}
           </View>

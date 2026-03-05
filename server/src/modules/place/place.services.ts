@@ -24,6 +24,8 @@ export async function createPlace(input: CreatePlaceInput, ownerId: string): Pro
     category: input.category,
     phone: input.phone ?? '',
     email: input.email ?? '',
+    latitude: input.latitude ?? 0,
+    longitude: input.longitude ?? 0,
     status: PlaceStatus.PENDING,
     isVerified: false,
     createdAt: now,
@@ -48,6 +50,8 @@ export async function adminCreatePlace(
     category: input.category,
     phone: input.phone ?? '',
     email: input.email ?? '',
+    latitude: input.latitude ?? 0,
+    longitude: input.longitude ?? 0,
     status: PlaceStatus.APPROVED,
     isVerified: true,
     createdAt: now,
@@ -66,6 +70,8 @@ export async function updatePlace(id: string, input: UpdatePlaceInput): Promise<
   if (input.category !== undefined) update.category = input.category;
   if (input.phone !== undefined) update.phone = input.phone;
   if (input.email !== undefined) update.email = input.email;
+  if (input.latitude !== undefined) update.latitude = input.latitude;
+  if (input.longitude !== undefined) update.longitude = input.longitude;
 
   const updated = await PlaceModel.findByIdAndUpdate(id, { $set: update }, { returnDocument: 'after' }).lean({
     virtuals: true,

@@ -462,3 +462,54 @@ export const GET_APPROVED_PLACES = gql`
     }
   }
 `;
+
+/* ── Admin Notifications (broadcast history) ── */
+
+export const GET_ADMIN_NOTIFICATIONS = gql`
+  query GetAdminNotifications($page: Int, $limit: Int) {
+    adminNotifications(page: $page, limit: $limit) {
+      items {
+        id
+        title
+        message
+        sentAt
+        recipientCount
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;
+
+/* ── Platform Fees ── */
+
+export const GET_PLATFORM_FEES = gql`
+  query GetPlatformFees {
+    platformFees {
+      id
+      globalFeePercent
+      updatedAt
+    }
+  }
+`;
+
+export const GET_PLATFORM_FEE_OVERRIDES = gql`
+  query GetPlatformFeeOverrides($page: Int, $limit: Int) {
+    platformFeeOverrides(page: $page, limit: $limit) {
+      items {
+        id
+        pincode
+        feePercent
+        label
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;

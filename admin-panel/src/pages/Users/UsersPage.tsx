@@ -113,7 +113,7 @@ const UsersPage: React.FC = () => {
             placeholder="Search by name or phone..."
             value={searchInput}
             onChange={(e) => { setSearchInput(e.target.value); setPage(0); }}
-            sx={{ width: 300 }}
+            sx={{ width: '100%', maxWidth: 300 }}
             slotProps={{
               input: {
                 startAdornment: (

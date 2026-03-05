@@ -1,5 +1,15 @@
 import React from 'react';
-import { Box, Typography, Grid2 as Grid, Card, CardContent, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Grid2 as Grid,
+  Card,
+  CardContent,
+  CircularProgress,
+  Breadcrumbs,
+  Alert,
+  Skeleton,
+} from '@mui/material';
 import PeopleIcon from '@mui/icons-material/People';
 import EventIcon from '@mui/icons-material/Event';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -24,7 +34,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, loading 
             {title}
           </Typography>
           {loading ? (
-            <CircularProgress size={28} sx={{ mt: 1 }} />
+            <Skeleton variant="text" width={80} height={40} />
           ) : (
             <Typography variant="h4" fontWeight={700} mt={1}>
               {value}
@@ -58,7 +68,7 @@ interface DashboardStatsData {
 }
 
 const DashboardPage: React.FC = () => {
-  const { data, loading } = useQuery<DashboardStatsData>(GET_DASHBOARD_STATS, {
+  const { data, loading, error } = useQuery<DashboardStatsData>(GET_DASHBOARD_STATS, {
     fetchPolicy: 'cache-and-network',
   });
 
@@ -92,10 +102,17 @@ const DashboardPage: React.FC = () => {
   ];
 
   return (
-    <Box>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Breadcrumbs sx={{ mb: 2 }}>
+        <Typography color="text.primary">Dashboard</Typography>
+      </Breadcrumbs>
+
       <Typography variant="h5" fontWeight={700} mb={3}>
         Dashboard
       </Typography>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+
       <Grid container spacing={3}>
         {stats.map((stat) => (
           <Grid key={stat.title} size={{ xs: 12, sm: 6, md: 3 }}>
@@ -103,19 +120,6 @@ const DashboardPage: React.FC = () => {
           </Grid>
         ))}
       </Grid>
-
-      <Box mt={4}>
-        <Card>
-          <CardContent>
-            <Typography variant="h6" fontWeight={600} mb={2}>
-              Recent Activity
-            </Typography>
-            <Typography color="text.secondary">
-              No recent activity to display. Create pods and invite users to see activity here.
-            </Typography>
-          </CardContent>
-        </Card>
-      </Box>
     </Box>
   );
 };

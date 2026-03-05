@@ -19,6 +19,8 @@ export interface Place {
   category: string;
   phone: string;
   email: string;
+  latitude: number;
+  longitude: number;
   status: PlaceStatus;
   isVerified: boolean;
   createdAt: string;
@@ -35,6 +37,8 @@ export interface CreatePlaceInput {
   category: string;
   phone?: string;
   email?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface UpdatePlaceInput {
@@ -47,6 +51,8 @@ export interface UpdatePlaceInput {
   category?: string;
   phone?: string;
   email?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface PlacePaginationInput {
@@ -83,6 +89,8 @@ const PlaceSchema = new Schema<PlaceMongoDoc>(
     category: { type: String, required: true },
     phone: { type: String, default: '' },
     email: { type: String, default: '' },
+    latitude: { type: Number, default: 0 },
+    longitude: { type: Number, default: 0 },
     status: { type: String, enum: Object.values(PlaceStatus), default: PlaceStatus.PENDING },
     isVerified: { type: Boolean, default: false },
     createdAt: { type: String, default: () => new Date().toISOString() },

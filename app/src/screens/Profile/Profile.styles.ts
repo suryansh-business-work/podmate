@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
   statDivider: { width: 1, height: 32, backgroundColor: colors.border },
   menuContainer: { paddingHorizontal: spacing.xl, marginTop: spacing.md },
   menuItem: {
-    flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.surfaceVariant, gap: spacing.md,
+    flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.surfaceVariant, gap: spacing.md,
   },
   menuContent: { flex: 1 },
   menuLabel: { fontSize: 16, fontWeight: '600', color: colors.text },

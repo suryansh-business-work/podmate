@@ -10,6 +10,8 @@ export const createPlaceSchema = z.object({
   category: z.string().min(1).max(50),
   phone: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
 });
 
 export const updatePlaceSchema = z.object({
@@ -21,4 +23,6 @@ export const updatePlaceSchema = z.object({
   category: z.string().min(1).max(50).optional(),
   phone: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
 });

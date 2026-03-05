@@ -19,30 +19,31 @@ interface MediaUploaderProps {
 }
 
 const MediaUploader: React.FC<MediaUploaderProps> = ({
-  mediaItems, onMediaChange, folder, maxItems = 10,
+  mediaItems = [], onMediaChange, folder, maxItems = 10,
 }) => {
   const { pickAndUploadImage, pickAndUploadVideo, uploading, progress } = useImageKitUpload();
+  const items = mediaItems ?? [];
 
   const handleAddImage = async () => {
-    if (mediaItems.length >= maxItems) return;
+    if (items.length >= maxItems) return;
     const result = await pickAndUploadImage(folder);
-    if (result) onMediaChange([...mediaItems, { url: result.url, type: 'image' }]);
+    if (result) onMediaChange([...items, { url: result.url, type: 'image' }]);
   };
 
   const handleAddVideo = async () => {
-    if (mediaItems.length >= maxItems) return;
+    if (items.length >= maxItems) return;
     const result = await pickAndUploadVideo(folder);
-    if (result) onMediaChange([...mediaItems, { url: result.url, type: 'video' }]);
+    if (result) onMediaChange([...items, { url: result.url, type: 'video' }]);
   };
 
   const handleRemove = (idx: number) => {
-    onMediaChange(mediaItems.filter((_, i) => i !== idx));
+    onMediaChange(items.filter((_, i) => i !== idx));
   };
 
   return (
     <View style={styles.container}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        {mediaItems.map((item, idx) => (
+        {items.map((item, idx) => (
           <View key={`media-${idx}`} style={styles.thumb}>
             <Image source={{ uri: item.url }} style={styles.thumbImg} />
             {item.type === 'video' && (
@@ -63,7 +64,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
           </View>
         )}
 
-        {!uploading && mediaItems.length < maxItems && (
+        {!uploading && items.length < maxItems && (
           <View style={styles.addRow}>
             <TouchableOpacity style={styles.addBtn} onPress={handleAddImage}>
               <MaterialIcons name="add-a-photo" size={22} color={colors.primary} />
@@ -76,7 +77,7 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
           </View>
         )}
       </ScrollView>
-      <Text style={styles.countText}>{mediaItems.length}/{maxItems} media</Text>
+      <Text style={styles.countText}>{items.length}/{maxItems} media</Text>
     </View>
   );
 };

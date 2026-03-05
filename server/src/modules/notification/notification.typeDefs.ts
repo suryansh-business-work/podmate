@@ -5,6 +5,7 @@ const notificationTypeDefs = `#graphql
     POD_UPDATE
     SUPPORT_REPLY
     GENERAL
+    ADMIN_BROADCAST
   }
 
   type Notification {
@@ -24,6 +25,32 @@ const notificationTypeDefs = `#graphql
     page: Int!
     limit: Int!
     totalPages: Int!
+  }
+
+  type AdminNotification {
+    id: ID!
+    title: String!
+    message: String!
+    sentAt: String!
+    recipientCount: Int!
+  }
+
+  type PaginatedAdminNotifications {
+    items: [AdminNotification!]!
+    total: Int!
+    page: Int!
+    limit: Int!
+    totalPages: Int!
+  }
+
+  input SendBroadcastNotificationInput {
+    title: String!
+    message: String!
+  }
+
+  type BroadcastNotificationResult {
+    success: Boolean!
+    recipientCount: Int!
   }
 `;
 

@@ -75,6 +75,11 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
   }, []);
 
   const handleCreate = async (values: PodFormValues) => {
+    const hasImage = mediaItems.some((m) => m.type === 'image');
+    if (!hasImage) {
+      Alert.alert('Image Required', 'Please upload at least one image for your pod.');
+      return;
+    }
     const feeNum = parseInt(values.fee, 10) || 0;
     const mediaUrls = mediaItems.map((m) => m.url);
     try {

@@ -189,11 +189,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          pt: 9,
+          p: { xs: 2, sm: 3 },
+          pt: { xs: 8, sm: 9 },
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
           bgcolor: 'background.default',
           minHeight: '100vh',
+          overflow: 'auto',
         }}
       >
         {children}

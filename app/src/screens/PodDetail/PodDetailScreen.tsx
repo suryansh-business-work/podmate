@@ -9,7 +9,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../theme';
 import { SkeletonDetail } from '../../components/Skeleton';
 import SafeImage from '../../components/SafeImage';
-import { GET_POD } from '../../graphql/queries';
+import { GET_POD, GET_ME, GET_APP_CONFIG } from '../../graphql/queries';
 import { PodDetailScreenProps, PodAttendee } from './PodDetail.types';
 import styles from './PodDetail.styles';
 
@@ -23,81 +23,41 @@ function isVideoUrl(url: string): boolean {
 
 const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onCheckout }) => {
   const { data, loading, error, refetch } = useQuery(GET_POD, { variables: { id: podId }, skip: !podId });
+  const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
+  const { data: configData } = useQuery(GET_APP_CONFIG, {
+    variables: { keys: ['google_maps_api_key'] },
+    fetchPolicy: 'cache-first',
+  });
   const insets = useSafeAreaInsets();
   const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 16) : insets.bottom;
 
+  // All hooks must be declared before any conditional returns
   const [refreshing, setRefreshing] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const pod = data?.pod;
+  const currentUserId: string = (meData?.me?.id as string) ?? '';
+  const googleMapsApiKey: string =
+    (configData?.appConfig as Array<{ key: string; value: string }> | undefined)
+      ?.find((c) => c.key === 'google_maps_api_key')?.value ?? '';
+
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
   }, [refetch]);
 
-  const handleJoin = () => {
-    if (!podId) return;
-    if (onCheckout) {
-      onCheckout(podId);
-    } else {
-      Alert.alert('Error', 'Checkout is not available');
-    }
-  };
-
-  const handleShare = async () => {
-    if (!data?.pod) return;
-    const p = data.pod;
-    try {
-      await Share.share({
-        message: `Check out "${p.title}" on PartyWings! 🎉\n📍 ${p.location}\n💰 ₹${p.feePerPerson} per person`,
-        title: p.title as string,
-      });
-    } catch {
-      Alert.alert('Error', 'Unable to share this pod');
-    }
-  };
-
-  if (error && !data?.pod) {
-    return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <MaterialIcons name="cloud-off" size={48} color={colors.error} />
-        <Text style={{ color: colors.error, fontWeight: '600', marginTop: 12 }}>Failed to load pod</Text>
-        <Text style={{ color: colors.textSecondary, marginTop: 4 }}>{error.message}</Text>
-        <TouchableOpacity onPress={onBack} style={{ marginTop: 20 }}>
-          <Text style={{ color: colors.primary, fontWeight: '600' }}>Go Back</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  if (loading || !data?.pod) {
-    return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <SkeletonDetail />
-        <TouchableOpacity onPress={onBack} style={{ marginTop: 20 }}>
-          <Text style={{ color: colors.primary, fontWeight: '600' }}>Go Back</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const pod = data.pod;
-  const spotsLeft = pod.maxSeats - pod.currentSeats;
-  const date = new Date(pod.dateTime);
-  const formattedDate = date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
-  const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
   /* Collect all media (hero image + mediaUrls), filter out empty URIs */
   const allMedia: string[] = useMemo(() => {
     const urls: string[] = [];
-    if (pod.imageUrl && pod.imageUrl.trim().length > 0) urls.push(pod.imageUrl);
-    if (pod.mediaUrls) {
+    if (pod?.imageUrl && pod.imageUrl.trim().length > 0) urls.push(pod.imageUrl);
+    if (pod?.mediaUrls) {
       pod.mediaUrls.forEach((u: string) => {
         if (u && u.trim().length > 0 && !urls.includes(u)) urls.push(u);
       });
     }
     return urls;
-  }, [pod.imageUrl, pod.mediaUrls]);
-
-  const [activeSlide, setActiveSlide] = useState(0);
+  }, [pod?.imageUrl, pod?.mediaUrls]);
 
   const firstVideoUrl = useMemo(
     () => allMedia.find((url) => isVideoUrl(url)) ?? null,
@@ -117,6 +77,60 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
     const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
     setActiveSlide(idx);
   }, []);
+
+  const handleJoin = useCallback(() => {
+    if (!podId) return;
+    if (onCheckout) {
+      onCheckout(podId);
+    } else {
+      Alert.alert('Error', 'Checkout is not available');
+    }
+  }, [podId, onCheckout]);
+
+  const handleShare = useCallback(async () => {
+    if (!pod) return;
+    try {
+      await Share.share({
+        message: `Check out "${pod.title}" on PartyWings! 🎉\n📍 ${pod.location}\n💰 ₹${pod.feePerPerson} per person`,
+        title: pod.title as string,
+      });
+    } catch {
+      Alert.alert('Error', 'Unable to share this pod');
+    }
+  }, [pod]);
+
+  // Conditional returns AFTER all hooks
+  if (error && !pod) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <MaterialIcons name="cloud-off" size={48} color={colors.error} />
+        <Text style={{ color: colors.error, fontWeight: '600', marginTop: 12 }}>Failed to load pod</Text>
+        <Text style={{ color: colors.textSecondary, marginTop: 4 }}>{error.message}</Text>
+        <TouchableOpacity onPress={onBack} style={{ marginTop: 20 }}>
+          <Text style={{ color: colors.primary, fontWeight: '600' }}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (loading || !pod) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <SkeletonDetail />
+        <TouchableOpacity onPress={onBack} style={{ marginTop: 20 }}>
+          <Text style={{ color: colors.primary, fontWeight: '600' }}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const spotsLeft = pod.maxSeats - pod.currentSeats;
+  const isJoined = currentUserId
+    ? (pod.attendees ?? []).some((a: PodAttendee) => a.id === currentUserId)
+    : false;
+  const date = new Date(pod.dateTime);
+  const formattedDate = date.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+  const formattedTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
   return (
     <View style={styles.container}>
@@ -215,12 +229,28 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
               <Text style={styles.infoValue}>{formattedDate}</Text>
               <Text style={styles.infoSubValue}>{formattedTime}</Text>
             </View>
-            <View style={styles.infoCard}>
+            <TouchableOpacity
+              style={styles.infoCard}
+              activeOpacity={0.7}
+              onPress={() => {
+                if (pod.latitude && pod.longitude && pod.latitude !== 0 && pod.longitude !== 0) {
+                  const url = Platform.select({
+                    ios: `maps:0,0?q=${pod.latitude},${pod.longitude}`,
+                    android: `geo:${pod.latitude},${pod.longitude}?q=${pod.latitude},${pod.longitude}(${encodeURIComponent(pod.location)})`,
+                  }) ?? `https://maps.google.com/?q=${pod.latitude},${pod.longitude}`;
+                  Linking.openURL(url).catch(() => {
+                    Linking.openURL(`https://maps.google.com/?q=${pod.latitude},${pod.longitude}`);
+                  });
+                } else {
+                  Linking.openURL(`https://maps.google.com/maps?q=${encodeURIComponent(pod.location)}`);
+                }
+              }}
+            >
               <MaterialIcons name="place" size={22} color={colors.primary} />
               <Text style={styles.infoLabel}>Location</Text>
               <Text style={styles.infoValue}>{pod.location}</Text>
-              <Text style={styles.infoSubValue}>{pod.locationDetail}</Text>
-            </View>
+              <Text style={[styles.infoSubValue, { color: colors.primary }]}>Tap to open map</Text>
+            </TouchableOpacity>
             <View style={styles.infoCard}>
               <MaterialIcons name="credit-card" size={22} color={colors.primary} />
               <Text style={styles.infoLabel}>Price per person</Text>
@@ -235,7 +265,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
           </View>
 
           {/* Map Preview */}
-          {pod.latitude !== undefined && pod.longitude !== undefined && pod.latitude !== 0 && pod.longitude !== 0 && (
+          {pod.latitude !== undefined && pod.longitude !== undefined && pod.latitude !== 0 && pod.longitude !== 0 && googleMapsApiKey.length > 0 && (
             <View style={{ marginTop: 16, marginBottom: 8 }}>
               <Text style={styles.sectionTitle}>Location</Text>
               <TouchableOpacity
@@ -253,7 +283,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
               >
                 <Image
                   source={{
-                    uri: `https://maps.googleapis.com/maps/api/staticmap?center=${pod.latitude},${pod.longitude}&zoom=15&size=600x200&scale=2&markers=color:red%7C${pod.latitude},${pod.longitude}&key=GOOGLE_MAPS_KEY`,
+                    uri: `https://maps.googleapis.com/maps/api/staticmap?center=${pod.latitude},${pod.longitude}&zoom=15&size=600x200&scale=2&markers=color:red%7C${pod.latitude},${pod.longitude}&key=${googleMapsApiKey}`,
                   }}
                   style={{ width: '100%', height: 160, borderRadius: 12, backgroundColor: colors.surfaceVariant }}
                   resizeMode="cover"
@@ -307,11 +337,17 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({ podId, onBack, onChec
           <Text style={styles.totalPrice}>₹{pod.feePerPerson.toLocaleString()}</Text>
           <Text style={styles.perPerson}>/ person</Text>
         </View>
-        <TouchableOpacity style={styles.joinButton} onPress={handleJoin}>
-          <LinearGradient colors={[colors.secondary, '#EF4444']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.joinGradient}>
-            <Text style={styles.joinText}>Join Pod →</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        {isJoined ? (
+          <View style={[styles.joinButton, { backgroundColor: colors.success, justifyContent: 'center', alignItems: 'center', borderRadius: 12 }]}>
+            <Text style={[styles.joinText, { color: colors.white }]}>✓ Joined</Text>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.joinButton} onPress={handleJoin}>
+            <LinearGradient colors={[colors.secondary, '#EF4444']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.joinGradient}>
+              <Text style={styles.joinText}>Join Pod →</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

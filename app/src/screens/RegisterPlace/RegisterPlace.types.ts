@@ -5,6 +5,9 @@ export interface VenueFormValues {
   address: string;
   city: string;
   capacity: string;
+  latitude?: number;
+  longitude?: number;
+  placeId?: string;
 }
 
 export interface PolicyItem {

@@ -11,13 +11,14 @@ interface StepPoliciesProps {
   policiesLoading: boolean;
   policiesAccepted: boolean;
   hasScrolledPolicies: boolean;
+  submitting?: boolean;
   onToggleAccepted: () => void;
   onScrolledToBottom: () => void;
   onSubmit: () => void;
 }
 
 const StepPolicies: React.FC<StepPoliciesProps> = ({
-  policies, policiesLoading, policiesAccepted, hasScrolledPolicies,
+  policies, policiesLoading, policiesAccepted, hasScrolledPolicies, submitting,
   onToggleAccepted, onScrolledToBottom, onSubmit,
 }) => {
   const layoutHeightRef = useRef(0);
@@ -86,8 +87,8 @@ const StepPolicies: React.FC<StepPoliciesProps> = ({
       </>
     )}
     <View style={styles.btnContainer}>
-      <GradientButton title="Submit Registration" onPress={onSubmit}
-        disabled={!policiesAccepted && policies.length > 0} />
+      <GradientButton title={submitting ? 'Submitting…' : 'Submit Registration'} onPress={onSubmit}
+        disabled={(!policiesAccepted && policies.length > 0) || submitting} />
     </View>
   </ScrollView>
   );

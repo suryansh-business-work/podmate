@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Box, Typography, Card, CardContent, Button, Chip, IconButton,
-  CircularProgress, Alert,
+  CircularProgress, Alert, Breadcrumbs, Link,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -17,7 +17,7 @@ const PoliciesPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<Policy | null>(null);
 
-  const { data, loading, refetch } = useQuery<{ policies: Policy[] }>(GET_POLICIES, { fetchPolicy: 'cache-and-network' });
+  const { data, loading, error, refetch } = useQuery<{ policies: Policy[] }>(GET_POLICIES, { fetchPolicy: 'cache-and-network' });
   const [createPolicy, { loading: creating }] = useMutation(CREATE_POLICY);
   const [updatePolicy, { loading: updating }] = useMutation(UPDATE_POLICY);
   const [deletePolicy] = useMutation(DELETE_POLICY);
@@ -60,12 +60,18 @@ const PoliciesPage: React.FC = () => {
   const policies = data?.policies ?? [];
 
   return (
-    <Box>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Breadcrumbs sx={{ mb: 2 }}>
+        <Link underline="hover" color="inherit" href="/dashboard">Dashboard</Link>
+        <Typography color="text.primary">Policies</Typography>
+      </Breadcrumbs>
+
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h5" fontWeight={700}>Policies</Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenNew}>Add Policy</Button>
       </Box>
 
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
       {loading && !data && <Box display="flex" justifyContent="center" py={6}><CircularProgress /></Box>}
       {!loading && policies.length === 0 && <Alert severity="info">No policies found. Create your first policy.</Alert>}
 

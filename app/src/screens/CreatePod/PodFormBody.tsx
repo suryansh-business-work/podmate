@@ -16,7 +16,7 @@ import { useQuery } from '@apollo/client';
 import { colors } from '../../theme';
 import { GradientButton } from '../../components/GradientButton';
 import MediaUploader, { MediaItem } from '../../components/MediaUploader';
-import { GET_APPROVED_PLACES } from '../../graphql/queries';
+import { GET_APPROVED_PLACES, GET_APP_CONFIG } from '../../graphql/queries';
 import { useLocation } from '../../hooks/useLocation';
 import { PodFormValues, ApprovedPlace, CATEGORIES } from './CreatePod.types';
 import PayoutCard from './PayoutCard';
@@ -66,6 +66,15 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
     variables: { search: placeSearch || undefined },
     fetchPolicy: 'cache-and-network',
   });
+
+  const { data: configData } = useQuery(GET_APP_CONFIG, {
+    variables: { keys: ['google_maps_api_key'] },
+    fetchPolicy: 'cache-first',
+  });
+
+  const googleMapsApiKey: string =
+    (configData?.appConfig as Array<{ key: string; value: string }> | undefined)
+      ?.find((c) => c.key === 'google_maps_api_key')?.value ?? '';
 
   const approvedPlaces = placesData?.approvedPlaces ?? [];
 
@@ -198,11 +207,11 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
         </TouchableOpacity>
 
         {/* Map Preview */}
-        {values.latitude !== 0 && values.longitude !== 0 && (
+        {values.latitude !== 0 && values.longitude !== 0 && googleMapsApiKey.length > 0 && (
           <View style={{ marginTop: 8, marginBottom: 12, borderRadius: 12, overflow: 'hidden' }}>
             <Image
               source={{
-                uri: `https://maps.googleapis.com/maps/api/staticmap?center=${values.latitude},${values.longitude}&zoom=15&size=600x200&scale=2&markers=color:red%7C${values.latitude},${values.longitude}&key=GOOGLE_MAPS_KEY`,
+                uri: `https://maps.googleapis.com/maps/api/staticmap?center=${values.latitude},${values.longitude}&zoom=15&size=600x200&scale=2&markers=color:red%7C${values.latitude},${values.longitude}&key=${googleMapsApiKey}`,
               }}
               style={{ width: '100%', height: 140, borderRadius: 12, backgroundColor: colors.surfaceVariant }}
               resizeMode="cover"

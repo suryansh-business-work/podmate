@@ -156,7 +156,7 @@ const FeatureFlagsPage: React.FC = () => {
           placeholder="Search flags..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ minWidth: 300 }}
+          sx={{ width: '100%', maxWidth: 300 }}
         />
       </Paper>
 

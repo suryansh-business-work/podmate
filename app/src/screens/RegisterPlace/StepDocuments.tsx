@@ -3,29 +3,26 @@ import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } fr
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../theme';
 import { GradientButton } from '../../components/GradientButton';
-import MediaUploader, { MediaItem } from '../../components/MediaUploader';
 import styles from './RegisterPlace.styles';
 
 interface StepDocumentsProps {
   businessLicenseUrl: string;
   permitsUrl: string;
-  venueMedia: MediaItem[];
   uploading: boolean;
   progress: number;
   onUploadLicense: () => void;
   onUploadPermits: () => void;
-  onMediaChange: (items: MediaItem[]) => void;
   onContinue: () => void;
 }
 
 const StepDocuments: React.FC<StepDocumentsProps> = ({
-  businessLicenseUrl, permitsUrl, venueMedia, uploading, progress,
-  onUploadLicense, onUploadPermits, onMediaChange, onContinue,
+  businessLicenseUrl, permitsUrl, uploading, progress,
+  onUploadLicense, onUploadPermits, onContinue,
 }) => (
   <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
     <Text style={styles.sectionTitle}>Upload Documents</Text>
     <Text style={styles.helperText}>
-      Upload your business license, food/liquor permits, and venue photos. This helps us verify your venue faster.
+      Upload your business license and venue permits. This helps us verify your venue faster.
     </Text>
     <TouchableOpacity style={styles.uploadBox} activeOpacity={0.7} disabled={uploading} onPress={onUploadLicense}>
       {businessLicenseUrl ? (
@@ -49,9 +46,6 @@ const StepDocuments: React.FC<StepDocumentsProps> = ({
         </>
       )}
     </TouchableOpacity>
-
-    <Text style={styles.sectionTitle}>Venue Photos &amp; Videos</Text>
-    <MediaUploader mediaItems={venueMedia} onMediaChange={onMediaChange} folder="/venues/photos" maxItems={10} />
 
     {uploading && (
       <View style={styles.uploadingRow}>

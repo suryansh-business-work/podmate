@@ -1,7 +1,24 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { Notification, NotificationType, PaginatedNotifications } from './notification.models';
-import { NotificationModel, toNotification } from './notification.models';
+import { NotificationModel, toNotification, AdminNotificationModel } from './notification.models';
+import { UserModel } from '../user/user.models';
 import logger from '../../lib/logger';
+
+export interface AdminNotificationRecord {
+  id: string;
+  title: string;
+  message: string;
+  sentAt: string;
+  recipientCount: number;
+}
+
+export interface PaginatedAdminNotifications {
+  items: AdminNotificationRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 export async function createNotification(
   userId: string,
@@ -22,6 +39,71 @@ export async function createNotification(
   });
   logger.info(`Notification created for user ${userId}: ${title}`);
   return toNotification(doc.toObject({ virtuals: true })) as Notification;
+}
+
+export async function broadcastNotification(
+  title: string,
+  message: string,
+): Promise<{ success: boolean; recipientCount: number }> {
+  const users = await UserModel.find({ isActive: true }, { _id: 1 }).lean();
+  const now = new Date().toISOString();
+  const docs = users.map((u) => ({
+    _id: uuidv4(),
+    userId: (u as { _id: string })._id,
+    type: 'ADMIN_BROADCAST' as NotificationType,
+    title,
+    message,
+    data: '',
+    isRead: false,
+    createdAt: now,
+  }));
+
+  if (docs.length > 0) {
+    await NotificationModel.insertMany(docs);
+  }
+
+  await AdminNotificationModel.create({
+    _id: uuidv4(),
+    title,
+    message,
+    sentAt: now,
+    recipientCount: docs.length,
+  });
+
+  logger.info(`Broadcast notification sent to ${docs.length} users: ${title}`);
+  return { success: true, recipientCount: docs.length };
+}
+
+export async function getAdminNotifications(
+  page: number,
+  limit: number,
+): Promise<PaginatedAdminNotifications> {
+  const total = await AdminNotificationModel.countDocuments();
+  const totalPages = Math.ceil(total / limit);
+  const skip = (page - 1) * limit;
+
+  const docs = await AdminNotificationModel.find()
+    .sort({ sentAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean({ virtuals: true });
+
+  return {
+    items: docs.map((d) => {
+      const raw = d as unknown as Record<string, unknown>;
+      return {
+        id: (raw.id as string) ?? (raw._id as string),
+        title: raw.title as string,
+        message: raw.message as string,
+        sentAt: raw.sentAt as string,
+        recipientCount: raw.recipientCount as number,
+      };
+    }),
+    total,
+    page,
+    limit,
+    totalPages,
+  };
 }
 
 export async function getPaginatedNotifications(

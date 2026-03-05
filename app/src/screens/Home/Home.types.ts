@@ -2,6 +2,7 @@ export interface PodItem {
   id: string;
   title: string;
   imageUrl: string;
+  mediaUrls?: string[];
   feePerPerson: number;
   maxSeats: number;
   currentSeats: number;

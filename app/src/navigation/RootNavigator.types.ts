@@ -15,4 +15,5 @@ export type RootStackParamList = {
   EditProfile: undefined;
   Payments: undefined;
   Privacy: undefined;
+  MyPods: undefined;
 };

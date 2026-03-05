@@ -115,7 +115,7 @@ const PlacesPage: React.FC = () => {
             placeholder="Search places..."
             value={searchInput}
             onChange={(e) => { setSearchInput(e.target.value); setPage(0); }}
-            sx={{ width: 300 }}
+            sx={{ width: '100%', maxWidth: 300 }}
             slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
           />
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>Create Place</Button>

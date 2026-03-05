@@ -36,6 +36,8 @@ import chatbotTypeDefs from './modules/chatbot/chatbot.typeDefs';
 import chatbotResolvers from './modules/chatbot/chatbot.resolvers';
 import notificationTypeDefs from './modules/notification/notification.typeDefs';
 import notificationResolvers from './modules/notification/notification.resolvers';
+import platformFeeTypeDefs from './modules/platformFee/platformFee.typeDefs';
+import platformFeeResolvers from './modules/platformFee/platformFee.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -76,6 +78,9 @@ const rootSchema = `#graphql
     chatbotHistory(limit: Int): [ChatbotMessage!]!
     notifications(page: Int, limit: Int): PaginatedNotifications!
     unreadNotificationCount: Int!
+    adminNotifications(page: Int, limit: Int): PaginatedAdminNotifications!
+    platformFees: PlatformFeeConfig!
+    platformFeeOverrides(page: Int, limit: Int): PaginatedPlatformFeeOverrides!
     openAiModels: [String!]!
   }
 
@@ -141,10 +146,14 @@ const rootSchema = `#graphql
     clearChatbotHistory: Boolean!
     markNotificationRead(id: ID!): Boolean!
     markAllNotificationsRead: Boolean!
+    sendBroadcastNotification(input: SendBroadcastNotificationInput!): BroadcastNotificationResult!
+    upsertPlatformFee(globalFeePercent: Float!): PlatformFeeConfig!
+    upsertPlatformFeeOverride(input: UpsertPlatformFeeOverrideInput!): PlatformFeeOverride!
+    deletePlatformFeeOverride(id: ID!): Boolean!
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs, notificationTypeDefs];
+const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs, notificationTypeDefs, platformFeeTypeDefs];
 
 const resolvers = {
   Query: {
@@ -160,6 +169,7 @@ const resolvers = {
     ...paymentResolvers.Query,
     ...chatbotResolvers.Query,
     ...notificationResolvers.Query,
+    ...platformFeeResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -175,6 +185,7 @@ const resolvers = {
     ...paymentResolvers.Mutation,
     ...chatbotResolvers.Mutation,
     ...notificationResolvers.Mutation,
+    ...platformFeeResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   ChatMessage: chatResolvers.ChatMessage,

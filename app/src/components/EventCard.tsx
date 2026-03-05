@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing, borderRadius } from '../theme';
 import SafeImage from './SafeImage';
+
+const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v'];
+
+function isVideoUrl(url: string): boolean {
+  const path = url.split('?')[0].toLowerCase();
+  return VIDEO_EXTENSIONS.some((ext) => path.endsWith(ext));
+}
 
 interface EventCardProps {
   id: string;
   title: string;
   imageUrl: string;
+  mediaUrls?: string[];
   feePerPerson: number;
   maxSeats: number;
   currentSeats: number;
@@ -24,6 +33,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   id,
   title,
   imageUrl,
+  mediaUrls,
   feePerPerson,
   currentSeats,
   maxSeats,
@@ -43,6 +53,12 @@ export const EventCard: React.FC<EventCardProps> = ({
   });
   const spotsLeft = maxSeats - currentSeats;
 
+  // Detect if the pod has at least one video
+  const hasVideo = useMemo(() => {
+    const allUrls = [imageUrl, ...(mediaUrls ?? [])].filter(Boolean);
+    return allUrls.some((u) => isVideoUrl(u));
+  }, [imageUrl, mediaUrls]);
+
   const getStatusColor = () => {
     switch (status) {
       case 'CONFIRMED':
@@ -58,7 +74,14 @@ export const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(id)} activeOpacity={0.85}>
-      <SafeImage uri={imageUrl} style={styles.image} fallbackIcon="celebration" fallbackIconSize={48} />
+      <View>
+        <SafeImage uri={imageUrl} style={styles.image} fallbackIcon="celebration" fallbackIconSize={48} />
+        {hasVideo && (
+          <View style={styles.playOverlay} pointerEvents="none">
+            <MaterialIcons name="play-circle-filled" size={40} color="rgba(255,255,255,0.85)" />
+          </View>
+        )}
+      </View>
 
       {/* Status Badge */}
       <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
@@ -116,6 +139,12 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 180,
+  },
+  playOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.15)',
   },
   statusBadge: {
     position: 'absolute',

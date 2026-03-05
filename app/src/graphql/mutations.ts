@@ -246,6 +246,8 @@ export const CREATE_PLACE = gql`
       id
       name
       status
+      latitude
+      longitude
     }
   }
 `;

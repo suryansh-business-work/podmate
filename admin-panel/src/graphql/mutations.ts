@@ -432,3 +432,45 @@ export const UPDATE_THEME_PREFERENCE = gql`
     }
   }
 `;
+
+/* ── Broadcast Notification ── */
+
+export const SEND_BROADCAST_NOTIFICATION = gql`
+  mutation SendBroadcastNotification($input: SendBroadcastNotificationInput!) {
+    sendBroadcastNotification(input: $input) {
+      success
+      recipientCount
+    }
+  }
+`;
+
+/* ── Platform Fees ── */
+
+export const UPSERT_PLATFORM_FEE = gql`
+  mutation UpsertPlatformFee($globalFeePercent: Float!) {
+    upsertPlatformFee(globalFeePercent: $globalFeePercent) {
+      id
+      globalFeePercent
+      updatedAt
+    }
+  }
+`;
+
+export const UPSERT_PLATFORM_FEE_OVERRIDE = gql`
+  mutation UpsertPlatformFeeOverride($input: UpsertPlatformFeeOverrideInput!) {
+    upsertPlatformFeeOverride(input: $input) {
+      id
+      pincode
+      feePercent
+      label
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_PLATFORM_FEE_OVERRIDE = gql`
+  mutation DeletePlatformFeeOverride($id: ID!) {
+    deletePlatformFeeOverride(id: $id)
+  }
+`;

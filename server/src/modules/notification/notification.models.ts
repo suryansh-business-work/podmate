@@ -1,7 +1,7 @@
 import mongoose, { Schema, model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
-export type NotificationType = 'POD_JOIN' | 'POD_LEAVE' | 'POD_UPDATE' | 'SUPPORT_REPLY' | 'GENERAL';
+export type NotificationType = 'POD_JOIN' | 'POD_LEAVE' | 'POD_UPDATE' | 'SUPPORT_REPLY' | 'GENERAL' | 'ADMIN_BROADCAST';
 
 export interface Notification {
   id: string;
@@ -32,7 +32,7 @@ const NotificationSchema = new Schema<NotificationMongoDoc>(
     userId: { type: String, required: true, index: true },
     type: {
       type: String,
-      enum: ['POD_JOIN', 'POD_LEAVE', 'SUPPORT_REPLY', 'GENERAL'],
+      enum: ['POD_JOIN', 'POD_LEAVE', 'POD_UPDATE', 'SUPPORT_REPLY', 'GENERAL', 'ADMIN_BROADCAST'],
       default: 'GENERAL',
     },
     title: { type: String, required: true },
@@ -54,3 +54,28 @@ export function toNotification(
   if (!doc) return null;
   return { ...doc, id: doc.id ?? doc._id } as Notification;
 }
+
+/* ── Admin notification log (tracks broadcast history) ── */
+
+export interface AdminNotificationDoc {
+  _id: string;
+  title: string;
+  message: string;
+  sentAt: string;
+  recipientCount: number;
+}
+
+const AdminNotificationSchema = new Schema<AdminNotificationDoc>(
+  {
+    _id: { type: String, default: () => uuidv4() },
+    title: { type: String, required: true },
+    message: { type: String, default: '' },
+    sentAt: { type: String, default: () => new Date().toISOString() },
+    recipientCount: { type: Number, default: 0 },
+  },
+  { toJSON: { virtuals: true }, toObject: { virtuals: true } },
+);
+
+export const AdminNotificationModel =
+  (mongoose.models['AdminNotification'] as mongoose.Model<AdminNotificationDoc> | undefined) ??
+  model<AdminNotificationDoc>('AdminNotification', AdminNotificationSchema);

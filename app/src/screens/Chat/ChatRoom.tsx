@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
   FlatList,
   Image,
   TouchableOpacity,
-  TextInput,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
@@ -19,27 +18,67 @@ import { GET_CHAT_MESSAGES } from '../../graphql/queries';
 import { SEND_MESSAGE } from '../../graphql/mutations';
 import { resolveWsUrl } from '../../graphql/client';
 import { useImageKitUpload } from '../../hooks/useImageKitUpload';
-import { Pod, ChatMessage } from './Chat.types';
+import { ChatRoomProps, ChatMessage } from './Chat.types';
 import { styles } from './Chat.styles';
 import MediaPreview from './MediaPreview';
 import MessageBubble from './MessageBubble';
+import ChatInputBar from './ChatInputBar';
 
-interface ChatRoomProps {
-  pod: Pod;
-  onBack: () => void;
+/* ── Helpers ── */
+
+/** Group messages by day for day-separator headers */
+type ListItem = { type: 'day'; label: string; key: string } | { type: 'msg'; msg: ChatMessage; isMe: boolean; showAvatar: boolean; showSenderName: boolean };
+
+function formatDayLabel(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now.getTime() - d.getTime();
+  const oneDay = 86_400_000;
+  if (diff < oneDay && now.getDate() === d.getDate()) return 'Today';
+  if (diff < 2 * oneDay && now.getDate() - d.getDate() === 1) return 'Yesterday';
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 }
+
+function buildListItems(messages: ChatMessage[], myUserId: string): ListItem[] {
+  const items: ListItem[] = [];
+  let lastDay = '';
+  let lastSenderId = '';
+
+  for (const msg of messages) {
+    const dayLabel = formatDayLabel(msg.createdAt);
+    if (dayLabel !== lastDay) {
+      items.push({ type: 'day', label: dayLabel, key: `day-${dayLabel}-${msg.id}` });
+      lastDay = dayLabel;
+      lastSenderId = ''; // reset grouping on new day
+    }
+    const isMe = msg.senderId === myUserId;
+    const isSameSender = msg.senderId === lastSenderId;
+    items.push({
+      type: 'msg',
+      msg,
+      isMe,
+      showAvatar: !isMe && !isSameSender,
+      showSenderName: !isMe && !isSameSender,
+    });
+    lastSenderId = msg.senderId;
+  }
+  return items;
+}
+
+/* ── Component ── */
 
 const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
   const [messageText, setMessageText] = useState('');
   const [wsMessages, setWsMessages] = useState<ChatMessage[]>([]);
-  const [showAttach, setShowAttach] = useState(false);
   const [previewMedia, setPreviewMedia] = useState<{ uri: string; type: 'IMAGE' | 'VIDEO' } | null>(null);
+  const [myUserId, setMyUserId] = useState<string>('');
   const wsRef = useRef<WebSocket | null>(null);
   const flatListRef = useRef<FlatList>(null);
-  const [myUserId, setMyUserId] = useState<string>('');
+  const isInitialLoad = useRef(true);
 
   const { pickAndUploadImage, pickAndUploadVideo, uploading } = useImageKitUpload();
 
+  /* ── Data ── */
   const { data, loading } = useQuery<{ chatMessages: ChatMessage[] }>(GET_CHAT_MESSAGES, {
     variables: { podId: pod.id },
     fetchPolicy: 'network-only',
@@ -47,11 +86,25 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
 
   const [sendMessageMutation, { loading: sending }] = useMutation(SEND_MESSAGE);
 
-  const allMessages = [
-    ...(data?.chatMessages ?? []),
-    ...wsMessages.filter((wsMsg) => !data?.chatMessages?.some((m: ChatMessage) => m.id === wsMsg.id)),
-  ].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  const allMessages = useMemo(() => {
+    const serverMsgs = data?.chatMessages ?? [];
+    const combined = [
+      ...serverMsgs,
+      ...wsMessages.filter(
+        (wsMsg) => !serverMsgs.some((m: ChatMessage) => m.id === wsMsg.id),
+      ),
+    ];
+    return combined.sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+  }, [data?.chatMessages, wsMessages]);
 
+  const listItems = useMemo(
+    () => buildListItems(allMessages, myUserId),
+    [allMessages, myUserId],
+  );
+
+  /* ── WebSocket ── */
   useEffect(() => {
     let ws: WebSocket | null = null;
     const connect = async () => {
@@ -60,125 +113,209 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
       setMyUserId(userId ?? '');
       ws = new WebSocket(resolveWsUrl());
       wsRef.current = ws;
-      ws.onopen = () => { ws?.send(JSON.stringify({ type: 'join', token, podId: pod.id })); };
+      ws.onopen = () => {
+        ws?.send(JSON.stringify({ type: 'join', token, podId: pod.id }));
+      };
       ws.onmessage = (event: WebSocketMessageEvent) => {
         try {
           const payload = JSON.parse(event.data as string);
           if (payload.type === 'new_message' && payload.message) {
             setWsMessages((prev) => [...prev, payload.message as ChatMessage]);
           }
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore malformed messages */
+        }
       };
     };
     connect();
-    return () => { ws?.close(); wsRef.current = null; };
+    return () => {
+      ws?.close();
+      wsRef.current = null;
+    };
   }, [pod.id]);
 
+  /* ── Auto-scroll to bottom on new messages ── */
+  useEffect(() => {
+    if (listItems.length > 0 && flatListRef.current) {
+      const timer = setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: !isInitialLoad.current });
+        isInitialLoad.current = false;
+      }, isInitialLoad.current ? 300 : 100);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [listItems.length]);
+
+  /* ── Handlers ── */
   const handleSend = useCallback(async () => {
     const trimmed = messageText.trim();
     if (!trimmed || sending) return;
     setMessageText('');
-    try { await sendMessageMutation({ variables: { podId: pod.id, content: trimmed, messageType: 'TEXT' } }); } catch { /* ws will deliver */ }
+    try {
+      await sendMessageMutation({
+        variables: { podId: pod.id, content: trimmed, messageType: 'TEXT' },
+      });
+    } catch {
+      /* websocket will deliver */
+    }
   }, [messageText, sending, sendMessageMutation, pod.id]);
 
   const handleSendImage = useCallback(async () => {
-    setShowAttach(false);
     const file = await pickAndUploadImage('/chat');
     if (!file) return;
-    try { await sendMessageMutation({ variables: { podId: pod.id, content: '', messageType: 'IMAGE', mediaUrl: file.url } }); } catch { /* ws */ }
+    try {
+      await sendMessageMutation({
+        variables: { podId: pod.id, content: '', messageType: 'IMAGE', mediaUrl: file.url },
+      });
+    } catch {
+      /* ws fallback */
+    }
   }, [pickAndUploadImage, sendMessageMutation, pod.id]);
 
   const handleSendVideo = useCallback(async () => {
-    setShowAttach(false);
     const file = await pickAndUploadVideo('/chat');
     if (!file) return;
-    try { await sendMessageMutation({ variables: { podId: pod.id, content: '', messageType: 'VIDEO', mediaUrl: file.url } }); } catch { /* ws */ }
+    try {
+      await sendMessageMutation({
+        variables: { podId: pod.id, content: '', messageType: 'VIDEO', mediaUrl: file.url },
+      });
+    } catch {
+      /* ws fallback */
+    }
   }, [pickAndUploadVideo, sendMessageMutation, pod.id]);
 
-  const handlePreviewMedia = useCallback((uri: string, type: 'IMAGE' | 'VIDEO') => {
-    setPreviewMedia({ uri, type });
-  }, []);
+  const handlePreviewMedia = useCallback(
+    (uri: string, type: 'IMAGE' | 'VIDEO') => setPreviewMedia({ uri, type }),
+    [],
+  );
 
-  const renderMessage = ({ item }: { item: ChatMessage }) => (
-    <MessageBubble item={item} isMe={item.senderId === myUserId} onPreviewMedia={handlePreviewMedia} />
+  /* ── Render ── */
+  const renderItem = useCallback(
+    ({ item }: { item: ListItem }) => {
+      if (item.type === 'day') {
+        return (
+          <View style={styles.daySeparator}>
+            <Text style={styles.daySeparatorText}>{item.label}</Text>
+          </View>
+        );
+      }
+      return (
+        <MessageBubble
+          item={item.msg}
+          isMe={item.isMe}
+          showAvatar={item.showAvatar}
+          showSenderName={item.showSenderName}
+          onPreviewMedia={handlePreviewMedia}
+        />
+      );
+    },
+    [handlePreviewMedia],
+  );
+
+  const keyExtractor = useCallback(
+    (item: ListItem) => (item.type === 'day' ? item.key : item.msg.id),
+    [],
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {/* ── Fixed Header ── */}
       <View style={styles.roomHeader}>
         <TouchableOpacity onPress={onBack} style={styles.backBtn}>
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        {pod.imageUrl ? <Image source={{ uri: pod.imageUrl }} style={styles.roomAvatar} /> : (
-          <View style={[styles.roomAvatar, { backgroundColor: colors.surfaceVariant, justifyContent: 'center', alignItems: 'center' }]}>
+        {pod.imageUrl ? (
+          <Image source={{ uri: pod.imageUrl }} style={styles.roomAvatar} />
+        ) : (
+          <View
+            style={[
+              styles.roomAvatar,
+              {
+                backgroundColor: colors.surfaceVariant,
+                justifyContent: 'center',
+                alignItems: 'center',
+              },
+            ]}
+          >
             <MaterialIcons name="groups" size={20} color={colors.textTertiary} />
           </View>
         )}
-        <View style={{ flex: 1 }}>
-          <Text style={styles.roomTitle} numberOfLines={1}>{pod.title}</Text>
-          <Text style={styles.roomSubtitle}>{pod.category}</Text>
+        <View style={styles.roomHeaderInfo}>
+          <Text style={styles.roomTitle} numberOfLines={1}>
+            {pod.title}
+          </Text>
+          <Text
+            style={[
+              styles.roomSubtitle,
+              pod.status !== 'ACTIVE' && styles.roomSubtitleOffline,
+            ]}
+          >
+            {pod.status === 'ACTIVE' ? 'Active now' : pod.category}
+          </Text>
         </View>
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}>
-        {loading ? (
-          <View style={styles.centered}><ActivityIndicator size="large" color={colors.primary} /></View>
+      {/* ── Keyboard-aware body ── */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
+        {/* Messages */}
+        {loading && allMessages.length === 0 ? (
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
         ) : (
           <FlatList
             ref={flatListRef}
-            data={allMessages}
-            keyExtractor={(item) => item.id}
-            renderItem={renderMessage}
+            data={listItems}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
             contentContainerStyle={styles.messagesList}
-            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
             keyboardDismissMode="interactive"
             keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
+            initialNumToRender={30}
+            maxToRenderPerBatch={15}
+            windowSize={11}
+            removeClippedSubviews={Platform.OS === 'android'}
+            ListEmptyComponent={
+              !loading ? (
+                <View style={styles.centered}>
+                  <MaterialIcons name="chat-bubble-outline" size={48} color={colors.textTertiary} />
+                  <Text style={styles.emptyTitle}>No messages yet</Text>
+                  <Text style={styles.emptySubtitle}>
+                    Start the conversation!
+                  </Text>
+                </View>
+              ) : null
+            }
           />
         )}
 
-        {uploading && (
-          <View style={styles.uploadingBar}>
-            <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={styles.uploadingText}>Uploading media…</Text>
-          </View>
-        )}
-
-        <View style={styles.inputBar}>
-          <TouchableOpacity onPress={() => setShowAttach(!showAttach)} style={styles.attachBtn}>
-            <MaterialIcons name="add" size={24} color={showAttach ? colors.primary : colors.textSecondary} />
-          </TouchableOpacity>
-          <TextInput
-            style={styles.input}
-            placeholder="Type a message…"
-            placeholderTextColor={colors.textTertiary}
-            value={messageText}
-            onChangeText={setMessageText}
-            multiline
-            maxLength={2000}
-          />
-          <TouchableOpacity onPress={handleSend} disabled={!messageText.trim() || sending} style={[styles.sendBtn, (!messageText.trim() || sending) && styles.sendBtnDisabled]}>
-            <MaterialIcons name="send" size={18} color={colors.white} />
-          </TouchableOpacity>
-        </View>
-        {showAttach && (
-          <View style={styles.attachRow}>
-            <TouchableOpacity style={styles.attachOption} onPress={handleSendImage}>
-              <View style={[styles.attachCircle, { backgroundColor: colors.primary + '15' }]}>
-                <MaterialIcons name="image" size={22} color={colors.primary} />
-              </View>
-              <Text style={styles.attachLabel}>Photo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.attachOption} onPress={handleSendVideo}>
-              <View style={[styles.attachCircle, { backgroundColor: colors.secondary + '15' }]}>
-                <MaterialIcons name="videocam" size={22} color={colors.secondary} />
-              </View>
-              <Text style={styles.attachLabel}>Video</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        {/* Input Bar */}
+        <ChatInputBar
+          value={messageText}
+          sending={sending}
+          uploading={uploading}
+          onChangeText={setMessageText}
+          onSend={handleSend}
+          onSendImage={handleSendImage}
+          onSendVideo={handleSendVideo}
+        />
       </KeyboardAvoidingView>
 
-      {previewMedia && <MediaPreview visible uri={previewMedia.uri} type={previewMedia.type} onClose={() => setPreviewMedia(null)} />}
+      {/* Media Preview Modal */}
+      {previewMedia && (
+        <MediaPreview
+          visible
+          uri={previewMedia.uri}
+          type={previewMedia.type}
+          onClose={() => setPreviewMedia(null)}
+        />
+      )}
     </SafeAreaView>
   );
 };

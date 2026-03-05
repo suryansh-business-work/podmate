@@ -15,6 +15,8 @@ import PlaceDetailPage from './pages/PlaceDetailPage';
 import FeatureFlagsPage from './pages/FeatureFlagsPage';
 import PaymentsPage from './pages/PaymentsPage';
 import AiConfigPage from './pages/AiConfig';
+import NotificationsPage from './pages/Notifications';
+import FinancePage from './pages/Finance';
 import AdminLayout from './layouts/AdminLayout';
 
 const App: React.FC = () => {
@@ -57,6 +59,8 @@ const App: React.FC = () => {
           <Route path="/places/:id" element={<PlaceDetailPage />} />
           <Route path="/policies" element={<PoliciesPage />} />
           <Route path="/payments" element={<PaymentsPage />} />
+          <Route path="/finance" element={<FinancePage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/ai" element={<AiConfigPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/feature-flags" element={<FeatureFlagsPage />} />

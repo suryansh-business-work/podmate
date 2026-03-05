@@ -1,5 +1,6 @@
 import type { GraphQLContext } from '../auth/auth.models';
-import { requireAuth } from '../auth/auth.services';
+import { requireAuth, requireRole } from '../auth/auth.services';
+import { UserRole } from '../user/user.models';
 import * as notificationService from './notification.services';
 
 const notificationResolvers = {
@@ -21,6 +22,18 @@ const notificationResolvers = {
       const auth = requireAuth(context);
       return notificationService.getUnreadCount(auth.userId);
     },
+
+    adminNotifications: (
+      _: unknown,
+      args: { page?: number; limit?: number },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return notificationService.getAdminNotifications(
+        args.page ?? 1,
+        args.limit ?? 20,
+      );
+    },
   },
 
   Mutation: {
@@ -40,6 +53,15 @@ const notificationResolvers = {
     ) => {
       const auth = requireAuth(context);
       return notificationService.markAllAsRead(auth.userId);
+    },
+
+    sendBroadcastNotification: (
+      _: unknown,
+      args: { input: { title: string; message: string } },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return notificationService.broadcastNotification(args.input.title, args.input.message);
     },
   },
 };

@@ -17,6 +17,8 @@ const placeTypeDefs = `#graphql
     category: String!
     phone: String!
     email: String!
+    latitude: Float!
+    longitude: Float!
     status: PlaceStatus!
     isVerified: Boolean!
     createdAt: String!
@@ -41,6 +43,8 @@ const placeTypeDefs = `#graphql
     category: String!
     phone: String
     email: String
+    latitude: Float
+    longitude: Float
   }
 
   input UpdatePlaceInput {
@@ -53,6 +57,8 @@ const placeTypeDefs = `#graphql
     category: String
     phone: String
     email: String
+    latitude: Float
+    longitude: Float
   }
 `;
 

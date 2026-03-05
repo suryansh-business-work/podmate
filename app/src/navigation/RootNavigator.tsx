@@ -15,6 +15,7 @@ import SupportScreen from '../screens/SupportScreen';
 import ChatbotScreen from '../screens/Chatbot';
 import EditProfileScreen from '../screens/EditProfile';
 import PaymentsScreen from '../screens/Payments';
+import MyPodsScreen from '../screens/MyPods';
 import PrivacySecurityScreen from '../screens/PrivacySecurity';
 import CheckoutScreen from '../screens/Checkout';
 import ChatbotFab from '../components/ChatbotFab';
@@ -53,7 +54,7 @@ const RootNavigator: React.FC = () => {
   const handleProfileNavigate = (screen: string, navigation: { navigate: (name: string, params?: Record<string, unknown>) => void }) => {
     const map: Record<string, () => void> = {
       EditProfile: () => navigation.navigate('EditProfile'),
-      MyPods: () => navigation.navigate('Main', { screen: 'Chat' } as never),
+      MyPods: () => navigation.navigate('MyPods'),
       Payments: () => navigation.navigate('Payments'),
       Notifications: () => navigation.navigate('Notifications'),
       Privacy: () => navigation.navigate('Privacy'),
@@ -74,8 +75,8 @@ const RootNavigator: React.FC = () => {
       CreatePod: () => nav.navigate('CreatePod'),
       Notifications: () => nav.navigate('Notifications'),
       RegisterPlace: () => nav.navigate('RegisterPlace'),
-      Tickets: () => nav.navigate('Main', { screen: 'Profile' } as never),
-      Payments: () => nav.navigate('Main', { screen: 'Profile' } as never),
+      MyPods: () => nav.navigate('MyPods'),
+      Payments: () => nav.navigate('Payments'),
       Help: () => nav.navigate('Faq'),
       Support: () => nav.navigate('Support'),
     };
@@ -159,6 +160,14 @@ const RootNavigator: React.FC = () => {
               </Stack.Screen>
               <Stack.Screen name="Payments" options={{ presentation: 'card' }}>
                 {({ navigation }) => <PaymentsScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="MyPods" options={{ presentation: 'card' }}>
+                {({ navigation }) => (
+                  <MyPodsScreen
+                    onBack={() => navigation.goBack()}
+                    onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
+                  />
+                )}
               </Stack.Screen>
               <Stack.Screen name="Privacy" options={{ presentation: 'card' }}>
                 {({ navigation }) => <PrivacySecurityScreen onBack={() => navigation.goBack()} />}

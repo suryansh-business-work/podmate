@@ -50,7 +50,7 @@ const ChatbotFab: React.FC<ChatbotFabProps> = memo(function ChatbotFab({ onPress
   );
 });
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+const createStyles = ({ colors }: ThemeUtils) =>
   StyleSheet.create({
     container: {
       position: 'absolute',

@@ -1,6 +1,6 @@
 {
   "name": "partywings",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "PartyWings — Trust-based communities platform",
   "scripts": {
@@ -22,6 +22,8 @@
     "version:patch": "node scripts/version-bump.mjs patch",
     "version:minor": "node scripts/version-bump.mjs minor",
     "version:major": "node scripts/version-bump.mjs major",
+    "clean:cache": "node -e \"const fs=require('fs');const rm=p=>{try{fs.rmSync(p,{recursive:true,force:true})}catch{}};['node_modules/.cache','app/node_modules/.cache','app/.expo','admin-panel/node_modules/.cache','server/node_modules/.cache','website/node_modules/.cache'].forEach(rm);console.log('✅ Cache cleaned')\"",
+    "clean": "pnpm clean:cache && pnpm install",
     "prepare": "husky"
   },
   "devDependencies": {

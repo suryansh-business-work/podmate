@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { spacing, borderRadius } from '../theme';
 import { useImageKitUpload } from '../hooks/useImageKitUpload';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 

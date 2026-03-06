@@ -27,7 +27,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     // Production logging - can be sent to a remote service
     if (__DEV__) {
-      // eslint-disable-next-line no-console
       console.error('[ErrorBoundary]', error.message, errorInfo.componentStack);
     }
   }

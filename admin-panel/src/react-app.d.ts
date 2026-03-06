@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 import 'react';
 
 // Fix for react-router-dom v7 / Apollo Client JSX compatibility with React 19 types

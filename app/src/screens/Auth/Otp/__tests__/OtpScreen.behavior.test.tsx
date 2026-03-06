@@ -1,4 +1,3 @@
-import React from 'react';
 import { fireEvent, waitFor, act } from '@testing-library/react-native';
 import { renderOtpScreen } from './OtpScreen.setup';
 

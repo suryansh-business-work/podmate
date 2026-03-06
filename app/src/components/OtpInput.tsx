@@ -6,8 +6,7 @@ import {
   NativeSyntheticEvent,
   TextInputKeyPressEventData,
 } from 'react-native';
-import { borderRadius } from '../theme';
-import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
+import { useThemedStyles, ThemeUtils } from '../hooks/useThemedStyles';
 
 interface OtpInputProps {
   length?: number;
@@ -21,7 +20,6 @@ export const OtpInput: React.FC<OtpInputProps> = memo(function OtpInput({
   testID,
 }) {
   const styles = useThemedStyles(createStyles);
-  const colors = useAppColors();
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(''));
   const inputs = useRef<(TextInput | null)[]>([]);
 
@@ -77,7 +75,7 @@ export const OtpInput: React.FC<OtpInputProps> = memo(function OtpInput({
   );
 });
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+const createStyles = ({ colors, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
     container: {
       flexDirection: 'row',

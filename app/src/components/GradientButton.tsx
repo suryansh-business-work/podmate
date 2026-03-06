@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 
@@ -45,7 +45,7 @@ export const GradientButton: React.FC<GradientButtonProps> = memo(function Gradi
   );
 });
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+const createStyles = ({ colors }: ThemeUtils) =>
   StyleSheet.create({
     container: {
       borderRadius: 28,

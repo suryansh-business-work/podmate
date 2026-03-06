@@ -1,7 +1,6 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { ThemeUtils } from '../../hooks/useThemedStyles';
 
-const { width } = Dimensions.get('window');
 const SIDEBAR_WIDTH = 56;
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>

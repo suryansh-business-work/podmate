@@ -20,11 +20,7 @@ import {
   GET_MY_SUPPORT_TICKETS,
   GET_MY_CALLBACK_REQUESTS,
 } from '../../graphql/queries';
-import {
-  CREATE_SUPPORT_TICKET,
-  REPLY_SUPPORT_TICKET,
-  REQUEST_CALLBACK,
-} from '../../graphql/mutations';
+import { CREATE_SUPPORT_TICKET, REQUEST_CALLBACK } from '../../graphql/mutations';
 import { Policy, FaqScreenProps, FAQ_ITEMS, TABS, TabKey } from './Faq.types';
 import TicketCard from '../Support/TicketCard';
 import { SupportTicket } from '../Support/Support.types';

@@ -6,7 +6,6 @@ import PolicyIcon from '@mui/icons-material/Policy';
 import PlaceIcon from '@mui/icons-material/Place';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import SettingsIcon from '@mui/icons-material/Settings';
-import TuneIcon from '@mui/icons-material/Tune';
 import FlagIcon from '@mui/icons-material/Flag';
 import PaymentIcon from '@mui/icons-material/Payment';
 import SmartToyIcon from '@mui/icons-material/SmartToy';

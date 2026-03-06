@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>

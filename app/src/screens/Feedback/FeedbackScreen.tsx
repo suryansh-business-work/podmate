@@ -34,7 +34,6 @@ const TYPE_ICONS: Record<FeedbackType, MaterialIconName> = {
 
 const StatusBadge: React.FC<{ status: Feedback['status'] }> = ({ status }) => {
   const styles = useThemedStyles(createStyles);
-  const colors = useAppColors();
   const badgeStyle =
     status === 'PENDING'
       ? styles.badgePending

@@ -24,7 +24,6 @@ import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const StatusBadge: React.FC<{ status: PodIdea['status'] }> = ({ status }) => {
   const styles = useThemedStyles(createStyles);
-  const colors = useAppColors();
   const bgStyle =
     status === 'PENDING'
       ? styles.statusPending

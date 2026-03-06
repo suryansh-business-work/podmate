@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 import { ThemeUtils } from '../../hooks/useThemedStyles';
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+const createStyles = ({ colors, spacing }: ThemeUtils) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.surface },
     header: {

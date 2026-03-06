@@ -57,7 +57,7 @@ const FollowListScreen: React.FC<FollowListScreenProps> = ({
   const getUserFromFollow = (item: Follow): FollowUser =>
     activeTab === 'followers' ? item.follower : item.following;
 
-  const handleFollowToggle = useCallback(
+  const _handleFollowToggle = useCallback(
     async (targetUserId: string, isCurrentlyFollowing: boolean) => {
       try {
         if (isCurrentlyFollowing) {

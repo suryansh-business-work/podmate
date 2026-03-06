@@ -104,7 +104,7 @@ const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack }) => {
     [leaveLive, refetch],
   );
 
-  const handleEnd = useCallback(
+  const _handleEnd = useCallback(
     async (sessionId: string) => {
       Alert.alert('End Live', 'Are you sure you want to end this live session?', [
         { text: 'Cancel', style: 'cancel' },

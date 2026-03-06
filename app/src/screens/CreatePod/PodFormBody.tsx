@@ -89,7 +89,7 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
   const approvedPlaces = placesData?.approvedPlaces ?? [];
 
-  const { location: gpsLocation, loading: gpsLoading, requestLocation } = useLocation();
+  const { location: _gpsLocation, loading: gpsLoading, requestLocation } = useLocation();
 
   const handleUseMyLocation = useCallback(async () => {
     const loc = await requestLocation();

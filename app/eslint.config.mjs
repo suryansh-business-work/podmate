@@ -50,7 +50,7 @@ export default [
       'react/no-unescaped-entities': 'off',
       '@typescript-eslint/no-unused-vars': [
         'warn',
-        { argsIgnorePattern: '^_' },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/no-require-imports': 'warn',
       'no-undef': 'off',

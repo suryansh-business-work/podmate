@@ -50,7 +50,7 @@ type LocationMode = 'at_venue' | 'search';
 
 const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
   address,
-  city,
+  city: _city,
   latitude,
   longitude,
   googleMapsApiKey,

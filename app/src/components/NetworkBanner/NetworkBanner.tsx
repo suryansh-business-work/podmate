@@ -96,7 +96,7 @@ const NetworkBanner: React.FC = memo(function NetworkBanner() {
   );
 });
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+const createStyles = ({ colors }: ThemeUtils) =>
   StyleSheet.create({
     container: {
       position: 'absolute',

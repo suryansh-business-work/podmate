@@ -46,6 +46,22 @@ pnpm lint           # Run ESLint
 pnpm format         # Format with Prettier
 ```
 
+## Development Builds
+
+For features that don't work in Expo Go (like push notifications), use a development build:
+
+```bash
+# Install on device via EAS
+pnpm build:apk:dev     # Android development build
+pnpm build:ios:dev     # iOS development build
+
+# Or build locally (requires Android Studio / Xcode)
+npx expo run:android
+npx expo run:ios
+```
+
+Read more: [Expo Development Builds](https://docs.expo.dev/develop/development-builds/introduction/)
+
 ## Build (APK / IPA)
 
 Requires [EAS CLI](https://docs.expo.dev/build/introduction/):
@@ -100,6 +116,9 @@ pnpm build:prod:ios
 ## Features
 
 - **Push Notifications** — Expo push notifications for Android, iOS, and web
+  - ⚠️ **Note**: Push notifications require a [development build](https://docs.expo.dev/develop/development-builds/introduction/) or standalone app  
+  - Remote notifications are not supported in Expo Go (SDK 53+)
+  - To test push notifications, build with: `pnpm build:apk:dev` or `pnpm build:ios:dev`
 - **Dark/Light Mode** — Automatic system theme detection with centralized color config
 - **Keyboard-Safe Views** — Reusable KeyboardSafeView component; adjustResize on Android
 - **Icon System** — @expo/vector-icons (MaterialIcons, MaterialCommunityIcons)

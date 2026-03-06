@@ -7,7 +7,7 @@ import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedSty
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const splashVideo = require('../../assets/icon-and-splash/splash_photo.mp4');
 
 interface SplashScreenProps {
@@ -73,7 +73,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+const createStyles = ({ colors }: ThemeUtils) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.black },
     video: { width: SCREEN_W, height: SCREEN_H, position: 'absolute', top: 0, left: 0 },

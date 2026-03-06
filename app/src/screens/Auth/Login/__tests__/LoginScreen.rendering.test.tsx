@@ -1,4 +1,3 @@
-import React from 'react';
 import { renderLoginScreen } from './LoginScreen.setup';
 
 describe('LoginScreen - Rendering', () => {

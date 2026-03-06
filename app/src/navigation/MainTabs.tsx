@@ -1,5 +1,5 @@
 import React, { ComponentProps } from 'react';
-import { StyleSheet, View, Text, Platform } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -109,7 +109,7 @@ const MainTabs: React.FC<MainTabsProps> = ({
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+const createStyles = ({ colors }: ThemeUtils) =>
   StyleSheet.create({
     tabBar: {
       height: 80,

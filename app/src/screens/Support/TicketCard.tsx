@@ -14,7 +14,6 @@ interface TicketCardProps {
 }
 
 const ReplyBubble: React.FC<{ reply: TicketReply }> = ({ reply }) => {
-  const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const isAdmin = reply.senderRole === 'ADMIN';
   return (

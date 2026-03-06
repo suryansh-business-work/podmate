@@ -5,7 +5,6 @@ import {
   Grid2 as Grid,
   Card,
   CardContent,
-  CircularProgress,
   Breadcrumbs,
   Alert,
   Skeleton,

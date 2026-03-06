@@ -62,11 +62,23 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
         };
         const mimeType = mimeMap[ext.toLowerCase()] ?? 'application/octet-stream';
 
-        formData.append('file', {
-          uri: localUri,
-          name: fileName,
-          type: mimeType,
-        } as unknown as Blob);
+        if (Platform.OS === 'web') {
+          // On web the URI is a blob: or data: URL — fetch it into a real File object
+          // so that multipart/form-data is constructed correctly in the browser.
+          const blobResponse = await fetch(localUri);
+          const blob = await blobResponse.blob();
+          const fileObj = new File([blob], fileName, { type: mimeType });
+          formData.append('file', fileObj);
+        } else {
+          // React Native: the { uri, name, type } object is intercepted by the
+          // native FormData polyfill and serialised as a proper multipart part.
+          formData.append('file', {
+            uri: localUri,
+            name: fileName,
+            type: mimeType,
+          } as unknown as Blob);
+        }
+
         formData.append('fileName', fileName);
         formData.append('folder', folder);
 

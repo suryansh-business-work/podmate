@@ -25,7 +25,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useMutation } from '@apollo/client';
 import { UPDATE_USER_ROLE } from '../../graphql/mutations';
-import { User, Order, roleColor, formatDate } from './Users.types';
+import { User, Order, formatDate } from './Users.types';
 
 interface UsersTableProps {
   users: User[];

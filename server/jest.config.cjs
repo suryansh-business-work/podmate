@@ -1,7 +1,6 @@
 /** @type {import('jest').Config} */
 const config = {
   testEnvironment: 'node',
-  extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
@@ -9,7 +8,7 @@ const config = {
     '^.+\\.ts$': [
       'ts-jest',
       {
-        useESM: true,
+        useESM: false,
         tsconfig: 'tsconfig.json',
       },
     ],

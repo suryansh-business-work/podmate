@@ -1,0 +1,40 @@
+name: App Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'pnpm-lock.yaml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+jobs:
+  app-test:
+    name: Run App Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check app
+        run: pnpm --filter partywings-app type-check
+
+      - name: Run app tests
+        run: pnpm --filter partywings-app test -- --ci --coverage --maxWorkers=2
+
+      - name: Check coverage thresholds
+        run: pnpm --filter partywings-app test -- --ci --coverage --coverageReporters=text-summary

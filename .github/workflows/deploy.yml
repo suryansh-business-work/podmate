@@ -89,6 +89,7 @@ jobs:
             cd /opt/partywings
             cp docker-compose.prod.yml docker-compose.yml
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export MONGODB_URI="${{ secrets.MONGODB_URI }}"
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             docker compose down --remove-orphans || true
             docker compose pull

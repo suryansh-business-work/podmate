@@ -1,10 +1,14 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import multer from 'multer';
 import { ApolloServer } from '@apollo/server';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { expressMiddleware } from '@apollo/server/express4';
 import type { GraphQLContext } from './modules/auth/auth.models';
 import { getUserFromRequest, verifyToken } from './modules/auth/auth.services';
@@ -54,6 +58,24 @@ import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
 const PORT = parseInt(process.env.PORT ?? '4039', 10);
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+/* ── Rate limiting configuration ── */
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: IS_PRODUCTION ? 200 : 1000, // stricter in production
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: IS_PRODUCTION ? 20 : 100, // strict limit for auth endpoints
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts, please try again later.' },
+});
 
 const rootSchema = `#graphql
   type Query {
@@ -290,16 +312,94 @@ async function main(): Promise<void> {
   const server = new ApolloServer<GraphQLContext>({
     typeDefs,
     resolvers,
+    introspection: true,
+    plugins: [
+      ApolloServerPluginLandingPageLocalDefault({
+        embed: true,
+        footer: false,
+      }),
+    ],
   });
 
   await connectDB();
   await server.start();
 
-  app.use(cors());
+  /* ── Security headers ── */
+  app.use(helmet({
+    contentSecurityPolicy: IS_PRODUCTION ? undefined : false,
+    crossOriginEmbedderPolicy: false,
+  }));
+
+  /* ── Gzip compression ── */
+  app.use(compression());
+
+  /* ── CORS configuration ── */
+  app.use(cors({
+    origin: IS_PRODUCTION
+      ? [
+          'https://podify-admin.exyconn.com',
+          'https://podify-website.exyconn.com',
+          'https://podify-api.exyconn.com',
+        ]
+      : true,
+    credentials: true,
+  }));
+
   app.use(express.json({ limit: '10mb' }));
+
+  /* ── Rate limiting ── */
+  app.use('/graphql', apiLimiter);
+  app.use('/graphql/docs', apiLimiter);
 
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', service: 'partywings-server', port: PORT });
+  });
+
+  /* ── GraphQL Documentation Explorer ── */
+  app.get('/graphql/docs', (_req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PartyWings API Documentation</title>
+  <style>
+    body { height: 100vh; margin: 0; overflow: hidden; }
+    #sandbox { height: 100vh; width: 100vw; }
+  </style>
+</head>
+<body>
+  <div id="sandbox"></div>
+  <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
+  <script>
+    new window.EmbeddedSandbox({
+      target: '#sandbox',
+      initialEndpoint: window.location.origin + '/graphql',
+      includeCookies: false,
+      initialState: {
+        document: \`# Welcome to PartyWings API
+# 
+# Use this explorer to browse the full GraphQL schema,
+# run queries, and test mutations.
+#
+# Example: Get current user
+query Me {
+  me {
+    id
+    name
+    phone
+    email
+    role
+  }
+}
+\`,
+        pollForSchemaUpdates: true,
+      },
+    });
+  </script>
+</body>
+</html>`);
   });
 
   /* ── File Upload REST endpoint ── */
@@ -380,7 +480,27 @@ async function main(): Promise<void> {
   httpServer.listen(PORT, '0.0.0.0', () => {
     logger.info(`PartyWings Server ready at http://0.0.0.0:${PORT}/graphql`);
     logger.info(`WebSocket ready at ws://0.0.0.0:${PORT}/ws`);
+    logger.info(`Environment: ${IS_PRODUCTION ? 'production' : 'development'}`);
   });
+
+  /* ── Graceful shutdown ── */
+  const shutdown = async (signal: string): Promise<void> => {
+    logger.info(`${signal} received — shutting down gracefully…`);
+    wss.close();
+    httpServer.close(async () => {
+      await server.stop();
+      logger.info('Server stopped');
+      process.exit(0);
+    });
+    // Force exit after 10 seconds
+    setTimeout(() => {
+      logger.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 10_000);
+  };
+
+  process.on('SIGTERM', () => void shutdown('SIGTERM'));
+  process.on('SIGINT', () => void shutdown('SIGINT'));
 }
 
 main().catch((err: Error) => {

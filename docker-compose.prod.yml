@@ -6,6 +6,9 @@ services:
       - '4039:4039'
     env_file:
       - .env
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - NODE_ENV=production
     restart: unless-stopped
     networks:
       - partywings

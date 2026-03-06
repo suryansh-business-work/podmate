@@ -1,0 +1,40 @@
+name: API Tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'pnpm-lock.yaml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+jobs:
+  api-test:
+    name: Run API Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check server
+        run: pnpm --filter partywings-server type-check
+
+      - name: Run API tests
+        run: pnpm --filter partywings-server test -- --ci --coverage --maxWorkers=2
+
+      - name: Check coverage thresholds
+        run: pnpm --filter partywings-server test -- --ci --coverage --coverageReporters=text-summary

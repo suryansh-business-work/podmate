@@ -2,51 +2,15 @@ import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/clien
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
-import { Platform } from 'react-native';
+import config from '../config';
 
-/**
- * Dynamically resolve the GraphQL API URL.
- * Priority:
- *  1. EXPO_PUBLIC_API_URL env variable (set in app.json / .env)
- *  2. app.json extra.apiUrl (manual override)
- *  3. Expo dev-server host (auto-detected from the debugger connection)
- *  4. Android emulator special alias 10.0.2.2
- *  5. localhost fallback
- */
-function resolveApiUrl(): string {
-  const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (envUrl) return envUrl;
+export const API_URL = config.apiUrl;
 
-  const extraApiUrl = Constants.expoConfig?.extra?.apiUrl;
-  if (extraApiUrl) return extraApiUrl;
-
-  const SERVER_PORT = '4039';
-
-  // Expo Go / dev-client: the manifest tells us the host's LAN IP
-  const debuggerHost =
-    Constants.expoConfig?.hostUri ?? Constants.manifest2?.extra?.expoGo?.debuggerHost ?? '';
-  const lanIp = debuggerHost.split(':')[0];
-
-  if (lanIp) {
-    return `http://${lanIp}:${SERVER_PORT}/graphql`;
-  }
-
-  // Android emulator → host machine
-  if (Platform.OS === 'android') {
-    return `http://10.0.2.2:${SERVER_PORT}/graphql`;
-  }
-
-  return `http://localhost:${SERVER_PORT}/graphql`;
-}
-
-export const API_URL = resolveApiUrl();
-
-/** Derive the WebSocket URL from the HTTP API URL */
+/** Derive the WebSocket URL from config */
 export function resolveWsUrl(): string {
   const envWs = process.env.EXPO_PUBLIC_WS_URL;
   if (envWs) return envWs;
-  return API_URL.replace(/^http/, 'ws').replace('/graphql', '/ws');
+  return config.wsUrl;
 }
 
 const httpLink = createHttpLink({

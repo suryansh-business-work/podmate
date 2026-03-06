@@ -33,6 +33,15 @@ services:
     networks:
       - partywings
 
+  app:
+    image: ${DOCKERHUB_USERNAME}/partywings-app:latest
+    container_name: partywings-app
+    ports:
+      - '4038:4038'
+    restart: unless-stopped
+    networks:
+      - partywings
+
 networks:
   partywings:
     driver: bridge

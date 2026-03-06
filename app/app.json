@@ -14,7 +14,8 @@
     "userInterfaceStyle": "light",
     "platforms": [
       "ios",
-      "android"
+      "android",
+      "web"
     ],
     "splash": {
       "image": "./assets/icon-and-splash/logo-1284x2778.png",
@@ -38,6 +39,10 @@
     },
     "plugins": [
       "expo-video"
-    ]
+    ],
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/icon-and-splash/logo-1024x1024.png"
+    }
   }
 }

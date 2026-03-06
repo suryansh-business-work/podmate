@@ -2,12 +2,12 @@ import { useEffect, useRef, useCallback } from 'react';
 import { Platform, AppState } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import Constants from 'expo-constants';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useMutation } from '@apollo/client';
 import { REGISTER_PUSH_TOKEN, UNREGISTER_PUSH_TOKEN } from '../graphql/mutations';
 
 // Only set notification handler if not in Expo Go (SDK 53+ doesn't support remote notifications)
-if (Constants.executionEnvironment !== Constants.ExecutionEnvironment.StoreClient) {
+if (Constants.executionEnvironment !== ExecutionEnvironment.StoreClient) {
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,
@@ -35,7 +35,7 @@ function getDeviceId(): string {
 
 async function getExpoPushToken(): Promise<string | null> {
   // Skip push notifications in Expo Go (SDK 53+ removed remote notifications support)
-  if (Constants.executionEnvironment === Constants.ExecutionEnvironment.StoreClient) {
+  if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) {
     console.log('Push notifications are not supported in Expo Go. Use a development build.');
     return null;
   }

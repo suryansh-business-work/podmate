@@ -215,6 +215,9 @@ A task is considered complete only if:
 <feature>.services.ts
 <feature>.validators.ts
 
+Testing Standards
+No test file should exceed 200 lines. If it does, please segregate it into multiple files within the same module by creating a __tests__ folder. Also, please provide testing standards for the same.
+
 Additionally
 1. Do not user any depreacated things in codebase in any of the projects
 2. Do not use any dummy data anywhere in the codebase only server data sources are allowed

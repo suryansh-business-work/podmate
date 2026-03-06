@@ -9,6 +9,7 @@ interface GradientButtonProps {
   disabled?: boolean;
   style?: object;
   children?: React.ReactNode;
+  testID?: string;
 }
 
 export const GradientButton: React.FC<GradientButtonProps> = ({
@@ -17,6 +18,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   disabled = false,
   style,
   children,
+  testID,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
@@ -26,6 +28,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.8}
+      testID={testID}
     >
       <LinearGradient
         colors={[colors.gradientStart, colors.gradientEnd]}

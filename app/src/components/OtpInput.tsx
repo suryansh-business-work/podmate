@@ -10,9 +10,10 @@ import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedSty
 interface OtpInputProps {
   length?: number;
   onComplete: (otp: string) => void;
+  testID?: string;
 }
 
-export const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onComplete }) => {
+export const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onComplete, testID }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(''));
@@ -42,7 +43,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onComplete }) =>
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID={testID}>
       {otp.map((digit, index) => (
         <TextInput
           key={index}
@@ -56,6 +57,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onComplete }) =>
           onChangeText={(text) => handleChange(text, index)}
           onKeyPress={(e) => handleKeyPress(e, index)}
           autoFocus={index === 0}
+          testID={testID ? `${testID}-${index}` : undefined}
         />
       ))}
     </View>

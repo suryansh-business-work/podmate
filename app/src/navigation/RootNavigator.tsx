@@ -3,8 +3,7 @@ import { NavigationContainer, NavigationContainerRef } from '@react-navigation/n
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Animated, TouchableOpacity, StyleSheet, BackHandler, Alert } from 'react-native';
 import SplashScreen from '../screens/SplashScreen';
-import LoginScreen from '../screens/LoginScreen';
-import OtpScreen from '../screens/OtpScreen';
+import { LoginScreen, OtpScreen } from '../screens/Auth';
 import CompleteProfileScreen from '../screens/CompleteProfileScreen';
 import PodDetailScreen from '../screens/PodDetailScreen';
 import CreatePodScreen from '../screens/CreatePod';

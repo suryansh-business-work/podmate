@@ -3,14 +3,34 @@ name: Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm type-check
+      - run: pnpm test
+
   build-and-push:
     runs-on: ubuntu-latest
+    needs: test
     strategy:
       matrix:
         include:
@@ -37,6 +57,8 @@ jobs:
         with:
           context: ${{ matrix.context }}
           push: true
+          build-args: |
+            VITE_API_URL=https://podify-api.exyconn.com/graphql
           tags: |
             ${{ env.DOCKERHUB_USERNAME }}/partywings-${{ matrix.service }}:latest
             ${{ env.DOCKERHUB_USERNAME }}/partywings-${{ matrix.service }}:${{ github.sha }}
@@ -54,7 +76,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: docker-compose.yml,.env
+          source: docker-compose.prod.yml
           target: /opt/partywings
 
       - name: Deploy via SSH
@@ -66,14 +88,18 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /opt/partywings
+            cp docker-compose.prod.yml docker-compose.yml
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
-
-      - name: Notify Slack
-        if: always()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          text: "PartyWings deployment ${{ job.status }}"
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+            echo "=== Deployment Health Check ==="
+            sleep 10
+            for port in 4039 4040 4041; do
+              if curl -sf -o /dev/null http://localhost:$port; then
+                echo "✅ Port $port is healthy"
+              else
+                echo "❌ Port $port is NOT responding"
+              fi
+            done

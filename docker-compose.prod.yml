@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  server:
+    image: ${DOCKERHUB_USERNAME}/partywings-server:latest
+    container_name: partywings-server
+    ports:
+      - '4039:4039'
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - partywings
+
+  admin-panel:
+    image: ${DOCKERHUB_USERNAME}/partywings-admin-panel:latest
+    container_name: partywings-admin
+    ports:
+      - '4040:4040'
+    depends_on:
+      - server
+    restart: unless-stopped
+    networks:
+      - partywings
+
+  website:
+    image: ${DOCKERHUB_USERNAME}/partywings-website:latest
+    container_name: partywings-website
+    ports:
+      - '4041:4041'
+    restart: unless-stopped
+    networks:
+      - partywings
+
+networks:
+  partywings:
+    driver: bridge

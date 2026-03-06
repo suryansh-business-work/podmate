@@ -40,8 +40,8 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       backgroundColor: colors.surface,
     },
     chipSelected: {
-      backgroundColor: colors.text,
-      borderColor: colors.text,
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
     },
     label: {
       fontSize: 14,

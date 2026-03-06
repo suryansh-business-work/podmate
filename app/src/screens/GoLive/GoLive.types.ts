@@ -23,5 +23,13 @@ export interface LiveSession {
 
 export interface GoLiveScreenProps {
   onBack: () => void;
+  podId?: string;
+  podTitle?: string;
   onViewSession?: (sessionId: string) => void;
+}
+
+export interface GoLiveFormValues {
+  podId: string;
+  title: string;
+  description: string;
 }

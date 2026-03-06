@@ -19,3 +19,11 @@ export interface Feedback {
 export interface FeedbackScreenProps {
   onBack: () => void;
 }
+
+export type FeedbackType = 'BUG' | 'FEATURE' | 'GENERAL';
+
+export interface FeedbackFormValues {
+  type: FeedbackType;
+  title: string;
+  description: string;
+}

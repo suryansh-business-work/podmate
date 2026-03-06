@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, memo } from 'react';
-import { StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, TouchableOpacity, Animated, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -43,7 +43,8 @@ const ChatbotFab: React.FC<ChatbotFabProps> = memo(function ChatbotFab({ onPress
           end={{ x: 1, y: 1 }}
           style={styles.fab}
         >
-          <MaterialIcons name="smart-toy" size={26} color={colors.white} />
+          <MaterialIcons name="smart-toy" size={18} color={colors.white} />
+          <Text style={styles.fabLabel}>Ask PartyWings</Text>
         </LinearGradient>
       </TouchableOpacity>
     </Animated.View>
@@ -64,11 +65,17 @@ const createStyles = ({ colors }: ThemeUtils) =>
       shadowRadius: 8,
     },
     fab: {
-      width: 56,
-      height: 56,
-      borderRadius: 28,
-      justifyContent: 'center',
+      flexDirection: 'row',
       alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      borderRadius: 24,
+    },
+    fabLabel: {
+      color: colors.white,
+      fontSize: 12,
+      fontWeight: '700',
     },
   });
 

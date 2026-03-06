@@ -99,7 +99,7 @@ const FollowListScreen: React.FC<FollowListScreenProps> = ({
         </TouchableOpacity>
       );
     },
-    [activeTab, onUserPress],
+    [colors.white, getUserFromFollow, onUserPress, styles.userAvatar, styles.userAvatarPlaceholder, styles.userDate, styles.userInfo, styles.userName, styles.userRow],
   );
 
   return (

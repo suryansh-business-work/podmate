@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "extra": {
-      "apiUrl": "http://192.168.68.62:4039/graphql",
+      "apiUrl": "http://192.168.68.73:4039/graphql",
       "eas": {
         "projectId": "f12c936a-a509-4fdd-89ae-d83ed1959fd9"
       }

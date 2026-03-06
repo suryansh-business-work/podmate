@@ -19,7 +19,7 @@ export type RootStackParamList = {
   Reviews: { targetType: 'POD' | 'PLACE'; targetId: string; targetTitle: string };
   Feedback: undefined;
   PodIdeas: undefined;
-  GoLive: undefined;
+  GoLive: { podId?: string; podTitle?: string } | undefined;
   FollowList: { userId: string; userName: string; initialTab?: 'followers' | 'following' };
   UserProfile: { userId: string };
 };

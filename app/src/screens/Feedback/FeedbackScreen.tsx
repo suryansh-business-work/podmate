@@ -14,15 +14,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Formik, FormikHelpers } from 'formik';
+import * as Yup from 'yup';
 
 import { GET_MY_FEEDBACK } from '../../graphql/queries';
 import { SUBMIT_FEEDBACK } from '../../graphql/mutations';
-import type { FeedbackScreenProps, Feedback } from './Feedback.types';
+import type { FeedbackScreenProps, Feedback, FeedbackFormValues, FeedbackType } from './Feedback.types';
 import { createStyles } from './Feedback.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
-const TYPES = ['BUG', 'FEATURE', 'GENERAL'] as const;
-type FeedbackType = (typeof TYPES)[number];
+const TYPES: FeedbackType[] = ['BUG', 'FEATURE', 'GENERAL'];
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
@@ -30,6 +31,24 @@ const TYPE_ICONS: Record<FeedbackType, MaterialIconName> = {
   BUG: 'bug-report',
   FEATURE: 'lightbulb',
   GENERAL: 'chat',
+};
+
+const feedbackSchema = Yup.object().shape({
+  type: Yup.string().oneOf(['BUG', 'FEATURE', 'GENERAL']).required('Type is required'),
+  title: Yup.string()
+    .min(3, 'Title must be at least 3 characters')
+    .max(100, 'Title must be under 100 characters')
+    .required('Title is required'),
+  description: Yup.string()
+    .min(10, 'Description must be at least 10 characters')
+    .max(2000, 'Description must be under 2000 characters')
+    .required('Description is required'),
+});
+
+const feedbackInitialValues: FeedbackFormValues = {
+  type: 'GENERAL',
+  title: '',
+  description: '',
 };
 
 const StatusBadge: React.FC<{ status: Feedback['status'] }> = ({ status }) => {
@@ -57,9 +76,6 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [showModal, setShowModal] = useState(false);
-  const [type, setType] = useState<FeedbackType>('GENERAL');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
 
   const { data, loading, refetch } = useQuery<{
     myFeedback: { items: Feedback[]; total: number };
@@ -72,20 +88,27 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
 
   const feedbackList = data?.myFeedback?.items ?? [];
 
-  const handleSubmit = useCallback(async () => {
-    if (!title.trim() || !description.trim()) return;
-    try {
-      await submitFeedback({
-        variables: { input: { type, title: title.trim(), description: description.trim() } },
-      });
-      setShowModal(false);
-      setTitle('');
-      setDescription('');
-      refetch();
-    } catch (err) {
-      Alert.alert('Error', (err as Error).message);
-    }
-  }, [type, title, description, submitFeedback, refetch]);
+  const handleFormSubmit = useCallback(
+    async (values: FeedbackFormValues, helpers: FormikHelpers<FeedbackFormValues>) => {
+      try {
+        await submitFeedback({
+          variables: {
+            input: {
+              type: values.type,
+              title: values.title.trim(),
+              description: values.description.trim(),
+            },
+          },
+        });
+        setShowModal(false);
+        helpers.resetForm();
+        refetch();
+      } catch (err) {
+        Alert.alert('Error', (err as Error).message);
+      }
+    },
+    [submitFeedback, refetch],
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: Feedback }) => (
@@ -167,54 +190,93 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Submit Feedback</Text>
-
-                {/* Type Chips */}
-                <View style={styles.chipRow}>
-                  {TYPES.map((t) => (
-                    <TouchableOpacity
-                      key={t}
-                      style={[styles.chip, type === t && styles.chipActive]}
-                      onPress={() => setType(t)}
-                    >
-                      <Text style={[styles.chipText, type === t && styles.chipTextActive]}>
-                        {t}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-
-                <TextInput
-                  style={styles.input}
-                  placeholder="Title"
-                  placeholderTextColor={colors.textTertiary}
-                  value={title}
-                  onChangeText={setTitle}
-                  maxLength={100}
-                />
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  placeholder="Describe your feedback…"
-                  placeholderTextColor={colors.textTertiary}
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline
-                  maxLength={2000}
-                />
-                <TouchableOpacity
-                  style={[
-                    styles.submitBtn,
-                    (submitting || !title.trim() || !description.trim()) &&
-                      styles.submitBtnDisabled,
-                  ]}
-                  onPress={handleSubmit}
-                  disabled={submitting || !title.trim() || !description.trim()}
+                <Formik
+                  initialValues={feedbackInitialValues}
+                  validationSchema={feedbackSchema}
+                  onSubmit={handleFormSubmit}
                 >
-                  {submitting ? (
-                    <ActivityIndicator size="small" color={colors.white} />
-                  ) : (
-                    <Text style={styles.submitBtnText}>Submit</Text>
+                  {({
+                    handleChange,
+                    handleBlur,
+                    handleSubmit: formSubmit,
+                    values,
+                    errors,
+                    touched,
+                    isValid,
+                    dirty,
+                    setFieldValue,
+                  }) => (
+                    <>
+                      {/* Type Chips */}
+                      <View style={styles.chipRow}>
+                        {TYPES.map((t) => (
+                          <TouchableOpacity
+                            key={t}
+                            style={[styles.chip, values.type === t && styles.chipActive]}
+                            onPress={() => setFieldValue('type', t)}
+                          >
+                            <Text
+                              style={[styles.chipText, values.type === t && styles.chipTextActive]}
+                            >
+                              {t}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+
+                      <TextInput
+                        style={[
+                          styles.input,
+                          touched.title && errors.title ? styles.inputError : undefined,
+                        ]}
+                        placeholder="Title"
+                        placeholderTextColor={colors.textTertiary}
+                        value={values.title}
+                        onChangeText={handleChange('title')}
+                        onBlur={handleBlur('title')}
+                        maxLength={100}
+                      />
+                      {touched.title && errors.title ? (
+                        <Text style={styles.errorText}>{errors.title}</Text>
+                      ) : null}
+
+                      <TextInput
+                        style={[
+                          styles.input,
+                          styles.textArea,
+                          touched.description && errors.description
+                            ? styles.inputError
+                            : undefined,
+                        ]}
+                        placeholder="Describe your feedback…"
+                        placeholderTextColor={colors.textTertiary}
+                        value={values.description}
+                        onChangeText={handleChange('description')}
+                        onBlur={handleBlur('description')}
+                        multiline
+                        maxLength={2000}
+                      />
+                      {touched.description && errors.description ? (
+                        <Text style={styles.errorText}>{errors.description}</Text>
+                      ) : null}
+
+                      <TouchableOpacity
+                        style={[
+                          styles.submitBtn,
+                          (submitting || !isValid || !dirty) && styles.submitBtnDisabled,
+                        ]}
+                        onPress={() => formSubmit()}
+                        disabled={submitting || !isValid || !dirty}
+                      >
+                        {submitting ? (
+                          <ActivityIndicator size="small" color={colors.white} />
+                        ) : (
+                          <Text style={styles.submitBtnText}>Submit</Text>
+                        )}
+                      </TouchableOpacity>
+                    </>
                   )}
-                </TouchableOpacity>
+                </Formik>
               </View>
             </TouchableOpacity>
           </KeyboardAvoidingView>

@@ -4,8 +4,10 @@ import {
   NavigationContainerRef,
   DefaultTheme,
   DarkTheme,
+  LinkingOptions,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import * as Linking from 'expo-linking';
 import { View, Animated, TouchableOpacity, StyleSheet, BackHandler, Alert } from 'react-native';
 import SplashScreen from '../screens/SplashScreen';
 import { LoginScreen, OtpScreen } from '../screens/Auth';
@@ -28,7 +30,7 @@ import PodIdeasScreen from '../screens/PodIdeas/PodIdeasScreen';
 import GoLiveScreen from '../screens/GoLive/GoLiveScreen';
 import FollowListScreen from '../screens/FollowList/FollowListScreen';
 import UserProfileScreen from '../screens/UserProfile/UserProfileScreen';
-import ChatbotFab from '../components/ChatbotFab';
+// ChatbotFab removed — chatbot trigger moved to HomeScreen header
 import NetworkBanner from '../components/NetworkBanner';
 import MainTabs from './MainTabs';
 import DrawerMenu from '../components/DrawerMenu';
@@ -45,6 +47,47 @@ import * as Notifications from 'expo-notifications';
 export type { RootStackParamList } from './RootNavigator.types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const prefix = Linking.createURL('/');
+
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: [prefix, 'partywings://'],
+  config: {
+    screens: {
+      Login: 'login',
+      Otp: 'otp',
+      CompleteProfile: 'complete-profile',
+      Main: {
+        path: '',
+        screens: {
+          Home: '',
+          Explore: 'explore',
+          Create: 'create-tab',
+          Chat: 'chat',
+          Profile: 'profile',
+        },
+      },
+      PodDetail: 'pod/:podId',
+      Checkout: 'checkout/:podId',
+      CreatePod: 'create-pod',
+      Notifications: 'notifications',
+      RegisterPlace: 'register-place',
+      Faq: 'faq',
+      Support: 'support',
+      Chatbot: 'chatbot',
+      EditProfile: 'edit-profile',
+      Payments: 'payments',
+      Privacy: 'privacy',
+      MyPods: 'my-pods',
+      Reviews: 'reviews/:targetType/:targetId',
+      Feedback: 'feedback',
+      PodIdeas: 'pod-ideas',
+      GoLive: 'go-live',
+      FollowList: 'follow-list/:userId',
+      UserProfile: 'user/:userId',
+    },
+  },
+};
 
 const RootNavigator: React.FC = () => {
   const auth = useAuth();
@@ -145,6 +188,7 @@ const RootNavigator: React.FC = () => {
       <NetworkBanner />
       <NavigationContainer
         ref={navigationRef}
+        linking={linking}
         theme={{
           ...(isDark ? DarkTheme : DefaultTheme),
           colors: {
@@ -201,6 +245,8 @@ const RootNavigator: React.FC = () => {
                     onMenuPress={drawer.openDrawer}
                     onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
                     onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
+                    onNotificationPress={() => navigation.navigate('Notifications')}
+                    onChatbotPress={() => navigation.navigate('Chatbot')}
                   />
                 )}
               </Stack.Screen>
@@ -213,7 +259,9 @@ const RootNavigator: React.FC = () => {
                     onReviews={(targetType, targetId, targetTitle) =>
                       navigation.navigate('Reviews', { targetType, targetId, targetTitle })
                     }
-                    onGoLive={() => navigation.navigate('GoLive')}
+                    onGoLive={(goLivePodId: string) =>
+                      navigation.navigate('GoLive', { podId: goLivePodId })
+                    }
                     onUserProfile={(userId) => navigation.navigate('UserProfile', { userId })}
                   />
                 )}
@@ -228,7 +276,12 @@ const RootNavigator: React.FC = () => {
                 )}
               </Stack.Screen>
               <Stack.Screen name="CreatePod" options={{ presentation: 'modal' }}>
-                {({ navigation }) => <CreatePodScreen onClose={() => navigation.goBack()} />}
+                {({ navigation }) => (
+                  <CreatePodScreen
+                    onClose={() => navigation.goBack()}
+                    onSuccess={() => navigation.navigate('Main')}
+                  />
+                )}
               </Stack.Screen>
               <Stack.Screen name="Notifications" options={{ presentation: 'card' }}>
                 {({ navigation }) => <NotificationsScreen onBack={() => navigation.goBack()} />}
@@ -286,7 +339,16 @@ const RootNavigator: React.FC = () => {
                 {({ navigation }) => <PodIdeasScreen onBack={() => navigation.goBack()} />}
               </Stack.Screen>
               <Stack.Screen name="GoLive" options={{ presentation: 'card' }}>
-                {({ navigation }) => <GoLiveScreen onBack={() => navigation.goBack()} />}
+                {({ navigation, route }) => {
+                  const params = (route.params as { podId?: string; podTitle?: string }) ?? {};
+                  return (
+                    <GoLiveScreen
+                      onBack={() => navigation.goBack()}
+                      podId={params.podId}
+                      podTitle={params.podTitle}
+                    />
+                  );
+                }}
               </Stack.Screen>
               <Stack.Screen name="FollowList" options={{ presentation: 'card' }}>
                 {({ navigation, route }) => {
@@ -337,9 +399,7 @@ const RootNavigator: React.FC = () => {
         </Stack.Navigator>
       </NavigationContainer>
 
-      {auth.isAuthenticated && !auth.isNewUser && (
-        <ChatbotFab onPress={() => navigationRef.current?.navigate('Chatbot')} />
-      )}
+
 
       {drawer.drawerOpen && (
         <>

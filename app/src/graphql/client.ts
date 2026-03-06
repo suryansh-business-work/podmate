@@ -4,12 +4,23 @@ import { onError } from '@apollo/client/link/error';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import config from '../config';
 
+/**
+ * Suppress noisy Apollo Client 3.x internal deprecation warnings about
+ * `canonizeResults` that fire even when we never set the option ourselves.
+ */
+if (__DEV__) {
+  const origWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    const msg = typeof args[0] === 'string' ? args[0] : '';
+    if (msg.includes('canonizeResults')) return;
+    origWarn.apply(console, args);
+  };
+}
+
 export const API_URL = config.apiUrl;
 
-/** Derive the WebSocket URL from config */
+/** Derive the WebSocket URL from config (always stable \u2014 derived from apiUrl) */
 export function resolveWsUrl(): string {
-  const envWs = process.env.EXPO_PUBLIC_WS_URL;
-  if (envWs) return envWs;
   return config.wsUrl;
 }
 
@@ -38,7 +49,8 @@ const errorLink = onError(({ networkError, graphQLErrors }) => {
   }
   if (graphQLErrors) {
     for (const err of graphQLErrors) {
-      // Surface GraphQL errors to the Apollo error chain (already works by default)
+      // "Authentication required" is expected before login — skip logging it
+      if (err.message === 'Authentication required') continue;
       console.warn(`[GraphQL error] ${err.message}`);
     }
   }

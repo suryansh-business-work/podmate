@@ -6,8 +6,6 @@ import {
   Alert,
   Platform,
   KeyboardAvoidingView,
-  Keyboard,
-  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@apollo/client';
@@ -26,6 +24,7 @@ import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface CreatePodScreenProps {
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 const podSchema = Yup.object().shape({
@@ -55,7 +54,7 @@ const initialValues: PodFormValues = {
   category: 'Social',
 };
 
-const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
+const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [showInvite, setShowInvite] = useState(false);
@@ -123,14 +122,34 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
       if (newPodId) {
         setCreatedPodId(newPodId);
         setCreatedTitle(values.title);
-        Alert.alert('Pod Created!', 'Would you like to invite friends?', [
-          { text: 'Skip', onPress: onClose },
-          { text: 'Invite Friends', onPress: () => setShowInvite(true) },
-        ]);
+        Alert.alert(
+          '🎉 Pod Created Successfully!',
+          `Your pod "${values.title}" is live! Would you like to invite friends?`,
+          [
+            {
+              text: 'Go Home',
+              onPress: () => {
+                if (onSuccess) onSuccess();
+                else onClose();
+              },
+            },
+            { text: 'Invite Friends', onPress: () => setShowInvite(true) },
+          ],
+        );
       } else {
-        Alert.alert('Pod Created!', 'Your pod has been created successfully.', [
-          { text: 'OK', onPress: onClose },
-        ]);
+        Alert.alert(
+          '🎉 Pod Created!',
+          'Your pod has been created successfully.',
+          [
+            {
+              text: 'Go Home',
+              onPress: () => {
+                if (onSuccess) onSuccess();
+                else onClose();
+              },
+            },
+          ],
+        );
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create pod';
@@ -155,40 +174,38 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={{ flex: 1 }}>
-            <View style={styles.header}>
-              <TouchableOpacity onPress={onClose}>
-                <MaterialIcons name="close" size={24} color={colors.text} />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>Host a Pod</Text>
-              <View style={{ width: 24 }} />
-            </View>
-
-            <Formik
-              initialValues={initialValues}
-              validationSchema={podSchema}
-              onSubmit={handleCreate}
-            >
-              {(formik) => (
-                <PodFormBody
-                  formik={formik}
-                  dateTime={dateTime}
-                  showDatePicker={showDatePicker}
-                  showTimePicker={showTimePicker}
-                  mediaItems={mediaItems}
-                  loading={loading}
-                  onMediaChange={setMediaItems}
-                  onShowDatePicker={() => setShowDatePicker(true)}
-                  onDateChange={handleDateChange}
-                  onTimeChange={handleTimeChange}
-                  onDismissDatePicker={() => setShowDatePicker(false)}
-                  onDismissTimePicker={() => setShowTimePicker(false)}
-                />
-              )}
-            </Formik>
+        <View style={{ flex: 1 }}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={onClose}>
+              <MaterialIcons name="close" size={24} color={colors.text} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Host a Pod</Text>
+            <View style={{ width: 24 }} />
           </View>
-        </TouchableWithoutFeedback>
+
+          <Formik
+            initialValues={initialValues}
+            validationSchema={podSchema}
+            onSubmit={handleCreate}
+          >
+            {(formik) => (
+              <PodFormBody
+                formik={formik}
+                dateTime={dateTime}
+                showDatePicker={showDatePicker}
+                showTimePicker={showTimePicker}
+                mediaItems={mediaItems}
+                loading={loading}
+                onMediaChange={setMediaItems}
+                onShowDatePicker={() => setShowDatePicker(true)}
+                onDateChange={handleDateChange}
+                onTimeChange={handleTimeChange}
+                onDismissDatePicker={() => setShowDatePicker(false)}
+                onDismissTimePicker={() => setShowTimePicker(false)}
+              />
+            )}
+          </Formik>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

@@ -127,6 +127,9 @@ export function usePushNotifications({
     }
   }, [unregisterToken]);
 
+  // Check once whether we're in Expo Go — all notification APIs are unsupported there from SDK 53+.
+  const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
   useEffect(() => {
     if (!isAuthenticated) {
       if (registeredRef.current) {
@@ -136,6 +139,9 @@ export function usePushNotifications({
     }
 
     registerForPush();
+
+    // Skip notification listeners in Expo Go (SDK 53+ removed remote notification support)
+    if (isExpoGo) return;
 
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
       onNotificationReceived?.(notification);
@@ -162,6 +168,7 @@ export function usePushNotifications({
     };
   }, [
     isAuthenticated,
+    isExpoGo,
     registerForPush,
     unregisterForPush,
     onNotificationReceived,

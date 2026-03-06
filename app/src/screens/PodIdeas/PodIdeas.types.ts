@@ -21,3 +21,11 @@ export interface PodIdea {
 export interface PodIdeasScreenProps {
   onBack: () => void;
 }
+
+export interface PodIdeaFormValues {
+  title: string;
+  description: string;
+  category: string;
+  location: string;
+  budget: string;
+}

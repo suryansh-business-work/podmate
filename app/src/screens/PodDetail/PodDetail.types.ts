@@ -3,7 +3,7 @@ export interface PodDetailScreenProps {
   onBack: () => void;
   onCheckout?: (podId: string) => void;
   onReviews?: (targetType: 'POD' | 'PLACE', targetId: string, targetTitle: string) => void;
-  onGoLive?: () => void;
+  onGoLive?: (podId: string) => void;
   onUserProfile?: (userId: string) => void;
 }
 

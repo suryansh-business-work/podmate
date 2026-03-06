@@ -32,6 +32,8 @@ export interface PodsQueryData {
 export interface HomeScreenProps {
   onPodPress: (id: string) => void;
   onMenuPress: () => void;
+  onNotificationPress?: () => void;
+  onChatbotPress?: () => void;
 }
 
 export const CATEGORIES = ['All', 'Social', 'Learning', 'Outdoor'];

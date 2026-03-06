@@ -29,6 +29,8 @@ interface MainTabsProps {
   onMenuPress: () => void;
   onNavigate?: (screen: string) => void;
   onCheckout?: (podId: string) => void;
+  onNotificationPress?: () => void;
+  onChatbotPress?: () => void;
 }
 
 const MainTabs: React.FC<MainTabsProps> = ({
@@ -38,6 +40,8 @@ const MainTabs: React.FC<MainTabsProps> = ({
   onMenuPress,
   onNavigate,
   onCheckout,
+  onNotificationPress,
+  onChatbotPress,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
@@ -85,7 +89,14 @@ const MainTabs: React.FC<MainTabsProps> = ({
       })}
     >
       <Tab.Screen name="Home">
-        {() => <HomeScreen onPodPress={onPodPress} onMenuPress={onMenuPress} />}
+        {() => (
+          <HomeScreen
+            onPodPress={onPodPress}
+            onMenuPress={onMenuPress}
+            onNotificationPress={onNotificationPress}
+            onChatbotPress={onChatbotPress}
+          />
+        )}
       </Tab.Screen>
       <Tab.Screen name="Explore">
         {() => <ExploreScreen onPodPress={onPodPress} onCheckout={onCheckout} />}

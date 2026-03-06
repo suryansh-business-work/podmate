@@ -96,6 +96,21 @@ jest.mock('@expo/vector-icons', () => {
   };
 });
 
+// Mock @fortawesome/react-native-fontawesome
+jest.mock('@fortawesome/react-native-fontawesome', () => {
+  const mockReact = require('react');
+  const { Text } = require('react-native');
+  return {
+    FontAwesomeIcon: ({ icon, testID }: { icon: any; testID?: string }) =>
+      mockReact.createElement(Text, { testID }, 'FontAwesomeIcon'),
+  };
+});
+
+// Mock @fortawesome/free-solid-svg-icons
+jest.mock('@fortawesome/free-solid-svg-icons', () => ({
+  faWandMagicSparkles: { prefix: 'fas', iconName: 'wand-magic-sparkles' },
+}));
+
 // Mock @apollo/client
 jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
@@ -194,6 +209,21 @@ afterAll(() => {
 // Setup fake timers for testing intervals and timeouts
 beforeEach(() => {
   jest.useFakeTimers();
+
+  // Re-establish default Apollo mock implementations after clearAllMocks
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const apollo = require('@apollo/client');
+  (apollo.useQuery as jest.Mock).mockReturnValue({
+    data: null,
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
+    fetchMore: jest.fn(),
+  });
+  (apollo.useMutation as jest.Mock).mockReturnValue([
+    jest.fn(),
+    { data: null, loading: false, error: null },
+  ]);
 });
 
 afterEach(() => {

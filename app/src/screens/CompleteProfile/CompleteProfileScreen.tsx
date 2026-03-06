@@ -8,8 +8,6 @@ import {
   Alert,
   TouchableOpacity,
   ScrollView,
-  Keyboard,
-  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -74,7 +72,6 @@ const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({ onComplet
         style={styles.content}
         behavior={Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
             keyboardShouldPersistTaps="handled"
@@ -201,7 +198,6 @@ const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({ onComplet
               </Formik>
             </View>
           </ScrollView>
-        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

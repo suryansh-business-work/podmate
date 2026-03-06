@@ -15,6 +15,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Formik, FormikHelpers } from 'formik';
+import * as Yup from 'yup';
 
 import { GET_ACTIVE_LIVE_SESSIONS } from '../../graphql/queries';
 import {
@@ -23,9 +25,18 @@ import {
   JOIN_LIVE_SESSION,
   LEAVE_LIVE_SESSION,
 } from '../../graphql/mutations';
-import type { GoLiveScreenProps, LiveSession } from './GoLive.types';
+import type { GoLiveScreenProps, LiveSession, GoLiveFormValues } from './GoLive.types';
 import { createStyles } from './GoLive.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
+
+const goLiveSchema = Yup.object().shape({
+  podId: Yup.string().required('Pod ID is required'),
+  title: Yup.string()
+    .min(3, 'Title must be at least 3 characters')
+    .max(100, 'Title must be under 100 characters')
+    .required('Session title is required'),
+  description: Yup.string().max(500, 'Description must be under 500 characters'),
+});
 
 const formatElapsed = (startedAt: string): string => {
   const diff = Date.now() - Number(startedAt);
@@ -35,13 +46,16 @@ const formatElapsed = (startedAt: string): string => {
   return `${hrs}h ${mins % 60}m ago`;
 };
 
-const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack }) => {
+const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack, podId: initialPodId, podTitle: _initialPodTitle }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
-  const [showModal, setShowModal] = useState(false);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [podId, setPodId] = useState('');
+  const [showModal, setShowModal] = useState(!!initialPodId);
+
+  const goLiveInitialValues: GoLiveFormValues = {
+    podId: initialPodId ?? '',
+    title: '',
+    description: '',
+  };
 
   const { data, loading, refetch } = useQuery<{
     activeLiveSessions: { items: LiveSession[]; total: number };
@@ -58,27 +72,27 @@ const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack }) => {
 
   const sessions = data?.activeLiveSessions?.items ?? [];
 
-  const handleStart = useCallback(async () => {
-    if (!title.trim() || !podId.trim()) return;
-    try {
-      await startLive({
-        variables: {
-          input: {
-            podId: podId.trim(),
-            title: title.trim(),
-            description: description.trim() || undefined,
+  const handleFormSubmit = useCallback(
+    async (values: GoLiveFormValues, helpers: FormikHelpers<GoLiveFormValues>) => {
+      try {
+        await startLive({
+          variables: {
+            input: {
+              podId: values.podId.trim(),
+              title: values.title.trim(),
+              description: values.description.trim() || undefined,
+            },
           },
-        },
-      });
-      setShowModal(false);
-      setTitle('');
-      setDescription('');
-      setPodId('');
-      refetch();
-    } catch (err) {
-      Alert.alert('Error', (err as Error).message);
-    }
-  }, [title, description, podId, startLive, refetch]);
+        });
+        setShowModal(false);
+        helpers.resetForm();
+        refetch();
+      } catch (err) {
+        Alert.alert('Error', (err as Error).message);
+      }
+    },
+    [startLive, refetch],
+  );
 
   const handleJoin = useCallback(
     async (sessionId: string) => {
@@ -226,47 +240,97 @@ const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack }) => {
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Go Live</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Pod ID *"
-                  placeholderTextColor={colors.textTertiary}
-                  value={podId}
-                  onChangeText={setPodId}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Session Title *"
-                  placeholderTextColor={colors.textTertiary}
-                  value={title}
-                  onChangeText={setTitle}
-                  maxLength={100}
-                />
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  placeholder="What's happening?"
-                  placeholderTextColor={colors.textTertiary}
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline
-                  maxLength={500}
-                />
-                <TouchableOpacity
-                  style={[
-                    styles.submitBtn,
-                    (starting || !title.trim() || !podId.trim()) && styles.submitBtnDisabled,
-                  ]}
-                  onPress={handleStart}
-                  disabled={starting || !title.trim() || !podId.trim()}
+                <Formik
+                  initialValues={goLiveInitialValues}
+                  validationSchema={goLiveSchema}
+                  onSubmit={handleFormSubmit}
                 >
-                  {starting ? (
-                    <ActivityIndicator size="small" color={colors.white} />
-                  ) : (
+                  {({
+                    handleChange,
+                    handleBlur,
+                    handleSubmit: formSubmit,
+                    values,
+                    errors,
+                    touched,
+                    isValid,
+                    dirty,
+                  }) => (
                     <>
-                      <MaterialIcons name="videocam" size={20} color={colors.white} />
-                      <Text style={styles.submitBtnText}>Go Live</Text>
+                      {!initialPodId && (
+                        <>
+                          <TextInput
+                            style={[
+                              styles.input,
+                              touched.podId && errors.podId ? styles.inputError : undefined,
+                            ]}
+                            placeholder="Pod ID *"
+                            placeholderTextColor={colors.textTertiary}
+                            value={values.podId}
+                            onChangeText={handleChange('podId')}
+                            onBlur={handleBlur('podId')}
+                          />
+                          {touched.podId && errors.podId ? (
+                            <Text style={styles.errorText}>{errors.podId}</Text>
+                          ) : null}
+                        </>
+                      )}
+                      <TextInput
+                        style={[
+                          styles.input,
+                          touched.title && errors.title ? styles.inputError : undefined,
+                        ]}
+                        placeholder="Session Title *"
+                        placeholderTextColor={colors.textTertiary}
+                        value={values.title}
+                        onChangeText={handleChange('title')}
+                        onBlur={handleBlur('title')}
+                        maxLength={100}
+                      />
+                      {touched.title && errors.title ? (
+                        <Text style={styles.errorText}>{errors.title}</Text>
+                      ) : null}
+
+                      <TextInput
+                        style={[
+                          styles.input,
+                          styles.textArea,
+                          touched.description && errors.description
+                            ? styles.inputError
+                            : undefined,
+                        ]}
+                        placeholder="What's happening?"
+                        placeholderTextColor={colors.textTertiary}
+                        value={values.description}
+                        onChangeText={handleChange('description')}
+                        onBlur={handleBlur('description')}
+                        multiline
+                        maxLength={500}
+                      />
+                      {touched.description && errors.description ? (
+                        <Text style={styles.errorText}>{errors.description}</Text>
+                      ) : null}
+
+                      <TouchableOpacity
+                        style={[
+                          styles.submitBtn,
+                          (starting || !isValid || (!dirty && !initialPodId)) &&
+                            styles.submitBtnDisabled,
+                        ]}
+                        onPress={() => formSubmit()}
+                        disabled={starting || !isValid || (!dirty && !initialPodId)}
+                      >
+                        {starting ? (
+                          <ActivityIndicator size="small" color={colors.white} />
+                        ) : (
+                          <>
+                            <MaterialIcons name="videocam" size={20} color={colors.white} />
+                            <Text style={styles.submitBtnText}>Go Live</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
                     </>
                   )}
-                </TouchableOpacity>
+                </Formik>
               </View>
             </TouchableOpacity>
           </KeyboardAvoidingView>

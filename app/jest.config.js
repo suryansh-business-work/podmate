@@ -20,5 +20,4 @@ module.exports = {
   },
   roots: ['<rootDir>/src'],
   clearMocks: true,
-  resetMocks: true,
 };

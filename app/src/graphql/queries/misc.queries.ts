@@ -82,14 +82,21 @@ export const GET_MY_PAYMENTS = gql`
 `;
 
 export const GET_MY_FEEDBACK = gql`
-  query GetMyFeedback {
-    myFeedback {
-      id
-      type
-      title
-      description
-      status
-      createdAt
+  query GetMyFeedback($page: Int, $limit: Int) {
+    myFeedback(page: $page, limit: $limit) {
+      items {
+        id
+        type
+        title
+        description
+        status
+        adminNotes
+        createdAt
+      }
+      total
+      page
+      limit
+      totalPages
     }
   }
 `;

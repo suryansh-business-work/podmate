@@ -8,12 +8,17 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Modal,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
-import { MaterialIcons } from '@expo/vector-icons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 
 import { CategoryChip } from '../../components/CategoryChip';
 import { EventCard } from '../../components/EventCard';
@@ -27,24 +32,42 @@ import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const PAGE_SIZE = 20;
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress, onNotificationPress, onChatbotPress }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 400);
   const isFetchingMore = useRef(false);
-  const { location, loading: locationLoading, requestLocation } = useLocation();
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [pincodeInput, setPincodeInput] = useState('');
+  const { location, loading: locationLoading, requestLocation, searchByPincode } = useLocation();
 
   const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const currentUserId: string = (meData?.me?.id as string) ?? '';
 
   const handleGpsPress = useCallback(async () => {
+    setShowLocationModal(false);
     const result = await requestLocation();
     if (result?.address) {
       setSearchQuery(result.address);
     }
   }, [requestLocation]);
+
+  const handlePincodeSearch = useCallback(async () => {
+    if (!pincodeInput.trim() || pincodeInput.trim().length < 6) {
+      Alert.alert('Invalid Pincode', 'Please enter a valid 6-digit pincode.');
+      return;
+    }
+    setShowLocationModal(false);
+    const result = await searchByPincode(pincodeInput.trim());
+    if (result?.address) {
+      setSearchQuery(result.address);
+      setPincodeInput('');
+    } else {
+      Alert.alert('Not Found', 'Could not find location for this pincode. Please try another.');
+    }
+  }, [pincodeInput, searchByPincode]);
 
   const { data, loading, error, refetch, fetchMore } = useQuery<PodsQueryData>(GET_PODS, {
     variables: {
@@ -207,7 +230,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity
             style={styles.notificationBtn}
-            onPress={handleGpsPress}
+            onPress={() => setShowLocationModal(true)}
             disabled={locationLoading}
           >
             {locationLoading ? (
@@ -220,7 +243,22 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
               />
             )}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.notificationBtn}>
+          <TouchableOpacity
+            style={styles.notificationBtn}
+            onPress={onChatbotPress}
+            accessibilityLabel="Open AI chatbot"
+            accessibilityRole="button"
+          >
+            <FontAwesomeIcon
+              icon={faWandMagicSparkles}
+              size={20}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.notificationBtn}
+            onPress={onNotificationPress}
+          >
             <MaterialIcons name="notifications-none" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -249,6 +287,141 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
           />
         }
       />
+
+      <Modal
+        visible={showLocationModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowLocationModal(false)}
+      >
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            backgroundColor: colors.overlay,
+            justifyContent: 'flex-end',
+          }}
+          activeOpacity={1}
+          onPress={() => setShowLocationModal(false)}
+        >
+          <KeyboardAvoidingView
+            behavior={
+              Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'
+            }
+          >
+            <TouchableOpacity activeOpacity={1} onPress={() => {}}>
+              <View
+                style={{
+                  backgroundColor: colors.surface,
+                  borderTopLeftRadius: 16,
+                  borderTopRightRadius: 16,
+                  padding: 20,
+                  paddingBottom: 32,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: '700',
+                    color: colors.text,
+                    marginBottom: 16,
+                  }}
+                >
+                  Set Your Location
+                </Text>
+
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: colors.surfaceVariant,
+                    borderRadius: 12,
+                    padding: 14,
+                    gap: 10,
+                    marginBottom: 16,
+                  }}
+                  onPress={handleGpsPress}
+                  disabled={locationLoading}
+                >
+                  {locationLoading ? (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  ) : (
+                    <MaterialIcons name="my-location" size={22} color={colors.primary} />
+                  )}
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: colors.text }}>
+                    Use GPS Location
+                  </Text>
+                </TouchableOpacity>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 12,
+                  }}
+                >
+                  <View
+                    style={{ flex: 1, height: 1, backgroundColor: colors.border }}
+                  />
+                  <Text
+                    style={{
+                      marginHorizontal: 12,
+                      fontSize: 12,
+                      color: colors.textTertiary,
+                    }}
+                  >
+                    OR
+                  </Text>
+                  <View
+                    style={{ flex: 1, height: 1, backgroundColor: colors.border }}
+                  />
+                </View>
+
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: '600',
+                    color: colors.textSecondary,
+                    marginBottom: 8,
+                  }}
+                >
+                  Search by Pincode
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TextInput
+                    style={{
+                      flex: 1,
+                      backgroundColor: colors.surfaceVariant,
+                      borderRadius: 12,
+                      padding: 14,
+                      fontSize: 16,
+                      color: colors.text,
+                    }}
+                    placeholder="Enter 6-digit pincode"
+                    placeholderTextColor={colors.textTertiary}
+                    value={pincodeInput}
+                    onChangeText={setPincodeInput}
+                    keyboardType="number-pad"
+                    maxLength={6}
+                  />
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: colors.primary,
+                      borderRadius: 12,
+                      paddingHorizontal: 16,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                    onPress={handlePincodeSearch}
+                    disabled={locationLoading || pincodeInput.length < 6}
+                  >
+                    <MaterialIcons name="search" size={22} color={colors.white} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };

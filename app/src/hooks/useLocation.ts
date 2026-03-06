@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import {
   getCurrentLocation,
   getOrRequestLocation,
+  getLocationFromPincode,
   saveLocation,
   isServiceAvailable,
   type LocationData,
@@ -14,6 +15,7 @@ interface UseLocationReturn {
   isInServiceArea: boolean;
   requestLocation: () => Promise<LocationData | null>;
   requestCachedLocation: () => Promise<LocationData | null>;
+  searchByPincode: (pincode: string) => Promise<LocationData | null>;
 }
 
 export function useLocation(): UseLocationReturn {
@@ -67,5 +69,36 @@ export function useLocation(): UseLocationReturn {
     }
   }, []);
 
-  return { location, loading, error, isInServiceArea, requestLocation, requestCachedLocation };
+  const searchByPincode = useCallback(async (pincode: string): Promise<LocationData | null> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await getLocationFromPincode(pincode);
+      if (!result) {
+        setError('Invalid pincode or no data found');
+        return null;
+      }
+      setLocation(result);
+      const serviceAvailable = isServiceAvailable(result.pincode);
+      setIsInServiceArea(serviceAvailable);
+      await saveLocation(result, serviceAvailable);
+      return result;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to search pincode';
+      setError(msg);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    location,
+    loading,
+    error,
+    isInServiceArea,
+    requestLocation,
+    requestCachedLocation,
+    searchByPincode,
+  };
 }

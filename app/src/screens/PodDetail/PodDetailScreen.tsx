@@ -16,13 +16,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { SkeletonDetail } from '../../components/Skeleton';
 import SafeImage from '../../components/SafeImage';
-import { GET_POD, GET_ME, GET_APP_CONFIG } from '../../graphql/queries';
+import { GET_POD, GET_ME, GET_APP_CONFIG, GET_PODS } from '../../graphql/queries';
+import { DELETE_POD } from '../../graphql/mutations';
 import { PodDetailScreenProps, PodAttendee } from './PodDetail.types';
 import { createStyles } from './PodDetail.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
@@ -60,6 +61,9 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({
   // All hooks must be declared before any conditional returns
   const [refreshing, setRefreshing] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [deletePod, { loading: deleting }] = useMutation(DELETE_POD, {
+    refetchQueries: [{ query: GET_PODS, variables: { page: 1, limit: 20 } }],
+  });
 
   const pod = data?.pod;
   const currentUserId: string = (meData?.me?.id as string) ?? '';
@@ -122,7 +126,37 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({
       Alert.alert('Error', 'Unable to share this pod');
     }
   }, [pod]);
+  const handleDeletePod = useCallback(() => {
+    if (!pod || !podId) return;
+    const hasAttendees = (pod.currentSeats ?? 0) > 0;
+    const title = hasAttendees ? 'Delete Pod & Refund Attendees?' : 'Delete Pod?';
+    const message = hasAttendees
+      ? `This pod has ${pod.currentSeats} attendee(s). Deleting will automatically issue a full refund to all attendees. This action cannot be undone.`
+      : 'Are you sure you want to delete this pod? This action cannot be undone.';
 
+    Alert.alert(title, message, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: hasAttendees ? 'Delete & Refund' : 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deletePod({ variables: { id: podId } });
+            Alert.alert(
+              'Pod Deleted',
+              hasAttendees
+                ? 'The pod has been deleted and refunds have been initiated for all attendees.'
+                : 'The pod has been deleted successfully.',
+              [{ text: 'OK', onPress: onBack }],
+            );
+          } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to delete pod';
+            Alert.alert('Error', errorMessage);
+          }
+        },
+      },
+    ]);
+  }, [pod, podId, deletePod, onBack]);
   // Conditional returns AFTER all hooks
   if (error && !pod) {
     return (
@@ -465,12 +499,36 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({
                   borderRadius: 12,
                   backgroundColor: colors.error + '15',
                 }}
-                onPress={onGoLive}
+                onPress={() => onGoLive?.(podId ?? '')}
                 activeOpacity={0.7}
               >
                 <MaterialIcons name="videocam" size={20} color={colors.error} />
                 <Text style={{ fontSize: 14, fontWeight: '600', color: colors.error }}>
                   Go Live
+                </Text>
+              </TouchableOpacity>
+            )}
+            {pod.host?.id === currentUserId && (
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  paddingVertical: 12,
+                  borderRadius: 12,
+                  backgroundColor: colors.error + '10',
+                  borderWidth: 1,
+                  borderColor: colors.error + '30',
+                }}
+                onPress={handleDeletePod}
+                disabled={deleting}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="delete" size={20} color={colors.error} />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.error }}>
+                  {deleting ? 'Deleting...' : 'Delete Pod'}
                 </Text>
               </TouchableOpacity>
             )}

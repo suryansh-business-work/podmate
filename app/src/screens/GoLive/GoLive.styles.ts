@@ -134,6 +134,14 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       marginBottom: spacing.md,
     },
     textArea: { minHeight: 80, textAlignVertical: 'top' },
+    inputError: { borderWidth: 1, borderColor: colors.error },
+    errorText: {
+      fontSize: 12,
+      color: colors.error,
+      marginTop: -spacing.sm,
+      marginBottom: spacing.sm,
+      marginLeft: spacing.xs,
+    },
     submitBtn: {
       backgroundColor: colors.error,
       borderRadius: borderRadius.md,

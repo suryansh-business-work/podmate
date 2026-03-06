@@ -15,7 +15,11 @@ interface OtpInputProps {
   testID?: string;
 }
 
-export const OtpInput: React.FC<OtpInputProps> = memo(function OtpInput({ length = 6, onComplete, testID }) {
+export const OtpInput: React.FC<OtpInputProps> = memo(function OtpInput({
+  length = 6,
+  onComplete,
+  testID,
+}) {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(''));
@@ -45,7 +49,12 @@ export const OtpInput: React.FC<OtpInputProps> = memo(function OtpInput({ length
   };
 
   return (
-    <View style={styles.container} testID={testID} accessibilityRole="none" accessibilityLabel="OTP input">
+    <View
+      style={styles.container}
+      testID={testID}
+      accessibilityRole="none"
+      accessibilityLabel="OTP input"
+    >
       {otp.map((digit, index) => (
         <TextInput
           key={index}

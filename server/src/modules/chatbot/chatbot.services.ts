@@ -45,7 +45,13 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
   const resolvedPrompt = replacePromptSlugs(
     prePrompt,
     currentUser
-      ? { name: currentUser.name, phone: currentUser.phone, email: currentUser.email, role: currentUser.role, id: currentUser.id }
+      ? {
+          name: currentUser.name,
+          phone: currentUser.phone,
+          email: currentUser.email,
+          role: currentUser.role,
+          id: currentUser.id,
+        }
       : null,
     model,
   );

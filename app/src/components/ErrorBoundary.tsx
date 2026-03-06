@@ -40,7 +40,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     if (this.state.hasError) {
       return (
         <View style={styles.container}>
-          <MaterialIcons name="error-outline" size={64} color={lightColors.error} style={styles.icon} />
+          <MaterialIcons
+            name="error-outline"
+            size={64}
+            color={lightColors.error}
+            style={styles.icon}
+          />
           <Text style={styles.title}>Something went wrong</Text>
           <Text style={styles.message}>
             {this.props.fallbackMessage ?? 'An unexpected error occurred. Please try again.'}

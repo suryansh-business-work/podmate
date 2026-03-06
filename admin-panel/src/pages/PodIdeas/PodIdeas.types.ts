@@ -30,9 +30,8 @@ export interface PaginatedPodIdeas {
   };
 }
 
-export const POD_IDEA_STATUS_COLORS: Record<string, 'warning' | 'success' | 'error' | 'default'> =
-  {
-    PENDING: 'warning',
-    APPROVED: 'success',
-    REJECTED: 'error',
-  };
+export const POD_IDEA_STATUS_COLORS: Record<string, 'warning' | 'success' | 'error' | 'default'> = {
+  PENDING: 'warning',
+  APPROVED: 'success',
+  REJECTED: 'error',
+};

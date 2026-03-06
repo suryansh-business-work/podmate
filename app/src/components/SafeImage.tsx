@@ -29,7 +29,9 @@ const SafeImage: React.FC<SafeImageProps> = memo(function SafeImage({
 }) {
   const colors = useAppColors();
   if (uri && uri.trim().length > 0) {
-    return <Image source={{ uri }} style={style} resizeMode={resizeMode} accessibilityRole="image" />;
+    return (
+      <Image source={{ uri }} style={style} resizeMode={resizeMode} accessibilityRole="image" />
+    );
   }
 
   return (

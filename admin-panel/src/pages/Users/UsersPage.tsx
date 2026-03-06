@@ -150,7 +150,12 @@ const UsersPage: React.FC = () => {
               },
             }}
           />
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)} style={{whiteSpace: 'nowrap'}}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setCreateOpen(true)}
+            style={{ whiteSpace: 'nowrap' }}
+          >
             Create User
           </Button>
         </Box>

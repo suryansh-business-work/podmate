@@ -142,9 +142,7 @@ const PodIdeasPage: React.FC = () => {
           <CircularProgress />
         </Box>
       )}
-      {!loading && items.length === 0 && (
-        <Alert severity="info">No pod ideas found.</Alert>
-      )}
+      {!loading && items.length === 0 && <Alert severity="info">No pod ideas found.</Alert>}
 
       {items.length > 0 && (
         <Card>
@@ -160,7 +158,9 @@ const PodIdeasPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 600 }}>Upvotes</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -178,7 +178,12 @@ const PodIdeasPage: React.FC = () => {
                       <Typography variant="body2" fontWeight={500}>
                         {item.title}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary" noWrap sx={{ maxWidth: 200, display: 'block' }}>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        noWrap
+                        sx={{ maxWidth: 200, display: 'block' }}
+                      >
                         {item.description}
                       </Typography>
                     </TableCell>

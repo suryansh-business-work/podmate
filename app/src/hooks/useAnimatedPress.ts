@@ -28,9 +28,7 @@ interface UseAnimatedPressReturn {
  * </Animated.View>
  * ```
  */
-export function useAnimatedPress(
-  options: UseAnimatedPressOptions = {},
-): UseAnimatedPressReturn {
+export function useAnimatedPress(options: UseAnimatedPressOptions = {}): UseAnimatedPressReturn {
   const { scaleValue = 0.95, haptics = false } = options;
   const scale = useRef(new Animated.Value(1)).current;
 

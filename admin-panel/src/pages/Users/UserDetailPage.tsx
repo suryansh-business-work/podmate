@@ -128,12 +128,7 @@ const UserDetailPage: React.FC = () => {
 
         {/* Joined Pods */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <UserPodsTable
-            title="Joined Pods"
-            pods={joinedPods}
-            loading={joinedLoading}
-            showHost
-          />
+          <UserPodsTable title="Joined Pods" pods={joinedPods} loading={joinedLoading} showHost />
         </Grid>
       </Grid>
 

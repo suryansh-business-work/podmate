@@ -451,10 +451,7 @@ export interface AdminUpdatePodInput {
   refundPolicy?: string;
 }
 
-export async function adminUpdatePod(
-  podId: string,
-  input: AdminUpdatePodInput,
-): Promise<Pod> {
+export async function adminUpdatePod(podId: string, input: AdminUpdatePodInput): Promise<Pod> {
   const pod = await PodModel.findById(podId);
   if (!pod) throw new Error('Pod not found');
 
@@ -486,11 +483,16 @@ export async function adminUpdatePod(
   /* Build a summary of what changed for chat notification */
   const changedFields: string[] = [];
   if (input.title !== undefined && input.title !== pod.title) changedFields.push('title');
-  if (input.description !== undefined && input.description !== pod.description) changedFields.push('description');
-  if (input.dateTime !== undefined && input.dateTime !== pod.dateTime) changedFields.push('date/time');
-  if (input.location !== undefined && input.location !== pod.location) changedFields.push('location');
-  if (input.feePerPerson !== undefined && input.feePerPerson !== pod.feePerPerson) changedFields.push('fee');
-  if (input.maxSeats !== undefined && input.maxSeats !== pod.maxSeats) changedFields.push('max seats');
+  if (input.description !== undefined && input.description !== pod.description)
+    changedFields.push('description');
+  if (input.dateTime !== undefined && input.dateTime !== pod.dateTime)
+    changedFields.push('date/time');
+  if (input.location !== undefined && input.location !== pod.location)
+    changedFields.push('location');
+  if (input.feePerPerson !== undefined && input.feePerPerson !== pod.feePerPerson)
+    changedFields.push('fee');
+  if (input.maxSeats !== undefined && input.maxSeats !== pod.maxSeats)
+    changedFields.push('max seats');
   if (input.status !== undefined && input.status !== pod.status) changedFields.push('status');
 
   /* Send chat message to pod's group if fields changed */

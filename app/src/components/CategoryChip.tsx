@@ -8,7 +8,11 @@ interface CategoryChipProps {
   onPress: () => void;
 }
 
-export const CategoryChip: React.FC<CategoryChipProps> = memo(function CategoryChip({ label, selected, onPress }) {
+export const CategoryChip: React.FC<CategoryChipProps> = memo(function CategoryChip({
+  label,
+  selected,
+  onPress,
+}) {
   const styles = useThemedStyles(createStyles);
   return (
     <TouchableOpacity

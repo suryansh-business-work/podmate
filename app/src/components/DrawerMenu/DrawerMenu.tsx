@@ -25,7 +25,11 @@ import {
 import { createStyles } from './DrawerMenu.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
-const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({ onClose, onNavigate, onLogout }) {
+const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({
+  onClose,
+  onNavigate,
+  onLogout,
+}) {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const { data, loading } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
@@ -124,7 +128,11 @@ const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({ onClose
 
         <View style={styles.menuRow}>
           <View style={[styles.iconCircle, { backgroundColor: colors.indigoAccent + '18' }]}>
-            <MaterialIcons name={isDark ? 'dark-mode' : 'light-mode'} size={18} color={colors.indigoAccent} />
+            <MaterialIcons
+              name={isDark ? 'dark-mode' : 'light-mode'}
+              size={18}
+              color={colors.indigoAccent}
+            />
           </View>
           <Text style={[styles.menuLabel, { flex: 1 }]}>Dark Mode</Text>
           <Switch

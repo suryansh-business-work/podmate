@@ -161,9 +161,7 @@ const FeedbackPage: React.FC = () => {
           <CircularProgress />
         </Box>
       )}
-      {!loading && items.length === 0 && (
-        <Alert severity="info">No feedback found.</Alert>
-      )}
+      {!loading && items.length === 0 && <Alert severity="info">No feedback found.</Alert>}
 
       {items.length > 0 && (
         <Card>
@@ -177,7 +175,9 @@ const FeedbackPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 600 }}>Description</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

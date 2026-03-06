@@ -165,7 +165,12 @@ const PodsPage: React.FC = () => {
               },
             }}
           />
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)} style={{whiteSpace: 'nowrap'}}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setCreateOpen(true)}
+            style={{ whiteSpace: 'nowrap' }}
+          >
             Create Pod
           </Button>
         </Box>

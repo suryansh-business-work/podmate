@@ -263,10 +263,7 @@ export interface AdminUpdateUserInput {
   disableReason?: string;
 }
 
-export async function adminUpdateUser(
-  userId: string,
-  input: AdminUpdateUserInput,
-): Promise<User> {
+export async function adminUpdateUser(userId: string, input: AdminUpdateUserInput): Promise<User> {
   const update: Record<string, unknown> = {};
   if (input.name !== undefined) update.name = input.name;
   if (input.email !== undefined) update.email = input.email;

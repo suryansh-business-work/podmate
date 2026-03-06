@@ -32,8 +32,8 @@ const NotifyConfirmDialog: React.FC<NotifyConfirmDialogProps> = ({
     <DialogTitle>Policy Updated</DialogTitle>
     <DialogContent>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        &quot;{state.policyTitle}&quot; has been updated successfully. Would you like to notify users
-        about this change?
+        &quot;{state.policyTitle}&quot; has been updated successfully. Would you like to notify
+        users about this change?
       </Typography>
 
       <FormControlLabel
@@ -68,11 +68,7 @@ const NotifyConfirmDialog: React.FC<NotifyConfirmDialogProps> = ({
       <Button onClick={onCancel} disabled={loading}>
         Skip
       </Button>
-      <Button
-        variant="contained"
-        onClick={onConfirm}
-        disabled={loading || !state.notifyUsers}
-      >
+      <Button variant="contained" onClick={onConfirm} disabled={loading || !state.notifyUsers}>
         {loading ? 'Sending…' : 'Notify Users'}
       </Button>
     </DialogActions>

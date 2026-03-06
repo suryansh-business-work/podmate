@@ -45,22 +45,17 @@ const RootNavigator: React.FC = () => {
   const drawerStyles = useThemedStyles(createDrawerStyles);
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
-  const handleNotificationTapped = useCallback(
-    (response: Notifications.NotificationResponse) => {
-      const data = response.notification.request.content.data as
-        | Record<string, string>
-        | undefined;
-      const nav = navigationRef.current;
-      if (!nav || !data) return;
+  const handleNotificationTapped = useCallback((response: Notifications.NotificationResponse) => {
+    const data = response.notification.request.content.data as Record<string, string> | undefined;
+    const nav = navigationRef.current;
+    if (!nav || !data) return;
 
-      if (data.podId) {
-        nav.navigate('PodDetail', { podId: data.podId });
-      } else if (data.screen === 'Notifications') {
-        nav.navigate('Notifications');
-      }
-    },
-    [],
-  );
+    if (data.podId) {
+      nav.navigate('PodDetail', { podId: data.podId });
+    } else if (data.screen === 'Notifications') {
+      nav.navigate('Notifications');
+    }
+  }, []);
 
   usePushNotifications({
     isAuthenticated: auth.isAuthenticated,

@@ -55,9 +55,7 @@ export const navGroups: NavGroupConfig[] = [
   },
   {
     label: 'Communication',
-    items: [
-      { icon: <NotificationsIcon />, label: 'Notifications', path: '/notifications' },
-    ],
+    items: [{ icon: <NotificationsIcon />, label: 'Notifications', path: '/notifications' }],
   },
   {
     label: 'Support',
@@ -77,15 +75,9 @@ export const navGroups: NavGroupConfig[] = [
   },
   {
     label: 'AI',
-    items: [
-      { icon: <SmartToyIcon />, label: 'AI / Chatbot', path: '/ai' },
-    ],
+    items: [{ icon: <SmartToyIcon />, label: 'AI / Chatbot', path: '/ai' }],
   },
 ];
 
 /** Flattened list for backward compatibility */
-export const navItems: NavItemConfig[] = [
-  ...topNavItems,
-  ...navGroups.flatMap((g) => g.items),
-];
-
+export const navItems: NavItemConfig[] = [...topNavItems, ...navGroups.flatMap((g) => g.items)];

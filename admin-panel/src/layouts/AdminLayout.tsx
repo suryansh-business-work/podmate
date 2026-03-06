@@ -26,12 +26,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import {
-  DRAWER_WIDTH,
-  AdminLayoutProps,
-  topNavItems,
-  navGroups,
-} from './AdminLayout.types';
+import { DRAWER_WIDTH, AdminLayoutProps, topNavItems, navGroups } from './AdminLayout.types';
 import { useAdminTheme } from '../contexts/ThemeContext';
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
@@ -47,7 +42,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
     setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const renderNavItem = (item: { icon: React.ReactElement; label: string; path: string }, nested = false) => (
+  const renderNavItem = (
+    item: { icon: React.ReactElement; label: string; path: string },
+    nested = false,
+  ) => (
     <ListItemButton
       key={item.path}
       onClick={() => {
@@ -62,9 +60,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
         color: activeNav.startsWith(item.path) ? 'primary.main' : 'text.secondary',
         bgcolor: activeNav.startsWith(item.path) ? 'rgba(245,2,71,0.08)' : 'transparent',
         '&:hover': {
-          bgcolor: activeNav.startsWith(item.path)
-            ? 'rgba(245,2,71,0.12)'
-            : 'rgba(0,0,0,0.04)',
+          bgcolor: activeNav.startsWith(item.path) ? 'rgba(245,2,71,0.12)' : 'rgba(0,0,0,0.04)',
         },
       }}
     >

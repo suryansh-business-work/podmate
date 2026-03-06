@@ -52,10 +52,7 @@ export async function registerPushToken(
   };
 }
 
-export async function unregisterPushToken(
-  userId: string,
-  deviceId: string,
-): Promise<boolean> {
+export async function unregisterPushToken(userId: string, deviceId: string): Promise<boolean> {
   const result = await PushTokenModel.updateOne(
     { userId, deviceId },
     { $set: { isActive: false, updatedAt: new Date().toISOString() } },

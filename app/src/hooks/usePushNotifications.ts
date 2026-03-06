@@ -128,17 +128,13 @@ export function usePushNotifications({
 
     registerForPush();
 
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        onNotificationReceived?.(notification);
-      },
-    );
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+      onNotificationReceived?.(notification);
+    });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        onNotificationTapped?.(response);
-      },
-    );
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      onNotificationTapped?.(response);
+    });
 
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active' && isAuthenticated && !registeredRef.current) {
@@ -155,5 +151,11 @@ export function usePushNotifications({
       }
       subscription.remove();
     };
-  }, [isAuthenticated, registerForPush, unregisterForPush, onNotificationReceived, onNotificationTapped]);
+  }, [
+    isAuthenticated,
+    registerForPush,
+    unregisterForPush,
+    onNotificationReceived,
+    onNotificationTapped,
+  ]);
 }

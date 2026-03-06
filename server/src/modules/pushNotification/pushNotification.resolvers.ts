@@ -27,11 +27,7 @@ const pushNotificationResolvers = {
       );
     },
 
-    unregisterPushToken: (
-      _: unknown,
-      args: { deviceId: string },
-      context: GraphQLContext,
-    ) => {
+    unregisterPushToken: (_: unknown, args: { deviceId: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       if (!args.deviceId) throw new Error('Device ID is required');
       return pushService.unregisterPushToken(auth.userId, args.deviceId);

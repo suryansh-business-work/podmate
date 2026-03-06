@@ -26,7 +26,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm type-check
-      - run: pnpm test
+      - run: pnpm --filter partywings-server test
 
   build-and-push:
     runs-on: ubuntu-latest

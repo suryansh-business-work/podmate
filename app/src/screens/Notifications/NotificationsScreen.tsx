@@ -86,11 +86,26 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
   }, [refetch]);
 
   const renderIcon = (type: string) => {
-    const iconConfig = NOTIFICATION_ICON_MAP[type] ?? { name: 'notifications' as const, family: 'material' as const };
+    const iconConfig = NOTIFICATION_ICON_MAP[type] ?? {
+      name: 'notifications' as const,
+      family: 'material' as const,
+    };
     if (iconConfig.family === 'community') {
-      return <MaterialCommunityIcons name={iconConfig.name as ComponentProps<typeof MaterialCommunityIcons>['name']} size={18} color={colors.primary} />;
+      return (
+        <MaterialCommunityIcons
+          name={iconConfig.name as ComponentProps<typeof MaterialCommunityIcons>['name']}
+          size={18}
+          color={colors.primary}
+        />
+      );
     }
-    return <MaterialIcons name={iconConfig.name as ComponentProps<typeof MaterialIcons>['name']} size={18} color={colors.primary} />;
+    return (
+      <MaterialIcons
+        name={iconConfig.name as ComponentProps<typeof MaterialIcons>['name']}
+        size={18}
+        color={colors.primary}
+      />
+    );
   };
 
   return (

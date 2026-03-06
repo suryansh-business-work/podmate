@@ -20,10 +20,7 @@ const CallbacksPage: React.FC = () => {
           <HomeIcon sx={{ mr: 0.5 }} fontSize="small" />
           Dashboard
         </Link>
-        <Typography
-          sx={{ display: 'flex', alignItems: 'center' }}
-          color="text.primary"
-        >
+        <Typography sx={{ display: 'flex', alignItems: 'center' }} color="text.primary">
           <PhoneCallbackIcon sx={{ mr: 0.5 }} fontSize="small" />
           Callback Requests
         </Typography>

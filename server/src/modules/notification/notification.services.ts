@@ -2,7 +2,10 @@ import { v4 as uuidv4 } from 'uuid';
 import type { Notification, NotificationType, PaginatedNotifications } from './notification.models';
 import { NotificationModel, toNotification, AdminNotificationModel } from './notification.models';
 import { UserModel } from '../user/user.models';
-import { sendPushToUser, sendPushNotifications } from '../pushNotification/pushNotification.services';
+import {
+  sendPushToUser,
+  sendPushNotifications,
+} from '../pushNotification/pushNotification.services';
 import logger from '../../lib/logger';
 
 export interface AdminNotificationRecord {

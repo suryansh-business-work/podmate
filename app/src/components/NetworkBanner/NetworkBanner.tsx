@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, memo } from 'react';
 import { StyleSheet, View, Text, Animated, TouchableOpacity } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../../hooks/useThemedStyles';
 
-const NetworkBanner: React.FC = () => {
+const NetworkBanner: React.FC = memo(function NetworkBanner() {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const insets = useSafeAreaInsets();
@@ -73,6 +73,9 @@ const NetworkBanner: React.FC = () => {
           paddingTop: insets.top,
         },
       ]}
+      accessibilityRole="alert"
+      accessibilityLiveRegion="assertive"
+      accessibilityLabel={message}
     >
       <View style={styles.content}>
         <MaterialIcons name={icon} size={16} color={colors.white} />
@@ -82,6 +85,8 @@ const NetworkBanner: React.FC = () => {
             onPress={() => NetInfo.refresh()}
             style={styles.retryBtn}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Retry connection"
           >
             <MaterialIcons name="refresh" size={16} color={colors.white} />
           </TouchableOpacity>
@@ -89,7 +94,7 @@ const NetworkBanner: React.FC = () => {
       </View>
     </Animated.View>
   );
-};
+});
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({

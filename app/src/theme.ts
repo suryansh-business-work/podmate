@@ -1,92 +1,10 @@
 import { MD3LightTheme, configureFonts } from 'react-native-paper';
 import { lightColors } from './colors';
 import type { AppColorPalette } from './colors';
+import { fontConfig } from './fonts';
 
 export type { AppColorPalette };
 export { lightColors as colors, lightColors };
-
-const fontConfig = {
-  displayLarge: {
-    fontFamily: 'System',
-    fontSize: 32,
-    fontWeight: '700' as const,
-    letterSpacing: 0,
-  },
-  displayMedium: {
-    fontFamily: 'System',
-    fontSize: 28,
-    fontWeight: '700' as const,
-    letterSpacing: 0,
-  },
-  displaySmall: {
-    fontFamily: 'System',
-    fontSize: 24,
-    fontWeight: '700' as const,
-    letterSpacing: 0,
-  },
-  headlineLarge: {
-    fontFamily: 'System',
-    fontSize: 22,
-    fontWeight: '700' as const,
-    letterSpacing: 0,
-  },
-  headlineMedium: {
-    fontFamily: 'System',
-    fontSize: 20,
-    fontWeight: '600' as const,
-    letterSpacing: 0,
-  },
-  headlineSmall: {
-    fontFamily: 'System',
-    fontSize: 18,
-    fontWeight: '600' as const,
-    letterSpacing: 0,
-  },
-  titleLarge: { fontFamily: 'System', fontSize: 18, fontWeight: '600' as const, letterSpacing: 0 },
-  titleMedium: {
-    fontFamily: 'System',
-    fontSize: 16,
-    fontWeight: '600' as const,
-    letterSpacing: 0.15,
-  },
-  titleSmall: {
-    fontFamily: 'System',
-    fontSize: 14,
-    fontWeight: '500' as const,
-    letterSpacing: 0.1,
-  },
-  bodyLarge: {
-    fontFamily: 'System',
-    fontSize: 16,
-    fontWeight: '400' as const,
-    letterSpacing: 0.15,
-  },
-  bodyMedium: {
-    fontFamily: 'System',
-    fontSize: 14,
-    fontWeight: '400' as const,
-    letterSpacing: 0.25,
-  },
-  bodySmall: { fontFamily: 'System', fontSize: 12, fontWeight: '400' as const, letterSpacing: 0.4 },
-  labelLarge: {
-    fontFamily: 'System',
-    fontSize: 14,
-    fontWeight: '500' as const,
-    letterSpacing: 0.1,
-  },
-  labelMedium: {
-    fontFamily: 'System',
-    fontSize: 12,
-    fontWeight: '500' as const,
-    letterSpacing: 0.5,
-  },
-  labelSmall: {
-    fontFamily: 'System',
-    fontSize: 10,
-    fontWeight: '500' as const,
-    letterSpacing: 0.5,
-  },
-};
 
 export const spacing = {
   xs: 4,
@@ -96,6 +14,8 @@ export const spacing = {
   xl: 20,
   xxl: 24,
   xxxl: 32,
+  xxxxl: 48,
+  layout: 64,
 };
 
 export const borderRadius = {
@@ -104,6 +24,45 @@ export const borderRadius = {
   lg: 16,
   xl: 20,
   full: 999,
+};
+
+/** Elevation presets for consistent shadow depth across the app */
+export const elevation = {
+  none: {
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+  },
+  sm: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  md: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  lg: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  xl: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 10,
+  },
 };
 
 export const theme = {

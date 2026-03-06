@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, memo } from 'react';
 import {
   View,
   Text,
@@ -39,7 +39,7 @@ interface PodCardProps {
   slideHeight: number;
 }
 
-const PodCard: React.FC<PodCardProps> = ({
+const PodCard: React.FC<PodCardProps> = memo(function PodCard({
   item,
   activeCategory,
   currentUserId,
@@ -48,7 +48,7 @@ const PodCard: React.FC<PodCardProps> = ({
   onDetailPress,
   onJoinPress,
   slideHeight,
-}) => {
+}) {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const fillPct = Math.round((item.currentSeats / item.maxSeats) * 100);
@@ -325,6 +325,6 @@ const PodCard: React.FC<PodCardProps> = ({
       </View>
     </View>
   );
-};
+});
 
 export default PodCard;

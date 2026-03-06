@@ -1,7 +1,7 @@
 /**
- * Backward-compatible re-export barrel.
- * All mutations are now split into domain-specific files under ./mutations/.
- * Import from this file or directly from the sub-modules.
+ * Barrel re-export of all GraphQL mutations, split by domain.
+ * Consumers can import from here without changing existing imports:
+ *   import { SEND_OTP, CREATE_POD } from '../graphql/mutations';
  */
 export {
   SEND_OTP,
@@ -11,7 +11,7 @@ export {
   UPDATE_THEME_PREFERENCE,
   REGISTER_PUSH_TOKEN,
   UNREGISTER_PUSH_TOKEN,
-} from './mutations/auth.mutations';
+} from './auth.mutations';
 
 export {
   CREATE_POD,
@@ -21,11 +21,11 @@ export {
   SAVE_POD,
   UNSAVE_POD,
   TRACK_POD_VIEW,
-} from './mutations/pods.mutations';
+} from './pods.mutations';
 
-export { SEND_MESSAGE, ASK_CHATBOT, CLEAR_CHATBOT_HISTORY } from './mutations/chat.mutations';
-export { CREATE_REVIEW, REPLY_TO_REVIEW, REPORT_REVIEW } from './mutations/reviews.mutations';
-export { FOLLOW_USER, UNFOLLOW_USER } from './mutations/social.mutations';
+export { SEND_MESSAGE, ASK_CHATBOT, CLEAR_CHATBOT_HISTORY } from './chat.mutations';
+export { CREATE_REVIEW, REPLY_TO_REVIEW, REPORT_REVIEW } from './reviews.mutations';
+export { FOLLOW_USER, UNFOLLOW_USER } from './social.mutations';
 
 export {
   SEND_INVITES,
@@ -44,4 +44,4 @@ export {
   JOIN_LIVE_SESSION,
   LEAVE_LIVE_SESSION,
   REQUEST_CALLBACK,
-} from './mutations/misc.mutations';
+} from './misc.mutations';

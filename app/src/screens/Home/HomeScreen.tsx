@@ -237,6 +237,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
         onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}
+        windowSize={5}
+        maxToRenderPerBatch={5}
+        initialNumToRender={4}
+        removeClippedSubviews
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

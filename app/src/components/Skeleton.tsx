@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, StyleSheet, Animated, Dimensions } from 'react-native';
 import { spacing, borderRadius } from '../theme';
 import { useThemedStyles, useAppColors } from '../hooks/useThemedStyles';
@@ -12,12 +12,12 @@ interface SkeletonBoxProps {
   style?: object;
 }
 
-const SkeletonBox: React.FC<SkeletonBoxProps> = ({
+const SkeletonBox: React.FC<SkeletonBoxProps> = memo(function SkeletonBox({
   width = '100%',
   height = 16,
   borderRadius: br = borderRadius.sm,
   style,
-}) => {
+}) {
   const colors = useAppColors();
   const opacity = React.useRef(new Animated.Value(0.3)).current;
 
@@ -46,7 +46,7 @@ const SkeletonBox: React.FC<SkeletonBoxProps> = ({
       ]}
     />
   );
-};
+});
 
 /** Card-shaped skeleton for feed items */
 export const SkeletonCard: React.FC = () => {

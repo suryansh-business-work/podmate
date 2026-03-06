@@ -128,6 +128,10 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress, onCheckout })
         decelerationRate="fast"
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
+        windowSize={3}
+        maxToRenderPerBatch={3}
+        initialNumToRender={2}
+        removeClippedSubviews
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

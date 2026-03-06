@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
   View,
   Text,
@@ -25,7 +25,7 @@ import {
 import { createStyles } from './DrawerMenu.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
-const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }) => {
+const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({ onClose, onNavigate, onLogout }) {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const { data, loading } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
@@ -150,6 +150,6 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }
       </ScrollView>
     </SafeAreaView>
   );
-};
+});
 
 export default DrawerMenu;

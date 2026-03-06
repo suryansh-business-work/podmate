@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, memo } from 'react';
 import { StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -6,7 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import type { ChatbotFabProps } from './ChatbotFab.types';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../../hooks/useThemedStyles';
 
-const ChatbotFab: React.FC<ChatbotFabProps> = ({ onPress }) => {
+const ChatbotFab: React.FC<ChatbotFabProps> = memo(function ChatbotFab({ onPress }) {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -33,6 +33,9 @@ const ChatbotFab: React.FC<ChatbotFabProps> = ({ onPress }) => {
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
+        accessibilityRole="button"
+        accessibilityLabel="Open AI chatbot"
+        accessibilityHint="Opens the PartyWings assistant"
       >
         <LinearGradient
           colors={[colors.primaryLight, colors.primary]}
@@ -45,7 +48,7 @@ const ChatbotFab: React.FC<ChatbotFabProps> = ({ onPress }) => {
       </TouchableOpacity>
     </Animated.View>
   );
-};
+});
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({

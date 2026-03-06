@@ -150,6 +150,10 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
         data={notifications}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        windowSize={7}
+        maxToRenderPerBatch={8}
+        initialNumToRender={10}
+        removeClippedSubviews
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

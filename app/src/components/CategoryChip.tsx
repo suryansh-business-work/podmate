@@ -1,7 +1,6 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { borderRadius, spacing } from '../theme';
-import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
+import React, { memo } from 'react';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useThemedStyles, ThemeUtils } from '../hooks/useThemedStyles';
 
 interface CategoryChipProps {
   label: string;
@@ -9,19 +8,21 @@ interface CategoryChipProps {
   onPress: () => void;
 }
 
-export const CategoryChip: React.FC<CategoryChipProps> = ({ label, selected, onPress }) => {
+export const CategoryChip: React.FC<CategoryChipProps> = memo(function CategoryChip({ label, selected, onPress }) {
   const styles = useThemedStyles(createStyles);
-  const colors = useAppColors();
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
       style={[styles.chip, selected && styles.chipSelected]}
+      accessibilityRole="button"
+      accessibilityLabel={`${label} category${selected ? ', selected' : ''}`}
+      accessibilityState={{ selected }}
     >
       <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
     </TouchableOpacity>
   );
-};
+});
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({

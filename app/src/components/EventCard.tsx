@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { spacing, borderRadius } from '../theme';
@@ -30,7 +30,7 @@ interface EventCardProps {
   onPress: (id: string) => void;
 }
 
-export const EventCard: React.FC<EventCardProps> = ({
+export const EventCard: React.FC<EventCardProps> = memo(function EventCard({
   id,
   title,
   imageUrl,
@@ -45,7 +45,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   hostAvatar,
   isJoined = false,
   onPress,
-}) => {
+}) {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const date = new Date(dateTime);
@@ -76,7 +76,14 @@ export const EventCard: React.FC<EventCardProps> = ({
   };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={() => onPress(id)} activeOpacity={0.85}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => onPress(id)}
+      activeOpacity={0.85}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}, ${formattedDate}, ₹${feePerPerson}, ${spotsLeft} spots left, rated ${rating}`}
+      accessibilityHint="Opens pod details"
+    >
       <View>
         <SafeImage
           uri={imageUrl}
@@ -135,7 +142,7 @@ export const EventCard: React.FC<EventCardProps> = ({
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({

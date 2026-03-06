@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, memo } from 'react';
 import {
   StyleSheet,
   View,
@@ -15,7 +15,7 @@ interface OtpInputProps {
   testID?: string;
 }
 
-export const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onComplete, testID }) => {
+export const OtpInput: React.FC<OtpInputProps> = memo(function OtpInput({ length = 6, onComplete, testID }) {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [otp, setOtp] = useState<string[]>(new Array(length).fill(''));
@@ -45,7 +45,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onComplete, test
   };
 
   return (
-    <View style={styles.container} testID={testID}>
+    <View style={styles.container} testID={testID} accessibilityRole="none" accessibilityLabel="OTP input">
       {otp.map((digit, index) => (
         <TextInput
           key={index}
@@ -60,11 +60,13 @@ export const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onComplete, test
           onKeyPress={(e) => handleKeyPress(e, index)}
           autoFocus={index === 0}
           testID={testID ? `${testID}-${index}` : undefined}
+          accessibilityLabel={`Digit ${index + 1} of ${length}`}
+          accessibilityHint="Enter a single digit"
         />
       ))}
     </View>
   );
-};
+});
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({

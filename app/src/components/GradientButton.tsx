@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
@@ -12,14 +12,14 @@ interface GradientButtonProps {
   testID?: string;
 }
 
-export const GradientButton: React.FC<GradientButtonProps> = ({
+export const GradientButton: React.FC<GradientButtonProps> = memo(function GradientButton({
   title,
   onPress,
   disabled = false,
   style,
   children,
   testID,
-}) => {
+}) {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   return (
@@ -29,6 +29,9 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
       disabled={disabled}
       activeOpacity={0.8}
       testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled }}
     >
       <LinearGradient
         colors={[colors.gradientStart, colors.gradientEnd]}
@@ -40,7 +43,7 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
       </LinearGradient>
     </TouchableOpacity>
   );
-};
+});
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({

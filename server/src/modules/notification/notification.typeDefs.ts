@@ -4,6 +4,7 @@ const notificationTypeDefs = `#graphql
     POD_LEAVE
     POD_UPDATE
     SUPPORT_REPLY
+    POLICY_UPDATE
     GENERAL
     ADMIN_BROADCAST
   }

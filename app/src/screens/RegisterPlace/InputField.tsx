@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { ComponentProps } from 'react';
 import { View, Text, TextInput } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { spacing } from '../../theme';
 import { createStyles } from './RegisterPlace.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 interface InputFieldProps {
   label: string;
-  icon: string;
+  icon: ComponentProps<typeof MaterialIcons>['name'];
   value: string;
   onChangeText: (text: string) => void;
   onBlur?: (e: unknown) => void;

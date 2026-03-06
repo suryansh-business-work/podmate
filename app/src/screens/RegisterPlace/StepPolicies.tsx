@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { spacing } from '../../theme';
 import { GradientButton } from '../../components/GradientButton';
 import { PolicyItem } from './RegisterPlace.types';

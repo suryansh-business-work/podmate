@@ -3,6 +3,8 @@ const policyTypeDefs = `#graphql
     VENUE
     USER
     HOST
+    TERMS_OF_SERVICE
+    PRIVACY_POLICY
   }
 
   type Policy {
@@ -10,6 +12,7 @@ const policyTypeDefs = `#graphql
     type: PolicyType!
     title: String!
     content: String!
+    version: Int!
     isActive: Boolean!
     createdAt: String!
     updatedAt: String!
@@ -32,6 +35,8 @@ const policyTypeDefs = `#graphql
     title: String
     content: String
     isActive: Boolean
+    notifyUsers: Boolean
+    notificationMethod: String
   }
 `;
 

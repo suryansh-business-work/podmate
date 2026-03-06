@@ -1,4 +1,8 @@
+import { ComponentProps } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '../../theme';
+
+export type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 export interface DrawerMenuProps {
   onClose: () => void;
@@ -8,7 +12,7 @@ export interface DrawerMenuProps {
 
 export interface NavItem {
   id: string;
-  icon: string;
+  icon: MaterialIconName;
   label: string;
   color?: string;
 }

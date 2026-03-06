@@ -63,6 +63,23 @@ jobs:
           echo "- **Build ID:** $BUILD_ID" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Download:** $BUILD_URL" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Download and upload APK to Slack
+        if: success() && steps.build.outputs.build_url != ''
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_BUILD_CHANNEL }}
+        run: |
+          TIMESTAMP=$(date -u '+%Y-%m-%d_%H-%M-%S')
+          FILENAME="PartyWings-Android-${{ inputs.profile }}-${TIMESTAMP}.apk"
+          curl -L -o "$FILENAME" "${{ steps.build.outputs.build_url }}"
+          if [[ -f "$FILENAME" && -s "$FILENAME" ]]; then
+            curl -F "file=@${FILENAME}" \
+                 -F "channels=${SLACK_CHANNEL}" \
+                 -F "initial_comment=📱 Android ${{ inputs.profile }} build — ${TIMESTAMP} (branch: ${{ github.ref_name }})" \
+                 -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
+                 https://slack.com/api/files.upload
+          fi
+
       - name: Notify Slack — Android
         if: always()
         uses: slackapi/slack-github-action@v2.0.0
@@ -144,6 +161,23 @@ jobs:
           echo "### iOS Build" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Build ID:** $BUILD_ID" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Download:** $BUILD_URL" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Download and upload IPA to Slack
+        if: success() && steps.build.outputs.build_url != ''
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_BUILD_CHANNEL }}
+        run: |
+          TIMESTAMP=$(date -u '+%Y-%m-%d_%H-%M-%S')
+          FILENAME="PartyWings-iOS-${{ inputs.profile }}-${TIMESTAMP}.ipa"
+          curl -L -o "$FILENAME" "${{ steps.build.outputs.build_url }}"
+          if [[ -f "$FILENAME" && -s "$FILENAME" ]]; then
+            curl -F "file=@${FILENAME}" \
+                 -F "channels=${SLACK_CHANNEL}" \
+                 -F "initial_comment=🍎 iOS ${{ inputs.profile }} build — ${TIMESTAMP} (branch: ${{ github.ref_name }})" \
+                 -H "Authorization: Bearer ${SLACK_BOT_TOKEN}" \
+                 https://slack.com/api/files.upload
+          fi
 
       - name: Notify Slack — iOS
         if: always()

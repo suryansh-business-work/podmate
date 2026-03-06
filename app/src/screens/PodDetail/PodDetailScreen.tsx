@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { SkeletonDetail } from '../../components/Skeleton';
 import SafeImage from '../../components/SafeImage';

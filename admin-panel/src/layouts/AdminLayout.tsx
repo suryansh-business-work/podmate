@@ -16,6 +16,7 @@ import {
   Menu,
   MenuItem,
   Tooltip,
+  Collapse,
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -23,16 +24,60 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
-import { DRAWER_WIDTH, AdminLayoutProps, navItems } from './AdminLayout.types';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import {
+  DRAWER_WIDTH,
+  AdminLayoutProps,
+  topNavItems,
+  navGroups,
+} from './AdminLayout.types';
 import { useAdminTheme } from '../contexts/ThemeContext';
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const location = useLocation();
   const activeNav = location.pathname;
   const { isDark, toggleTheme } = useAdminTheme();
+
+  const toggleGroup = (label: string) => {
+    setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
+
+  const renderNavItem = (item: { icon: React.ReactElement; label: string; path: string }, nested = false) => (
+    <ListItemButton
+      key={item.path}
+      onClick={() => {
+        navigate(item.path);
+        setMobileOpen(false);
+      }}
+      sx={{
+        borderRadius: 1.5,
+        mb: 0.25,
+        py: 0.75,
+        pl: nested ? 4 : 2,
+        color: activeNav.startsWith(item.path) ? 'primary.main' : 'text.secondary',
+        bgcolor: activeNav.startsWith(item.path) ? 'rgba(245,2,71,0.08)' : 'transparent',
+        '&:hover': {
+          bgcolor: activeNav.startsWith(item.path)
+            ? 'rgba(245,2,71,0.12)'
+            : 'rgba(0,0,0,0.04)',
+        },
+      }}
+    >
+      <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>{item.icon}</ListItemIcon>
+      <ListItemText
+        primary={item.label}
+        primaryTypographyProps={{
+          fontSize: 13,
+          fontWeight: activeNav.startsWith(item.path) ? 600 : 500,
+        }}
+      />
+    </ListItemButton>
+  );
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -64,37 +109,50 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
       <Divider />
 
       {/* Navigation */}
-      <List sx={{ flex: 1, px: 1, py: 1 }}>
-        {navItems.map((item) => (
-          <ListItemButton
-            key={item.path}
-            onClick={() => {
-              navigate(item.path);
-              setMobileOpen(false);
-            }}
-            sx={{
-              borderRadius: 1.5,
-              mb: 0.25,
-              py: 0.75,
-              color: activeNav.startsWith(item.path) ? 'primary.main' : 'text.secondary',
-              bgcolor: activeNav.startsWith(item.path) ? 'rgba(245,2,71,0.08)' : 'transparent',
-              '&:hover': {
-                bgcolor: activeNav.startsWith(item.path)
-                  ? 'rgba(245,2,71,0.12)'
-                  : 'rgba(0,0,0,0.04)',
-              },
-            }}
-          >
-            <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>{item.icon}</ListItemIcon>
-            <ListItemText
-              primary={item.label}
-              primaryTypographyProps={{
-                fontSize: 13,
-                fontWeight: activeNav.startsWith(item.path) ? 600 : 500,
-              }}
-            />
-          </ListItemButton>
-        ))}
+      <List sx={{ flex: 1, px: 1, py: 1, overflow: 'auto' }}>
+        {/* Top-level items (Dashboard) */}
+        {topNavItems.map((item) => renderNavItem(item))}
+
+        {/* Grouped items */}
+        {navGroups.map((group) => {
+          const isOpen = openGroups[group.label] ?? true;
+          const hasActive = group.items.some((i) => activeNav.startsWith(i.path));
+
+          return (
+            <Box key={group.label}>
+              <ListItemButton
+                onClick={() => toggleGroup(group.label)}
+                sx={{
+                  borderRadius: 1.5,
+                  mb: 0.25,
+                  py: 0.5,
+                  mt: 0.5,
+                }}
+              >
+                <ListItemText
+                  primary={group.label}
+                  primaryTypographyProps={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.5,
+                    color: hasActive ? 'primary.main' : 'text.disabled',
+                  }}
+                />
+                {isOpen ? (
+                  <ExpandLess sx={{ fontSize: 16, color: 'text.disabled' }} />
+                ) : (
+                  <ExpandMore sx={{ fontSize: 16, color: 'text.disabled' }} />
+                )}
+              </ListItemButton>
+              <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {group.items.map((item) => renderNavItem(item, true))}
+                </List>
+              </Collapse>
+            </Box>
+          );
+        })}
       </List>
     </Box>
   );

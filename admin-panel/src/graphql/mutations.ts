@@ -39,6 +39,7 @@ export const CREATE_POLICY = gql`
       type
       title
       content
+      version
       isActive
       createdAt
       updatedAt
@@ -53,6 +54,7 @@ export const UPDATE_POLICY = gql`
       type
       title
       content
+      version
       isActive
       updatedAt
     }

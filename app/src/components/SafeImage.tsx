@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { ComponentProps } from 'react';
 import { Image, View, type ImageStyle, type StyleProp, type ViewStyle } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useAppColors } from '../hooks/useThemedStyles';
+
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 interface SafeImageProps {
   uri: string | null | undefined;
   style?: StyleProp<ImageStyle>;
   resizeMode?: 'cover' | 'contain' | 'stretch' | 'repeat' | 'center';
-  fallbackIcon?: string;
+  fallbackIcon?: MaterialIconName;
   fallbackIconSize?: number;
   fallbackStyle?: StyleProp<ViewStyle>;
 }

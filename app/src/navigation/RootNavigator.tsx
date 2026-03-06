@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Animated, TouchableOpacity, StyleSheet, BackHandler, Alert } from 'react-native';
@@ -32,6 +32,8 @@ import { createDrawerStyles } from './RootNavigator.styles';
 import { useThemedStyles } from '../hooks/useThemedStyles';
 import { useAuth } from './hooks/useAuth';
 import { useDrawer, DRAWER_WIDTH } from './hooks/useDrawer';
+import { usePushNotifications } from '../hooks/usePushNotifications';
+import * as Notifications from 'expo-notifications';
 
 export type { RootStackParamList } from './RootNavigator.types';
 
@@ -42,6 +44,28 @@ const RootNavigator: React.FC = () => {
   const drawer = useDrawer();
   const drawerStyles = useThemedStyles(createDrawerStyles);
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
+
+  const handleNotificationTapped = useCallback(
+    (response: Notifications.NotificationResponse) => {
+      const data = response.notification.request.content.data as
+        | Record<string, string>
+        | undefined;
+      const nav = navigationRef.current;
+      if (!nav || !data) return;
+
+      if (data.podId) {
+        nav.navigate('PodDetail', { podId: data.podId });
+      } else if (data.screen === 'Notifications') {
+        nav.navigate('Notifications');
+      }
+    },
+    [],
+  );
+
+  usePushNotifications({
+    isAuthenticated: auth.isAuthenticated,
+    onNotificationTapped: handleNotificationTapped,
+  });
 
   useEffect(() => {
     const onBackPress = () => {

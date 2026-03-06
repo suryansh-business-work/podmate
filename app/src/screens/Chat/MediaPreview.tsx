@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Image, TouchableOpacity, Modal } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useVideoPlayer, VideoView } from 'expo-video';
 
 import { createPvStyles } from './Chat.styles';

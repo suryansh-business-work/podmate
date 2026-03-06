@@ -1,6 +1,6 @@
 import React, { useMemo, memo } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import SafeImage from '../../components/SafeImage';
 

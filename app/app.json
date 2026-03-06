@@ -11,7 +11,7 @@
       }
     },
     "icon": "./assets/icon-and-splash/logo-1024x1024.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "platforms": ["ios", "android", "web"],
     "splash": {
       "image": "./assets/icon-and-splash/logo-1284x2778.png",
@@ -29,9 +29,21 @@
         "foregroundImage": "./assets/icon-and-splash/logo-1024x1024.png",
         "backgroundColor": "#111827"
       },
-      "package": "com.partywings.app"
+      "package": "com.partywings.app",
+      "softwareKeyboardLayoutMode": "adjustResize"
     },
-    "plugins": ["expo-video"],
+    "plugins": [
+      "expo-video",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon-and-splash/logo-1024x1024.png",
+          "color": "#111827",
+          "sounds": [],
+          "defaultChannel": "default"
+        }
+      ]
+    ],
     "web": {
       "bundler": "metro",
       "favicon": "./assets/icon-and-splash/logo-1024x1024.png"

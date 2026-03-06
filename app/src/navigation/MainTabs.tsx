@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { ComponentProps } from 'react';
 import { StyleSheet, View, Text, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import ChatScreen from '../screens/ChatScreen';
@@ -12,7 +12,9 @@ import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedSty
 
 const Tab = createBottomTabNavigator();
 
-const TAB_ICONS: Record<string, string> = {
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
+const TAB_ICONS: Record<string, MaterialIconName> = {
   Home: 'home',
   Explore: 'explore',
   Create: 'add',
@@ -113,7 +115,8 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       height: 80,
       paddingBottom: 16,
       paddingTop: 8,
-      backgroundColor: colors.white,
+      position: 'relative' as const,
+      backgroundColor: colors.surface,
       borderTopWidth: 1,
       borderTopColor: colors.border,
       shadowColor: colors.black,

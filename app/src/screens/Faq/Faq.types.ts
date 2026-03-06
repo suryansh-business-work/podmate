@@ -1,3 +1,6 @@
+import { ComponentProps } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+
 export interface Policy {
   id: string;
   type: string;
@@ -18,7 +21,7 @@ export interface FaqScreenProps {
 export interface TabItem {
   key: TabKey;
   label: string;
-  icon: string;
+  icon: ComponentProps<typeof MaterialIcons>['name'];
 }
 
 export const FAQ_ITEMS = [

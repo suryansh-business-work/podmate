@@ -1,4 +1,9 @@
 import { MD3LightTheme, configureFonts } from 'react-native-paper';
+import { lightColors } from './colors';
+import type { AppColorPalette } from './colors';
+
+export type { AppColorPalette };
+export { lightColors as colors, lightColors };
 
 const fontConfig = {
   displayLarge: {
@@ -83,34 +88,6 @@ const fontConfig = {
   },
 };
 
-export const colors = {
-  primary: '#F50247',
-  primaryLight: '#FF3370',
-  primaryDark: '#C7003A',
-  secondary: '#9333EA',
-  secondaryLight: '#A855F7',
-  accent: '#2563EB',
-  accentPink: '#EC4899',
-  background: '#FFF1F5',
-  surface: '#FFF5F8',
-  surfaceVariant: '#FFE4ED',
-  text: '#111827',
-  textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
-  border: '#FECDD3',
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  white: '#FFFFFF',
-  black: '#000000',
-  darkBg: '#111827',
-  lightBg: '#FFF1F5',
-  gradientStart: '#F50247',
-  gradientEnd: '#9333EA',
-  cardShadow: 'rgba(0, 0, 0, 0.08)',
-  overlay: 'rgba(0, 0, 0, 0.5)',
-};
-
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -133,17 +110,17 @@ export const theme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: colors.primary,
-    secondary: colors.secondary,
-    background: colors.background,
-    surface: colors.surface,
-    surfaceVariant: colors.surfaceVariant,
-    error: colors.error,
-    onPrimary: colors.white,
-    onSecondary: colors.white,
-    onBackground: colors.text,
-    onSurface: colors.text,
-    outline: colors.border,
+    primary: lightColors.primary,
+    secondary: lightColors.secondary,
+    background: lightColors.background,
+    surface: lightColors.surface,
+    surfaceVariant: lightColors.surfaceVariant,
+    error: lightColors.error,
+    onPrimary: lightColors.white,
+    onSecondary: lightColors.white,
+    onBackground: lightColors.text,
+    onSurface: lightColors.text,
+    outline: lightColors.border,
   },
   fonts: configureFonts({ config: fontConfig }),
 };

@@ -7,6 +7,7 @@ import type {
   TicketReplySenderRole,
 } from './support.models';
 import { SupportTicketModel, toSupportTicket } from './support.models';
+import { createNotification } from '../notification/notification.services';
 import logger from '../../lib/logger';
 
 export interface SupportPaginationInput {
@@ -141,6 +142,7 @@ export async function replySupportTicket(
   senderId: string,
   senderRole: TicketReplySenderRole,
   content: string,
+  parentReplyId?: string,
 ): Promise<SupportTicket> {
   const ticket = await SupportTicketModel.findById(ticketId);
   if (!ticket) throw new Error('Support ticket not found');
@@ -150,10 +152,17 @@ export async function replySupportTicket(
     throw new Error('You can only reply to your own tickets');
   }
 
+  /* Validate parentReplyId if provided */
+  if (parentReplyId) {
+    const parentExists = ticket.replies.some((r) => r.id === parentReplyId);
+    if (!parentExists) throw new Error('Parent reply not found');
+  }
+
   const reply: TicketReply = {
     id: uuidv4(),
     senderId,
     senderRole,
+    parentReplyId: parentReplyId ?? undefined,
     content: content.trim(),
     createdAt: new Date().toISOString(),
   };
@@ -180,6 +189,22 @@ export async function replySupportTicket(
   const result = toSupportTicket(updated);
   if (!result) throw new Error('Support ticket not found');
   logger.info(`Reply added to ticket ${ticketId} by ${senderRole} ${senderId}`);
+
+  /* Send notification to the other party */
+  try {
+    if (senderRole === 'ADMIN') {
+      await createNotification(
+        ticket.userId,
+        'SUPPORT_REPLY',
+        'New reply on your support ticket',
+        `An admin replied to your ticket: "${ticket.subject}"`,
+        JSON.stringify({ ticketId, replyId: reply.id }),
+      );
+    }
+  } catch (err) {
+    logger.error('Failed to send support reply notification:', err);
+  }
+
   return result;
 }
 

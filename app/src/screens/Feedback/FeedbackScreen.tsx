@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, ComponentProps } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { GET_MY_FEEDBACK } from '../../graphql/queries';
 import { SUBMIT_FEEDBACK } from '../../graphql/mutations';
@@ -24,7 +24,9 @@ import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 const TYPES = ['BUG', 'FEATURE', 'GENERAL'] as const;
 type FeedbackType = (typeof TYPES)[number];
 
-const TYPE_ICONS: Record<FeedbackType, string> = {
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
+const TYPE_ICONS: Record<FeedbackType, MaterialIconName> = {
   BUG: 'bug-report',
   FEATURE: 'lightbulb',
   GENERAL: 'chat',
@@ -158,7 +160,7 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
           activeOpacity={1}
           onPress={() => setShowModal(false)}
         >
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Submit Feedback</Text>

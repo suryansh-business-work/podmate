@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { spacing, borderRadius } from '../theme';
 import SafeImage from './SafeImage';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';

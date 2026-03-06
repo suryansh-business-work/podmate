@@ -1,3 +1,6 @@
+import { ComponentProps } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+
 export interface Notification {
   id: string;
   type: string;
@@ -12,9 +15,11 @@ export interface NotificationsScreenProps {
   onBack: () => void;
 }
 
+type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
+
 export const NOTIFICATION_ICON_MAP: Record<
   string,
-  { name: string; family: 'material' | 'community' }
+  { name: MaterialIconName; family: 'material' | 'community' }
 > = {
   POD_JOIN: { name: 'group', family: 'material' },
   POD_LEAVE: { name: 'group-remove', family: 'material' },

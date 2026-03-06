@@ -72,7 +72,7 @@ pnpm build:prod:ios
 
 - **Splash** — Animated brand splash
 - **Login** — Phone number OTP authentication
-- **OTP** — OTP verification
+- **OTP** — OTP verification with keyboard-safe input
 - **CompleteProfile** — New user profile setup
 - **Home** — Pod discovery with search and categories
 - **Explore** — Map-based pod exploration
@@ -80,9 +80,31 @@ pnpm build:prod:ios
 - **Profile** — User profile and settings
 - **CreatePod** — Host a new pod with ImageKit image/video upload
 - **RegisterPlace** — Venue registration with document upload
-- **PodDetail** — Pod details with join/leave
-- **Notifications** — User's pod notifications
+- **PodDetail** — Pod details with join/leave/checkout
+- **Notifications** — In-app and push notifications
+- **EditProfile** — Profile editing
+- **MyPods** — User's hosted and joined pods
+- **Payments** — Payment history
+- **Checkout** — Pod payment checkout
+- **Reviews** — Reviews and ratings
+- **Feedback** — User feedback submission
+- **PodIdeas** — Community pod ideas with upvoting
+- **GoLive** — Live session management
+- **FollowList** — Followers and following lists
+- **UserProfile** — Other user profiles
+- **PrivacySecurity** — Privacy and notification settings
+- **Chatbot** — AI chatbot assistant
+- **FAQ** — Frequently asked questions
+- **Support** — Support ticket creation
+
+## Features
+
+- **Push Notifications** — Expo push notifications for Android, iOS, and web
+- **Dark/Light Mode** — Automatic system theme detection with centralized color config
+- **Keyboard-Safe Views** — Reusable KeyboardSafeView component; adjustResize on Android
+- **Icon System** — @expo/vector-icons (MaterialIcons, MaterialCommunityIcons)
+- **Real-time Chat** — WebSocket-based messaging
 
 ## Platforms
 
-iOS and Android only (web platform removed).
+iOS and Android (web supported via Expo).

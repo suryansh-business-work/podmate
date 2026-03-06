@@ -421,3 +421,21 @@ export const REQUEST_CALLBACK = gql`
     }
   }
 `;
+
+export const REGISTER_PUSH_TOKEN = gql`
+  mutation RegisterPushToken($input: RegisterPushTokenInput!) {
+    registerPushToken(input: $input) {
+      id
+      token
+      platform
+      deviceId
+      isActive
+    }
+  }
+`;
+
+export const UNREGISTER_PUSH_TOKEN = gql`
+  mutation UnregisterPushToken($deviceId: String!) {
+    unregisterPushToken(deviceId: $deviceId)
+  }
+`;

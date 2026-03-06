@@ -75,7 +75,7 @@ const supportResolvers = {
 
     replySupportTicket: (
       _: unknown,
-      args: { id: string; content: string },
+      args: { id: string; content: string; parentReplyId?: string },
       context: GraphQLContext,
     ) => {
       const auth = requireAuth(context);
@@ -87,7 +87,13 @@ const supportResolvers = {
         throw new Error('Reply content must not exceed 5000 characters');
       }
       const senderRole = auth.role === UserRole.ADMIN ? 'ADMIN' : 'USER';
-      return supportService.replySupportTicket(args.id, auth.userId, senderRole, content);
+      return supportService.replySupportTicket(
+        args.id,
+        auth.userId,
+        senderRole,
+        content,
+        args.parentReplyId,
+      );
     },
 
     updateSupportTicket: (

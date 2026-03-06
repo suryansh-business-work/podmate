@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { OtpInput } from '../../../components/OtpInput';
 import { GradientButton } from '../../../components/GradientButton';
@@ -58,7 +58,11 @@ const OtpScreen: React.FC<OtpScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container} testID="otp-screen">
-      <View style={styles.content}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.content}>
         <TouchableOpacity onPress={onBack} style={styles.backButton} testID="back-button">
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
@@ -122,6 +126,7 @@ const OtpScreen: React.FC<OtpScreenProps> = ({
           )}
         </GradientButton>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { View, Text, FlatList, StatusBar, ActivityIndicator, RefreshControl } from 'react-native';
 import { useQuery } from '@apollo/client';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { spacing } from '../../theme';
 import { GET_PODS, GET_ME } from '../../graphql/queries';
 import { Pod, ExploreScreenProps } from './Explore.types';

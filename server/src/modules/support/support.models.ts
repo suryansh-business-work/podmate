@@ -9,6 +9,7 @@ export interface TicketReply {
   id: string;
   senderId: string;
   senderRole: TicketReplySenderRole;
+  parentReplyId?: string;
   content: string;
   createdAt: string;
 }
@@ -47,6 +48,7 @@ const TicketReplySchema = new Schema<TicketReply>(
     id: { type: String, default: () => uuidv4() },
     senderId: { type: String, required: true },
     senderRole: { type: String, enum: ['USER', 'ADMIN'], required: true },
+    parentReplyId: { type: String, default: null },
     content: { type: String, required: true },
     createdAt: { type: String, default: () => new Date().toISOString() },
   },

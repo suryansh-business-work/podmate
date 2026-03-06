@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { spacing, borderRadius } from '../../theme';
 import { getCurrentLocation } from '../../utils/locationService';
 import { useAppColors, useThemedStyles, ThemeUtils } from '../../hooks/useThemedStyles';

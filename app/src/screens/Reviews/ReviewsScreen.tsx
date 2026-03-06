@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { GET_REVIEWS, GET_REVIEW_STATS } from '../../graphql/queries';
 import { CREATE_REVIEW, REPLY_TO_REVIEW, REPORT_REVIEW } from '../../graphql/mutations';
@@ -181,7 +181,7 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({
 
       {/* Reply inline input */}
       {replyTo && (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View
             style={{
               flexDirection: 'row',
@@ -240,7 +240,7 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({
           activeOpacity={1}
           onPress={() => setShowModal(false)}
         >
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Write a Review</Text>

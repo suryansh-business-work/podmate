@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useMutation } from '@apollo/client';
 import { spacing, borderRadius } from '../../theme';
 import { REPLY_SUPPORT_TICKET } from '../../graphql/mutations';

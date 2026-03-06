@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { spacing } from '../../theme';
 import { createStyles } from './CreatePod.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';

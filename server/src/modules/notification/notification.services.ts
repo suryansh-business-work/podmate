@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { Notification, NotificationType, PaginatedNotifications } from './notification.models';
 import { NotificationModel, toNotification, AdminNotificationModel } from './notification.models';
 import { UserModel } from '../user/user.models';
+import { sendPushToUser, sendPushNotifications } from '../pushNotification/pushNotification.services';
 import logger from '../../lib/logger';
 
 export interface AdminNotificationRecord {
@@ -38,6 +39,11 @@ export async function createNotification(
     createdAt: new Date().toISOString(),
   });
   logger.info(`Notification created for user ${userId}: ${title}`);
+
+  sendPushToUser(userId, title, message, data ? { payload: data } : undefined).catch((err) =>
+    logger.warn(`Push delivery failed for user ${userId}: ${String(err)}`),
+  );
+
   return toNotification(doc.toObject({ virtuals: true })) as Notification;
 }
 
@@ -69,6 +75,11 @@ export async function broadcastNotification(
     sentAt: now,
     recipientCount: docs.length,
   });
+
+  const userIds = users.map((u) => (u as { _id: string })._id);
+  sendPushNotifications(userIds, title, message).catch((err) =>
+    logger.warn(`Broadcast push delivery failed: ${String(err)}`),
+  );
 
   logger.info(`Broadcast notification sent to ${docs.length} users: ${title}`);
   return { success: true, recipientCount: docs.length };

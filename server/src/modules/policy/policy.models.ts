@@ -6,12 +6,13 @@ export interface Policy {
   type: PolicyType;
   title: string;
   content: string;
+  version: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-export type PolicyType = 'VENUE' | 'USER' | 'HOST';
+export type PolicyType = 'VENUE' | 'USER' | 'HOST' | 'TERMS_OF_SERVICE' | 'PRIVACY_POLICY';
 
 export interface CreatePolicyInput {
   type: PolicyType;
@@ -23,6 +24,8 @@ export interface UpdatePolicyInput {
   title?: string;
   content?: string;
   isActive?: boolean;
+  notifyUsers?: boolean;
+  notificationMethod?: string;
 }
 
 /* ── Mongoose ── */
@@ -32,9 +35,14 @@ export type PolicyMongoDoc = Omit<Policy, 'id'> & { _id: string };
 const PolicySchema = new Schema<PolicyMongoDoc>(
   {
     _id: { type: String, default: () => uuidv4() },
-    type: { type: String, enum: ['VENUE', 'USER', 'HOST'], required: true },
+    type: {
+      type: String,
+      enum: ['VENUE', 'USER', 'HOST', 'TERMS_OF_SERVICE', 'PRIVACY_POLICY'],
+      required: true,
+    },
     title: { type: String, required: true },
     content: { type: String, required: true },
+    version: { type: Number, default: 1 },
     isActive: { type: Boolean, default: true },
     createdAt: { type: String, default: () => new Date().toISOString() },
     updatedAt: { type: String, default: () => new Date().toISOString() },

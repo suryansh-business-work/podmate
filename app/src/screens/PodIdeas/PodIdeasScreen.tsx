@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { GET_POD_IDEAS } from '../../graphql/queries';
 import { SUBMIT_POD_IDEA, UPVOTE_POD_IDEA, REMOVE_UPVOTE } from '../../graphql/mutations';
@@ -217,7 +217,7 @@ const PodIdeasScreen: React.FC<PodIdeasScreenProps> = ({ onBack }) => {
           activeOpacity={1}
           onPress={() => setShowModal(false)}
         >
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Suggest a Pod Idea</Text>

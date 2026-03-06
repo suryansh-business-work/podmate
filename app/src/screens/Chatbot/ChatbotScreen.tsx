@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { GET_CHATBOT_HISTORY } from '../../graphql/queries';
 import { ASK_CHATBOT, CLEAR_CHATBOT_HISTORY } from '../../graphql/mutations';
 
@@ -154,7 +154,7 @@ const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onBack }) => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}
     >
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>

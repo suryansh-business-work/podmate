@@ -6,6 +6,7 @@ export type NotificationType =
   | 'POD_LEAVE'
   | 'POD_UPDATE'
   | 'SUPPORT_REPLY'
+  | 'POLICY_UPDATE'
   | 'GENERAL'
   | 'ADMIN_BROADCAST';
 
@@ -38,7 +39,15 @@ const NotificationSchema = new Schema<NotificationMongoDoc>(
     userId: { type: String, required: true, index: true },
     type: {
       type: String,
-      enum: ['POD_JOIN', 'POD_LEAVE', 'POD_UPDATE', 'SUPPORT_REPLY', 'GENERAL', 'ADMIN_BROADCAST'],
+      enum: [
+        'POD_JOIN',
+        'POD_LEAVE',
+        'POD_UPDATE',
+        'SUPPORT_REPLY',
+        'POLICY_UPDATE',
+        'GENERAL',
+        'ADMIN_BROADCAST',
+      ],
       default: 'GENERAL',
     },
     title: { type: String, required: true },

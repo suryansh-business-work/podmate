@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -19,12 +19,22 @@ import { useQuery, useMutation } from '@apollo/client';
 import { useFormik } from 'formik';
 import { GET_POLICIES } from '../../graphql/queries';
 import { CREATE_POLICY, UPDATE_POLICY, DELETE_POLICY } from '../../graphql/mutations';
-import { Policy, policySchema, POLICY_COLORS } from './Policies.types';
+import {
+  Policy,
+  PolicyFormValues,
+  NotifyConfirmState,
+  INITIAL_NOTIFY_STATE,
+  policySchema,
+  POLICY_COLORS,
+  POLICY_TYPE_LABELS,
+} from './Policies.types';
 import PolicyDialog from './PolicyDialog';
+import NotifyConfirmDialog from './NotifyConfirmDialog';
 
 const PoliciesPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<Policy | null>(null);
+  const [notifyState, setNotifyState] = useState<NotifyConfirmState>(INITIAL_NOTIFY_STATE);
 
   const { data, loading, error, refetch } = useQuery<{ policies: Policy[] }>(GET_POLICIES, {
     fetchPolicy: 'cache-and-network',
@@ -33,7 +43,7 @@ const PoliciesPage: React.FC = () => {
   const [updatePolicy, { loading: updating }] = useMutation(UPDATE_POLICY);
   const [deletePolicy] = useMutation(DELETE_POLICY);
 
-  const formik = useFormik({
+  const formik = useFormik<PolicyFormValues>({
     initialValues: { type: 'VENUE', title: '', content: '' },
     validationSchema: policySchema,
     enableReinitialize: true,
@@ -46,18 +56,46 @@ const PoliciesPage: React.FC = () => {
               input: { title: values.title, content: values.content },
             },
           });
+          await refetch();
+          setDialogOpen(false);
+          setNotifyState({
+            open: true,
+            policyId: editingPolicy.id,
+            policyTitle: values.title,
+            notifyUsers: false,
+            notificationMethod: 'IN_APP',
+          });
         } else {
           await createPolicy({ variables: { input: values } });
+          await refetch();
+          setDialogOpen(false);
         }
-        await refetch();
         resetForm();
-        setDialogOpen(false);
         setEditingPolicy(null);
       } catch {
         /* handled by Apollo */
       }
     },
   });
+
+  const handleNotifyConfirm = useCallback(async () => {
+    if (!notifyState.notifyUsers) return;
+    try {
+      await updatePolicy({
+        variables: {
+          id: notifyState.policyId,
+          input: {
+            notifyUsers: true,
+            notificationMethod: notifyState.notificationMethod,
+          },
+        },
+      });
+    } catch {
+      /* handled by Apollo */
+    } finally {
+      setNotifyState(INITIAL_NOTIFY_STATE);
+    }
+  }, [notifyState, updatePolicy]);
 
   const handleEdit = (policy: Policy) => {
     setEditingPolicy(policy);
@@ -124,7 +162,7 @@ const PoliciesPage: React.FC = () => {
                     {policy.title}
                   </Typography>
                   <Chip
-                    label={policy.type}
+                    label={POLICY_TYPE_LABELS[policy.type] ?? policy.type}
                     size="small"
                     sx={{
                       bgcolor: `${POLICY_COLORS[policy.type] ?? '#999'}20`,
@@ -132,12 +170,18 @@ const PoliciesPage: React.FC = () => {
                       fontWeight: 600,
                     }}
                   />
+                  <Chip
+                    label={`v${policy.version ?? 1}`}
+                    size="small"
+                    variant="outlined"
+                    color="default"
+                  />
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-wrap' }}>
                   {policy.content}
                 </Typography>
                 <Typography variant="caption" color="text.disabled" mt={1} display="block">
-                  Updated: {new Date(policy.updatedAt).toLocaleDateString()}
+                  Updated: {new Date(policy.updatedAt).toLocaleString()}
                 </Typography>
               </Box>
               <Box>
@@ -160,6 +204,14 @@ const PoliciesPage: React.FC = () => {
         creating={creating}
         updating={updating}
         onClose={() => setDialogOpen(false)}
+      />
+
+      <NotifyConfirmDialog
+        state={notifyState}
+        loading={updating}
+        onChange={(updates) => setNotifyState((prev) => ({ ...prev, ...updates }))}
+        onConfirm={handleNotifyConfirm}
+        onCancel={() => setNotifyState(INITIAL_NOTIFY_STATE)}
       />
     </Box>
   );

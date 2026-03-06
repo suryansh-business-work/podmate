@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { SkeletonProfile } from '../../components/Skeleton';
 import { GET_ME, GET_MY_PODS } from '../../graphql/queries';

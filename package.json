@@ -19,6 +19,9 @@
     "build:ios": "pnpm --filter partywings-app build:ios",
     "build:apk:dev": "pnpm --filter partywings-app build:apk:dev",
     "build:ios:dev": "pnpm --filter partywings-app build:ios:dev",
+    "version:patch": "node scripts/version-bump.mjs patch",
+    "version:minor": "node scripts/version-bump.mjs minor",
+    "version:major": "node scripts/version-bump.mjs major",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -45,8 +45,27 @@ pnpm format       # Format with Prettier
 
 - **Dashboard** — Stats overview (users, pods, revenue)
 - **Users** — User management with pagination, search, role updates
-- **Pods** — Pod management with filtering and sorting
-- **Policies** — Create/edit platform policies (Terms, Privacy, Venue)
+- **Pods** — Pod management with filtering, sorting, open/close
+- **Places** — Venue management with approval workflow
+- **Policies** — Platform policies (Venue, User, Host, Terms of Service, Privacy Policy) with version tracking and user notification
+- **Support** — Support ticket management with threaded replies
+- **Callbacks** — Callback request management
+- **Payments** — Payment and refund tracking
+- **Finance** — Financial overview and reporting
+- **Notifications** — Broadcast notification management
+- **Feature Flags** — Feature toggle management
+- **Settings** — App settings and configuration
+- **AI Config** — AI/chatbot configuration
+
+## Sidebar Navigation
+
+The admin sidebar uses collapsible grouped navigation:
+- **Core Business**: Users, Pods, Places
+- **Finance**: Payments, Finance
+- **Communication**: Notifications
+- **Support**: Support Tickets, Callbacks
+- **App Settings**: Settings, Policies, Feature Flags, Dev Tools
+- **AI**: AI/Chatbot Configuration
 
 ## Admin Credentials
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, ComponentProps } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { GET_MY_PAYMENTS } from '../../graphql/queries';
 import { PaymentItem, PaymentsScreenProps } from './Payments.types';
@@ -26,7 +26,7 @@ interface PaymentsResponse {
 }
 
 interface TypeConfigItem {
-  icon: string;
+  icon: ComponentProps<typeof MaterialIcons>['name'];
   label: string;
   color: string;
   bgColor: string;

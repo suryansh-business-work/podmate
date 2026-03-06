@@ -4,37 +4,9 @@ import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper'
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ME } from '../graphql/queries';
 import { UPDATE_THEME_PREFERENCE } from '../graphql/mutations';
-import { colors as lightColors } from '../theme';
+import { lightColors, darkColors } from '../colors';
 
 const THEME_STORAGE_KEY = '@partywings_theme_mode';
-
-export const darkColors = {
-  primary: '#F50247',
-  primaryLight: '#FF3370',
-  primaryDark: '#C7003A',
-  secondary: '#9333EA',
-  secondaryLight: '#A855F7',
-  accent: '#2563EB',
-  accentPink: '#EC4899',
-  background: '#0F0F14',
-  surface: '#1A1A24',
-  surfaceVariant: '#252533',
-  text: '#F3F4F6',
-  textSecondary: '#9CA3AF',
-  textTertiary: '#6B7280',
-  border: '#374151',
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  white: '#FFFFFF',
-  black: '#000000',
-  darkBg: '#0F0F14',
-  lightBg: '#0F0F14',
-  gradientStart: '#F50247',
-  gradientEnd: '#9333EA',
-  cardShadow: 'rgba(0, 0, 0, 0.3)',
-  overlay: 'rgba(0, 0, 0, 0.7)',
-};
 
 const fontConfig = {
   displayLarge: {

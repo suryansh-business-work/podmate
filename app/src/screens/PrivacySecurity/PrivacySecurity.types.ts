@@ -1,9 +1,12 @@
+import { ComponentProps } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+
 export interface PrivacySecurityScreenProps {
   onBack: () => void;
 }
 
 export interface SettingRowItem {
-  icon: string;
+  icon: ComponentProps<typeof MaterialIcons>['name'];
   label: string;
   subtitle: string;
   type: 'toggle' | 'link';

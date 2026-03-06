@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, ComponentProps } from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { GET_NOTIFICATIONS } from '../../graphql/queries';
 import { MARK_NOTIFICATION_READ, MARK_ALL_NOTIFICATIONS_READ } from '../../graphql/mutations';
@@ -86,11 +86,11 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
   }, [refetch]);
 
   const renderIcon = (type: string) => {
-    const iconConfig = NOTIFICATION_ICON_MAP[type] ?? { name: 'notifications', family: 'material' };
+    const iconConfig = NOTIFICATION_ICON_MAP[type] ?? { name: 'notifications' as const, family: 'material' as const };
     if (iconConfig.family === 'community') {
-      return <MaterialCommunityIcons name={iconConfig.name} size={18} color={colors.primary} />;
+      return <MaterialCommunityIcons name={iconConfig.name as ComponentProps<typeof MaterialCommunityIcons>['name']} size={18} color={colors.primary} />;
     }
-    return <MaterialIcons name={iconConfig.name} size={18} color={colors.primary} />;
+    return <MaterialIcons name={iconConfig.name as ComponentProps<typeof MaterialIcons>['name']} size={18} color={colors.primary} />;
   };
 
   return (

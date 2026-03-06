@@ -120,6 +120,7 @@ export const GET_POLICIES = gql`
       type
       title
       content
+      version
       isActive
       createdAt
       updatedAt

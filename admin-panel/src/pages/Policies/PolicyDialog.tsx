@@ -10,12 +10,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { FormikProps } from 'formik';
-
-interface PolicyFormValues {
-  type: string;
-  title: string;
-  content: string;
-}
+import { PolicyFormValues, POLICY_TYPES, POLICY_TYPE_LABELS } from './Policies.types';
 
 interface PolicyDialogProps {
   open: boolean;
@@ -51,9 +46,11 @@ const PolicyDialog: React.FC<PolicyDialogProps> = ({
           sx={{ mt: 1, mb: 2 }}
           disabled={isEditing}
         >
-          <MenuItem value="VENUE">Venue</MenuItem>
-          <MenuItem value="USER">User</MenuItem>
-          <MenuItem value="HOST">Host</MenuItem>
+          {POLICY_TYPES.map((ptype) => (
+            <MenuItem key={ptype} value={ptype}>
+              {POLICY_TYPE_LABELS[ptype]}
+            </MenuItem>
+          ))}
         </TextField>
         <TextField
           fullWidth

@@ -17,6 +17,7 @@ import PaymentsPage from './pages/PaymentsPage';
 import AiConfigPage from './pages/AiConfig';
 import NotificationsPage from './pages/Notifications';
 import FinancePage from './pages/Finance';
+import CallbacksPage from './pages/CallbacksPage';
 import AdminLayout from './layouts/AdminLayout';
 
 const App: React.FC = () => {
@@ -63,6 +64,7 @@ const App: React.FC = () => {
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/ai" element={<AiConfigPage />} />
           <Route path="/support" element={<SupportPage />} />
+          <Route path="/callbacks" element={<CallbacksPage />} />
           <Route path="/feature-flags" element={<FeatureFlagsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/configuration" element={<ConfigurationPage />} />

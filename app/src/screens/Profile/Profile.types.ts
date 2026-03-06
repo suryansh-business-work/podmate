@@ -1,10 +1,13 @@
+import { ComponentProps } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+
 export interface ProfileScreenProps {
   onLogout: () => void;
   onNavigate?: (screen: string) => void;
 }
 
 export interface MenuItem {
-  icon: string;
+  icon: ComponentProps<typeof MaterialIcons>['name'];
   label: string;
   subtitle: string;
   action: string;

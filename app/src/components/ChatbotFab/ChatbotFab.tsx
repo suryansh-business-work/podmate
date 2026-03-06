@@ -1,7 +1,7 @@
 import React, { useRef, useCallback } from 'react';
 import { StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import type { ChatbotFabProps } from './ChatbotFab.types';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../../hooks/useThemedStyles';

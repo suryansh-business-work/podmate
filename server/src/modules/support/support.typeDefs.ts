@@ -22,6 +22,7 @@ const supportTypeDefs = `#graphql
     senderId: ID!
     sender: User
     senderRole: TicketReplySenderRole!
+    parentReplyId: ID
     content: String!
     createdAt: String!
   }

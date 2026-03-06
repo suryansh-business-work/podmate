@@ -54,6 +54,8 @@ import goLiveTypeDefs from './modules/goLive/goLive.typeDefs';
 import goLiveResolvers from './modules/goLive/goLive.resolvers';
 import callbackTypeDefs from './modules/callback/callback.typeDefs';
 import callbackResolvers from './modules/callback/callback.resolvers';
+import pushNotificationTypeDefs from './modules/pushNotification/pushNotification.typeDefs';
+import pushNotificationResolvers from './modules/pushNotification/pushNotification.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -176,7 +178,7 @@ const rootSchema = `#graphql
     bulkDeletePlaces(ids: [ID!]!): Int!
     createSupportTicket(input: CreateSupportTicketInput!): SupportTicket!
     adminCreateSupportTicket(userId: ID!, input: CreateSupportTicketInput!): SupportTicket!
-    replySupportTicket(id: ID!, content: String!): SupportTicket!
+    replySupportTicket(id: ID!, content: String!, parentReplyId: ID): SupportTicket!
     updateSupportTicket(id: ID!, input: UpdateSupportTicketInput!): SupportTicket!
     deleteSupportTicket(id: ID!): Boolean!
     upsertSetting(input: UpsertSettingInput!): AppSetting!
@@ -222,6 +224,8 @@ const rootSchema = `#graphql
     requestCallback(input: CreateCallbackRequestInput!): CallbackRequest!
     updateCallbackRequest(id: ID!, input: UpdateCallbackRequestInput!): CallbackRequest!
     deleteCallbackRequest(id: ID!): Boolean!
+    registerPushToken(input: RegisterPushTokenInput!): PushToken!
+    unregisterPushToken(deviceId: String!): Boolean!
   }
 `;
 
@@ -247,6 +251,7 @@ const typeDefs = [
   podIdeaTypeDefs,
   goLiveTypeDefs,
   callbackTypeDefs,
+  pushNotificationTypeDefs,
 ];
 
 const resolvers = {
@@ -292,6 +297,7 @@ const resolvers = {
     ...podIdeaResolvers.Mutation,
     ...goLiveResolvers.Mutation,
     ...callbackResolvers.Mutation,
+    ...pushNotificationResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   Review: reviewResolvers.Review,
@@ -365,6 +371,7 @@ async function main(): Promise<void> {
             'https://podify-admin.exyconn.com',
             'https://podify-website.exyconn.com',
             'https://podify-api.exyconn.com',
+            'https://podify-app.exyconn.com',
           ]
         : true,
       credentials: true,
@@ -379,6 +386,63 @@ async function main(): Promise<void> {
 
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok', service: 'partywings-server', port: PORT });
+  });
+
+  /* ── Status endpoint – checks all services ── */
+  app.get('/status', async (_req, res) => {
+    const services: Array<{
+      name: string;
+      url: string;
+      status: 'ok' | 'error';
+      responseTime: number;
+    }> = [];
+
+    const urls: Array<{ name: string; url: string }> = IS_PRODUCTION
+      ? [
+          { name: 'api', url: 'https://podify-api.exyconn.com/health' },
+          { name: 'admin', url: 'https://podify-admin.exyconn.com' },
+          { name: 'website', url: 'https://podify-website.exyconn.com' },
+          { name: 'app', url: 'https://podify-app.exyconn.com' },
+        ]
+      : [
+          { name: 'api', url: `http://localhost:${PORT}/health` },
+          { name: 'admin', url: 'http://localhost:4040' },
+          { name: 'website', url: 'http://localhost:4041' },
+          { name: 'app', url: 'http://localhost:4038' },
+        ];
+
+    await Promise.all(
+      urls.map(async ({ name, url }) => {
+        const start = Date.now();
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 5000);
+          const resp = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeout);
+          services.push({
+            name,
+            url,
+            status: resp.ok ? 'ok' : 'error',
+            responseTime: Date.now() - start,
+          });
+        } catch {
+          services.push({ name, url, status: 'error', responseTime: Date.now() - start });
+        }
+      }),
+    );
+
+    const mongoStatus =
+      (await import('mongoose')).default.connection.readyState === 1 ? 'connected' : 'disconnected';
+    const allHealthy = services.every((s) => s.status === 'ok') && mongoStatus === 'connected';
+
+    res.status(allHealthy ? 200 : 503).json({
+      status: allHealthy ? 'healthy' : 'degraded',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      mongodb: mongoStatus,
+      services,
+    });
   });
 
   /* ── GraphQL Documentation Explorer ── */

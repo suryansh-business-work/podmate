@@ -12,6 +12,8 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import PhoneCallbackIcon from '@mui/icons-material/PhoneCallback';
+import CodeIcon from '@mui/icons-material/Code';
 
 export const DRAWER_WIDTH = 240;
 
@@ -26,18 +28,64 @@ export interface NavItemConfig {
   path: string;
 }
 
-export const navItems: NavItemConfig[] = [
+export interface NavGroupConfig {
+  label: string;
+  items: NavItemConfig[];
+}
+
+export const topNavItems: NavItemConfig[] = [
   { icon: <DashboardIcon />, label: 'Dashboard', path: '/dashboard' },
-  { icon: <PeopleIcon />, label: 'Users', path: '/users' },
-  { icon: <EventIcon />, label: 'Pods', path: '/pods' },
-  { icon: <PlaceIcon />, label: 'Places', path: '/places' },
-  { icon: <PolicyIcon />, label: 'Policies', path: '/policies' },
-  { icon: <PaymentIcon />, label: 'Payments', path: '/payments' },
-  { icon: <AccountBalanceIcon />, label: 'Finance', path: '/finance' },
-  { icon: <NotificationsIcon />, label: 'Notifications', path: '/notifications' },
-  { icon: <SmartToyIcon />, label: 'AI / Chatbot', path: '/ai' },
-  { icon: <SupportAgentIcon />, label: 'Support', path: '/support' },
-  { icon: <FlagIcon />, label: 'Feature Flags', path: '/feature-flags' },
-  { icon: <SettingsIcon />, label: 'Settings', path: '/settings' },
-  { icon: <TuneIcon />, label: 'Configuration', path: '/configuration' },
 ];
+
+export const navGroups: NavGroupConfig[] = [
+  {
+    label: 'Core Business',
+    items: [
+      { icon: <PeopleIcon />, label: 'Users', path: '/users' },
+      { icon: <EventIcon />, label: 'Pods', path: '/pods' },
+      { icon: <PlaceIcon />, label: 'Places', path: '/places' },
+    ],
+  },
+  {
+    label: 'Finance',
+    items: [
+      { icon: <PaymentIcon />, label: 'Payments', path: '/payments' },
+      { icon: <AccountBalanceIcon />, label: 'Finance', path: '/finance' },
+    ],
+  },
+  {
+    label: 'Communication',
+    items: [
+      { icon: <NotificationsIcon />, label: 'Notifications', path: '/notifications' },
+    ],
+  },
+  {
+    label: 'Support',
+    items: [
+      { icon: <SupportAgentIcon />, label: 'Tickets', path: '/support' },
+      { icon: <PhoneCallbackIcon />, label: 'Callbacks', path: '/callbacks' },
+    ],
+  },
+  {
+    label: 'App Settings',
+    items: [
+      { icon: <SettingsIcon />, label: 'Settings', path: '/settings' },
+      { icon: <PolicyIcon />, label: 'Policies', path: '/policies' },
+      { icon: <FlagIcon />, label: 'Feature Flags', path: '/feature-flags' },
+      { icon: <CodeIcon />, label: 'Dev Tools', path: '/configuration' },
+    ],
+  },
+  {
+    label: 'AI',
+    items: [
+      { icon: <SmartToyIcon />, label: 'AI / Chatbot', path: '/ai' },
+    ],
+  },
+];
+
+/** Flattened list for backward compatibility */
+export const navItems: NavItemConfig[] = [
+  ...topNavItems,
+  ...navGroups.flatMap((g) => g.items),
+];
+

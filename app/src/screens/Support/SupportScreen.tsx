@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import { GET_MY_SUPPORT_TICKETS } from '../../graphql/queries';
 import { CREATE_SUPPORT_TICKET } from '../../graphql/mutations';

@@ -1,0 +1,97 @@
+name: Status Monitor
+
+on:
+  workflow_run:
+    workflows: [Deploy]
+    types: [completed]
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Check service health
+        id: health
+        run: |
+          SERVICES=(
+            "https://podify-api.exyconn.com/health|API"
+            "https://podify-admin.exyconn.com|Admin"
+            "https://podify-website.exyconn.com|Website"
+            "https://podify-app.exyconn.com|App"
+          )
+
+          ALL_HEALTHY=true
+          RESULTS=""
+
+          for entry in "${SERVICES[@]}"; do
+            URL="${entry%%|*}"
+            NAME="${entry##*|}"
+
+            HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 15 "$URL" || echo "000")
+
+            if [[ "$HTTP_CODE" -ge 200 && "$HTTP_CODE" -lt 400 ]]; then
+              RESULTS="${RESULTS}✅ ${NAME}: HTTP ${HTTP_CODE}\n"
+            else
+              RESULTS="${RESULTS}❌ ${NAME}: HTTP ${HTTP_CODE}\n"
+              ALL_HEALTHY=false
+            fi
+          done
+
+          echo "results<<EOF" >> "$GITHUB_OUTPUT"
+          echo -e "$RESULTS" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "healthy=$ALL_HEALTHY" >> "$GITHUB_OUTPUT"
+
+      - name: Check status endpoint
+        id: status
+        if: always()
+        run: |
+          STATUS_RESPONSE=$(curl -sf --connect-timeout 10 --max-time 15 "https://podify-api.exyconn.com/status" || echo '{"error":"unreachable"}')
+          echo "response<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$STATUS_RESPONSE" | head -c 2000 >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Report failure to Slack
+        if: steps.health.outputs.healthy == 'false'
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🚨 Service Health Alert"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Health Check Results:*\n${{ steps.health.outputs.results }}"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "PartyWings Monitor | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Fail if unhealthy
+        if: steps.health.outputs.healthy == 'false'
+        run: |
+          echo "::error::One or more services are unhealthy"
+          echo -e "${{ steps.health.outputs.results }}"
+          exit 1

@@ -45,31 +45,19 @@ const paymentResolvers = {
       return paymentService.getPaymentStats();
     },
 
-    myPayments: (
-      _: unknown,
-      args: { page?: number; limit?: number },
-      context: GraphQLContext,
-    ) => {
+    myPayments: (_: unknown, args: { page?: number; limit?: number }, context: GraphQLContext) => {
       const user = requireAuth(context);
       return paymentService.getMyPayments(user.userId, args.page ?? 1, args.limit ?? 20);
     },
   },
 
   Mutation: {
-    createPayment: (
-      _: unknown,
-      args: { input: CreatePaymentInput },
-      context: GraphQLContext,
-    ) => {
+    createPayment: (_: unknown, args: { input: CreatePaymentInput }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return paymentService.createPayment(args.input);
     },
 
-    processRefund: (
-      _: unknown,
-      args: { input: ProcessRefundInput },
-      context: GraphQLContext,
-    ) => {
+    processRefund: (_: unknown, args: { input: ProcessRefundInput }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return paymentService.processRefund(args.input);
     },

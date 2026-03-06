@@ -29,7 +29,9 @@ import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 /* ── Helpers ── */
 
 /** Group messages by day for day-separator headers */
-type ListItem = { type: 'day'; label: string; key: string } | { type: 'msg'; msg: ChatMessage; isMe: boolean; showAvatar: boolean; showSenderName: boolean };
+type ListItem =
+  | { type: 'day'; label: string; key: string }
+  | { type: 'msg'; msg: ChatMessage; isMe: boolean; showAvatar: boolean; showSenderName: boolean };
 
 function formatDayLabel(iso: string): string {
   const d = new Date(iso);
@@ -74,7 +76,9 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
   const colors = useAppColors();
   const [messageText, setMessageText] = useState('');
   const [wsMessages, setWsMessages] = useState<ChatMessage[]>([]);
-  const [previewMedia, setPreviewMedia] = useState<{ uri: string; type: 'IMAGE' | 'VIDEO' } | null>(null);
+  const [previewMedia, setPreviewMedia] = useState<{ uri: string; type: 'IMAGE' | 'VIDEO' } | null>(
+    null,
+  );
   const [myUserId, setMyUserId] = useState<string>('');
   const wsRef = useRef<WebSocket | null>(null);
   const flatListRef = useRef<FlatList>(null);
@@ -95,19 +99,14 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
     const serverMsgs = data?.chatMessages ?? [];
     const combined = [
       ...serverMsgs,
-      ...wsMessages.filter(
-        (wsMsg) => !serverMsgs.some((m: ChatMessage) => m.id === wsMsg.id),
-      ),
+      ...wsMessages.filter((wsMsg) => !serverMsgs.some((m: ChatMessage) => m.id === wsMsg.id)),
     ];
     return combined.sort(
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
   }, [data?.chatMessages, wsMessages]);
 
-  const listItems = useMemo(
-    () => buildListItems(allMessages, myUserId),
-    [allMessages, myUserId],
-  );
+  const listItems = useMemo(() => buildListItems(allMessages, myUserId), [allMessages, myUserId]);
 
   /* ── WebSocket ── */
   useEffect(() => {
@@ -142,10 +141,13 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
   /* ── Auto-scroll to bottom on new messages ── */
   useEffect(() => {
     if (listItems.length > 0 && flatListRef.current) {
-      const timer = setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: !isInitialLoad.current });
-        isInitialLoad.current = false;
-      }, isInitialLoad.current ? 300 : 100);
+      const timer = setTimeout(
+        () => {
+          flatListRef.current?.scrollToEnd({ animated: !isInitialLoad.current });
+          isInitialLoad.current = false;
+        },
+        isInitialLoad.current ? 300 : 100,
+      );
       return () => clearTimeout(timer);
     }
     return undefined;
@@ -261,10 +263,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
             {pod.title}
           </Text>
           <Text
-            style={[
-              styles.roomSubtitle,
-              pod.status !== 'ACTIVE' && styles.roomSubtitleOffline,
-            ]}
+            style={[styles.roomSubtitle, pod.status !== 'ACTIVE' && styles.roomSubtitleOffline]}
           >
             {pod.status === 'ACTIVE' ? 'Active now' : pod.category}
           </Text>
@@ -302,9 +301,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
                 <View style={styles.centered}>
                   <MaterialIcons name="chat-bubble-outline" size={48} color={colors.textTertiary} />
                   <Text style={styles.emptyTitle}>No messages yet</Text>
-                  <Text style={styles.emptySubtitle}>
-                    Start the conversation!
-                  </Text>
+                  <Text style={styles.emptySubtitle}>Start the conversation!</Text>
                 </View>
               ) : null
             }

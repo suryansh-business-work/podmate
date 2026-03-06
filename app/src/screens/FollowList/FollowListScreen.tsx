@@ -1,7 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -13,13 +11,21 @@ import { createStyles } from './FollowList.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const FollowListScreen: React.FC<FollowListScreenProps> = ({
-  userId, userName, initialTab = 'followers', onBack, onUserPress,
+  userId,
+  userName,
+  initialTab = 'followers',
+  onBack,
+  onUserPress,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [activeTab, setActiveTab] = useState<FollowTab>(initialTab);
 
-  const { data: followersData, loading: loadingFollowers, refetch: refetchFollowers } = useQuery<{
+  const {
+    data: followersData,
+    loading: loadingFollowers,
+    refetch: refetchFollowers,
+  } = useQuery<{
     followers: { items: Follow[]; total: number };
   }>(GET_FOLLOWERS, {
     variables: { userId, page: 1, limit: 100 },
@@ -27,7 +33,11 @@ const FollowListScreen: React.FC<FollowListScreenProps> = ({
     skip: activeTab !== 'followers',
   });
 
-  const { data: followingData, loading: loadingFollowing, refetch: refetchFollowing } = useQuery<{
+  const {
+    data: followingData,
+    loading: loadingFollowing,
+    refetch: refetchFollowing,
+  } = useQuery<{
     following: { items: Follow[]; total: number };
   }>(GET_FOLLOWING, {
     variables: { userId, page: 1, limit: 100 },
@@ -47,44 +57,50 @@ const FollowListScreen: React.FC<FollowListScreenProps> = ({
   const getUserFromFollow = (item: Follow): FollowUser =>
     activeTab === 'followers' ? item.follower : item.following;
 
-  const handleFollowToggle = useCallback(async (targetUserId: string, isCurrentlyFollowing: boolean) => {
-    try {
-      if (isCurrentlyFollowing) {
-        await unfollowUser({ variables: { userId: targetUserId } });
-      } else {
-        await followUser({ variables: { userId: targetUserId } });
+  const handleFollowToggle = useCallback(
+    async (targetUserId: string, isCurrentlyFollowing: boolean) => {
+      try {
+        if (isCurrentlyFollowing) {
+          await unfollowUser({ variables: { userId: targetUserId } });
+        } else {
+          await followUser({ variables: { userId: targetUserId } });
+        }
+        refetchFollowers();
+        refetchFollowing();
+      } catch {
+        // silently ignore
       }
-      refetchFollowers();
-      refetchFollowing();
-    } catch {
-      // silently ignore
-    }
-  }, [followUser, unfollowUser, refetchFollowers, refetchFollowing]);
+    },
+    [followUser, unfollowUser, refetchFollowers, refetchFollowing],
+  );
 
-  const renderItem = useCallback(({ item }: { item: Follow }) => {
-    const user = getUserFromFollow(item);
-    return (
-      <TouchableOpacity
-        style={styles.userRow}
-        onPress={() => onUserPress?.(user.id)}
-        activeOpacity={0.7}
-      >
-        {user.avatar ? (
-          <Image source={{ uri: user.avatar }} style={styles.userAvatar} />
-        ) : (
-          <View style={styles.userAvatarPlaceholder}>
-            <MaterialIcons name="person" size={24} color={colors.white} />
+  const renderItem = useCallback(
+    ({ item }: { item: Follow }) => {
+      const user = getUserFromFollow(item);
+      return (
+        <TouchableOpacity
+          style={styles.userRow}
+          onPress={() => onUserPress?.(user.id)}
+          activeOpacity={0.7}
+        >
+          {user.avatar ? (
+            <Image source={{ uri: user.avatar }} style={styles.userAvatar} />
+          ) : (
+            <View style={styles.userAvatarPlaceholder}>
+              <MaterialIcons name="person" size={24} color={colors.white} />
+            </View>
+          )}
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>{user.name}</Text>
+            <Text style={styles.userDate}>
+              Since {new Date(Number(item.createdAt)).toLocaleDateString()}
+            </Text>
           </View>
-        )}
-        <View style={styles.userInfo}>
-          <Text style={styles.userName}>{user.name}</Text>
-          <Text style={styles.userDate}>
-            Since {new Date(Number(item.createdAt)).toLocaleDateString()}
-          </Text>
-        </View>
-      </TouchableOpacity>
-    );
-  }, [activeTab, onUserPress]);
+        </TouchableOpacity>
+      );
+    },
+    [activeTab, onUserPress],
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>

@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from 'react';
-import { StyleSheet, TouchableOpacity, Animated} from 'react-native';
+import { StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -47,25 +47,26 @@ const ChatbotFab: React.FC<ChatbotFabProps> = ({ onPress }) => {
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 90,
-    right: 16,
-    zIndex: 999,
-    elevation: 8,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  fab: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+  StyleSheet.create({
+    container: {
+      position: 'absolute',
+      bottom: 90,
+      right: 16,
+      zIndex: 999,
+      elevation: 8,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+    },
+    fab: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });
 
 export default ChatbotFab;

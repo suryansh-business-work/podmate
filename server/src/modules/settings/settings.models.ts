@@ -26,7 +26,9 @@ export const AppSettingsModel =
   (mongoose.models['AppSettings'] as mongoose.Model<AppSettingsMongoDoc> | undefined) ??
   model<AppSettingsMongoDoc>('AppSettings', AppSettingsSchema);
 
-export function toAppSettings(doc: (AppSettingsMongoDoc & { id?: string }) | null): AppSettings | null {
+export function toAppSettings(
+  doc: (AppSettingsMongoDoc & { id?: string }) | null,
+): AppSettings | null {
   if (!doc) return null;
   return { ...doc, id: doc.id ?? doc._id } as AppSettings;
 }

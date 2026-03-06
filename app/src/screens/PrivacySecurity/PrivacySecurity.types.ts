@@ -21,7 +21,7 @@ export const PRIVACY_SETTINGS: SettingRowItem[] = [
   {
     icon: 'location-off',
     label: 'Hide Location',
-    subtitle: 'Don\'t share your precise location',
+    subtitle: "Don't share your precise location",
     type: 'toggle',
     key: 'hide_location',
   },

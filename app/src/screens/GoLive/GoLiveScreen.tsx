@@ -1,7 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, Modal,
-  TextInput, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
@@ -9,8 +18,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { GET_ACTIVE_LIVE_SESSIONS } from '../../graphql/queries';
 import {
-  START_LIVE_SESSION, END_LIVE_SESSION,
-  JOIN_LIVE_SESSION, LEAVE_LIVE_SESSION,
+  START_LIVE_SESSION,
+  END_LIVE_SESSION,
+  JOIN_LIVE_SESSION,
+  LEAVE_LIVE_SESSION,
 } from '../../graphql/mutations';
 import type { GoLiveScreenProps, LiveSession } from './GoLive.types';
 import { createStyles } from './GoLive.styles';
@@ -69,83 +80,99 @@ const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack }) => {
     }
   }, [title, description, podId, startLive, refetch]);
 
-  const handleJoin = useCallback(async (sessionId: string) => {
-    try {
-      await joinLive({ variables: { sessionId } });
-      refetch();
-    } catch (err) {
-      Alert.alert('Error', (err as Error).message);
-    }
-  }, [joinLive, refetch]);
+  const handleJoin = useCallback(
+    async (sessionId: string) => {
+      try {
+        await joinLive({ variables: { sessionId } });
+        refetch();
+      } catch (err) {
+        Alert.alert('Error', (err as Error).message);
+      }
+    },
+    [joinLive, refetch],
+  );
 
-  const handleLeave = useCallback(async (sessionId: string) => {
-    try {
-      await leaveLive({ variables: { sessionId } });
-      refetch();
-    } catch (err) {
-      Alert.alert('Error', (err as Error).message);
-    }
-  }, [leaveLive, refetch]);
+  const handleLeave = useCallback(
+    async (sessionId: string) => {
+      try {
+        await leaveLive({ variables: { sessionId } });
+        refetch();
+      } catch (err) {
+        Alert.alert('Error', (err as Error).message);
+      }
+    },
+    [leaveLive, refetch],
+  );
 
-  const handleEnd = useCallback(async (sessionId: string) => {
-    Alert.alert('End Live', 'Are you sure you want to end this live session?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'End', style: 'destructive', onPress: async () => {
-          try {
-            await endLive({ variables: { sessionId } });
-            refetch();
-          } catch (err) {
-            Alert.alert('Error', (err as Error).message);
-          }
+  const handleEnd = useCallback(
+    async (sessionId: string) => {
+      Alert.alert('End Live', 'Are you sure you want to end this live session?', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'End',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await endLive({ variables: { sessionId } });
+              refetch();
+            } catch (err) {
+              Alert.alert('Error', (err as Error).message);
+            }
+          },
         },
-      },
-    ]);
-  }, [endLive, refetch]);
+      ]);
+    },
+    [endLive, refetch],
+  );
 
-  const renderItem = useCallback(({ item }: { item: LiveSession }) => (
-    <View style={styles.sessionCard}>
-      <View style={styles.liveBanner}>
-        <View style={styles.liveTag}>
-          <View style={styles.liveDot} />
-          <Text style={styles.liveText}>LIVE</Text>
-        </View>
-        <View style={styles.viewerCount}>
-          <MaterialIcons name="visibility" size={14} color={colors.white} />
-          <Text style={styles.viewerText}>{item.viewerCount}</Text>
-        </View>
-      </View>
-      <View style={styles.sessionBody}>
-        <View style={styles.sessionHostRow}>
-          {item.host.avatar ? (
-            <Image source={{ uri: item.host.avatar }} style={styles.hostAvatar} />
-          ) : (
-            <View style={styles.hostAvatarPlaceholder}>
-              <MaterialIcons name="person" size={22} color={colors.white} />
-            </View>
-          )}
-          <View style={{ flex: 1 }}>
-            <Text style={styles.hostName}>{item.host.name}</Text>
-            <Text style={styles.podName}>{item.pod.title}</Text>
+  const renderItem = useCallback(
+    ({ item }: { item: LiveSession }) => (
+      <View style={styles.sessionCard}>
+        <View style={styles.liveBanner}>
+          <View style={styles.liveTag}>
+            <View style={styles.liveDot} />
+            <Text style={styles.liveText}>LIVE</Text>
+          </View>
+          <View style={styles.viewerCount}>
+            <MaterialIcons name="visibility" size={14} color={colors.white} />
+            <Text style={styles.viewerText}>{item.viewerCount}</Text>
           </View>
         </View>
-        <Text style={styles.sessionTitle}>{item.title}</Text>
-        {item.description ? (
-          <Text style={styles.sessionDesc} numberOfLines={2}>{item.description}</Text>
-        ) : null}
-        {item.isViewing ? (
-          <TouchableOpacity style={styles.leaveBtn} onPress={() => handleLeave(item.id)}>
-            <Text style={styles.leaveBtnText}>Leave Session</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.joinBtn} onPress={() => handleJoin(item.id)}>
-            <Text style={styles.joinBtnText}>Join Live</Text>
-          </TouchableOpacity>
-        )}
-        <Text style={styles.startedAt}>Started {formatElapsed(item.startedAt)}</Text>
+        <View style={styles.sessionBody}>
+          <View style={styles.sessionHostRow}>
+            {item.host.avatar ? (
+              <Image source={{ uri: item.host.avatar }} style={styles.hostAvatar} />
+            ) : (
+              <View style={styles.hostAvatarPlaceholder}>
+                <MaterialIcons name="person" size={22} color={colors.white} />
+              </View>
+            )}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.hostName}>{item.host.name}</Text>
+              <Text style={styles.podName}>{item.pod.title}</Text>
+            </View>
+          </View>
+          <Text style={styles.sessionTitle}>{item.title}</Text>
+          {item.description ? (
+            <Text style={styles.sessionDesc} numberOfLines={2}>
+              {item.description}
+            </Text>
+          ) : null}
+          {item.isViewing ? (
+            <TouchableOpacity style={styles.leaveBtn} onPress={() => handleLeave(item.id)}>
+              <Text style={styles.leaveBtnText}>Leave Session</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.joinBtn} onPress={() => handleJoin(item.id)}>
+              <Text style={styles.joinBtnText}>Join Live</Text>
+            </TouchableOpacity>
+          )}
+          <Text style={styles.startedAt}>Started {formatElapsed(item.startedAt)}</Text>
+        </View>
       </View>
-    </View>
-  ), [handleJoin, handleLeave]);
+    ),
+    [handleJoin, handleLeave],
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -180,8 +207,17 @@ const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack }) => {
         <MaterialIcons name="videocam" size={28} color={colors.white} />
       </TouchableOpacity>
 
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowModal(false)}>
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowModal(false)}
+        >
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
@@ -211,7 +247,10 @@ const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack }) => {
                   maxLength={500}
                 />
                 <TouchableOpacity
-                  style={[styles.submitBtn, (starting || !title.trim() || !podId.trim()) && styles.submitBtnDisabled]}
+                  style={[
+                    styles.submitBtn,
+                    (starting || !title.trim() || !podId.trim()) && styles.submitBtnDisabled,
+                  ]}
                   onPress={handleStart}
                   disabled={starting || !title.trim() || !podId.trim()}
                 >

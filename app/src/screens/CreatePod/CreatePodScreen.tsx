@@ -1,5 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Alert, Platform, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Platform,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -21,8 +30,13 @@ interface CreatePodScreenProps {
 
 const podSchema = Yup.object().shape({
   title: Yup.string().min(3, 'Title must be at least 3 characters').required('Title is required'),
-  description: Yup.string().min(10, 'Describe your pod in at least 10 characters').required('Description is required'),
-  fee: Yup.number().typeError('Must be a number').min(0, 'Fee cannot be negative').required('Fee is required'),
+  description: Yup.string()
+    .min(10, 'Describe your pod in at least 10 characters')
+    .required('Description is required'),
+  fee: Yup.number()
+    .typeError('Must be a number')
+    .min(0, 'Fee cannot be negative')
+    .required('Fee is required'),
   location: Yup.string().required('Location is required'),
   locationDetail: Yup.string(),
   category: Yup.string().oneOf(CATEGORIES).required('Category is required'),
@@ -125,12 +139,22 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
   };
 
   if (showInvite && createdPodId) {
-    return <ContactPicker podId={createdPodId} podTitle={createdTitle} onDone={onClose} onSkip={onClose} />;
+    return (
+      <ContactPicker
+        podId={createdPodId}
+        podTitle={createdTitle}
+        onDone={onClose}
+        onSkip={onClose}
+      />
+    );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={{ flex: 1 }}>
             <View style={styles.header}>
@@ -141,7 +165,11 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose }) => {
               <View style={{ width: 24 }} />
             </View>
 
-            <Formik initialValues={initialValues} validationSchema={podSchema} onSubmit={handleCreate}>
+            <Formik
+              initialValues={initialValues}
+              validationSchema={podSchema}
+              onSubmit={handleCreate}
+            >
               {(formik) => (
                 <PodFormBody
                   formik={formik}

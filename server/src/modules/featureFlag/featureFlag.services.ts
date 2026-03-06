@@ -67,7 +67,10 @@ export async function createFeatureFlag(input: CreateFeatureFlagInput): Promise<
   return toFeatureFlag(doc.toObject({ virtuals: true })) as FeatureFlag;
 }
 
-export async function updateFeatureFlag(id: string, input: UpdateFeatureFlagInput): Promise<FeatureFlag> {
+export async function updateFeatureFlag(
+  id: string,
+  input: UpdateFeatureFlagInput,
+): Promise<FeatureFlag> {
   const update: Record<string, unknown> = { updatedAt: new Date().toISOString() };
   if (input.name !== undefined) update.name = input.name;
   if (input.description !== undefined) update.description = input.description;
@@ -118,7 +121,7 @@ export async function isFeatureEnabled(key: string, userId?: string): Promise<bo
   const seed = `${key}:${userId}`;
   for (let i = 0; i < seed.length; i++) {
     const char = seed.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
   const bucket = Math.abs(hash) % 100;

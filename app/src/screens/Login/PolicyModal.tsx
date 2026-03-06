@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, Modal, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 

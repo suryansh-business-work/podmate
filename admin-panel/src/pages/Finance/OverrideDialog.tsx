@@ -23,12 +23,21 @@ interface OverrideDialogProps {
 }
 
 const validationSchema = Yup.object<OverrideFormValues>({
-  pincode: Yup.string().required('Pincode is required').min(4, 'Min 4 characters').max(10, 'Max 10 characters'),
+  pincode: Yup.string()
+    .required('Pincode is required')
+    .min(4, 'Min 4 characters')
+    .max(10, 'Max 10 characters'),
   feePercent: Yup.number().required().min(2, 'Min 2%').max(15, 'Max 15%'),
   label: Yup.string().max(100, 'Max 100 characters'),
 });
 
-const OverrideDialog: React.FC<OverrideDialogProps> = ({ open, editing, saving, onClose, onSave }) => {
+const OverrideDialog: React.FC<OverrideDialogProps> = ({
+  open,
+  editing,
+  saving,
+  onClose,
+  onSave,
+}) => {
   const formik = useFormik<OverrideFormValues>({
     enableReinitialize: true,
     initialValues: {
@@ -90,7 +99,10 @@ const OverrideDialog: React.FC<OverrideDialogProps> = ({ open, editing, saving, 
                 min={2}
                 max={15}
                 step={0.5}
-                marks={[{ value: 2, label: '2%' }, { value: 15, label: '15%' }]}
+                marks={[
+                  { value: 2, label: '2%' },
+                  { value: 15, label: '15%' },
+                ]}
                 valueLabelDisplay="auto"
                 valueLabelFormat={(v) => `${v}%`}
               />
@@ -98,7 +110,9 @@ const OverrideDialog: React.FC<OverrideDialogProps> = ({ open, editing, saving, 
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} disabled={saving}>Cancel</Button>
+          <Button onClick={handleClose} disabled={saving}>
+            Cancel
+          </Button>
           <Button
             type="submit"
             variant="contained"

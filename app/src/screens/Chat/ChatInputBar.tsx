@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import { View, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { ChatInputBarProps } from './Chat.types';
@@ -59,10 +54,7 @@ const ChatInputBar: React.FC<ChatInputBarProps> = ({
       )}
 
       <View style={styles.inputBar}>
-        <TouchableOpacity
-          onPress={() => setShowAttach(!showAttach)}
-          style={styles.attachBtn}
-        >
+        <TouchableOpacity onPress={() => setShowAttach(!showAttach)} style={styles.attachBtn}>
           <MaterialIcons
             name={showAttach ? 'close' : 'add'}
             size={24}

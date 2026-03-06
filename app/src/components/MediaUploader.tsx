@@ -1,6 +1,13 @@
 import React from 'react';
-import { StyleSheet,
-  View, Text, TouchableOpacity, Image, ScrollView, ActivityIndicator} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { spacing, borderRadius } from '../theme';
 import { useImageKitUpload } from '../hooks/useImageKitUpload';
@@ -19,7 +26,10 @@ interface MediaUploaderProps {
 }
 
 const MediaUploader: React.FC<MediaUploaderProps> = ({
-  mediaItems = [], onMediaChange, folder, maxItems = 10,
+  mediaItems = [],
+  onMediaChange,
+  folder,
+  maxItems = 10,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
@@ -44,7 +54,11 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
 
   return (
     <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+      >
         {items.map((item, idx) => (
           <View key={`media-${idx}`} style={styles.thumb}>
             <Image source={{ uri: item.url }} style={styles.thumbImg} />
@@ -79,44 +93,67 @@ const MediaUploader: React.FC<MediaUploaderProps> = ({
           </View>
         )}
       </ScrollView>
-      <Text style={styles.countText}>{items.length}/{maxItems} media</Text>
+      <Text style={styles.countText}>
+        {items.length}/{maxItems} media
+      </Text>
     </View>
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
-  container: { marginBottom: spacing.md },
-  scroll: { paddingVertical: spacing.sm, gap: spacing.sm },
-  thumb: { width: 90, height: 90, borderRadius: borderRadius.md, overflow: 'hidden', position: 'relative' },
-  thumbImg: { width: '100%', height: '100%', resizeMode: 'cover' },
-  videoOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  removeBtn: {
-    position: 'absolute', top: 4, right: 4, width: 20, height: 20,
-    borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center', alignItems: 'center',
-  },
-  uploadingThumb: {
-    backgroundColor: colors.surfaceVariant,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: colors.primary,
-    borderStyle: 'dashed',
-  },
-  progressText: { fontSize: 11, color: colors.primary, fontWeight: '600', marginTop: 4 },
-  addRow: { flexDirection: 'column', gap: spacing.sm },
-  addBtn: {
-    width: 80, height: 42, borderWidth: 2, borderStyle: 'dashed', borderColor: colors.border,
-    borderRadius: borderRadius.sm, justifyContent: 'center', alignItems: 'center',
-    flexDirection: 'row', gap: 4, backgroundColor: colors.surface,
-  },
-  addLabel: { fontSize: 11, color: colors.textSecondary, fontWeight: '500' },
-  countText: { fontSize: 11, color: colors.textTertiary, marginTop: spacing.xs },
-});
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+  StyleSheet.create({
+    container: { marginBottom: spacing.md },
+    scroll: { paddingVertical: spacing.sm, gap: spacing.sm },
+    thumb: {
+      width: 90,
+      height: 90,
+      borderRadius: borderRadius.md,
+      overflow: 'hidden',
+      position: 'relative',
+    },
+    thumbImg: { width: '100%', height: '100%', resizeMode: 'cover' },
+    videoOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.3)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    removeBtn: {
+      position: 'absolute',
+      top: 4,
+      right: 4,
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    uploadingThumb: {
+      backgroundColor: colors.surfaceVariant,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: colors.primary,
+      borderStyle: 'dashed',
+    },
+    progressText: { fontSize: 11, color: colors.primary, fontWeight: '600', marginTop: 4 },
+    addRow: { flexDirection: 'column', gap: spacing.sm },
+    addBtn: {
+      width: 80,
+      height: 42,
+      borderWidth: 2,
+      borderStyle: 'dashed',
+      borderColor: colors.border,
+      borderRadius: borderRadius.sm,
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'row',
+      gap: 4,
+      backgroundColor: colors.surface,
+    },
+    addLabel: { fontSize: 11, color: colors.textSecondary, fontWeight: '500' },
+    countText: { fontSize: 11, color: colors.textTertiary, marginTop: spacing.xs },
+  });
 
 export default MediaUploader;

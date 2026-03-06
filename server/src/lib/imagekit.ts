@@ -73,7 +73,12 @@ export async function uploadToImageKit(
   };
 }
 
-export async function getImageKitAuthParams(): Promise<{ token: string; expire: number; signature: string; publicKey: string }> {
+export async function getImageKitAuthParams(): Promise<{
+  token: string;
+  expire: number;
+  signature: string;
+  publicKey: string;
+}> {
   const { publicKey } = await getImageKitCredentials();
   const ik = await getImageKit();
   const authParams = ik.helper.getAuthenticationParameters() as {

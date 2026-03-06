@@ -1,7 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, Modal,
-  TextInput, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
@@ -16,10 +25,18 @@ import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 const StatusBadge: React.FC<{ status: PodIdea['status'] }> = ({ status }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
-  const bgStyle = status === 'PENDING' ? styles.statusPending
-    : status === 'APPROVED' ? styles.statusApproved : styles.statusRejected;
-  const txtStyle = status === 'PENDING' ? styles.statusPendingText
-    : status === 'APPROVED' ? styles.statusApprovedText : styles.statusRejectedText;
+  const bgStyle =
+    status === 'PENDING'
+      ? styles.statusPending
+      : status === 'APPROVED'
+        ? styles.statusApproved
+        : styles.statusRejected;
+  const txtStyle =
+    status === 'PENDING'
+      ? styles.statusPendingText
+      : status === 'APPROVED'
+        ? styles.statusApprovedText
+        : styles.statusRejectedText;
   return (
     <View style={[styles.ideaStatus, bgStyle]}>
       <Text style={[styles.statusText, txtStyle]}>{status}</Text>
@@ -76,75 +93,85 @@ const PodIdeasScreen: React.FC<PodIdeasScreenProps> = ({ onBack }) => {
     }
   }, [title, description, category, location, budget, submitPodIdea, refetch]);
 
-  const handleUpvote = useCallback(async (idea: PodIdea) => {
-    try {
-      if (idea.hasUpvoted) {
-        await removeUpvote({ variables: { podIdeaId: idea.id } });
-      } else {
-        await upvotePodIdea({ variables: { podIdeaId: idea.id } });
+  const handleUpvote = useCallback(
+    async (idea: PodIdea) => {
+      try {
+        if (idea.hasUpvoted) {
+          await removeUpvote({ variables: { podIdeaId: idea.id } });
+        } else {
+          await upvotePodIdea({ variables: { podIdeaId: idea.id } });
+        }
+        refetch();
+      } catch (err) {
+        Alert.alert('Error', (err as Error).message);
       }
-      refetch();
-    } catch (err) {
-      Alert.alert('Error', (err as Error).message);
-    }
-  }, [upvotePodIdea, removeUpvote, refetch]);
+    },
+    [upvotePodIdea, removeUpvote, refetch],
+  );
 
-  const renderItem = useCallback(({ item }: { item: PodIdea }) => (
-    <View style={styles.ideaCard}>
-      <View style={styles.ideaHeader}>
-        {item.user.avatar ? (
-          <Image source={{ uri: item.user.avatar }} style={styles.ideaAvatar} />
-        ) : (
-          <View style={styles.ideaAvatarPlaceholder}>
-            <MaterialIcons name="person" size={18} color={colors.white} />
-          </View>
-        )}
-        <Text style={styles.ideaUserName}>{item.user.name}</Text>
-        <StatusBadge status={item.status} />
-      </View>
+  const renderItem = useCallback(
+    ({ item }: { item: PodIdea }) => (
+      <View style={styles.ideaCard}>
+        <View style={styles.ideaHeader}>
+          {item.user.avatar ? (
+            <Image source={{ uri: item.user.avatar }} style={styles.ideaAvatar} />
+          ) : (
+            <View style={styles.ideaAvatarPlaceholder}>
+              <MaterialIcons name="person" size={18} color={colors.white} />
+            </View>
+          )}
+          <Text style={styles.ideaUserName}>{item.user.name}</Text>
+          <StatusBadge status={item.status} />
+        </View>
 
-      <Text style={styles.ideaTitle}>{item.title}</Text>
-      <Text style={styles.ideaDesc} numberOfLines={3}>{item.description}</Text>
+        <Text style={styles.ideaTitle}>{item.title}</Text>
+        <Text style={styles.ideaDesc} numberOfLines={3}>
+          {item.description}
+        </Text>
 
-      <View style={styles.metaRow}>
-        {item.category ? (
-          <View style={styles.metaItem}>
-            <MaterialIcons name="category" size={14} color={colors.textSecondary} />
-            <Text style={styles.metaText}>{item.category}</Text>
-          </View>
-        ) : null}
-        {item.location ? (
-          <View style={styles.metaItem}>
-            <MaterialIcons name="location-on" size={14} color={colors.textSecondary} />
-            <Text style={styles.metaText}>{item.location}</Text>
-          </View>
-        ) : null}
-        {item.estimatedBudget > 0 ? (
-          <View style={styles.metaItem}>
-            <MaterialIcons name="attach-money" size={14} color={colors.textSecondary} />
-            <Text style={styles.metaText}>${item.estimatedBudget}</Text>
-          </View>
-        ) : null}
-      </View>
+        <View style={styles.metaRow}>
+          {item.category ? (
+            <View style={styles.metaItem}>
+              <MaterialIcons name="category" size={14} color={colors.textSecondary} />
+              <Text style={styles.metaText}>{item.category}</Text>
+            </View>
+          ) : null}
+          {item.location ? (
+            <View style={styles.metaItem}>
+              <MaterialIcons name="location-on" size={14} color={colors.textSecondary} />
+              <Text style={styles.metaText}>{item.location}</Text>
+            </View>
+          ) : null}
+          {item.estimatedBudget > 0 ? (
+            <View style={styles.metaItem}>
+              <MaterialIcons name="attach-money" size={14} color={colors.textSecondary} />
+              <Text style={styles.metaText}>${item.estimatedBudget}</Text>
+            </View>
+          ) : null}
+        </View>
 
-      <View style={styles.ideaFooter}>
-        <TouchableOpacity
-          style={[styles.upvoteBtn, item.hasUpvoted && styles.upvoteBtnActive]}
-          onPress={() => handleUpvote(item)}
-        >
-          <MaterialIcons
-            name={item.hasUpvoted ? 'thumb-up' : 'thumb-up-off-alt'}
-            size={18}
-            color={item.hasUpvoted ? colors.primary : colors.textSecondary}
-          />
-          <Text style={[styles.upvoteText, item.hasUpvoted && styles.upvoteTextActive]}>
-            {item.upvoteCount}
+        <View style={styles.ideaFooter}>
+          <TouchableOpacity
+            style={[styles.upvoteBtn, item.hasUpvoted && styles.upvoteBtnActive]}
+            onPress={() => handleUpvote(item)}
+          >
+            <MaterialIcons
+              name={item.hasUpvoted ? 'thumb-up' : 'thumb-up-off-alt'}
+              size={18}
+              color={item.hasUpvoted ? colors.primary : colors.textSecondary}
+            />
+            <Text style={[styles.upvoteText, item.hasUpvoted && styles.upvoteTextActive]}>
+              {item.upvoteCount}
+            </Text>
+          </TouchableOpacity>
+          <Text style={styles.ideaDate}>
+            {new Date(Number(item.createdAt)).toLocaleDateString()}
           </Text>
-        </TouchableOpacity>
-        <Text style={styles.ideaDate}>{new Date(Number(item.createdAt)).toLocaleDateString()}</Text>
+        </View>
       </View>
-    </View>
-  ), [handleUpvote]);
+    ),
+    [handleUpvote],
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -179,8 +206,17 @@ const PodIdeasScreen: React.FC<PodIdeasScreenProps> = ({ onBack }) => {
         <MaterialIcons name="add" size={28} color={colors.white} />
       </TouchableOpacity>
 
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowModal(false)}>
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowModal(false)}
+        >
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
@@ -227,7 +263,11 @@ const PodIdeasScreen: React.FC<PodIdeasScreenProps> = ({ onBack }) => {
                   keyboardType="numeric"
                 />
                 <TouchableOpacity
-                  style={[styles.submitBtn, (submitting || !title.trim() || !description.trim()) && styles.submitBtnDisabled]}
+                  style={[
+                    styles.submitBtn,
+                    (submitting || !title.trim() || !description.trim()) &&
+                      styles.submitBtnDisabled,
+                  ]}
                   onPress={handleSubmit}
                   disabled={submitting || !title.trim() || !description.trim()}
                 >

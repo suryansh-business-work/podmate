@@ -39,7 +39,13 @@ const UsersPage: React.FC = () => {
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const { data, loading, error, refetch } = useQuery<UsersData>(GET_USERS, {
-    variables: { page: page + 1, limit: rowsPerPage, search: debouncedSearch || undefined, sortBy, order },
+    variables: {
+      page: page + 1,
+      limit: rowsPerPage,
+      search: debouncedSearch || undefined,
+      sortBy,
+      order,
+    },
     fetchPolicy: 'cache-and-network',
   });
 
@@ -63,9 +69,7 @@ const UsersPage: React.FC = () => {
   };
 
   const handleToggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
   };
 
   const handleToggleSelectAll = () => {
@@ -83,7 +87,9 @@ const UsersPage: React.FC = () => {
       setDeleteUser(null);
       setSelectedIds((prev) => prev.filter((id) => id !== deleteUser.id));
       await refetch();
-    } catch { /* handled by Apollo */ }
+    } catch {
+      /* handled by Apollo */
+    }
   };
 
   const confirmBulkDelete = async () => {
@@ -92,27 +98,47 @@ const UsersPage: React.FC = () => {
       setSelectedIds([]);
       setBulkDeleteOpen(false);
       await refetch();
-    } catch { /* handled by Apollo */ }
+    } catch {
+      /* handled by Apollo */
+    }
   };
 
   return (
     <Box>
       <Breadcrumbs sx={{ mb: 2 }}>
-        <Link underline="hover" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} color="inherit">
+        <Link
+          underline="hover"
+          sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+          color="inherit"
+        >
           <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
           Dashboard
         </Link>
-        <Typography color="text.primary" fontWeight={600}>Users</Typography>
+        <Typography color="text.primary" fontWeight={600}>
+          Users
+        </Typography>
       </Breadcrumbs>
 
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
-        <Typography variant="h5" fontWeight={700}>Users</Typography>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+        flexWrap="wrap"
+        gap={2}
+      >
+        <Typography variant="h5" fontWeight={700}>
+          Users
+        </Typography>
         <Box display="flex" gap={2} alignItems="center">
           <TextField
             size="small"
             placeholder="Search by name or phone..."
             value={searchInput}
-            onChange={(e) => { setSearchInput(e.target.value); setPage(0); }}
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+              setPage(0);
+            }}
             sx={{ width: '100%', maxWidth: 300 }}
             slotProps={{
               input: {
@@ -130,7 +156,11 @@ const UsersPage: React.FC = () => {
         </Box>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error.message}
+        </Alert>
+      )}
 
       <Card>
         <BulkActionToolbar
@@ -160,19 +190,29 @@ const UsersPage: React.FC = () => {
             page={page}
             onPageChange={(_, p) => setPage(p)}
             rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+            onRowsPerPageChange={(e) => {
+              setRowsPerPage(parseInt(e.target.value, 10));
+              setPage(0);
+            }}
             rowsPerPageOptions={[5, 10, 25]}
           />
         )}
       </Card>
 
-      <CreateUserDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={() => refetch()} />
+      <CreateUserDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={() => refetch()}
+      />
 
       {toggleUser && (
         <ToggleUserDialog
           open={!!toggleUser}
           onClose={() => setToggleUser(null)}
-          onToggled={() => { setToggleUser(null); refetch(); }}
+          onToggled={() => {
+            setToggleUser(null);
+            refetch();
+          }}
           userId={toggleUser.id}
           userName={toggleUser.name}
           currentActive={toggleUser.isActive}

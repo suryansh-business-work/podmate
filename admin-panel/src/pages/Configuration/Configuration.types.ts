@@ -76,7 +76,12 @@ export const IMAGEKIT_KEYS: { key: keyof ImageKitConfig; label: string; type?: s
   { key: 'urlEndpoint', label: 'URL Endpoint' },
 ];
 
-export const OPENAI_KEYS: { key: keyof OpenAiConfig; label: string; type?: string; multiline?: boolean }[] = [
+export const OPENAI_KEYS: {
+  key: keyof OpenAiConfig;
+  label: string;
+  type?: string;
+  multiline?: boolean;
+}[] = [
   { key: 'apiKey', label: 'API Key', type: 'password' },
   { key: 'model', label: 'Model' },
   { key: 'prePrompt', label: 'Chatbot Pre-Prompt', multiline: true },
@@ -106,7 +111,8 @@ export const DEFAULT_IMAGEKIT: ImageKitConfig = {
 export const DEFAULT_OPENAI: OpenAiConfig = {
   apiKey: '',
   model: 'gpt-4o-mini',
-  prePrompt: 'You are PartyWings assistant. Help users with questions about events, pods, places, and the PartyWings platform.',
+  prePrompt:
+    'You are PartyWings assistant. Help users with questions about events, pods, places, and the PartyWings platform.',
 };
 
 export const DEFAULT_SLACK: SlackConfig = {

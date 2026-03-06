@@ -1,6 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
@@ -9,7 +14,11 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import { GET_NOTIFICATIONS } from '../../graphql/queries';
 import { MARK_NOTIFICATION_READ, MARK_ALL_NOTIFICATIONS_READ } from '../../graphql/mutations';
-import { Notification, NotificationsScreenProps, NOTIFICATION_ICON_MAP } from './Notifications.types';
+import {
+  Notification,
+  NotificationsScreenProps,
+  NOTIFICATION_ICON_MAP,
+} from './Notifications.types';
 import { createStyles } from './Notifications.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -48,18 +57,25 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
   const notifications: Notification[] = data?.notifications?.items ?? [];
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const handleMarkRead = useCallback(async (id: string) => {
-    try {
-      await markRead({ variables: { notificationId: id } });
-      await refetch();
-    } catch { /* silent */ }
-  }, [markRead, refetch]);
+  const handleMarkRead = useCallback(
+    async (id: string) => {
+      try {
+        await markRead({ variables: { notificationId: id } });
+        await refetch();
+      } catch {
+        /* silent */
+      }
+    },
+    [markRead, refetch],
+  );
 
   const handleMarkAllRead = useCallback(async () => {
     try {
       await markAllRead();
       await refetch();
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   }, [markAllRead, refetch]);
 
   const [refreshing, setRefreshing] = useState(false);
@@ -119,22 +135,32 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
         data={notifications}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+          />
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[styles.notificationRow, !item.read && styles.notificationUnread]}
             onPress={() => !item.read && handleMarkRead(item.id)}
             activeOpacity={0.7}
           >
-            <View style={styles.iconContainer}>
-              {renderIcon(item.type)}
-            </View>
+            <View style={styles.iconContainer}>{renderIcon(item.type)}</View>
             <View style={styles.notificationContent}>
               <View style={styles.notificationTop}>
-                <Text style={[styles.notificationTitle, !item.read && styles.notificationTitleUnread]}>{item.title}</Text>
+                <Text
+                  style={[styles.notificationTitle, !item.read && styles.notificationTitleUnread]}
+                >
+                  {item.title}
+                </Text>
                 <Text style={styles.notificationTime}>{formatTimeAgo(item.createdAt)}</Text>
               </View>
-              <Text style={styles.notificationMessage} numberOfLines={2}>{item.message}</Text>
+              <Text style={styles.notificationMessage} numberOfLines={2}>
+                {item.message}
+              </Text>
             </View>
             {!item.read && <View style={styles.unreadDot} />}
           </TouchableOpacity>
@@ -145,7 +171,9 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
             <View style={styles.emptyContainer}>
               <MaterialIcons name="notifications-none" size={48} color={colors.textTertiary} />
               <Text style={styles.emptyTitle}>No notifications</Text>
-              <Text style={styles.emptySubtitle}>You&apos;re all caught up! New notifications will appear here.</Text>
+              <Text style={styles.emptySubtitle}>
+                You&apos;re all caught up! New notifications will appear here.
+              </Text>
             </View>
           ) : null
         }

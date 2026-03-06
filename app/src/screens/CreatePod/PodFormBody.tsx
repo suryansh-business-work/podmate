@@ -56,8 +56,15 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const {
-    handleChange, handleBlur, handleSubmit, values,
-    errors, touched, isValid, dirty, setFieldValue,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    values,
+    errors,
+    touched,
+    isValid,
+    dirty,
+    setFieldValue,
   } = formik;
 
   const [placeModalVisible, setPlaceModalVisible] = useState(false);
@@ -76,8 +83,9 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
   });
 
   const googleMapsApiKey: string =
-    (configData?.appConfig as Array<{ key: string; value: string }> | undefined)
-      ?.find((c) => c.key === 'google_maps_api_key')?.value ?? '';
+    (configData?.appConfig as Array<{ key: string; value: string }> | undefined)?.find(
+      (c) => c.key === 'google_maps_api_key',
+    )?.value ?? '';
 
   const approvedPlaces = placesData?.approvedPlaces ?? [];
 
@@ -109,7 +117,12 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
   return (
     <>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+      >
         <Text style={styles.title}>Let&apos;s set up your Pod.</Text>
         <Text style={styles.subtitle}>Create a space for your micro-community event.</Text>
 
@@ -134,7 +147,11 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
         <Text style={styles.inputLabel}>THE PLAN</Text>
         <TextInput
-          style={[styles.textInput, styles.textArea, touched.description && errors.description ? styles.inputError : undefined]}
+          style={[
+            styles.textInput,
+            styles.textArea,
+            touched.description && errors.description ? styles.inputError : undefined,
+          ]}
           placeholder="Describe what you'll be doing..."
           placeholderTextColor={colors.textTertiary}
           multiline
@@ -144,7 +161,9 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
           onChangeText={handleChange('description')}
           onBlur={handleBlur('description')}
         />
-        {touched.description && errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
+        {touched.description && errors.description && (
+          <Text style={styles.errorText}>{errors.description}</Text>
+        )}
 
         <Text style={styles.inputLabel}>CATEGORY</Text>
         <View style={styles.categoryRow}>
@@ -154,7 +173,12 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
               style={[styles.categoryChip, values.category === cat && styles.categoryChipActive]}
               onPress={() => setFieldValue('category', cat)}
             >
-              <Text style={[styles.categoryChipText, values.category === cat && styles.categoryChipTextActive]}>
+              <Text
+                style={[
+                  styles.categoryChipText,
+                  values.category === cat && styles.categoryChipTextActive,
+                ]}
+              >
                 {cat}
               </Text>
             </TouchableOpacity>
@@ -163,19 +187,34 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
         <Text style={styles.inputLabel}>VENUE</Text>
         <TouchableOpacity
-          style={[styles.textInput, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, touched.location && errors.location ? styles.inputError : undefined]}
+          style={[
+            styles.textInput,
+            { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+            touched.location && errors.location ? styles.inputError : undefined,
+          ]}
           onPress={() => setPlaceModalVisible(true)}
           activeOpacity={0.7}
         >
-          <Text style={{ color: values.location ? colors.text : colors.textTertiary, fontSize: 16, flex: 1 }} numberOfLines={1}>
+          <Text
+            style={{
+              color: values.location ? colors.text : colors.textTertiary,
+              fontSize: 16,
+              flex: 1,
+            }}
+            numberOfLines={1}
+          >
             {values.location || 'Select a registered venue'}
           </Text>
           <MaterialIcons name="arrow-drop-down" size={24} color={colors.textSecondary} />
         </TouchableOpacity>
-        {touched.location && errors.location && <Text style={styles.errorText}>{errors.location}</Text>}
+        {touched.location && errors.location && (
+          <Text style={styles.errorText}>{errors.location}</Text>
+        )}
 
         {values.locationDetail ? (
-          <Text style={{ color: colors.textSecondary, fontSize: 13, marginTop: 4, marginBottom: 8 }}>
+          <Text
+            style={{ color: colors.textSecondary, fontSize: 13, marginTop: 4, marginBottom: 8 }}
+          >
             {values.locationDetail}
           </Text>
         ) : null}
@@ -216,7 +255,12 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
               source={{
                 uri: `https://maps.googleapis.com/maps/api/staticmap?center=${values.latitude},${values.longitude}&zoom=15&size=600x200&scale=2&markers=color:red%7C${values.latitude},${values.longitude}&key=${googleMapsApiKey}`,
               }}
-              style={{ width: '100%', height: 140, borderRadius: 12, backgroundColor: colors.surfaceVariant }}
+              style={{
+                width: '100%',
+                height: 140,
+                borderRadius: 12,
+                backgroundColor: colors.surfaceVariant,
+              }}
               resizeMode="cover"
             />
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
@@ -230,8 +274,26 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
         <Modal visible={placeModalVisible} animationType="slide" transparent>
           <View style={{ flex: 1, backgroundColor: colors.overlay }}>
-            <View style={{ flex: 1, marginTop: 120, backgroundColor: colors.white, borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.surfaceVariant }}>
+            <View
+              style={{
+                flex: 1,
+                marginTop: 120,
+                backgroundColor: colors.white,
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                overflow: 'hidden',
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.surfaceVariant,
+                }}
+              >
                 <TextInput
                   style={{ flex: 1, fontSize: 16, color: colors.text, paddingVertical: 8 }}
                   placeholder="Search venues..."
@@ -240,7 +302,12 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
                   onChangeText={setPlaceSearch}
                   autoFocus
                 />
-                <TouchableOpacity onPress={() => { setPlaceModalVisible(false); setPlaceSearch(''); }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setPlaceModalVisible(false);
+                    setPlaceSearch('');
+                  }}
+                >
                   <MaterialIcons name="close" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
@@ -251,7 +318,9 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
               ) : approvedPlaces.length === 0 ? (
                 <View style={{ padding: 32, alignItems: 'center' }}>
                   <MaterialIcons name="location-off" size={48} color={colors.textTertiary} />
-                  <Text style={{ color: colors.textSecondary, marginTop: 12, fontSize: 14 }}>No approved venues found</Text>
+                  <Text style={{ color: colors.textSecondary, marginTop: 12, fontSize: 14 }}>
+                    No approved venues found
+                  </Text>
                 </View>
               ) : (
                 <FlatList
@@ -273,10 +342,18 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
                       onPress={() => handleSelectPlace(item)}
                       activeOpacity={0.7}
                     >
-                      <MaterialIcons name="place" size={24} color={values.placeId === item.id ? colors.primary : colors.textTertiary} />
+                      <MaterialIcons
+                        name="place"
+                        size={24}
+                        color={values.placeId === item.id ? colors.primary : colors.textTertiary}
+                      />
                       <View style={{ flex: 1 }}>
-                        <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>{item.name}</Text>
-                        <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>{item.address}, {item.city}</Text>
+                        <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>
+                          {item.name}
+                        </Text>
+                        <Text style={{ fontSize: 13, color: colors.textSecondary, marginTop: 2 }}>
+                          {item.address}, {item.city}
+                        </Text>
                       </View>
                       {values.placeId === item.id && (
                         <MaterialIcons name="check-circle" size={20} color={colors.primary} />

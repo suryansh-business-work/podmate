@@ -350,7 +350,11 @@ export const REMOVE_ATTENDEE = gql`
       pod {
         id
         currentSeats
-        attendees { id name avatar }
+        attendees {
+          id
+          name
+          avatar
+        }
       }
       refunded
       refundAmount
@@ -412,8 +416,18 @@ export const REPLY_SUPPORT_TICKET = gql`
 `;
 
 export const ADMIN_CREATE_SUPPORT_TICKET = gql`
-  mutation AdminCreateSupportTicket($userId: ID!, $subject: String!, $message: String!, $priority: String) {
-    adminCreateSupportTicket(userId: $userId, subject: $subject, message: $message, priority: $priority) {
+  mutation AdminCreateSupportTicket(
+    $userId: ID!
+    $subject: String!
+    $message: String!
+    $priority: String
+  ) {
+    adminCreateSupportTicket(
+      userId: $userId
+      subject: $subject
+      message: $message
+      priority: $priority
+    ) {
       id
       subject
       message

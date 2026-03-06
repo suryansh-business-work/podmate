@@ -25,11 +25,22 @@ interface OverridesSectionProps {
   overrides: PlatformFeeOverride[];
   loading: boolean;
   saving: boolean;
-  onSave: (input: { id?: string; pincode: string; feePercent: number; label: string }) => Promise<void>;
+  onSave: (input: {
+    id?: string;
+    pincode: string;
+    feePercent: number;
+    label: string;
+  }) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }
 
-const OverridesSection: React.FC<OverridesSectionProps> = ({ overrides, loading, saving, onSave, onDelete }) => {
+const OverridesSection: React.FC<OverridesSectionProps> = ({
+  overrides,
+  loading,
+  saving,
+  onSave,
+  onDelete,
+}) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<PlatformFeeOverride | null>(null);
 
@@ -99,14 +110,23 @@ const OverridesSection: React.FC<OverridesSectionProps> = ({ overrides, loading,
                 {overrides.map((o) => (
                   <TableRow key={o.id}>
                     <TableCell>
-                      <Typography variant="body2" fontWeight={600}>{o.pincode}</Typography>
+                      <Typography variant="body2" fontWeight={600}>
+                        {o.pincode}
+                      </Typography>
                     </TableCell>
                     <TableCell>{o.label || '—'}</TableCell>
                     <TableCell>
-                      <Chip label={`${o.feePercent}%`} size="small" color="primary" variant="outlined" />
+                      <Chip
+                        label={`${o.feePercent}%`}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
                     </TableCell>
                     <TableCell>
-                      <Typography variant="caption">{new Date(o.updatedAt).toLocaleDateString()}</Typography>
+                      <Typography variant="caption">
+                        {new Date(o.updatedAt).toLocaleDateString()}
+                      </Typography>
                     </TableCell>
                     <TableCell align="right">
                       <IconButton size="small" onClick={() => handleEdit(o)}>

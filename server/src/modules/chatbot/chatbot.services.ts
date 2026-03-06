@@ -11,8 +11,9 @@ interface OpenAiMessage {
 
 export async function askChatbot(userId: string, message: string): Promise<ChatbotResponse> {
   const apiKey = await getConfigValue('openai_api_key', 'OPENAI_API_KEY');
-  const model = await getConfigValue('openai_model', 'OPENAI_MODEL') || 'gpt-4o-mini';
-  const prePrompt = await getConfigValue('chatbot_pre_prompt', 'CHATBOT_PRE_PROMPT') ||
+  const model = (await getConfigValue('openai_model', 'OPENAI_MODEL')) || 'gpt-4o-mini';
+  const prePrompt =
+    (await getConfigValue('chatbot_pre_prompt', 'CHATBOT_PRE_PROMPT')) ||
     'You are PartyWings assistant. Help users with questions about events, pods, places, and the PartyWings platform. Be friendly and concise.';
 
   if (!apiKey) {
@@ -65,15 +66,18 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } };
         if (parsed.error?.message) detail = parsed.error.message;
-      } catch { /* use default */ }
+      } catch {
+        /* use default */
+      }
       throw new Error(detail);
     }
 
-    const data = await response.json() as {
+    const data = (await response.json()) as {
       choices: Array<{ message: { content: string } }>;
     };
 
-    const assistantContent = data.choices[0]?.message?.content ?? 'Sorry, I could not generate a response.';
+    const assistantContent =
+      data.choices[0]?.message?.content ?? 'Sorry, I could not generate a response.';
 
     /* Save assistant message */
     const assistantDoc = await ChatbotMessageModel.create({

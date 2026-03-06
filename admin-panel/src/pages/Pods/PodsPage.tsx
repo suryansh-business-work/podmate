@@ -40,7 +40,13 @@ const PodsPage: React.FC = () => {
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const { data, loading, error, refetch } = useQuery<PodsData>(GET_PODS, {
-    variables: { page: page + 1, limit: rowsPerPage, search: debouncedSearch || undefined, sortBy, order },
+    variables: {
+      page: page + 1,
+      limit: rowsPerPage,
+      search: debouncedSearch || undefined,
+      sortBy,
+      order,
+    },
     fetchPolicy: 'cache-and-network',
   });
 
@@ -60,9 +66,7 @@ const PodsPage: React.FC = () => {
   };
 
   const handleToggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
   };
 
   const handleToggleSelectAll = () => {
@@ -93,7 +97,9 @@ const PodsPage: React.FC = () => {
       setIssueRefunds(true);
       setSelectedIds((prev) => prev.filter((id) => id !== deletePod.id));
       await refetch();
-    } catch { /* handled by Apollo */ }
+    } catch {
+      /* handled by Apollo */
+    }
   };
 
   const confirmBulkDelete = async () => {
@@ -103,7 +109,9 @@ const PodsPage: React.FC = () => {
       setBulkDeleteOpen(false);
       setIssueRefunds(true);
       await refetch();
-    } catch { /* handled by Apollo */ }
+    } catch {
+      /* handled by Apollo */
+    }
   };
 
   const attendeeCount = deletePod?.attendees.length ?? 0;
@@ -114,28 +122,60 @@ const PodsPage: React.FC = () => {
   return (
     <Box>
       <Breadcrumbs sx={{ mb: 2 }}>
-        <Link underline="hover" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} color="inherit">
+        <Link
+          underline="hover"
+          sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+          color="inherit"
+        >
           <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" /> Dashboard
         </Link>
-        <Typography color="text.primary" fontWeight={600}>Pods</Typography>
+        <Typography color="text.primary" fontWeight={600}>
+          Pods
+        </Typography>
       </Breadcrumbs>
 
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
-        <Typography variant="h5" fontWeight={700}>Pods</Typography>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+        flexWrap="wrap"
+        gap={2}
+      >
+        <Typography variant="h5" fontWeight={700}>
+          Pods
+        </Typography>
         <Box display="flex" gap={2} alignItems="center">
           <TextField
             size="small"
             placeholder="Search pods..."
             value={searchInput}
-            onChange={(e) => { setSearchInput(e.target.value); setPage(0); }}
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+              setPage(0);
+            }}
             sx={{ width: '100%', maxWidth: 300 }}
-            slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>Create Pod</Button>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
+            Create Pod
+          </Button>
         </Box>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error.message}
+        </Alert>
+      )}
 
       <Card>
         <BulkActionToolbar
@@ -163,13 +203,20 @@ const PodsPage: React.FC = () => {
             page={page}
             onPageChange={(_, p) => setPage(p)}
             rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+            onRowsPerPageChange={(e) => {
+              setRowsPerPage(parseInt(e.target.value, 10));
+              setPage(0);
+            }}
             rowsPerPageOptions={[5, 10, 25]}
           />
         )}
       </Card>
 
-      <CreatePodDialog open={createOpen} onClose={() => setCreateOpen(false)} onCreated={() => refetch()} />
+      <CreatePodDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={() => refetch()}
+      />
 
       {/* Single delete dialog */}
       <ConfirmDeleteDialog
@@ -178,14 +225,17 @@ const PodsPage: React.FC = () => {
         entityName={deletePod?.title ?? ''}
         entityType="pod"
         loading={deleting || forceDeleting}
-        onClose={() => { setDeletePod(null); setIssueRefunds(true); }}
+        onClose={() => {
+          setDeletePod(null);
+          setIssueRefunds(true);
+        }}
         onConfirm={confirmDelete}
       >
         {attendeeCount > 0 && (
           <Box sx={{ mb: 2 }}>
             <Alert severity="warning" sx={{ mb: 1 }}>
-              This pod has <strong>{attendeeCount}</strong> active attendee{attendeeCount > 1 ? 's' : ''}.
-              All attendees will be removed before deleting the pod.
+              This pod has <strong>{attendeeCount}</strong> active attendee
+              {attendeeCount > 1 ? 's' : ''}. All attendees will be removed before deleting the pod.
             </Alert>
             <FormControlLabel
               control={
@@ -196,7 +246,8 @@ const PodsPage: React.FC = () => {
               }
               label={
                 <Typography variant="body2">
-                  Issue refunds to all attendees (₹{((deletePod?.feePerPerson ?? 0) * attendeeCount).toLocaleString()} total)
+                  Issue refunds to all attendees (₹
+                  {((deletePod?.feePerPerson ?? 0) * attendeeCount).toLocaleString()} total)
                 </Typography>
               }
             />
@@ -211,13 +262,17 @@ const PodsPage: React.FC = () => {
         entityName={`${selectedIds.length} pods`}
         entityType="pods"
         loading={bulkDeleting}
-        onClose={() => { setBulkDeleteOpen(false); setIssueRefunds(true); }}
+        onClose={() => {
+          setBulkDeleteOpen(false);
+          setIssueRefunds(true);
+        }}
         onConfirm={confirmBulkDelete}
       >
         {bulkAttendeeCount > 0 && (
           <Box sx={{ mb: 2 }}>
             <Alert severity="warning" sx={{ mb: 1 }}>
-              These pods have a total of <strong>{bulkAttendeeCount}</strong> active attendee{bulkAttendeeCount > 1 ? 's' : ''}.
+              These pods have a total of <strong>{bulkAttendeeCount}</strong> active attendee
+              {bulkAttendeeCount > 1 ? 's' : ''}.
             </Alert>
             <FormControlLabel
               control={

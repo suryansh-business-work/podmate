@@ -56,7 +56,9 @@ const ToggleUserDialog: React.FC<ToggleUserDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>{currentActive ? 'Disable User' : 'Enable User'}</DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+      <DialogContent
+        sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}
+      >
         {error && <Alert severity="error">{error}</Alert>}
         <Typography>
           {currentActive

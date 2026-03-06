@@ -19,30 +19,44 @@ interface InputFieldProps {
 }
 
 const InputField: React.FC<InputFieldProps> = ({
-  label, icon, value, onChangeText, onBlur, error, placeholder, multiline, numberOfLines, keyboardType,
+  label,
+  icon,
+  value,
+  onChangeText,
+  onBlur,
+  error,
+  placeholder,
+  multiline,
+  numberOfLines,
+  keyboardType,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   return (
-  <View style={styles.fieldContainer}>
-    <Text style={styles.fieldLabel}>{label}</Text>
-    <View style={[styles.inputRow, error ? styles.inputRowError : null]}>
-      <MaterialIcons name={icon} size={18} color={colors.textTertiary} style={{ marginRight: spacing.sm }} />
-      <TextInput
-        style={[styles.input, multiline && styles.inputMultiline]}
-        value={value}
-        onChangeText={onChangeText}
-        onBlur={onBlur as () => void}
-        placeholder={placeholder}
-        placeholderTextColor={colors.textTertiary}
-        multiline={multiline}
-        numberOfLines={numberOfLines}
-        keyboardType={keyboardType}
-      />
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <View style={[styles.inputRow, error ? styles.inputRowError : null]}>
+        <MaterialIcons
+          name={icon}
+          size={18}
+          color={colors.textTertiary}
+          style={{ marginRight: spacing.sm }}
+        />
+        <TextInput
+          style={[styles.input, multiline && styles.inputMultiline]}
+          value={value}
+          onChangeText={onChangeText}
+          onBlur={onBlur as () => void}
+          placeholder={placeholder}
+          placeholderTextColor={colors.textTertiary}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
+          keyboardType={keyboardType}
+        />
+      </View>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
-    {error ? <Text style={styles.errorText}>{error}</Text> : null}
-  </View>
-);
-}
+  );
+};
 
 export default InputField;

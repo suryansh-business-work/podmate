@@ -33,17 +33,38 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp, loading, error }) 
 
   return (
     <SafeAreaView style={styles.container} testID="login-screen">
-      <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView
+        style={styles.content}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <View style={styles.topSection}>
-          <LinearGradient colors={[colors.primaryLight, colors.primary]} style={styles.logoBox} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+          <LinearGradient
+            colors={[colors.primaryLight, colors.primary]}
+            style={styles.logoBox}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
             <MaterialCommunityIcons name="account-group" size={26} color={colors.white} />
           </LinearGradient>
 
           <Text style={styles.title}>Welcome to PartyWings</Text>
           <Text style={styles.subtitle}>Enter your phone number to join or create your Pod.</Text>
 
-          <Formik initialValues={initialValues} validationSchema={loginSchema} onSubmit={handleSubmit}>
-            {({ handleChange, handleBlur, handleSubmit: formSubmit, values, errors, touched, isValid, dirty }) => (
+          <Formik
+            initialValues={initialValues}
+            validationSchema={loginSchema}
+            onSubmit={handleSubmit}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit: formSubmit,
+              values,
+              errors,
+              touched,
+              isValid,
+              dirty,
+            }) => (
               <View>
                 <Text style={styles.inputLabel}>PHONE NUMBER</Text>
                 <View style={styles.phoneInputRow}>
@@ -88,12 +109,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp, loading, error }) 
                     disabled={!isValid || !dirty || loading}
                     testID="send-otp-button"
                   >
-                    {loading && <ActivityIndicator color={colors.white} size="small" testID="loading-indicator" />}
+                    {loading && (
+                      <ActivityIndicator
+                        color={colors.white}
+                        size="small"
+                        testID="loading-indicator"
+                      />
+                    )}
                   </GradientButton>
                   <Text style={styles.termsText}>
                     By continuing, you agree to our{' '}
-                    <Text style={styles.termsLink} onPress={() => setPolicyModal('USER')}>Terms of Service</Text> and{' '}
-                    <Text style={styles.termsLink} onPress={() => setPolicyModal('USER')}>Privacy Policy</Text>
+                    <Text style={styles.termsLink} onPress={() => setPolicyModal('USER')}>
+                      Terms of Service
+                    </Text>{' '}
+                    and{' '}
+                    <Text style={styles.termsLink} onPress={() => setPolicyModal('USER')}>
+                      Privacy Policy
+                    </Text>
                   </Text>
                   <View style={styles.policyLinksRow}>
                     <TouchableOpacity onPress={() => setPolicyModal('VENUE')}>

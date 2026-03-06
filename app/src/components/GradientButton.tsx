@@ -42,25 +42,26 @@ export const GradientButton: React.FC<GradientButtonProps> = ({
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
-  container: {
-    borderRadius: 28,
-    overflow: 'hidden',
-  },
-  gradient: {
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 28,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  text: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-  },
-});
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+  StyleSheet.create({
+    container: {
+      borderRadius: 28,
+      overflow: 'hidden',
+    },
+    gradient: {
+      paddingVertical: 16,
+      paddingHorizontal: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 28,
+    },
+    disabled: {
+      opacity: 0.5,
+    },
+    text: {
+      color: colors.white,
+      fontSize: 18,
+      fontWeight: '600',
+      letterSpacing: 0.5,
+    },
+  });

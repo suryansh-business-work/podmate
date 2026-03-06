@@ -18,21 +18,30 @@ import GlobalFeeCard from './GlobalFeeCard';
 import OverridesSection from './OverridesSection';
 
 const FinancePage: React.FC = () => {
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
     open: false,
     message: '',
     severity: 'success',
   });
 
-  const { data: feeData, loading: feeLoading, refetch: refetchFee } = useQuery<PlatformFeeConfigData>(
-    GET_PLATFORM_FEES,
-    { fetchPolicy: 'cache-and-network' },
-  );
+  const {
+    data: feeData,
+    loading: feeLoading,
+    refetch: refetchFee,
+  } = useQuery<PlatformFeeConfigData>(GET_PLATFORM_FEES, { fetchPolicy: 'cache-and-network' });
 
-  const { data: overridesData, loading: overridesLoading, refetch: refetchOverrides } = useQuery<PaginatedPlatformFeeOverridesData>(
-    GET_PLATFORM_FEE_OVERRIDES,
-    { variables: { page: 1, limit: 100 }, fetchPolicy: 'cache-and-network' },
-  );
+  const {
+    data: overridesData,
+    loading: overridesLoading,
+    refetch: refetchOverrides,
+  } = useQuery<PaginatedPlatformFeeOverridesData>(GET_PLATFORM_FEE_OVERRIDES, {
+    variables: { page: 1, limit: 100 },
+    fetchPolicy: 'cache-and-network',
+  });
 
   const [upsertFee, { loading: savingFee }] = useMutation(UPSERT_PLATFORM_FEE);
   const [upsertOverride, { loading: savingOverride }] = useMutation(UPSERT_PLATFORM_FEE_OVERRIDE);
@@ -45,7 +54,11 @@ const FinancePage: React.FC = () => {
     async (value: number) => {
       try {
         await upsertFee({ variables: { globalFeePercent: value } });
-        setSnackbar({ open: true, message: `Global fee updated to ${value}%`, severity: 'success' });
+        setSnackbar({
+          open: true,
+          message: `Global fee updated to ${value}%`,
+          severity: 'success',
+        });
         refetchFee();
       } catch (err) {
         setSnackbar({ open: true, message: (err as Error).message, severity: 'error' });
@@ -58,7 +71,11 @@ const FinancePage: React.FC = () => {
     async (input: { id?: string; pincode: string; feePercent: number; label: string }) => {
       try {
         await upsertOverride({ variables: { input } });
-        setSnackbar({ open: true, message: `Override for ${input.pincode} saved`, severity: 'success' });
+        setSnackbar({
+          open: true,
+          message: `Override for ${input.pincode} saved`,
+          severity: 'success',
+        });
         refetchOverrides();
       } catch (err) {
         setSnackbar({ open: true, message: (err as Error).message, severity: 'error' });
@@ -83,7 +100,9 @@ const FinancePage: React.FC = () => {
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <Breadcrumbs sx={{ mb: 2 }}>
-        <Link underline="hover" color="inherit" href="/dashboard">Dashboard</Link>
+        <Link underline="hover" color="inherit" href="/dashboard">
+          Dashboard
+        </Link>
         <Typography color="text.primary">Finance</Typography>
       </Breadcrumbs>
 
@@ -118,7 +137,10 @@ const FinancePage: React.FC = () => {
         onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar((s) => ({ ...s, open: false }))}>
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

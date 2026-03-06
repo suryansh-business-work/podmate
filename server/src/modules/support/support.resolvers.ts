@@ -4,7 +4,11 @@ import { UserRole } from '../user/user.models';
 import { findUserById } from '../user/user.services';
 import * as supportService from './support.services';
 import { validateSupportTicketInput } from './support.validators';
-import type { CreateSupportTicketInput, UpdateSupportTicketInput, TicketReply } from './support.models';
+import type {
+  CreateSupportTicketInput,
+  UpdateSupportTicketInput,
+  TicketReply,
+} from './support.models';
 
 const supportResolvers = {
   Query: {
@@ -42,11 +46,7 @@ const supportResolvers = {
         order: (args.order as 'ASC' | 'DESC') ?? 'DESC',
       });
     },
-    supportTicketCounts: (
-      _: unknown,
-      __: unknown,
-      context: GraphQLContext,
-    ) => {
+    supportTicketCounts: (_: unknown, __: unknown, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return supportService.getTicketCounts();
     },
@@ -99,11 +99,7 @@ const supportResolvers = {
       return supportService.updateSupportTicket(args.id, args.input);
     },
 
-    deleteSupportTicket: (
-      _: unknown,
-      args: { id: string },
-      context: GraphQLContext,
-    ) => {
+    deleteSupportTicket: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return supportService.deleteSupportTicket(args.id);
     },

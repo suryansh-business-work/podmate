@@ -1,9 +1,28 @@
 import React, { useState } from 'react';
 import {
-  Table, TableHead, TableBody, TableRow, TableCell, TableContainer,
-  Typography, Chip, IconButton, Card, TablePagination, TableSortLabel,
-  Dialog, DialogTitle, DialogContent, DialogActions, Button,
-  TextField, MenuItem, Box, CircularProgress, Alert, InputAdornment,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Typography,
+  Chip,
+  IconButton,
+  Card,
+  TablePagination,
+  TableSortLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+  Box,
+  CircularProgress,
+  Alert,
+  InputAdornment,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
@@ -98,7 +117,9 @@ const CallbackRequestsTab: React.FC = () => {
       });
       await refetch();
       setEditReq(null);
-    } catch { /* handled by Apollo */ }
+    } catch {
+      /* handled by Apollo */
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -106,7 +127,9 @@ const CallbackRequestsTab: React.FC = () => {
     try {
       await deleteReq({ variables: { id } });
       await refetch();
-    } catch { /* handled */ }
+    } catch {
+      /* handled */
+    }
   };
 
   return (
@@ -119,9 +142,16 @@ const CallbackRequestsTab: React.FC = () => {
             { label: 'Completed', value: counts.completed, color: '#10b981' },
             { label: 'Cancelled', value: counts.cancelled, color: '#6b7280' },
           ].map((s) => (
-            <Card key={s.label} sx={{ flex: '1 1 120px', p: 2, borderLeft: `4px solid ${s.color}` }}>
-              <Typography variant="caption" color="text.secondary">{s.label}</Typography>
-              <Typography variant="h5" fontWeight={700}>{s.value}</Typography>
+            <Card
+              key={s.label}
+              sx={{ flex: '1 1 120px', p: 2, borderLeft: `4px solid ${s.color}` }}
+            >
+              <Typography variant="caption" color="text.secondary">
+                {s.label}
+              </Typography>
+              <Typography variant="h5" fontWeight={700}>
+                {s.value}
+              </Typography>
             </Card>
           ))}
         </Box>
@@ -132,13 +162,30 @@ const CallbackRequestsTab: React.FC = () => {
           size="small"
           placeholder="Search by phone or reason…"
           value={searchInput}
-          onChange={(e) => { setSearchInput(e.target.value); setPage(0); }}
-          slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+            setPage(0);
+          }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            },
+          }}
           sx={{ minWidth: 250 }}
         />
         <TextField
-          select size="small" label="Status" value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
+          select
+          size="small"
+          label="Status"
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(0);
+          }}
           sx={{ minWidth: 150 }}
         >
           <MenuItem value="">All</MenuItem>
@@ -149,7 +196,11 @@ const CallbackRequestsTab: React.FC = () => {
         </TextField>
       </Box>
 
-      {loading && !data && <Box display="flex" justifyContent="center" py={6}><CircularProgress /></Box>}
+      {loading && !data && (
+        <Box display="flex" justifyContent="center" py={6}>
+          <CircularProgress />
+        </Box>
+      )}
       {!loading && items.length === 0 && <Alert severity="info">No callback requests found.</Alert>}
 
       {items.length > 0 && (
@@ -169,36 +220,61 @@ const CallbackRequestsTab: React.FC = () => {
                         >
                           {col.label}
                         </TableSortLabel>
-                      ) : col.label}
+                      ) : (
+                        col.label
+                      )}
                     </TableCell>
                   ))}
-                  <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="right">
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {items.map((req) => (
                   <TableRow key={req.id} hover>
                     <TableCell>
-                      <Typography variant="body2" fontWeight={600}>{req.user?.name ?? 'Unknown'}</Typography>
-                      <Typography variant="caption" color="text.secondary">{req.user?.phone ?? req.phone}</Typography>
+                      <Typography variant="body2" fontWeight={600}>
+                        {req.user?.name ?? 'Unknown'}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {req.user?.phone ?? req.phone}
+                      </Typography>
                     </TableCell>
-                    <TableCell><Typography variant="body2">{req.phone}</Typography></TableCell>
                     <TableCell>
-                      <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>{req.reason}</Typography>
+                      <Typography variant="body2">{req.phone}</Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
+                        {req.reason}
+                      </Typography>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2">{req.preferredTime || '—'}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip label={req.status} size="small" color={CALLBACK_STATUS_COLORS[req.status] ?? 'default'} variant="outlined" />
+                      <Chip
+                        label={req.status}
+                        size="small"
+                        color={CALLBACK_STATUS_COLORS[req.status] ?? 'default'}
+                        variant="outlined"
+                      />
                     </TableCell>
                     <TableCell>
-                      <Typography variant="caption">{new Date(req.createdAt).toLocaleDateString()}</Typography>
+                      <Typography variant="caption">
+                        {new Date(req.createdAt).toLocaleDateString()}
+                      </Typography>
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton size="small" onClick={() => setViewReq(req)}><VisibilityIcon fontSize="small" /></IconButton>
-                      <IconButton size="small" onClick={() => handleEdit(req)}><EditIcon fontSize="small" /></IconButton>
-                      <IconButton size="small" color="error" onClick={() => handleDelete(req.id)}><DeleteIcon fontSize="small" /></IconButton>
+                      <IconButton size="small" onClick={() => setViewReq(req)}>
+                        <VisibilityIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small" onClick={() => handleEdit(req)}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small" color="error" onClick={() => handleDelete(req.id)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -211,7 +287,10 @@ const CallbackRequestsTab: React.FC = () => {
             page={page}
             onPageChange={(_, p) => setPage(p)}
             rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+            onRowsPerPageChange={(e) => {
+              setRowsPerPage(parseInt(e.target.value, 10));
+              setPage(0);
+            }}
             rowsPerPageOptions={[5, 10, 25]}
           />
         </Card>
@@ -224,23 +303,42 @@ const CallbackRequestsTab: React.FC = () => {
         </DialogTitle>
         {viewReq && (
           <DialogContent dividers>
-            <Typography variant="subtitle2" color="text.secondary">User</Typography>
-            <Typography mb={2}>{viewReq.user?.name ?? 'Unknown'} ({viewReq.phone})</Typography>
-            <Typography variant="subtitle2" color="text.secondary">Reason</Typography>
+            <Typography variant="subtitle2" color="text.secondary">
+              User
+            </Typography>
+            <Typography mb={2}>
+              {viewReq.user?.name ?? 'Unknown'} ({viewReq.phone})
+            </Typography>
+            <Typography variant="subtitle2" color="text.secondary">
+              Reason
+            </Typography>
             <Typography mb={2}>{viewReq.reason}</Typography>
-            <Typography variant="subtitle2" color="text.secondary">Preferred Time</Typography>
+            <Typography variant="subtitle2" color="text.secondary">
+              Preferred Time
+            </Typography>
             <Typography mb={2}>{viewReq.preferredTime || '—'}</Typography>
-            <Typography variant="subtitle2" color="text.secondary">Status</Typography>
-            <Chip label={viewReq.status} color={CALLBACK_STATUS_COLORS[viewReq.status] ?? 'default'} size="small" sx={{ mb: 2 }} />
+            <Typography variant="subtitle2" color="text.secondary">
+              Status
+            </Typography>
+            <Chip
+              label={viewReq.status}
+              color={CALLBACK_STATUS_COLORS[viewReq.status] ?? 'default'}
+              size="small"
+              sx={{ mb: 2 }}
+            />
             {viewReq.adminNote && (
               <>
-                <Typography variant="subtitle2" color="text.secondary">Admin Note</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Admin Note
+                </Typography>
                 <Typography mb={2}>{viewReq.adminNote}</Typography>
               </>
             )}
             {viewReq.scheduledAt && (
               <>
-                <Typography variant="subtitle2" color="text.secondary">Scheduled At</Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Scheduled At
+                </Typography>
                 <Typography mb={2}>{new Date(viewReq.scheduledAt).toLocaleString()}</Typography>
               </>
             )}
@@ -250,7 +348,14 @@ const CallbackRequestsTab: React.FC = () => {
           </DialogContent>
         )}
         <DialogActions>
-          <Button onClick={() => { if (viewReq) handleEdit(viewReq); setViewReq(null); }}>Edit</Button>
+          <Button
+            onClick={() => {
+              if (viewReq) handleEdit(viewReq);
+              setViewReq(null);
+            }}
+          >
+            Edit
+          </Button>
           <Button onClick={() => setViewReq(null)}>Close</Button>
         </DialogActions>
       </Dialog>
@@ -265,9 +370,12 @@ const CallbackRequestsTab: React.FC = () => {
             </Typography>
             <Typography variant="body2">{editReq.reason}</Typography>
             <TextField
-              select label="Status" value={editStatus}
+              select
+              label="Status"
+              value={editStatus}
               onChange={(e) => setEditStatus(e.target.value)}
-              fullWidth size="small"
+              fullWidth
+              size="small"
             >
               <MenuItem value="PENDING">Pending</MenuItem>
               <MenuItem value="SCHEDULED">Scheduled</MenuItem>
@@ -275,15 +383,21 @@ const CallbackRequestsTab: React.FC = () => {
               <MenuItem value="CANCELLED">Cancelled</MenuItem>
             </TextField>
             <TextField
-              label="Admin Note" value={editNote}
+              label="Admin Note"
+              value={editNote}
               onChange={(e) => setEditNote(e.target.value)}
-              multiline rows={3} fullWidth size="small"
+              multiline
+              rows={3}
+              fullWidth
+              size="small"
             />
             <TextField
-              label="Scheduled At" value={editScheduled}
+              label="Scheduled At"
+              value={editScheduled}
               onChange={(e) => setEditScheduled(e.target.value)}
               placeholder="e.g. 2025-01-15T10:00:00.000Z"
-              fullWidth size="small"
+              fullWidth
+              size="small"
             />
           </DialogContent>
         )}

@@ -28,7 +28,14 @@ export interface Pod {
   createdAt: string;
 }
 
-export type PodStatus = 'NEW' | 'CONFIRMED' | 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'OPEN' | 'CLOSED';
+export type PodStatus =
+  | 'NEW'
+  | 'CONFIRMED'
+  | 'PENDING'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'OPEN'
+  | 'CLOSED';
 
 export interface CreatePodInput {
   title: string;
@@ -105,7 +112,11 @@ const PodSchema = new Schema<PodMongoDoc>(
     longitude: { type: Number, default: 0 },
     rating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },
-    status: { type: String, enum: ['NEW', 'CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED', 'OPEN', 'CLOSED'], default: 'NEW' },
+    status: {
+      type: String,
+      enum: ['NEW', 'CONFIRMED', 'PENDING', 'COMPLETED', 'CANCELLED', 'OPEN', 'CLOSED'],
+      default: 'NEW',
+    },
     closeReason: { type: String, default: '' },
     viewCount: { type: Number, default: 0 },
     refundPolicy: { type: String, default: '24h Refund' },

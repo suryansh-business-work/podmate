@@ -122,18 +122,9 @@ const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onBack }) => {
     ({ item }: { item: ChatbotMessage }) => {
       const isUser = item.role === 'user';
       return (
-        <View
-          style={[
-            styles.messageBubble,
-            isUser ? styles.userBubble : styles.assistantBubble,
-          ]}
-        >
-          <Text style={isUser ? styles.userText : styles.assistantText}>
-            {item.content}
-          </Text>
-          <Text
-            style={[styles.timeText, isUser ? styles.userTime : styles.assistantTime]}
-          >
+        <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.assistantBubble]}>
+          <Text style={isUser ? styles.userText : styles.assistantText}>{item.content}</Text>
+          <Text style={[styles.timeText, isUser ? styles.userTime : styles.assistantTime]}>
             {formatTime(item.createdAt)}
           </Text>
         </View>

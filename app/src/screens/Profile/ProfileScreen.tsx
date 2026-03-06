@@ -14,8 +14,15 @@ import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout, onNavigate }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
-  const { data: meData, loading: meLoading, error: meError, refetch: refetchMe } = useQuery(GET_ME, { fetchPolicy: 'cache-and-network' });
-  const { data: podsData, refetch: refetchPods } = useQuery(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
+  const {
+    data: meData,
+    loading: meLoading,
+    error: meError,
+    refetch: refetchMe,
+  } = useQuery(GET_ME, { fetchPolicy: 'cache-and-network' });
+  const { data: podsData, refetch: refetchPods } = useQuery(GET_MY_PODS, {
+    fetchPolicy: 'cache-and-network',
+  });
 
   const user = meData?.me;
   const podCount = podsData?.myPods?.length ?? 0;
@@ -39,7 +46,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout, onNavigate }) =
     return (
       <SafeAreaView style={[styles.container, styles.centered]}>
         <MaterialIcons name="cloud-off" size={48} color={colors.error} />
-        <Text style={{ color: colors.error, fontWeight: '600', marginTop: 12 }}>Failed to load profile</Text>
+        <Text style={{ color: colors.error, fontWeight: '600', marginTop: 12 }}>
+          Failed to load profile
+        </Text>
         <Text style={{ color: colors.textSecondary, marginTop: 4 }}>{meError.message}</Text>
       </SafeAreaView>
     );
@@ -51,7 +60,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout, onNavigate }) =
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
         keyboardShouldPersistTaps="handled"
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.primary}
+          />
+        }
       >
         <View style={styles.profileHeader}>
           <LinearGradient
@@ -60,14 +75,22 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout, onNavigate }) =
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            {user?.avatar
-              ? <Image source={{ uri: user.avatar }} style={styles.avatar} />
-              : (
-                <View style={[styles.avatar, { backgroundColor: colors.primaryLight, justifyContent: 'center', alignItems: 'center' }]}>
-                  <MaterialIcons name="person" size={48} color={colors.white} />
-                </View>
-              )
-            }
+            {user?.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatar} />
+            ) : (
+              <View
+                style={[
+                  styles.avatar,
+                  {
+                    backgroundColor: colors.primaryLight,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  },
+                ]}
+              >
+                <MaterialIcons name="person" size={48} color={colors.white} />
+              </View>
+            )}
           </LinearGradient>
           <Text style={styles.userName}>{user?.name || 'PartyWings User'}</Text>
           <Text style={styles.userPhone}>{user?.phone || ''}</Text>
@@ -85,7 +108,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onLogout, onNavigate }) =
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{user?.role === 'ADMIN' ? 'Admin' : user?.role || 'USER'}</Text>
+              <Text style={styles.statValue}>
+                {user?.role === 'ADMIN' ? 'Admin' : user?.role || 'USER'}
+              </Text>
               <Text style={styles.statLabel}>Role</Text>
             </View>
           </View>

@@ -84,17 +84,29 @@ const UsersTable: React.FC<UsersTableProps> = ({
               />
             </TableCell>
             <TableCell>
-              <TableSortLabel active={sortBy === 'name'} direction={sortDir('name')} onClick={() => onSort('name')}>
+              <TableSortLabel
+                active={sortBy === 'name'}
+                direction={sortDir('name')}
+                onClick={() => onSort('name')}
+              >
                 User
               </TableSortLabel>
             </TableCell>
             <TableCell>
-              <TableSortLabel active={sortBy === 'phone'} direction={sortDir('phone')} onClick={() => onSort('phone')}>
+              <TableSortLabel
+                active={sortBy === 'phone'}
+                direction={sortDir('phone')}
+                onClick={() => onSort('phone')}
+              >
                 Phone
               </TableSortLabel>
             </TableCell>
             <TableCell>
-              <TableSortLabel active={sortBy === 'role'} direction={sortDir('role')} onClick={() => onSort('role')}>
+              <TableSortLabel
+                active={sortBy === 'role'}
+                direction={sortDir('role')}
+                onClick={() => onSort('role')}
+              >
                 Role
               </TableSortLabel>
             </TableCell>
@@ -102,7 +114,11 @@ const UsersTable: React.FC<UsersTableProps> = ({
             <TableCell>Status</TableCell>
             <TableCell>Verified</TableCell>
             <TableCell>
-              <TableSortLabel active={sortBy === 'createdAt'} direction={sortDir('createdAt')} onClick={() => onSort('createdAt')}>
+              <TableSortLabel
+                active={sortBy === 'createdAt'}
+                direction={sortDir('createdAt')}
+                onClick={() => onSort('createdAt')}
+              >
                 Joined
               </TableSortLabel>
             </TableCell>
@@ -132,18 +148,30 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 onClick={() => navigate(`/users/${user.id}`)}
               >
                 <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
-                  <Checkbox size="small" checked={selectedIds.includes(user.id)} onChange={() => onToggleSelect(user.id)} />
+                  <Checkbox
+                    size="small"
+                    checked={selectedIds.includes(user.id)}
+                    onChange={() => onToggleSelect(user.id)}
+                  />
                 </TableCell>
                 <TableCell>
                   <Box display="flex" alignItems="center" gap={1.5}>
-                    <Avatar src={user.avatar} sx={{ width: 36, height: 36 }}>{user.name?.[0] || '?'}</Avatar>
+                    <Avatar src={user.avatar} sx={{ width: 36, height: 36 }}>
+                      {user.name?.[0] || '?'}
+                    </Avatar>
                     <Box>
-                      <Typography variant="body2" fontWeight={600} noWrap>{user.name || 'Unnamed'}</Typography>
-                      <Typography variant="caption" color="text.secondary">{user.id}</Typography>
+                      <Typography variant="body2" fontWeight={600} noWrap>
+                        {user.name || 'Unnamed'}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {user.id}
+                      </Typography>
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell><Typography variant="body2">{user.phone}</Typography></TableCell>
+                <TableCell>
+                  <Typography variant="body2">{user.phone}</Typography>
+                </TableCell>
                 <TableCell>
                   <Select
                     value={user.role}
@@ -170,7 +198,12 @@ const UsersTable: React.FC<UsersTableProps> = ({
                   />
                   {!user.isActive && user.disableReason && (
                     <Tooltip title={user.disableReason}>
-                      <Typography variant="caption" color="error" sx={{ display: 'block', mt: 0.5 }} noWrap>
+                      <Typography
+                        variant="caption"
+                        color="error"
+                        sx={{ display: 'block', mt: 0.5 }}
+                        noWrap
+                      >
                         {user.disableReason}
                       </Typography>
                     </Tooltip>
@@ -182,11 +215,15 @@ const UsersTable: React.FC<UsersTableProps> = ({
                       <VerifiedIcon fontSize="small" color="success" />
                     </Tooltip>
                   ) : (
-                    <Typography variant="body2" color="text.secondary">—</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      —
+                    </Typography>
                   )}
                 </TableCell>
                 <TableCell>
-                  <Typography variant="body2" color="text.secondary">{formatDate(user.createdAt)}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {formatDate(user.createdAt)}
+                  </Typography>
                 </TableCell>
                 <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                   <Tooltip title={user.isActive ? 'Disable User' : 'Enable User'}>
@@ -195,15 +232,15 @@ const UsersTable: React.FC<UsersTableProps> = ({
                       color={user.isActive ? 'error' : 'success'}
                       onClick={() => onToggleUser(user)}
                     >
-                      {user.isActive ? <BlockIcon fontSize="small" /> : <CheckCircleIcon fontSize="small" />}
+                      {user.isActive ? (
+                        <BlockIcon fontSize="small" />
+                      ) : (
+                        <CheckCircleIcon fontSize="small" />
+                      )}
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete User">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => onDeleteUser(user.id)}
-                    >
+                    <IconButton size="small" color="error" onClick={() => onDeleteUser(user.id)}>
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>

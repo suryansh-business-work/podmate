@@ -55,7 +55,7 @@ describe('OtpInput - onComplete Callback', () => {
   it('should call onComplete when all digits are entered', async () => {
     const mockOnComplete = jest.fn();
     const { getByTestId } = render(
-      <OtpInput onComplete={mockOnComplete} length={6} testID="otp" />
+      <OtpInput onComplete={mockOnComplete} length={6} testID="otp" />,
     );
 
     for (let i = 0; i < 6; i++) {
@@ -70,7 +70,7 @@ describe('OtpInput - onComplete Callback', () => {
   it('should not call onComplete when not all digits are entered', async () => {
     const mockOnComplete = jest.fn();
     const { getByTestId } = render(
-      <OtpInput onComplete={mockOnComplete} length={6} testID="otp" />
+      <OtpInput onComplete={mockOnComplete} length={6} testID="otp" />,
     );
 
     for (let i = 0; i < 3; i++) {
@@ -85,7 +85,7 @@ describe('OtpInput - onComplete Callback', () => {
   it('should call onComplete with correct OTP for custom length', async () => {
     const mockOnComplete = jest.fn();
     const { getByTestId } = render(
-      <OtpInput onComplete={mockOnComplete} length={4} testID="otp" />
+      <OtpInput onComplete={mockOnComplete} length={4} testID="otp" />,
     );
 
     for (let i = 0; i < 4; i++) {

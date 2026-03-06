@@ -34,28 +34,37 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   }, [onFinish]);
 
   useEffect(() => {
-    Animated.timing(logoOpacity, { toValue: 1, duration: 600, delay: 400, useNativeDriver: true }).start();
+    Animated.timing(logoOpacity, {
+      toValue: 1,
+      duration: 600,
+      delay: 400,
+      useNativeDriver: true,
+    }).start();
     timerRef.current = setTimeout(finish, 4000);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, [finish, logoOpacity]);
 
   useEffect(() => {
     const sub = player.addListener('playToEnd', () => {
       finish();
     });
-    return () => { sub.remove(); };
+    return () => {
+      sub.remove();
+    };
   }, [player, finish]);
 
   return (
     <View style={styles.container}>
-      <VideoView
-        player={player}
-        style={styles.video}
-        nativeControls={false}
-        contentFit="cover"
-      />
+      <VideoView player={player} style={styles.video} nativeControls={false} contentFit="cover" />
       <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
-        <LinearGradient colors={[colors.primaryLight, colors.primary]} style={styles.logoBox} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+        <LinearGradient
+          colors={[colors.primaryLight, colors.primary]}
+          style={styles.logoBox}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
           <MaterialCommunityIcons name="account-group" size={22} color={colors.white} />
         </LinearGradient>
         <Text style={styles.brandName}>PartyWings</Text>
@@ -64,12 +73,25 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.black },
-  video: { width: SCREEN_W, height: SCREEN_H, position: 'absolute', top: 0, left: 0 },
-  logoWrap: { position: 'absolute', bottom: 48, alignSelf: 'center', alignItems: 'center', gap: 8 },
-  logoBox: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
-  brandName: { fontSize: 16, fontWeight: '700', color: colors.white, letterSpacing: 0.5 },
-});
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.black },
+    video: { width: SCREEN_W, height: SCREEN_H, position: 'absolute', top: 0, left: 0 },
+    logoWrap: {
+      position: 'absolute',
+      bottom: 48,
+      alignSelf: 'center',
+      alignItems: 'center',
+      gap: 8,
+    },
+    logoBox: {
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    brandName: { fontSize: 16, fontWeight: '700', color: colors.white, letterSpacing: 0.5 },
+  });
 
 export default SplashScreen;

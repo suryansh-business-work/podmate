@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, KeyboardAvoidingView, Platform, Alert, TouchableOpacity, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  TouchableOpacity,
+  ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -59,7 +70,10 @@ const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({ onComplet
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <KeyboardAvoidingView
+        style={styles.content}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
@@ -67,85 +81,125 @@ const CompleteProfileScreen: React.FC<CompleteProfileScreenProps> = ({ onComplet
             keyboardDismissMode="on-drag"
             showsVerticalScrollIndicator={false}
           >
-        <View style={styles.topSection}>
-          <LinearGradient
-            colors={[colors.primaryLight, colors.primary]}
-            style={styles.logoBox}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <MaterialIcons name="person-add" size={30} color={colors.white} />
-          </LinearGradient>
+            <View style={styles.topSection}>
+              <LinearGradient
+                colors={[colors.primaryLight, colors.primary]}
+                style={styles.logoBox}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <MaterialIcons name="person-add" size={30} color={colors.white} />
+              </LinearGradient>
 
-          <Text style={styles.title}>Complete Your Profile</Text>
-          <Text style={styles.subtitle}>Tell us a bit about yourself to get started.</Text>
+              <Text style={styles.title}>Complete Your Profile</Text>
+              <Text style={styles.subtitle}>Tell us a bit about yourself to get started.</Text>
 
-          <Formik initialValues={initialValues} validationSchema={profileSchema} onSubmit={handleSubmit}>
-            {({ handleChange, handleBlur, handleSubmit: formSubmit, values, errors, touched, isValid, dirty, setFieldValue }) => (
-              <View>
-                <Text style={styles.inputLabel}>USERNAME</Text>
-                <TextInput
-                  style={[styles.textInput, touched.username && errors.username ? styles.textInputError : undefined]}
-                  placeholder="Choose a unique username"
-                  placeholderTextColor={colors.textTertiary}
-                  value={values.username}
-                  onChangeText={handleChange('username')}
-                  onBlur={handleBlur('username')}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                {touched.username && errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+              <Formik
+                initialValues={initialValues}
+                validationSchema={profileSchema}
+                onSubmit={handleSubmit}
+              >
+                {({
+                  handleChange,
+                  handleBlur,
+                  handleSubmit: formSubmit,
+                  values,
+                  errors,
+                  touched,
+                  isValid,
+                  dirty,
+                  setFieldValue,
+                }) => (
+                  <View>
+                    <Text style={styles.inputLabel}>USERNAME</Text>
+                    <TextInput
+                      style={[
+                        styles.textInput,
+                        touched.username && errors.username ? styles.textInputError : undefined,
+                      ]}
+                      placeholder="Choose a unique username"
+                      placeholderTextColor={colors.textTertiary}
+                      value={values.username}
+                      onChangeText={handleChange('username')}
+                      onBlur={handleBlur('username')}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                    {touched.username && errors.username && (
+                      <Text style={styles.errorText}>{errors.username}</Text>
+                    )}
 
-                <Text style={styles.inputLabel}>YOUR NAME</Text>
-                <TextInput
-                  style={[styles.textInput, touched.name && errors.name ? styles.textInputError : undefined]}
-                  placeholder="Enter your full name"
-                  placeholderTextColor={colors.textTertiary}
-                  value={values.name}
-                  onChangeText={handleChange('name')}
-                  onBlur={handleBlur('name')}
-                  autoCapitalize="words"
-                />
-                {touched.name && errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+                    <Text style={styles.inputLabel}>YOUR NAME</Text>
+                    <TextInput
+                      style={[
+                        styles.textInput,
+                        touched.name && errors.name ? styles.textInputError : undefined,
+                      ]}
+                      placeholder="Enter your full name"
+                      placeholderTextColor={colors.textTertiary}
+                      value={values.name}
+                      onChangeText={handleChange('name')}
+                      onBlur={handleBlur('name')}
+                      autoCapitalize="words"
+                    />
+                    {touched.name && errors.name && (
+                      <Text style={styles.errorText}>{errors.name}</Text>
+                    )}
 
-                <Text style={styles.inputLabel}>DATE OF BIRTH</Text>
-                <TouchableOpacity
-                  style={[styles.textInput, touched.dob && errors.dob ? styles.textInputError : undefined]}
-                  onPress={() => setShowDatePicker(true)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={{ fontSize: 16, color: values.dob ? colors.text : colors.textTertiary }}>
-                    {values.dob ? formatDob(new Date(values.dob)) : 'Select your date of birth'}
-                  </Text>
-                </TouchableOpacity>
-                {touched.dob && errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
+                    <Text style={styles.inputLabel}>DATE OF BIRTH</Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.textInput,
+                        touched.dob && errors.dob ? styles.textInputError : undefined,
+                      ]}
+                      onPress={() => setShowDatePicker(true)}
+                      activeOpacity={0.7}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: values.dob ? colors.text : colors.textTertiary,
+                        }}
+                      >
+                        {values.dob ? formatDob(new Date(values.dob)) : 'Select your date of birth'}
+                      </Text>
+                    </TouchableOpacity>
+                    {touched.dob && errors.dob && (
+                      <Text style={styles.errorText}>{errors.dob}</Text>
+                    )}
 
-                {showDatePicker && (
-                  <DateTimePicker
-                    value={values.dob ? new Date(values.dob) : new Date(2000, 0, 1)}
-                    mode="date"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    maximumDate={new Date()}
-                    minimumDate={new Date(1920, 0, 1)}
-                    onChange={(_, selectedDate) => {
-                      setShowDatePicker(Platform.OS === 'ios');
-                      if (selectedDate) {
-                        setFieldValue('dob', selectedDate.toISOString());
-                      }
-                    }}
-                  />
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={values.dob ? new Date(values.dob) : new Date(2000, 0, 1)}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        maximumDate={new Date()}
+                        minimumDate={new Date(1920, 0, 1)}
+                        onChange={(_, selectedDate) => {
+                          setShowDatePicker(Platform.OS === 'ios');
+                          if (selectedDate) {
+                            setFieldValue('dob', selectedDate.toISOString());
+                          }
+                        }}
+                      />
+                    )}
+
+                    <View style={styles.infoRow}>
+                      <MaterialIcons name="info-outline" size={16} color={colors.primary} />
+                      <Text style={styles.infoText}>
+                        This information helps us personalize your experience.
+                      </Text>
+                    </View>
+
+                    <GradientButton
+                      title={submitting ? 'Saving...' : 'Get Started'}
+                      onPress={() => formSubmit()}
+                      disabled={!isValid || !dirty || submitting}
+                    />
+                  </View>
                 )}
-
-                <View style={styles.infoRow}>
-                  <MaterialIcons name="info-outline" size={16} color={colors.primary} />
-                  <Text style={styles.infoText}>This information helps us personalize your experience.</Text>
-                </View>
-
-                <GradientButton title={submitting ? 'Saving...' : 'Get Started'} onPress={() => formSubmit()} disabled={!isValid || !dirty || submitting} />
-              </View>
-            )}
-          </Formik>
-        </View>
+              </Formik>
+            </View>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>

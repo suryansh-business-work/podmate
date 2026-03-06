@@ -1,5 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Alert, Platform, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Platform,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -25,7 +34,12 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
   const colors = useAppColors();
   const [step, setStep] = useState(0);
   const [formValues, setFormValues] = useState<VenueFormValues>({
-    name: '', category: '', description: '', address: '', city: '', capacity: '',
+    name: '',
+    category: '',
+    description: '',
+    address: '',
+    city: '',
+    capacity: '',
   });
   const [policiesAccepted, setPoliciesAccepted] = useState(false);
   const [hasScrolledPolicies, setHasScrolledPolicies] = useState(false);
@@ -48,22 +62,26 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
   });
 
   const googleMapsApiKey: string =
-    (configData?.appConfig as Array<{ key: string; value: string }> | undefined)
-      ?.find((c) => c.key === 'google_maps_api_key')?.value ?? '';
+    (configData?.appConfig as Array<{ key: string; value: string }> | undefined)?.find(
+      (c) => c.key === 'google_maps_api_key',
+    )?.value ?? '';
 
   const policies: PolicyItem[] = (policiesData?.policies ?? []).filter(
     (p: PolicyItem) => p.isActive,
   );
 
-  const handleStepOneSubmit = useCallback((values: VenueFormValues) => {
-    const hasImage = venueMedia.some((m) => m.type === 'image');
-    if (!hasImage) {
-      Alert.alert('Image Required', 'Please upload at least one image of your venue.');
-      return;
-    }
-    setFormValues(values);
-    setStep(1);
-  }, [venueMedia]);
+  const handleStepOneSubmit = useCallback(
+    (values: VenueFormValues) => {
+      const hasImage = venueMedia.some((m) => m.type === 'image');
+      if (!hasImage) {
+        Alert.alert('Image Required', 'Please upload at least one image of your venue.');
+        return;
+      }
+      setFormValues(values);
+      setStep(1);
+    },
+    [venueMedia],
+  );
 
   const handleFinalSubmit = useCallback(async () => {
     try {
@@ -114,12 +132,19 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={{ flex: 1 }}>
             <View style={styles.header}>
               <TouchableOpacity onPress={goBack} style={styles.headerBtn}>
-                <MaterialIcons name={step === 0 ? 'close' : 'arrow-back'} size={22} color={colors.text} />
+                <MaterialIcons
+                  name={step === 0 ? 'close' : 'arrow-back'}
+                  size={22}
+                  color={colors.text}
+                />
               </TouchableOpacity>
               <Text style={styles.headerTitle}>Register Venue</Text>
               <View style={styles.headerBtn} />

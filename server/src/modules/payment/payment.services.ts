@@ -22,7 +22,9 @@ interface PaymentPaginationInput {
   order?: 'ASC' | 'DESC';
 }
 
-export async function getPaginatedPayments(input: PaymentPaginationInput): Promise<PaginatedPayments> {
+export async function getPaginatedPayments(
+  input: PaymentPaginationInput,
+): Promise<PaginatedPayments> {
   const filter: Record<string, unknown> = {};
 
   if (input.type) filter.type = input.type;
@@ -63,7 +65,11 @@ export async function getPaymentById(id: string): Promise<Payment | null> {
   return toPayment(doc);
 }
 
-export async function getMyPayments(userId: string, page = 1, limit = 20): Promise<PaginatedPayments> {
+export async function getMyPayments(
+  userId: string,
+  page = 1,
+  limit = 20,
+): Promise<PaginatedPayments> {
   const filter = { userId };
   const total = await PaymentModel.countDocuments(filter);
   const totalPages = Math.ceil(total / limit);
@@ -113,7 +119,7 @@ export async function processRefund(input: ProcessRefundInput): Promise<Payment>
     throw new Error('Refund amount exceeds remaining refundable amount');
   }
 
-  const isPartial = refundAmount < (payment.amount - payment.refundAmount);
+  const isPartial = refundAmount < payment.amount - payment.refundAmount;
 
   /* Create refund record */
   await PaymentModel.create({
@@ -162,7 +168,10 @@ export async function completePayment(id: string, transactionId?: string): Promi
 
 export async function getPaymentStats(): Promise<PaymentStats> {
   const payments = await PaymentModel.find({ type: 'PAYMENT', status: 'COMPLETED' }).lean();
-  const refunds = await PaymentModel.find({ type: { $in: ['REFUND', 'PARTIAL_REFUND'] }, status: 'COMPLETED' }).lean();
+  const refunds = await PaymentModel.find({
+    type: { $in: ['REFUND', 'PARTIAL_REFUND'] },
+    status: 'COMPLETED',
+  }).lean();
   const pending = await PaymentModel.countDocuments({ status: 'PENDING' });
 
   const totalRevenue = payments.reduce((sum, p) => sum + p.amount, 0);

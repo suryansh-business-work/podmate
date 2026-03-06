@@ -23,7 +23,16 @@ interface CreatePodDialogProps {
   onCreated: () => void;
 }
 
-const INITIAL = { title: '', description: '', category: 'Social', feePerPerson: 0, maxSeats: 10, dateTime: '', location: '', locationDetail: '' };
+const INITIAL = {
+  title: '',
+  description: '',
+  category: 'Social',
+  feePerPerson: 0,
+  maxSeats: 10,
+  dateTime: '',
+  location: '',
+  locationDetail: '',
+};
 
 const CreatePodDialog: React.FC<CreatePodDialogProps> = ({ open, onClose, onCreated }) => {
   const [form, setForm] = useState(INITIAL);
@@ -59,30 +68,78 @@ const CreatePodDialog: React.FC<CreatePodDialogProps> = ({ open, onClose, onCrea
     }
   };
 
-  const update = (key: string, value: string | number) => setForm((prev) => ({ ...prev, [key]: value }));
+  const update = (key: string, value: string | number) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Create Pod</DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+      <DialogContent
+        sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}
+      >
         {error && <Alert severity="error">{error}</Alert>}
-        <TextField label="Title" value={form.title} onChange={(e) => update('title', e.target.value)} fullWidth />
-        <TextField label="Description" value={form.description} onChange={(e) => update('description', e.target.value)} multiline rows={3} fullWidth />
+        <TextField
+          label="Title"
+          value={form.title}
+          onChange={(e) => update('title', e.target.value)}
+          fullWidth
+        />
+        <TextField
+          label="Description"
+          value={form.description}
+          onChange={(e) => update('description', e.target.value)}
+          multiline
+          rows={3}
+          fullWidth
+        />
         <FormControl fullWidth>
           <InputLabel>Category</InputLabel>
-          <Select value={form.category} label="Category" onChange={(e) => update('category', e.target.value)}>
+          <Select
+            value={form.category}
+            label="Category"
+            onChange={(e) => update('category', e.target.value)}
+          >
             <MenuItem value="Social">Social</MenuItem>
             <MenuItem value="Learning">Learning</MenuItem>
             <MenuItem value="Outdoor">Outdoor</MenuItem>
           </Select>
         </FormControl>
         <Box display="flex" gap={2}>
-          <TextField label="Fee Per Person (₹)" type="number" value={form.feePerPerson} onChange={(e) => update('feePerPerson', Number(e.target.value))} fullWidth />
-          <TextField label="Max Seats" type="number" value={form.maxSeats} onChange={(e) => update('maxSeats', Number(e.target.value))} fullWidth />
+          <TextField
+            label="Fee Per Person (₹)"
+            type="number"
+            value={form.feePerPerson}
+            onChange={(e) => update('feePerPerson', Number(e.target.value))}
+            fullWidth
+          />
+          <TextField
+            label="Max Seats"
+            type="number"
+            value={form.maxSeats}
+            onChange={(e) => update('maxSeats', Number(e.target.value))}
+            fullWidth
+          />
         </Box>
-        <TextField label="Date & Time" type="datetime-local" value={form.dateTime} onChange={(e) => update('dateTime', e.target.value)} fullWidth slotProps={{ inputLabel: { shrink: true } }} />
-        <TextField label="Location" value={form.location} onChange={(e) => update('location', e.target.value)} fullWidth />
-        <TextField label="Location Detail" value={form.locationDetail} onChange={(e) => update('locationDetail', e.target.value)} fullWidth />
+        <TextField
+          label="Date & Time"
+          type="datetime-local"
+          value={form.dateTime}
+          onChange={(e) => update('dateTime', e.target.value)}
+          fullWidth
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+        <TextField
+          label="Location"
+          value={form.location}
+          onChange={(e) => update('location', e.target.value)}
+          fullWidth
+        />
+        <TextField
+          label="Location Detail"
+          value={form.locationDetail}
+          onChange={(e) => update('locationDetail', e.target.value)}
+          fullWidth
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>

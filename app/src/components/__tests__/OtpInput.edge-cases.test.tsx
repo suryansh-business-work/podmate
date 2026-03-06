@@ -31,7 +31,7 @@ describe('OtpInput - Edge Cases', () => {
   it('should handle entering all digits sequentially', async () => {
     const mockOnComplete = jest.fn();
     const { getByTestId } = render(
-      <OtpInput onComplete={mockOnComplete} length={6} testID="otp" />
+      <OtpInput onComplete={mockOnComplete} length={6} testID="otp" />,
     );
 
     for (let i = 0; i < 6; i++) {

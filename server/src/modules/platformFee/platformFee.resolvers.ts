@@ -39,11 +39,7 @@ const platformFeeResolvers = {
       return platformFeeService.upsertOverride(args.input);
     },
 
-    deletePlatformFeeOverride: (
-      _: unknown,
-      args: { id: string },
-      context: GraphQLContext,
-    ) => {
+    deletePlatformFeeOverride: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return platformFeeService.deleteOverride(args.id);
     },

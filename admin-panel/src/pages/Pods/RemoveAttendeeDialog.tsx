@@ -59,10 +59,7 @@ const RemoveAttendeeDialog: React.FC<RemoveAttendeeDialogProps> = ({
 
         <FormControlLabel
           control={
-            <Checkbox
-              checked={issueRefund}
-              onChange={(e) => setIssueRefund(e.target.checked)}
-            />
+            <Checkbox checked={issueRefund} onChange={(e) => setIssueRefund(e.target.checked)} />
           }
           label={
             <Typography variant="body2">

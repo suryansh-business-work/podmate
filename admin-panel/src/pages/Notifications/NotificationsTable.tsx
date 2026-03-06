@@ -57,7 +57,9 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
           {notifications.map((n) => (
             <TableRow key={n.id}>
               <TableCell>
-                <Typography variant="body2" fontWeight={600}>{n.title}</Typography>
+                <Typography variant="body2" fontWeight={600}>
+                  {n.title}
+                </Typography>
               </TableCell>
               <TableCell>
                 <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400 }} noWrap>
@@ -65,11 +67,14 @@ const NotificationsTable: React.FC<NotificationsTableProps> = ({
                 </Typography>
               </TableCell>
               <TableCell>
-                <Chip label={`${n.recipientCount} users`} size="small" color="primary" variant="outlined" />
+                <Chip
+                  label={`${n.recipientCount} users`}
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                />
               </TableCell>
-              <TableCell>
-                {new Date(n.sentAt).toLocaleString()}
-              </TableCell>
+              <TableCell>{new Date(n.sentAt).toLocaleString()}</TableCell>
             </TableRow>
           ))}
         </TableBody>

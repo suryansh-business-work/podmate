@@ -1,6 +1,12 @@
 import React from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, Switch,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,7 +15,13 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { spacing } from '../../theme';
 import { GET_ME } from '../../graphql/queries';
 import { useThemeMode } from '../../contexts/ThemeContext';
-import { DrawerMenuProps, NavItem, MAIN_NAV, QUICK_ACTIONS, ACCOUNT_ITEMS } from './DrawerMenu.types';
+import {
+  DrawerMenuProps,
+  NavItem,
+  MAIN_NAV,
+  QUICK_ACTIONS,
+  ACCOUNT_ITEMS,
+} from './DrawerMenu.types';
 import { createStyles } from './DrawerMenu.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -32,7 +44,12 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }
       onPress={() => handleNavigate(item.id)}
       activeOpacity={0.65}
     >
-      <View style={[styles.iconCircle, { backgroundColor: (item.color ?? colors.textSecondary) + '18' }]}>
+      <View
+        style={[
+          styles.iconCircle,
+          { backgroundColor: (item.color ?? colors.textSecondary) + '18' },
+        ]}
+      >
         <MaterialIcons name={item.icon} size={18} color={item.color ?? colors.textSecondary} />
       </View>
       <Text style={[styles.menuLabel, accent && { color: item.color, fontWeight: '600' }]}>
@@ -57,7 +74,11 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }
         {loading ? (
           <ActivityIndicator size="small" color={colors.white} style={{ marginTop: spacing.xl }} />
         ) : (
-          <TouchableOpacity style={styles.profileSection} onPress={() => handleNavigate('Profile')} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.profileSection}
+            onPress={() => handleNavigate('Profile')}
+            activeOpacity={0.8}
+          >
             {user?.avatar ? (
               <Image source={{ uri: user.avatar }} style={styles.avatar} />
             ) : (
@@ -70,9 +91,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }
                 <Text style={styles.userName} numberOfLines={1}>
                   {user?.name || 'PartyWings User'}
                 </Text>
-                {user?.isVerifiedHost && (
-                  <MaterialIcons name="verified" size={16} color="#FFF" />
-                )}
+                {user?.isVerifiedHost && <MaterialIcons name="verified" size={16} color="#FFF" />}
               </View>
               <Text style={styles.userPhone}>{user?.phone ?? ''}</Text>
               <View style={styles.roleBadge}>
@@ -83,7 +102,11 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }
         )}
       </LinearGradient>
 
-      <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView
+        style={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
         <Text style={styles.sectionLabel}>Navigate</Text>
         {MAIN_NAV.map((item) => renderMenuItem(item))}
 

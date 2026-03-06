@@ -79,13 +79,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
               color: activeNav.startsWith(item.path) ? 'primary.main' : 'text.secondary',
               bgcolor: activeNav.startsWith(item.path) ? 'rgba(245,2,71,0.08)' : 'transparent',
               '&:hover': {
-                bgcolor: activeNav.startsWith(item.path) ? 'rgba(245,2,71,0.12)' : 'rgba(0,0,0,0.04)',
+                bgcolor: activeNav.startsWith(item.path)
+                  ? 'rgba(245,2,71,0.12)'
+                  : 'rgba(0,0,0,0.04)',
               },
             }}
           >
-            <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>
-              {item.icon}
-            </ListItemIcon>
+            <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>{item.icon}</ListItemIcon>
             <ListItemText
               primary={item.label}
               primaryTypographyProps={{
@@ -127,11 +127,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
               {isDark ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
           </Tooltip>
-          <IconButton
-            onClick={(e) => setAnchorEl(e.currentTarget)}
-            sx={{ p: 0, ml: 1 }}
-          >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main', fontSize: 13, cursor: 'pointer' }}>
+          <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ p: 0, ml: 1 }}>
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                bgcolor: 'primary.main',
+                fontSize: 13,
+                cursor: 'pointer',
+              }}
+            >
               A
             </Avatar>
           </IconButton>
@@ -142,12 +147,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, onLogout }) => {
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
-            <MenuItem onClick={() => { setAnchorEl(null); navigate('/dashboard'); }}>
-              <ListItemIcon><DashboardIcon fontSize="small" /></ListItemIcon>
+            <MenuItem
+              onClick={() => {
+                setAnchorEl(null);
+                navigate('/dashboard');
+              }}
+            >
+              <ListItemIcon>
+                <DashboardIcon fontSize="small" />
+              </ListItemIcon>
               Dashboard
             </MenuItem>
-            <MenuItem onClick={() => { setAnchorEl(null); onLogout(); }}>
-              <ListItemIcon><LogoutIcon fontSize="small" color="error" /></ListItemIcon>
+            <MenuItem
+              onClick={() => {
+                setAnchorEl(null);
+                onLogout();
+              }}
+            >
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" color="error" />
+              </ListItemIcon>
               <Typography color="error">Logout</Typography>
             </MenuItem>
           </Menu>

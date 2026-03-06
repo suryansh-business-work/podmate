@@ -38,7 +38,11 @@ export async function updatePolicy(id: string, input: UpdatePolicyInput): Promis
   if (input.content !== undefined) update.content = input.content;
   if (input.isActive !== undefined) update.isActive = input.isActive;
 
-  const updated = await PolicyModel.findByIdAndUpdate(id, { $set: update }, { returnDocument: 'after' }).lean({
+  const updated = await PolicyModel.findByIdAndUpdate(
+    id,
+    { $set: update },
+    { returnDocument: 'after' },
+  ).lean({
     virtuals: true,
   });
   const result = toPolicy(updated);

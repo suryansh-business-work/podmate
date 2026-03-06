@@ -78,10 +78,7 @@ export async function sendSMS(phone: string, message: string): Promise<boolean> 
 /**
  * Send admin credentials via email
  */
-export async function sendAdminCredentials(
-  email: string,
-  password: string,
-): Promise<boolean> {
+export async function sendAdminCredentials(email: string, password: string): Promise<boolean> {
   return sendEmail({
     to: email,
     subject: 'PartyWings Admin - Your Login Credentials',

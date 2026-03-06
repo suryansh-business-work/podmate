@@ -68,8 +68,16 @@ export const SkeletonFeed: React.FC<{ count?: number }> = ({ count = 3 }) => {
   const skStyles = useThemedStyles(createSkStyles);
   return (
     <View style={skStyles.feedWrap}>
-      <SkeletonBox height={40} width="50%" style={{ alignSelf: 'flex-start', marginBottom: spacing.lg }} />
-      <SkeletonBox height={40} borderRadius={borderRadius.full} style={{ marginBottom: spacing.xl }} />
+      <SkeletonBox
+        height={40}
+        width="50%"
+        style={{ alignSelf: 'flex-start', marginBottom: spacing.lg }}
+      />
+      <SkeletonBox
+        height={40}
+        borderRadius={borderRadius.full}
+        style={{ marginBottom: spacing.xl }}
+      />
       {Array.from({ length: count }).map((_, i) => (
         <SkeletonCard key={`sk-${i}`} />
       ))}
@@ -91,7 +99,12 @@ export const SkeletonProfile: React.FC = () => {
         ))}
       </View>
       {[1, 2, 3, 4].map((i) => (
-        <SkeletonBox key={i} height={48} style={{ marginTop: spacing.md }} borderRadius={borderRadius.md} />
+        <SkeletonBox
+          key={i}
+          height={48}
+          style={{ marginTop: spacing.md }}
+          borderRadius={borderRadius.md}
+        />
       ))}
     </View>
   );
@@ -110,18 +123,28 @@ export const SkeletonDetail: React.FC = () => {
           <SkeletonBox width={SCREEN_W * 0.42} height={70} borderRadius={borderRadius.md} />
           <SkeletonBox width={SCREEN_W * 0.42} height={70} borderRadius={borderRadius.md} />
         </View>
-        <SkeletonBox height={100} style={{ marginTop: spacing.xl }} borderRadius={borderRadius.md} />
+        <SkeletonBox
+          height={100}
+          style={{ marginTop: spacing.xl }}
+          borderRadius={borderRadius.md}
+        />
       </View>
     </View>
   );
 };
 
-const createSkStyles = ({ colors }: { colors: Record<string, string> }) => StyleSheet.create({
-  card: { marginBottom: spacing.lg, borderRadius: borderRadius.md, overflow: 'hidden' as const, backgroundColor: colors.white },
-  cardBody: { padding: spacing.md },
-  feedWrap: { padding: spacing.xl, paddingTop: spacing.lg },
-  profileWrap: { padding: spacing.xl, paddingTop: 60 },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-around', marginTop: spacing.xl },
-});
+const createSkStyles = ({ colors }: { colors: Record<string, string> }) =>
+  StyleSheet.create({
+    card: {
+      marginBottom: spacing.lg,
+      borderRadius: borderRadius.md,
+      overflow: 'hidden' as const,
+      backgroundColor: colors.white,
+    },
+    cardBody: { padding: spacing.md },
+    feedWrap: { padding: spacing.xl, paddingTop: spacing.lg },
+    profileWrap: { padding: spacing.xl, paddingTop: 60 },
+    statsRow: { flexDirection: 'row', justifyContent: 'space-around', marginTop: spacing.xl },
+  });
 
 export default SkeletonBox;

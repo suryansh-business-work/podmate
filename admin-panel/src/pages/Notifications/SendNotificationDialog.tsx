@@ -23,7 +23,12 @@ const validationSchema = Yup.object<SendNotificationFormValues>({
   message: Yup.string().required('Message is required').max(500, 'Max 500 characters'),
 });
 
-const SendNotificationDialog: React.FC<SendNotificationDialogProps> = ({ open, sending, onClose, onSend }) => {
+const SendNotificationDialog: React.FC<SendNotificationDialogProps> = ({
+  open,
+  sending,
+  onClose,
+  onSend,
+}) => {
   const formik = useFormik<SendNotificationFormValues>({
     initialValues: { title: '', message: '' },
     validationSchema,
@@ -72,7 +77,9 @@ const SendNotificationDialog: React.FC<SendNotificationDialogProps> = ({ open, s
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} disabled={sending}>Cancel</Button>
+          <Button onClick={handleClose} disabled={sending}>
+            Cancel
+          </Button>
           <Button
             type="submit"
             variant="contained"

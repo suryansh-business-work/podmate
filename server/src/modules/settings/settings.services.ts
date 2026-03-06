@@ -31,10 +31,17 @@ export async function getAllSettings(): Promise<AppSettings[]> {
   return docs.map(toAppSettings).filter(Boolean) as AppSettings[];
 }
 
-export async function upsertSetting(key: string, value: string, category: string): Promise<AppSettings> {
+export async function upsertSetting(
+  key: string,
+  value: string,
+  category: string,
+): Promise<AppSettings> {
   const doc = await AppSettingsModel.findOneAndUpdate(
     { key },
-    { $set: { key, value, category, updatedAt: new Date().toISOString() }, $setOnInsert: { _id: uuidv4() } },
+    {
+      $set: { key, value, category, updatedAt: new Date().toISOString() },
+      $setOnInsert: { _id: uuidv4() },
+    },
     { returnDocument: 'after', upsert: true },
   ).lean({ virtuals: true });
   return toAppSettings(doc) as AppSettings;
@@ -76,7 +83,7 @@ export async function isWebsiteMaintenanceMode(): Promise<boolean> {
 export async function testSmtpConnection(): Promise<{ success: boolean; message: string }> {
   try {
     const host = await getConfigValue('smtp_host', 'SMTP_HOST');
-    const port = parseInt(await getConfigValue('smtp_port', 'SMTP_PORT') || '587', 10);
+    const port = parseInt((await getConfigValue('smtp_port', 'SMTP_PORT')) || '587', 10);
     const user = await getConfigValue('smtp_user', 'SMTP_USER');
     const pass = await getConfigValue('smtp_pass', 'SMTP_PASS');
 

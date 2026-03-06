@@ -1,6 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { PodIdeaModel, toPodIdea } from './podIdea.models';
-import type { PodIdea, PaginatedPodIdeas, CreatePodIdeaInput, PodIdeaStatus } from './podIdea.models';
+import type {
+  PodIdea,
+  PaginatedPodIdeas,
+  CreatePodIdeaInput,
+  PodIdeaStatus,
+} from './podIdea.models';
 import logger from '../../lib/logger';
 
 export async function createPodIdea(userId: string, input: CreatePodIdeaInput): Promise<PodIdea> {
@@ -50,9 +55,7 @@ export async function getPodIdeas(
 }
 
 export async function getMyPodIdeas(userId: string): Promise<PodIdea[]> {
-  const docs = await PodIdeaModel.find({ userId })
-    .sort({ createdAt: -1 })
-    .lean({ virtuals: true });
+  const docs = await PodIdeaModel.find({ userId }).sort({ createdAt: -1 }).lean({ virtuals: true });
   return docs.map((d) => toPodIdea(d as never));
 }
 

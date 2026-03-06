@@ -5,7 +5,9 @@ import type { User } from '../user/user.models';
 import { findUserById } from '../user/user.services';
 
 export async function getMessagesForPod(podId: string): Promise<ChatMessage[]> {
-  const docs = await ChatMessageModel.find({ podId }).sort({ createdAt: 1 }).lean({ virtuals: true });
+  const docs = await ChatMessageModel.find({ podId })
+    .sort({ createdAt: 1 })
+    .lean({ virtuals: true });
   return docs.map(toChatMessage).filter(Boolean) as ChatMessage[];
 }
 

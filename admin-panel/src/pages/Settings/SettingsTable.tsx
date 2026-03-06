@@ -1,7 +1,16 @@
 import React from 'react';
 import {
-  Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Typography, Chip, IconButton, Tooltip,
+  Card,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Chip,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -36,13 +45,35 @@ const SettingsTable: React.FC<SettingsTableProps> = ({ settings, onEdit, onDelet
           ) : (
             settings.map((s) => (
               <TableRow key={s.id} hover>
-                <TableCell><Typography variant="body2" fontWeight={600}>{s.key}</Typography></TableCell>
-                <TableCell><Typography variant="body2" sx={{ maxWidth: 300 }} noWrap>{s.value}</Typography></TableCell>
-                <TableCell><Chip label={s.category} size="small" variant="outlined" /></TableCell>
-                <TableCell><Typography variant="body2" color="text.secondary">{formatDate(s.updatedAt)}</Typography></TableCell>
+                <TableCell>
+                  <Typography variant="body2" fontWeight={600}>
+                    {s.key}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ maxWidth: 300 }} noWrap>
+                    {s.value}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip label={s.category} size="small" variant="outlined" />
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    {formatDate(s.updatedAt)}
+                  </Typography>
+                </TableCell>
                 <TableCell align="center">
-                  <Tooltip title="Edit"><IconButton size="small" onClick={() => onEdit(s)}><EditIcon fontSize="small" /></IconButton></Tooltip>
-                  <Tooltip title="Delete"><IconButton size="small" color="error" onClick={() => onDelete(s.key)}><DeleteIcon fontSize="small" /></IconButton></Tooltip>
+                  <Tooltip title="Edit">
+                    <IconButton size="small" onClick={() => onEdit(s)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton size="small" color="error" onClick={() => onDelete(s.key)}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))

@@ -37,11 +37,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
           activeOpacity={0.85}
           onPress={() => onPreviewMedia(item.mediaUrl, 'IMAGE')}
         >
-          <Image
-            source={{ uri: item.mediaUrl }}
-            style={styles.mediaThumbnail}
-            resizeMode="cover"
-          />
+          <Image source={{ uri: item.mediaUrl }} style={styles.mediaThumbnail} resizeMode="cover" />
         </TouchableOpacity>
       );
     }
@@ -59,11 +55,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             contentFit="cover"
           />
           <View style={styles.playOverlay}>
-            <MaterialIcons
-              name="play-circle-fill"
-              size={42}
-              color="rgba(255,255,255,0.9)"
-            />
+            <MaterialIcons name="play-circle-fill" size={42} color="rgba(255,255,255,0.9)" />
           </View>
         </TouchableOpacity>
       );
@@ -73,11 +65,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   return (
     <View
-      style={[
-        styles.msgRow,
-        isMe && styles.msgRowMe,
-        showSenderName && styles.msgRowSpacedTop,
-      ]}
+      style={[styles.msgRow, isMe && styles.msgRowMe, showSenderName && styles.msgRowSpacedTop]}
     >
       {/* Avatar column for other users */}
       {!isMe &&
@@ -115,19 +103,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         ]}
       >
         {!isMe && showSenderName && (
-          <Text style={styles.msgSenderName}>
-            {item.sender?.name ?? 'Unknown'}
-          </Text>
+          <Text style={styles.msgSenderName}>{item.sender?.name ?? 'Unknown'}</Text>
         )}
         {renderMedia()}
         {item.content ? (
-          <Text style={[styles.msgText, isMe && styles.msgTextMe]}>
-            {item.content}
-          </Text>
+          <Text style={[styles.msgText, isMe && styles.msgTextMe]}>{item.content}</Text>
         ) : null}
-        <Text style={[styles.msgTime, isMe && styles.msgTimeMe]}>
-          {formatTime(item.createdAt)}
-        </Text>
+        <Text style={[styles.msgTime, isMe && styles.msgTimeMe]}>{formatTime(item.createdAt)}</Text>
       </View>
     </View>
   );

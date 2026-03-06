@@ -170,7 +170,8 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
     }
   }, [onLocationChange]);
 
-  const hasCoords = latitude !== undefined && longitude !== undefined && latitude !== 0 && longitude !== 0;
+  const hasCoords =
+    latitude !== undefined && longitude !== undefined && latitude !== 0 && longitude !== 0;
 
   return (
     <View style={pickerStyles.container}>
@@ -188,7 +189,12 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
             size={16}
             color={mode === 'at_venue' ? colors.white : colors.textSecondary}
           />
-          <Text style={[pickerStyles.toggleLabel, mode === 'at_venue' && pickerStyles.toggleLabelActive]}>
+          <Text
+            style={[
+              pickerStyles.toggleLabel,
+              mode === 'at_venue' && pickerStyles.toggleLabelActive,
+            ]}
+          >
             I'm at the venue
           </Text>
         </TouchableOpacity>
@@ -202,7 +208,9 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
             size={16}
             color={mode === 'search' ? colors.white : colors.textSecondary}
           />
-          <Text style={[pickerStyles.toggleLabel, mode === 'search' && pickerStyles.toggleLabelActive]}>
+          <Text
+            style={[pickerStyles.toggleLabel, mode === 'search' && pickerStyles.toggleLabelActive]}
+          >
             Search address
           </Text>
         </TouchableOpacity>
@@ -220,9 +228,13 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
             <View>
               <View style={pickerStyles.gpsRow}>
                 <MaterialIcons name="check-circle" size={18} color={colors.success} />
-                <Text style={[pickerStyles.gpsText, { color: colors.success }]}>Location detected</Text>
+                <Text style={[pickerStyles.gpsText, { color: colors.success }]}>
+                  Location detected
+                </Text>
               </View>
-              <Text style={pickerStyles.addressPreview} numberOfLines={2}>{address}</Text>
+              <Text style={pickerStyles.addressPreview} numberOfLines={2}>
+                {address}
+              </Text>
               {/* Static Map Preview */}
               {googleMapsApiKey.length > 0 && (
                 <Image
@@ -255,7 +267,12 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
       {mode === 'search' && (
         <View>
           <View style={pickerStyles.inputRow}>
-            <MaterialIcons name="place" size={18} color={colors.textTertiary} style={{ marginRight: spacing.sm }} />
+            <MaterialIcons
+              name="place"
+              size={18}
+              color={colors.textTertiary}
+              style={{ marginRight: spacing.sm }}
+            />
             <TextInput
               style={pickerStyles.input}
               placeholder="Search venue address…"
@@ -266,7 +283,12 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
             />
             {loadingSearch && <ActivityIndicator size="small" color={colors.primary} />}
             {searchQuery.length > 0 && !loadingSearch && (
-              <TouchableOpacity onPress={() => { setSearchQuery(''); setPredictions([]); }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setSearchQuery('');
+                  setPredictions([]);
+                }}
+              >
                 <MaterialIcons name="close" size={16} color={colors.textTertiary} />
               </TouchableOpacity>
             )}
@@ -283,7 +305,12 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
                     style={pickerStyles.predictionItem}
                     onPress={() => handleSelectPrediction(item)}
                   >
-                    <MaterialIcons name="place" size={16} color={colors.primary} style={{ marginRight: spacing.sm }} />
+                    <MaterialIcons
+                      name="place"
+                      size={16}
+                      color={colors.primary}
+                      style={{ marginRight: spacing.sm }}
+                    />
                     <View style={{ flex: 1 }}>
                       <Text style={pickerStyles.predictionMain} numberOfLines={1}>
                         {item.structured_formatting.main_text}
@@ -326,136 +353,137 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
   );
 };
 
-const createPickerStyles = ({ colors }: ThemeUtils) => StyleSheet.create({
-  container: {
-    marginBottom: spacing.lg,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    padding: 4,
-  },
-  toggleBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.sm,
-  },
-  toggleBtnActive: {
-    backgroundColor: colors.primary,
-  },
-  toggleLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  toggleLabelActive: {
-    color: colors.white,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.sm,
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: 4,
-  },
-  input: {
-    flex: 1,
-    fontSize: 15,
-    color: colors.text,
-    paddingVertical: 12,
-  },
-  predictionsContainer: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    maxHeight: 220,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  predictionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  predictionMain: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  predictionSecondary: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  gpsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-  },
-  gpsText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  gpsBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: borderRadius.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    alignSelf: 'flex-start',
-  },
-  gpsBtnText: {
-    fontSize: 14,
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  addressPreview: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
-    lineHeight: 18,
-  },
-  mapPreview: {
-    width: '100%',
-    height: 150,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.surfaceVariant,
-  },
-  retryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: spacing.sm,
-  },
-  retryText: {
-    fontSize: 13,
-    color: colors.primary,
-    fontWeight: '500',
-  },
-});
+const createPickerStyles = ({ colors }: ThemeUtils) =>
+  StyleSheet.create({
+    container: {
+      marginBottom: spacing.lg,
+    },
+    toggleRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      marginBottom: spacing.md,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.md,
+      padding: 4,
+    },
+    toggleBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.sm,
+    },
+    toggleBtnActive: {
+      backgroundColor: colors.primary,
+    },
+    toggleLabel: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    toggleLabelActive: {
+      color: colors.white,
+    },
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.sm,
+      paddingHorizontal: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 4,
+    },
+    input: {
+      flex: 1,
+      fontSize: 15,
+      color: colors.text,
+      paddingVertical: 12,
+    },
+    predictionsContainer: {
+      backgroundColor: colors.white,
+      borderRadius: borderRadius.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+      maxHeight: 220,
+      overflow: 'hidden',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    predictionItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    predictionMain: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    predictionSecondary: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    gpsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      paddingVertical: spacing.sm,
+    },
+    gpsText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    gpsBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.primary,
+      borderRadius: borderRadius.sm,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      alignSelf: 'flex-start',
+    },
+    gpsBtnText: {
+      fontSize: 14,
+      color: colors.primary,
+      fontWeight: '600',
+    },
+    addressPreview: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: spacing.sm,
+      lineHeight: 18,
+    },
+    mapPreview: {
+      width: '100%',
+      height: 150,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surfaceVariant,
+    },
+    retryBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      marginTop: spacing.sm,
+    },
+    retryText: {
+      fontSize: 13,
+      color: colors.primary,
+      fontWeight: '500',
+    },
+  });
 
 export default VenueLocationPicker;

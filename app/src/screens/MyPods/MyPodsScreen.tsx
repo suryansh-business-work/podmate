@@ -17,7 +17,9 @@ import { MyPodItem, MyPodsScreenProps } from './MyPods.types';
 import { createStyles } from './MyPods.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
-const getStatusConfig = (colors: Record<string, string>): Record<string, { bg: string; color: string }> => ({
+const getStatusConfig = (
+  colors: Record<string, string>,
+): Record<string, { bg: string; color: string }> => ({
   CONFIRMED: { bg: colors.success + '20', color: colors.success },
   PENDING: { bg: colors.warning + '20', color: colors.warning },
   NEW: { bg: colors.primary + '20', color: colors.primary },
@@ -27,10 +29,9 @@ const getStatusConfig = (colors: Record<string, string>): Record<string, { bg: s
 const MyPodsScreen: React.FC<MyPodsScreenProps> = ({ onBack, onPodPress }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
-  const { data, loading, error, refetch } = useQuery<{ myPods: MyPodItem[] }>(
-    GET_MY_PODS,
-    { fetchPolicy: 'cache-and-network' },
-  );
+  const { data, loading, error, refetch } = useQuery<{ myPods: MyPodItem[] }>(GET_MY_PODS, {
+    fetchPolicy: 'cache-and-network',
+  });
 
   const pods = data?.myPods ?? [];
 
@@ -45,11 +46,7 @@ const MyPodsScreen: React.FC<MyPodsScreenProps> = ({ onBack, onPodPress }) => {
     const STATUS_CONFIG = getStatusConfig(colors as unknown as Record<string, string>);
     const statusConf = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.PENDING;
     return (
-      <TouchableOpacity
-        style={styles.card}
-        activeOpacity={0.7}
-        onPress={() => onPodPress(item.id)}
-      >
+      <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => onPodPress(item.id)}>
         <SafeImage
           uri={item.imageUrl}
           style={styles.cardImage}
@@ -57,7 +54,9 @@ const MyPodsScreen: React.FC<MyPodsScreenProps> = ({ onBack, onPodPress }) => {
           fallbackIconSize={32}
         />
         <View style={styles.cardBody}>
-          <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+          <Text style={styles.cardTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
           <Text style={styles.cardCategory}>{item.category}</Text>
           <View style={[styles.statusBadge, { backgroundColor: statusConf.bg }]}>
             <Text style={[styles.statusText, { color: statusConf.color }]}>{item.status}</Text>

@@ -21,7 +21,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           minHeight: { xs: '100vh', md: 'auto' },
         }}
       >
-        <LoginForm onLogin={onLogin} error={error} setError={setError} setSnackMessage={setSnackMessage} />
+        <LoginForm
+          onLogin={onLogin}
+          error={error}
+          setError={setError}
+          setSnackMessage={setSnackMessage}
+        />
       </Box>
 
       <BrandPanel />

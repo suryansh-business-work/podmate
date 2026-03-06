@@ -1,7 +1,15 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, Modal,
-  TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
@@ -25,10 +33,18 @@ const TYPE_ICONS: Record<FeedbackType, string> = {
 const StatusBadge: React.FC<{ status: Feedback['status'] }> = ({ status }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
-  const badgeStyle = status === 'PENDING' ? styles.badgePending
-    : status === 'REVIEWED' ? styles.badgeReviewed : styles.badgeResolved;
-  const textStyle = status === 'PENDING' ? styles.badgePendingText
-    : status === 'REVIEWED' ? styles.badgeReviewedText : styles.badgeResolvedText;
+  const badgeStyle =
+    status === 'PENDING'
+      ? styles.badgePending
+      : status === 'REVIEWED'
+        ? styles.badgeReviewed
+        : styles.badgeResolved;
+  const textStyle =
+    status === 'PENDING'
+      ? styles.badgePendingText
+      : status === 'REVIEWED'
+        ? styles.badgeReviewedText
+        : styles.badgeResolvedText;
   return (
     <View style={[styles.badge, badgeStyle]}>
       <Text style={[styles.badgeText, textStyle]}>{status}</Text>
@@ -70,26 +86,33 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
     }
   }, [type, title, description, submitFeedback, refetch]);
 
-  const renderItem = useCallback(({ item }: { item: Feedback }) => (
-    <View style={styles.feedbackCard}>
-      <View style={styles.feedbackCardHeader}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <MaterialIcons name={TYPE_ICONS[item.type]} size={16} color={colors.primary} />
-          <Text style={styles.typeLabel}>{item.type}</Text>
+  const renderItem = useCallback(
+    ({ item }: { item: Feedback }) => (
+      <View style={styles.feedbackCard}>
+        <View style={styles.feedbackCardHeader}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <MaterialIcons name={TYPE_ICONS[item.type]} size={16} color={colors.primary} />
+            <Text style={styles.typeLabel}>{item.type}</Text>
+          </View>
+          <StatusBadge status={item.status} />
         </View>
-        <StatusBadge status={item.status} />
+        <Text style={styles.feedbackTitle}>{item.title}</Text>
+        <Text style={styles.feedbackDesc} numberOfLines={3}>
+          {item.description}
+        </Text>
+        {item.adminNotes ? (
+          <>
+            <Text style={styles.adminNotesLabel}>Admin Response</Text>
+            <Text style={styles.adminNotesText}>{item.adminNotes}</Text>
+          </>
+        ) : null}
+        <Text style={styles.feedbackDate}>
+          {new Date(Number(item.createdAt)).toLocaleDateString()}
+        </Text>
       </View>
-      <Text style={styles.feedbackTitle}>{item.title}</Text>
-      <Text style={styles.feedbackDesc} numberOfLines={3}>{item.description}</Text>
-      {item.adminNotes ? (
-        <>
-          <Text style={styles.adminNotesLabel}>Admin Response</Text>
-          <Text style={styles.adminNotesText}>{item.adminNotes}</Text>
-        </>
-      ) : null}
-      <Text style={styles.feedbackDate}>{new Date(Number(item.createdAt)).toLocaleDateString()}</Text>
-    </View>
-  ), []);
+    ),
+    [],
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -124,8 +147,17 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
         <MaterialIcons name="add" size={28} color={colors.white} />
       </TouchableOpacity>
 
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowModal(false)}>
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowModal(false)}
+        >
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
@@ -139,7 +171,9 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
                       style={[styles.chip, type === t && styles.chipActive]}
                       onPress={() => setType(t)}
                     >
-                      <Text style={[styles.chipText, type === t && styles.chipTextActive]}>{t}</Text>
+                      <Text style={[styles.chipText, type === t && styles.chipTextActive]}>
+                        {t}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -162,7 +196,11 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
                   maxLength={2000}
                 />
                 <TouchableOpacity
-                  style={[styles.submitBtn, (submitting || !title.trim() || !description.trim()) && styles.submitBtnDisabled]}
+                  style={[
+                    styles.submitBtn,
+                    (submitting || !title.trim() || !description.trim()) &&
+                      styles.submitBtnDisabled,
+                  ]}
                   onPress={handleSubmit}
                   disabled={submitting || !title.trim() || !description.trim()}
                 >

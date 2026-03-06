@@ -16,8 +16,10 @@ interface MediaPreviewProps {
 const MediaPreview: React.FC<MediaPreviewProps> = ({ visible, uri, type, onClose }) => {
   const pvStyles = useThemedStyles(createPvStyles);
   const colors = useAppColors();
-  const videoSource = useMemo(() => type === 'VIDEO' && uri ? { uri } : null, [type, uri]);
-  const player = useVideoPlayer(videoSource, (p) => { p.play(); });
+  const videoSource = useMemo(() => (type === 'VIDEO' && uri ? { uri } : null), [type, uri]);
+  const player = useVideoPlayer(videoSource, (p) => {
+    p.play();
+  });
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -28,7 +30,12 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ visible, uri, type, onClose
         {type === 'IMAGE' ? (
           <Image source={{ uri }} style={pvStyles.fullImage} resizeMode="contain" />
         ) : player ? (
-          <VideoView player={player} style={pvStyles.fullImage} nativeControls contentFit="contain" />
+          <VideoView
+            player={player}
+            style={pvStyles.fullImage}
+            nativeControls
+            contentFit="contain"
+          />
         ) : null}
       </View>
     </Modal>

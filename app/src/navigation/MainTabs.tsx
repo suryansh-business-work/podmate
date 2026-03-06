@@ -29,7 +29,14 @@ interface MainTabsProps {
   onCheckout?: (podId: string) => void;
 }
 
-const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout, onMenuPress, onNavigate, onCheckout }) => {
+const MainTabs: React.FC<MainTabsProps> = ({
+  onPodPress,
+  onCreatePress,
+  onLogout,
+  onMenuPress,
+  onNavigate,
+  onCheckout,
+}) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const insets = useSafeAreaInsets();
@@ -75,8 +82,12 @@ const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout
         },
       })}
     >
-      <Tab.Screen name="Home">{() => <HomeScreen onPodPress={onPodPress} onMenuPress={onMenuPress} />}</Tab.Screen>
-      <Tab.Screen name="Explore">{() => <ExploreScreen onPodPress={onPodPress} onCheckout={onCheckout} />}</Tab.Screen>
+      <Tab.Screen name="Home">
+        {() => <HomeScreen onPodPress={onPodPress} onMenuPress={onMenuPress} />}
+      </Tab.Screen>
+      <Tab.Screen name="Explore">
+        {() => <ExploreScreen onPodPress={onPodPress} onCheckout={onCheckout} />}
+      </Tab.Screen>
       <Tab.Screen
         name="Create"
         listeners={{
@@ -85,46 +96,51 @@ const MainTabs: React.FC<MainTabsProps> = ({ onPodPress, onCreatePress, onLogout
             onCreatePress();
           },
         }}
-      >{() => <View />}</Tab.Screen>
+      >
+        {() => <View />}
+      </Tab.Screen>
       <Tab.Screen name="Chat">{() => <ChatScreen />}</Tab.Screen>
-      <Tab.Screen name="Profile">{() => <ProfileScreen onLogout={onLogout} onNavigate={onNavigate} />}</Tab.Screen>
+      <Tab.Screen name="Profile">
+        {() => <ProfileScreen onLogout={onLogout} onNavigate={onNavigate} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
-  tabBar: {
-    height: 80,
-    paddingBottom: 16,
-    paddingTop: 8,
-    backgroundColor: colors.white,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  tabLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-  },
-  createButtonOuter: {
-    marginTop: -20,
-  },
-  createButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-});
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+  StyleSheet.create({
+    tabBar: {
+      height: 80,
+      paddingBottom: 16,
+      paddingTop: 8,
+      backgroundColor: colors.white,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      shadowColor: colors.black,
+      shadowOffset: { width: 0, height: -4 },
+      shadowOpacity: 0.06,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    tabLabel: {
+      fontSize: 11,
+      fontWeight: '500',
+    },
+    createButtonOuter: {
+      marginTop: -20,
+    },
+    createButton: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+  });
 
 export default MainTabs;

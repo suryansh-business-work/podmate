@@ -80,7 +80,9 @@ describe('LoginScreen - Send OTP Button Behavior', () => {
   it('should disable send OTP button when phone number is empty', () => {
     const { getByTestId } = renderLoginScreen();
     const sendOtpButton = getByTestId('send-otp-button');
-    expect(sendOtpButton.props.accessibilityState?.disabled || sendOtpButton.props.disabled).toBeTruthy();
+    expect(
+      sendOtpButton.props.accessibilityState?.disabled || sendOtpButton.props.disabled,
+    ).toBeTruthy();
   });
 
   it('should disable send OTP button when phone number is invalid', async () => {
@@ -93,7 +95,9 @@ describe('LoginScreen - Send OTP Button Behavior', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(sendOtpButton.props.accessibilityState?.disabled || sendOtpButton.props.disabled).toBeTruthy();
+    expect(
+      sendOtpButton.props.accessibilityState?.disabled || sendOtpButton.props.disabled,
+    ).toBeTruthy();
   });
 
   it('should enable send OTP button when valid phone number is entered', async () => {

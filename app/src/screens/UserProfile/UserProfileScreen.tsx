@@ -1,7 +1,12 @@
 import React, { useCallback } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, Image,
-  FlatList, ActivityIndicator,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
@@ -15,7 +20,11 @@ import { createStyles } from './UserProfile.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
-  userId, onBack, onPodPress, onFollowers, onFollowing,
+  userId,
+  onBack,
+  onPodPress,
+  onFollowers,
+  onFollowing,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
@@ -24,10 +33,9 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     { variables: { userId } },
   );
 
-  const { data: podsData } = useQuery<{ userPods: UserProfilePod[] }>(
-    GET_USER_PODS,
-    { variables: { userId } },
-  );
+  const { data: podsData } = useQuery<{ userPods: UserProfilePod[] }>(GET_USER_PODS, {
+    variables: { userId },
+  });
 
   const { data: followData, refetch: refetchFollow } = useQuery<{ followStats: FollowStats }>(
     GET_FOLLOW_STATS,
@@ -147,8 +155,12 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
                     </View>
                   )}
                   <View style={styles.podBody}>
-                    <Text style={styles.podTitle} numberOfLines={1}>{item.title}</Text>
-                    <Text style={styles.podDesc} numberOfLines={1}>{item.description}</Text>
+                    <Text style={styles.podTitle} numberOfLines={1}>
+                      {item.title}
+                    </Text>
+                    <Text style={styles.podDesc} numberOfLines={1}>
+                      {item.description}
+                    </Text>
                     {item.rating > 0 && (
                       <View style={styles.podRating}>
                         <MaterialIcons name="star" size={14} color={colors.warning} />
@@ -164,9 +176,7 @@ const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
           </>
         )}
 
-        {pods.length === 0 && (
-          <Text style={styles.emptyText}>No pods yet</Text>
-        )}
+        {pods.length === 0 && <Text style={styles.emptyText}>No pods yet</Text>}
       </ScrollView>
     </SafeAreaView>
   );

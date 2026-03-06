@@ -128,8 +128,22 @@ export const GET_POLICIES = gql`
 `;
 
 export const GET_PLACES = gql`
-  query GetPlaces($page: Int, $limit: Int, $search: String, $status: String, $sortBy: String, $order: String) {
-    places(page: $page, limit: $limit, search: $search, status: $status, sortBy: $sortBy, order: $order) {
+  query GetPlaces(
+    $page: Int
+    $limit: Int
+    $search: String
+    $status: String
+    $sortBy: String
+    $order: String
+  ) {
+    places(
+      page: $page
+      limit: $limit
+      search: $search
+      status: $status
+      sortBy: $sortBy
+      order: $order
+    ) {
       items {
         id
         name
@@ -160,8 +174,24 @@ export const GET_PLACES = gql`
 `;
 
 export const GET_SUPPORT_TICKETS = gql`
-  query GetSupportTickets($page: Int, $limit: Int, $search: String, $status: String, $priority: String, $sortBy: String, $order: String) {
-    supportTickets(page: $page, limit: $limit, search: $search, status: $status, priority: $priority, sortBy: $sortBy, order: $order) {
+  query GetSupportTickets(
+    $page: Int
+    $limit: Int
+    $search: String
+    $status: String
+    $priority: String
+    $sortBy: String
+    $order: String
+  ) {
+    supportTickets(
+      page: $page
+      limit: $limit
+      search: $search
+      status: $status
+      priority: $priority
+      sortBy: $sortBy
+      order: $order
+    ) {
       items {
         id
         userId
@@ -343,8 +373,24 @@ export const GET_FEATURE_FLAGS = gql`
 /* ── Payments ── */
 
 export const GET_PAYMENTS = gql`
-  query GetPayments($page: Int, $limit: Int, $search: String, $type: String, $status: String, $sortBy: String, $order: String) {
-    payments(page: $page, limit: $limit, search: $search, type: $type, status: $status, sortBy: $sortBy, order: $order) {
+  query GetPayments(
+    $page: Int
+    $limit: Int
+    $search: String
+    $type: String
+    $status: String
+    $sortBy: String
+    $order: String
+  ) {
+    payments(
+      page: $page
+      limit: $limit
+      search: $search
+      type: $type
+      status: $status
+      sortBy: $sortBy
+      order: $order
+    ) {
       items {
         id
         userId
@@ -517,8 +563,22 @@ export const GET_PLATFORM_FEE_OVERRIDES = gql`
 /* ── Callback Requests ── */
 
 export const GET_CALLBACK_REQUESTS = gql`
-  query GetCallbackRequests($page: Int, $limit: Int, $search: String, $status: String, $sortBy: String, $order: String) {
-    callbackRequests(page: $page, limit: $limit, search: $search, status: $status, sortBy: $sortBy, order: $order) {
+  query GetCallbackRequests(
+    $page: Int
+    $limit: Int
+    $search: String
+    $status: String
+    $sortBy: String
+    $order: String
+  ) {
+    callbackRequests(
+      page: $page
+      limit: $limit
+      search: $search
+      status: $status
+      sortBy: $sortBy
+      order: $order
+    ) {
       items {
         id
         userId

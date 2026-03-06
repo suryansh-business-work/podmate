@@ -20,7 +20,12 @@ jest.mock('../../../../components/GradientButton', () => ({
   }) => {
     const { TouchableOpacity, Text, View } = require('react-native');
     return (
-      <TouchableOpacity onPress={onPress} disabled={disabled} testID={testID} accessibilityState={{ disabled }}>
+      <TouchableOpacity
+        onPress={onPress}
+        disabled={disabled}
+        testID={testID}
+        accessibilityState={{ disabled }}
+      >
         <Text>{title}</Text>
         {children && <View testID={`${testID}-children`}>{children}</View>}
       </TouchableOpacity>

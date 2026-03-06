@@ -67,20 +67,12 @@ const userResolvers = {
       return userService.createUser({ phone: args.phone, name: args.name, role: args.role });
     },
 
-    deleteUser: async (
-      _: unknown,
-      args: { userId: string },
-      context: GraphQLContext,
-    ) => {
+    deleteUser: async (_: unknown, args: { userId: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return userService.deleteUser(args.userId);
     },
 
-    bulkDeleteUsers: async (
-      _: unknown,
-      args: { ids: string[] },
-      context: GraphQLContext,
-    ) => {
+    bulkDeleteUsers: async (_: unknown, args: { ids: string[] }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return userService.bulkDeleteUsers(args.ids);
     },
@@ -91,7 +83,11 @@ const userResolvers = {
       context: GraphQLContext,
     ) => {
       requireRole(context, UserRole.ADMIN);
-      const user = await userService.toggleUserActive(args.userId, args.isActive, args.reason ?? '');
+      const user = await userService.toggleUserActive(
+        args.userId,
+        args.isActive,
+        args.reason ?? '',
+      );
       const smsMessage = args.isActive
         ? 'Your PartyWings account has been re-enabled. You can now access the app.'
         : `Your PartyWings account has been disabled. Reason: ${args.reason || 'Policy violation'}. Contact support for help.`;
@@ -109,7 +105,11 @@ const userResolvers = {
       return userService.unsavePod(auth.userId, args.podId);
     },
 
-    updateThemePreference: (_: unknown, args: { themePreference: string }, context: GraphQLContext) => {
+    updateThemePreference: (
+      _: unknown,
+      args: { themePreference: string },
+      context: GraphQLContext,
+    ) => {
       const auth = requireAuth(context);
       return userService.updateThemePreference(auth.userId, args.themePreference);
     },

@@ -11,7 +11,14 @@ import { createStyles } from './Otp.styles';
 
 const RESEND_TIMER_SECONDS = 30;
 
-const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, onResend, loading, error }) => {
+const OtpScreen: React.FC<OtpScreenProps> = ({
+  phone,
+  onVerify,
+  onBack,
+  onResend,
+  loading,
+  error,
+}) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [otp, setOtp] = useState('');
@@ -56,10 +63,14 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, onResend
           <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
 
-        <Text style={styles.title} testID="otp-title">Verify your number</Text>
+        <Text style={styles.title} testID="otp-title">
+          Verify your number
+        </Text>
         <Text style={styles.subtitle} testID="otp-subtitle">
           We sent a 6-digit code to{'\n'}
-          <Text style={styles.phoneHighlight} testID="masked-phone">{maskedPhone}</Text>
+          <Text style={styles.phoneHighlight} testID="masked-phone">
+            {maskedPhone}
+          </Text>
         </Text>
 
         <View style={styles.otpContainer} testID="otp-input-container">
@@ -74,18 +85,19 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, onResend
 
         <View style={styles.resendContainer}>
           {canResend ? (
-            <TouchableOpacity 
-              onPress={handleResend} 
+            <TouchableOpacity
+              onPress={handleResend}
               disabled={resending}
               testID="resend-otp-button"
             >
-              <Text style={styles.resendActive}>
-                {resending ? 'Sending...' : 'Resend Code'}
-              </Text>
+              <Text style={styles.resendActive}>{resending ? 'Sending...' : 'Resend Code'}</Text>
             </TouchableOpacity>
           ) : (
             <Text style={styles.resendTimer} testID="resend-timer">
-              Resend code in <Text style={styles.timerHighlight} testID="timer-value">{timer}s</Text>
+              Resend code in{' '}
+              <Text style={styles.timerHighlight} testID="timer-value">
+                {timer}s
+              </Text>
             </Text>
           )}
         </View>
@@ -93,17 +105,21 @@ const OtpScreen: React.FC<OtpScreenProps> = ({ phone, onVerify, onBack, onResend
         {error ? (
           <View style={styles.errorContainer} testID="otp-error-container">
             <MaterialIcons name="error-outline" size={16} color={colors.error} />
-            <Text style={styles.errorText} testID="otp-error">{error}</Text>
+            <Text style={styles.errorText} testID="otp-error">
+              {error}
+            </Text>
           </View>
         ) : null}
 
-        <GradientButton 
-          title={loading ? '' : 'Verify'} 
-          onPress={handleVerify} 
+        <GradientButton
+          title={loading ? '' : 'Verify'}
+          onPress={handleVerify}
           disabled={otp.length < 6 || loading}
           testID="verify-otp-button"
         >
-          {loading && <ActivityIndicator color={colors.white} size="small" testID="otp-loading-indicator" />}
+          {loading && (
+            <ActivityIndicator color={colors.white} size="small" testID="otp-loading-indicator" />
+          )}
         </GradientButton>
       </View>
     </SafeAreaView>

@@ -1,5 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { Pod, CreatePodInput, UpdatePodInput, PodPaginationInput, PaginatedPods, PodStatus } from './pod.models';
+import type {
+  Pod,
+  CreatePodInput,
+  UpdatePodInput,
+  PodPaginationInput,
+  PaginatedPods,
+  PodStatus,
+} from './pod.models';
 import { PodModel, toPod } from './pod.models';
 import type { User } from '../user/user.models';
 import { UserModel, toUser } from '../user/user.models';
@@ -89,7 +96,11 @@ export async function updatePod(id: string, hostId: string, input: UpdatePodInpu
   if (input.imageUrl !== undefined) update.imageUrl = input.imageUrl;
   if (input.mediaUrls !== undefined) update.mediaUrls = input.mediaUrls;
 
-  const updated = await PodModel.findByIdAndUpdate(id, { $set: update }, { returnDocument: 'after' }).lean({
+  const updated = await PodModel.findByIdAndUpdate(
+    id,
+    { $set: update },
+    { returnDocument: 'after' },
+  ).lean({
     virtuals: true,
   });
   const result = toPod(updated);
@@ -135,7 +146,8 @@ export async function removeAttendee(
 ): Promise<RemoveAttendeeResult> {
   const pod = await PodModel.findById(podId);
   if (!pod) throw new Error('Pod not found');
-  if (!(pod.attendeeIds as string[]).includes(userId)) throw new Error('User is not an attendee of this pod');
+  if (!(pod.attendeeIds as string[]).includes(userId))
+    throw new Error('User is not an attendee of this pod');
 
   /* Remove attendee */
   const updated = await PodModel.findByIdAndUpdate(
@@ -191,7 +203,10 @@ export interface ForceDeletePodResult {
   totalRefunded: number;
 }
 
-export async function forceDeletePod(podId: string, issueRefunds: boolean): Promise<ForceDeletePodResult> {
+export async function forceDeletePod(
+  podId: string,
+  issueRefunds: boolean,
+): Promise<ForceDeletePodResult> {
   const pod = await PodModel.findById(podId);
   if (!pod) throw new Error('Pod not found');
 

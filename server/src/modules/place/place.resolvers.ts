@@ -10,7 +10,14 @@ const placeResolvers = {
   Query: {
     places: (
       _: unknown,
-      args: { page?: number; limit?: number; search?: string; status?: string; sortBy?: string; order?: string },
+      args: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        status?: string;
+        sortBy?: string;
+        order?: string;
+      },
       context: GraphQLContext,
     ) => {
       requireRole(context, UserRole.ADMIN);
@@ -46,13 +53,21 @@ const placeResolvers = {
       return placeService.createPlace(validated, auth.userId);
     },
 
-    adminCreatePlace: (_: unknown, args: { input: CreatePlaceInput; ownerId: string }, context: GraphQLContext) => {
+    adminCreatePlace: (
+      _: unknown,
+      args: { input: CreatePlaceInput; ownerId: string },
+      context: GraphQLContext,
+    ) => {
       requireRole(context, UserRole.ADMIN);
       const validated = createPlaceSchema.parse(args.input);
       return placeService.adminCreatePlace(validated, args.ownerId);
     },
 
-    updatePlace: (_: unknown, args: { id: string; input: UpdatePlaceInput }, context: GraphQLContext) => {
+    updatePlace: (
+      _: unknown,
+      args: { id: string; input: UpdatePlaceInput },
+      context: GraphQLContext,
+    ) => {
       requireRole(context, UserRole.ADMIN);
       const validated = updatePlaceSchema.parse(args.input);
       return placeService.updatePlace(args.id, validated);

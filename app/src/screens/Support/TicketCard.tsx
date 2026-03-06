@@ -34,13 +34,26 @@ const ReplyBubble: React.FC<{ reply: TicketReply }> = ({ reply }) => {
           size={12}
           color={isAdmin ? colors.primary : colors.textSecondary}
         />
-        <Text style={{ fontSize: 11, fontWeight: '600', color: isAdmin ? colors.primary : colors.textSecondary }}>
+        <Text
+          style={{
+            fontSize: 11,
+            fontWeight: '600',
+            color: isAdmin ? colors.primary : colors.textSecondary,
+          }}
+        >
           {isAdmin ? 'Support Team' : 'You'}
         </Text>
       </View>
       <Text style={{ fontSize: 14, color: colors.text, lineHeight: 20 }}>{reply.content}</Text>
-      <Text style={{ fontSize: 10, color: colors.textTertiary, marginTop: 4, alignSelf: 'flex-end' }}>
-        {new Date(reply.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+      <Text
+        style={{ fontSize: 10, color: colors.textTertiary, marginTop: 4, alignSelf: 'flex-end' }}
+      >
+        {new Date(reply.createdAt).toLocaleString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+        })}
       </Text>
     </View>
   );
@@ -70,22 +83,38 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
   };
 
   return (
-    <TouchableOpacity style={styles.ticketCard} activeOpacity={0.8} onPress={() => setExpanded(!expanded)}>
+    <TouchableOpacity
+      style={styles.ticketCard}
+      activeOpacity={0.8}
+      onPress={() => setExpanded(!expanded)}
+    >
       <View style={styles.ticketHeader}>
         <View style={styles.ticketTitleRow}>
-          <Text style={styles.ticketSubject} numberOfLines={1}>{ticket.subject}</Text>
-          <View style={[styles.statusBadge, { backgroundColor: (STATUS_COLORS[ticket.status] ?? colors.textTertiary) + '20' }]}>
-            <Text style={[styles.statusText, { color: STATUS_COLORS[ticket.status] ?? colors.textTertiary }]}>
+          <Text style={styles.ticketSubject} numberOfLines={1}>
+            {ticket.subject}
+          </Text>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: (STATUS_COLORS[ticket.status] ?? colors.textTertiary) + '20' },
+            ]}
+          >
+            <Text
+              style={[
+                styles.statusText,
+                { color: STATUS_COLORS[ticket.status] ?? colors.textTertiary },
+              ]}
+            >
               {ticket.status.replace('_', ' ')}
             </Text>
           </View>
         </View>
-        <Text style={styles.ticketDate}>
-          {new Date(ticket.createdAt).toLocaleDateString()}
-        </Text>
+        <Text style={styles.ticketDate}>{new Date(ticket.createdAt).toLocaleDateString()}</Text>
       </View>
 
-      <Text style={styles.ticketMessage} numberOfLines={expanded ? undefined : 3}>{ticket.message}</Text>
+      <Text style={styles.ticketMessage} numberOfLines={expanded ? undefined : 3}>
+        {ticket.message}
+      </Text>
 
       {expanded && ticket.replies.length > 0 && (
         <View style={{ marginTop: spacing.md }}>
@@ -96,7 +125,14 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
       )}
 
       {expanded && !isClosed && (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: spacing.md, gap: spacing.sm }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginTop: spacing.md,
+            gap: spacing.sm,
+          }}
+        >
           <TextInput
             style={{
               flex: 1,
@@ -131,14 +167,29 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
             {replying ? (
               <ActivityIndicator size="small" color={colors.white} />
             ) : (
-              <MaterialIcons name="send" size={18} color={replyText.trim() ? colors.white : colors.textTertiary} />
+              <MaterialIcons
+                name="send"
+                size={18}
+                color={replyText.trim() ? colors.white : colors.textTertiary}
+              />
             )}
           </TouchableOpacity>
         </View>
       )}
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginTop: spacing.sm }}>
-        <MaterialIcons name={expanded ? 'expand-less' : 'expand-more'} size={20} color={colors.textTertiary} />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          marginTop: spacing.sm,
+        }}
+      >
+        <MaterialIcons
+          name={expanded ? 'expand-less' : 'expand-more'}
+          size={20}
+          color={colors.textTertiary}
+        />
         {ticket.replies.length > 0 && !expanded && (
           <Text style={{ fontSize: 12, color: colors.textSecondary, marginLeft: 4 }}>
             {ticket.replies.length} {ticket.replies.length === 1 ? 'reply' : 'replies'}

@@ -30,9 +30,7 @@ const PayoutCard: React.FC<PayoutCardProps> = ({ feePerPerson, maxSeats }) => {
         <Text style={styles.payoutValue}>₹{grossRevenue.toLocaleString()}</Text>
       </View>
       <View style={styles.payoutRow}>
-        <Text style={[styles.payoutValue, { color: colors.error }]}>
-          Platform Fee (5%)
-        </Text>
+        <Text style={[styles.payoutValue, { color: colors.error }]}>Platform Fee (5%)</Text>
         <Text style={[styles.payoutValue, { color: colors.error }]}>
           - ₹{platformFee.toLocaleString()}
         </Text>
@@ -44,7 +42,14 @@ const PayoutCard: React.FC<PayoutCardProps> = ({ feePerPerson, maxSeats }) => {
           ₹{netRevenue.toLocaleString()}
         </Text>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.sm,
+          marginTop: spacing.md,
+        }}
+      >
         <MaterialIcons name="lock" size={14} color={colors.textSecondary} />
         <Text style={{ fontSize: 12, color: colors.textSecondary, flex: 1 }}>
           Funds held securely in escrow until event completion.

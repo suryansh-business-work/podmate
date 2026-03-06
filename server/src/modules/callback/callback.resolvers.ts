@@ -69,11 +69,7 @@ const callbackResolvers = {
       return callbackService.updateCallbackRequest(args.id, args.input);
     },
 
-    deleteCallbackRequest: (
-      _: unknown,
-      args: { id: string },
-      context: GraphQLContext,
-    ) => {
+    deleteCallbackRequest: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return callbackService.deleteCallbackRequest(args.id);
     },

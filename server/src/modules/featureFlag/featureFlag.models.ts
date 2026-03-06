@@ -63,7 +63,9 @@ export const FeatureFlagModel =
   (mongoose.models['FeatureFlag'] as mongoose.Model<FeatureFlagMongoDoc> | undefined) ??
   model<FeatureFlagMongoDoc>('FeatureFlag', FeatureFlagSchema);
 
-export function toFeatureFlag(doc: (FeatureFlagMongoDoc & { id?: string }) | null): FeatureFlag | null {
+export function toFeatureFlag(
+  doc: (FeatureFlagMongoDoc & { id?: string }) | null,
+): FeatureFlag | null {
   if (!doc) return null;
   return {
     ...doc,

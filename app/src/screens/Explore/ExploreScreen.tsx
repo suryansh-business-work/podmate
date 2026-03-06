@@ -38,11 +38,14 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress, onCheckout })
   const totalPages: number = data?.pods?.totalPages ?? 1;
   const hasMore = currentPage < totalPages;
 
-  const handleJoin = useCallback((podId: string) => {
-    if (onCheckout) {
-      onCheckout(podId);
-    }
-  }, [onCheckout]);
+  const handleJoin = useCallback(
+    (podId: string) => {
+      if (onCheckout) {
+        onCheckout(podId);
+      }
+    },
+    [onCheckout],
+  );
 
   const [refreshing, setRefreshing] = useState(false);
   const handleRefresh = useCallback(async () => {
@@ -56,7 +59,10 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress, onCheckout })
     isFetchingMore.current = true;
     fetchMore({
       variables: { page: currentPage + 1 },
-      updateQuery: (prev: Record<string, unknown>, { fetchMoreResult }: { fetchMoreResult: Record<string, unknown> | undefined }) => {
+      updateQuery: (
+        prev: Record<string, unknown>,
+        { fetchMoreResult }: { fetchMoreResult: Record<string, unknown> | undefined },
+      ) => {
         isFetchingMore.current = false;
         if (!fetchMoreResult) return prev;
         const prevPods = prev.pods as { items: Pod[] };
@@ -85,7 +91,14 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress, onCheckout })
     return (
       <View style={styles.loadingContainer}>
         <MaterialIcons name="cloud-off" size={64} color={colors.error} />
-        <Text style={[styles.podTitle, { textAlign: 'center', marginTop: spacing.md, color: colors.error }]}>Failed to load</Text>
+        <Text
+          style={[
+            styles.podTitle,
+            { textAlign: 'center', marginTop: spacing.md, color: colors.error },
+          ]}
+        >
+          Failed to load
+        </Text>
         <Text style={[styles.podDesc, { textAlign: 'center' }]}>{error.message}</Text>
       </View>
     );
@@ -115,11 +128,29 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress, onCheckout })
         decelerationRate="fast"
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.primary}
+          />
+        }
         ListEmptyComponent={
-          <View style={[styles.slide, { height: slideHeight, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.darkBg }]}>
+          <View
+            style={[
+              styles.slide,
+              {
+                height: slideHeight,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: colors.darkBg,
+              },
+            ]}
+          >
             <MaterialIcons name="explore-off" size={64} color={colors.textTertiary} />
-            <Text style={[styles.podTitle, { textAlign: 'center', marginTop: spacing.md }]}>No pods found</Text>
+            <Text style={[styles.podTitle, { textAlign: 'center', marginTop: spacing.md }]}>
+              No pods found
+            </Text>
             <Text style={[styles.podDesc, { textAlign: 'center' }]}>Try a different category</Text>
           </View>
         }

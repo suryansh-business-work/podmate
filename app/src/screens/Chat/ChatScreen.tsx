@@ -22,7 +22,9 @@ const ChatScreen: React.FC = () => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [selectedPod, setSelectedPod] = useState<Pod | null>(null);
-  const { data, loading, error, refetch } = useQuery<{ myPods: Pod[] }>(GET_MY_PODS, { fetchPolicy: 'cache-and-network' });
+  const { data, loading, error, refetch } = useQuery<{ myPods: Pod[] }>(GET_MY_PODS, {
+    fetchPolicy: 'cache-and-network',
+  });
 
   const [refreshing, setRefreshing] = useState(false);
   const handleRefresh = useCallback(async () => {
@@ -54,27 +56,58 @@ const ChatScreen: React.FC = () => {
         <View style={styles.centered}>
           <MaterialIcons name="chat-bubble-outline" size={48} color={colors.textTertiary} />
           <Text style={styles.emptyTitle}>No conversations yet</Text>
-          <Text style={styles.emptySubtitle}>Join a pod to start chatting with other attendees</Text>
+          <Text style={styles.emptySubtitle}>
+            Join a pod to start chatting with other attendees
+          </Text>
         </View>
       )}
       <FlatList
         data={data?.myPods ?? []}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.primary}
+          />
+        }
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.chatRow} activeOpacity={0.7} onPress={() => setSelectedPod(item)}>
+          <TouchableOpacity
+            style={styles.chatRow}
+            activeOpacity={0.7}
+            onPress={() => setSelectedPod(item)}
+          >
             {item.imageUrl ? (
               <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
             ) : (
-              <View style={[styles.avatar, { backgroundColor: colors.surfaceVariant, justifyContent: 'center', alignItems: 'center' }]}>
+              <View
+                style={[
+                  styles.avatar,
+                  {
+                    backgroundColor: colors.surfaceVariant,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  },
+                ]}
+              >
                 <MaterialIcons name="groups" size={24} color={colors.textTertiary} />
               </View>
             )}
             <View style={styles.chatInfo}>
-              <Text style={styles.chatName} numberOfLines={1}>{item.title}</Text>
+              <Text style={styles.chatName} numberOfLines={1}>
+                {item.title}
+              </Text>
               <View style={styles.metaRow}>
-                <View style={[styles.statusDot, { backgroundColor: item.status === 'ACTIVE' ? colors.success : colors.textTertiary }]} />
+                <View
+                  style={[
+                    styles.statusDot,
+                    {
+                      backgroundColor:
+                        item.status === 'ACTIVE' ? colors.success : colors.textTertiary,
+                    },
+                  ]}
+                />
                 <Text style={styles.chatMessage}>{item.category}</Text>
               </View>
             </View>

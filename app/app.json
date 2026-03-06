@@ -12,19 +12,13 @@
     },
     "icon": "./assets/icon-and-splash/logo-1024x1024.png",
     "userInterfaceStyle": "light",
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
+    "platforms": ["ios", "android", "web"],
     "splash": {
       "image": "./assets/icon-and-splash/logo-1284x2778.png",
       "resizeMode": "contain",
       "backgroundColor": "#111827"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.partywings.app",
@@ -37,9 +31,7 @@
       },
       "package": "com.partywings.app"
     },
-    "plugins": [
-      "expo-video"
-    ],
+    "plugins": ["expo-video"],
     "web": {
       "bundler": "metro",
       "favicon": "./assets/icon-and-splash/logo-1024x1024.png"

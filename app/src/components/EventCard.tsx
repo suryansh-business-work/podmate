@@ -78,7 +78,12 @@ export const EventCard: React.FC<EventCardProps> = ({
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(id)} activeOpacity={0.85}>
       <View>
-        <SafeImage uri={imageUrl} style={styles.image} fallbackIcon="celebration" fallbackIconSize={48} />
+        <SafeImage
+          uri={imageUrl}
+          style={styles.image}
+          fallbackIcon="celebration"
+          fallbackIconSize={48}
+        />
         {hasVideo && (
           <View style={styles.playOverlay} pointerEvents="none">
             <MaterialIcons name="play-circle-filled" size={40} color="rgba(255,255,255,0.85)" />
@@ -114,7 +119,12 @@ export const EventCard: React.FC<EventCardProps> = ({
 
         <View style={styles.bottomRow}>
           <View style={styles.hostRow}>
-            <SafeImage uri={hostAvatar} style={styles.hostAvatar} fallbackIcon="person" fallbackIconSize={14} />
+            <SafeImage
+              uri={hostAvatar}
+              style={styles.hostAvatar}
+              fallbackIcon="person"
+              fallbackIconSize={14}
+            />
             <Text style={styles.hostName}>{hostName}</Text>
           </View>
           <View style={styles.priceRow}>
@@ -127,106 +137,107 @@ export const EventCard: React.FC<EventCardProps> = ({
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
-  card: {
-    borderRadius: borderRadius.lg,
-    backgroundColor: colors.white,
-    marginBottom: spacing.lg,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-    overflow: 'hidden',
-  },
-  image: {
-    width: '100%',
-    height: 180,
-  },
-  playOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.15)',
-  },
-  statusBadge: {
-    position: 'absolute',
-    top: spacing.md,
-    left: spacing.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-    borderRadius: borderRadius.sm,
-  },
-  statusText: {
-    color: colors.white,
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  content: {
-    padding: spacing.lg,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  dateText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  ratingStar: {
-    fontSize: 14,
-    color: colors.warning,
-  },
-  ratingText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  hostRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  hostAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  hostName: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  spotsLeft: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-});
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+  StyleSheet.create({
+    card: {
+      borderRadius: borderRadius.lg,
+      backgroundColor: colors.white,
+      marginBottom: spacing.lg,
+      shadowColor: colors.black,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 4,
+      overflow: 'hidden',
+    },
+    image: {
+      width: '100%',
+      height: 180,
+    },
+    playOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.15)',
+    },
+    statusBadge: {
+      position: 'absolute',
+      top: spacing.md,
+      left: spacing.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: borderRadius.sm,
+    },
+    statusText: {
+      color: colors.white,
+      fontSize: 11,
+      fontWeight: '700',
+      letterSpacing: 0.5,
+    },
+    content: {
+      padding: spacing.lg,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    dateText: {
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    ratingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 2,
+    },
+    ratingStar: {
+      fontSize: 14,
+      color: colors.warning,
+    },
+    ratingText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    bottomRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    hostRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    hostAvatar: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+    },
+    hostName: {
+      fontSize: 13,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    priceRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    price: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: colors.primary,
+    },
+    spotsLeft: {
+      fontSize: 12,
+      color: colors.textSecondary,
+    },
+  });

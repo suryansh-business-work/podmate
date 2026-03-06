@@ -1,5 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { User, CreateUserInput, UpdateUserInput, PaginationInput, PaginatedResponse } from './user.models';
+import type {
+  User,
+  CreateUserInput,
+  UpdateUserInput,
+  PaginationInput,
+  PaginatedResponse,
+} from './user.models';
 import { UserModel, UserRole, toUser } from './user.models';
 import { disableUserPods, enableUserPods } from '../pod/pod.services';
 
@@ -14,12 +20,19 @@ export async function findUserByPhone(phone: string): Promise<User | null> {
 }
 
 export async function findUserByUsername(username: string): Promise<User | null> {
-  const doc = await UserModel.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } }).lean({ virtuals: true });
+  const doc = await UserModel.findOne({
+    username: { $regex: new RegExp(`^${username}$`, 'i') },
+  }).lean({ virtuals: true });
   return toUser(doc);
 }
 
-export async function isUsernameAvailable(username: string, excludeUserId?: string): Promise<boolean> {
-  const filter: Record<string, unknown> = { username: { $regex: new RegExp(`^${username}$`, 'i') } };
+export async function isUsernameAvailable(
+  username: string,
+  excludeUserId?: string,
+): Promise<boolean> {
+  const filter: Record<string, unknown> = {
+    username: { $regex: new RegExp(`^${username}$`, 'i') },
+  };
   if (excludeUserId) filter._id = { $ne: excludeUserId };
   const count = await UserModel.countDocuments(filter);
   return count === 0;
@@ -50,7 +63,11 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Us
   if (input.age !== undefined) update.age = input.age;
   if (input.email !== undefined) update.email = input.email;
 
-  const updated = await UserModel.findByIdAndUpdate(id, { $set: update }, { returnDocument: 'after' }).lean({
+  const updated = await UserModel.findByIdAndUpdate(
+    id,
+    { $set: update },
+    { returnDocument: 'after' },
+  ).lean({
     virtuals: true,
   });
   const result = toUser(updated);
@@ -132,7 +149,11 @@ export async function getPaginatedUsers(input: PaginationInput): Promise<Paginat
   };
 }
 
-export async function toggleUserActive(id: string, isActive: boolean, reason: string): Promise<User> {
+export async function toggleUserActive(
+  id: string,
+  isActive: boolean,
+  reason: string,
+): Promise<User> {
   const updated = await UserModel.findByIdAndUpdate(
     id,
     { $set: { isActive, disableReason: isActive ? '' : reason } },
@@ -212,7 +233,10 @@ export async function getSavedPodIds(userId: string): Promise<string[]> {
   return userDoc.savedPodIds ?? [];
 }
 
-export async function updateThemePreference(userId: string, themePreference: string): Promise<User> {
+export async function updateThemePreference(
+  userId: string,
+  themePreference: string,
+): Promise<User> {
   if (!['light', 'dark'].includes(themePreference)) {
     throw new Error('Invalid theme preference. Must be "light" or "dark".');
   }

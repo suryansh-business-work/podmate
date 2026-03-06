@@ -39,8 +39,12 @@ const StatusCounts: React.FC<StatusCountsProps> = (counts) => {
         >
           <Icon sx={{ fontSize: 36, color }} />
           <Box>
-            <Typography variant="h5" fontWeight={700}>{counts[key]}</Typography>
-            <Typography variant="body2" color="text.secondary">{label}</Typography>
+            <Typography variant="h5" fontWeight={700}>
+              {counts[key]}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {label}
+            </Typography>
           </Box>
         </Card>
       ))}

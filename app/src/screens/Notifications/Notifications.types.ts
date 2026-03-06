@@ -12,7 +12,10 @@ export interface NotificationsScreenProps {
   onBack: () => void;
 }
 
-export const NOTIFICATION_ICON_MAP: Record<string, { name: string; family: 'material' | 'community' }> = {
+export const NOTIFICATION_ICON_MAP: Record<
+  string,
+  { name: string; family: 'material' | 'community' }
+> = {
   POD_JOIN: { name: 'group', family: 'material' },
   POD_LEAVE: { name: 'group-remove', family: 'material' },
   SUPPORT_REPLY: { name: 'support-agent', family: 'material' },

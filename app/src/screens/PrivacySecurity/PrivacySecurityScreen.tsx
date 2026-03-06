@@ -1,12 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Switch,
-  Alert,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -41,11 +34,22 @@ const PrivacySecurityScreen: React.FC<PrivacySecurityScreenProps> = ({ onBack })
         'Are you sure you want to permanently delete your account? This action cannot be undone.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Delete', style: 'destructive', onPress: () => Alert.alert('Account Deletion', 'Your request has been submitted. Our team will process it within 48 hours.') },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () =>
+              Alert.alert(
+                'Account Deletion',
+                'Your request has been submitted. Our team will process it within 48 hours.',
+              ),
+          },
         ],
       );
     } else if (key === 'download_data') {
-      Alert.alert('Download Data', 'Your data export will be prepared and sent to your registered email within 24 hours.');
+      Alert.alert(
+        'Download Data',
+        'Your data export will be prepared and sent to your registered email within 24 hours.',
+      );
     } else if (key === 'active_sessions') {
       Alert.alert('Active Sessions', 'You are currently logged in on 1 device.');
     }

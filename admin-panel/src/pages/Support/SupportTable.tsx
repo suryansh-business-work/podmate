@@ -1,7 +1,17 @@
 import React from 'react';
 import {
-  Table, TableHead, TableBody, TableRow, TableCell, TableContainer,
-  Typography, Chip, IconButton, Card, TablePagination, TableSortLabel,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Typography,
+  Chip,
+  IconButton,
+  Card,
+  TablePagination,
+  TableSortLabel,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
@@ -32,9 +42,18 @@ const COLUMNS = [
 ] as const;
 
 const SupportTable: React.FC<SupportTableProps> = ({
-  tickets, total, page, rowsPerPage, sortBy, order,
-  onSort, onPageChange, onRowsPerPageChange,
-  onView, onEdit, onDelete,
+  tickets,
+  total,
+  page,
+  rowsPerPage,
+  sortBy,
+  order,
+  onSort,
+  onPageChange,
+  onRowsPerPageChange,
+  onView,
+  onEdit,
+  onDelete,
 }) => (
   <Card>
     <TableContainer>
@@ -51,10 +70,14 @@ const SupportTable: React.FC<SupportTableProps> = ({
                   >
                     {col.label}
                   </TableSortLabel>
-                ) : col.label}
+                ) : (
+                  col.label
+                )}
               </TableCell>
             ))}
-            <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
+            <TableCell sx={{ fontWeight: 600 }} align="right">
+              Actions
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -67,24 +90,44 @@ const SupportTable: React.FC<SupportTableProps> = ({
               </TableCell>
               <TableCell>
                 <Typography variant="body2">{ticket.user?.name ?? 'Unknown'}</Typography>
-                <Typography variant="caption" color="text.secondary">{ticket.user?.phone ?? ''}</Typography>
-              </TableCell>
-              <TableCell>
-                <Chip label={ticket.status.replace('_', ' ')} size="small" color={STATUS_COLORS[ticket.status] ?? 'default'} variant="outlined" />
+                <Typography variant="caption" color="text.secondary">
+                  {ticket.user?.phone ?? ''}
+                </Typography>
               </TableCell>
               <TableCell>
                 <Chip
-                  label={ticket.priority} size="small"
-                  sx={{ bgcolor: `${PRIORITY_COLORS[ticket.priority] ?? '#999'}20`, color: PRIORITY_COLORS[ticket.priority] ?? '#999', fontWeight: 600 }}
+                  label={ticket.status.replace('_', ' ')}
+                  size="small"
+                  color={STATUS_COLORS[ticket.status] ?? 'default'}
+                  variant="outlined"
                 />
               </TableCell>
               <TableCell>
-                <Typography variant="caption">{new Date(ticket.createdAt).toLocaleDateString()}</Typography>
+                <Chip
+                  label={ticket.priority}
+                  size="small"
+                  sx={{
+                    bgcolor: `${PRIORITY_COLORS[ticket.priority] ?? '#999'}20`,
+                    color: PRIORITY_COLORS[ticket.priority] ?? '#999',
+                    fontWeight: 600,
+                  }}
+                />
+              </TableCell>
+              <TableCell>
+                <Typography variant="caption">
+                  {new Date(ticket.createdAt).toLocaleDateString()}
+                </Typography>
               </TableCell>
               <TableCell align="right">
-                <IconButton size="small" onClick={() => onView(ticket)}><VisibilityIcon fontSize="small" /></IconButton>
-                <IconButton size="small" onClick={() => onEdit(ticket)}><EditIcon fontSize="small" /></IconButton>
-                <IconButton size="small" color="error" onClick={() => onDelete(ticket.id)}><DeleteIcon fontSize="small" /></IconButton>
+                <IconButton size="small" onClick={() => onView(ticket)}>
+                  <VisibilityIcon fontSize="small" />
+                </IconButton>
+                <IconButton size="small" onClick={() => onEdit(ticket)}>
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton size="small" color="error" onClick={() => onDelete(ticket.id)}>
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               </TableCell>
             </TableRow>
           ))}

@@ -33,7 +33,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { GET_FEATURE_FLAGS } from '../graphql/queries';
-import { CREATE_FEATURE_FLAG, UPDATE_FEATURE_FLAG, DELETE_FEATURE_FLAG, TOGGLE_FEATURE_FLAG } from '../graphql/mutations';
+import {
+  CREATE_FEATURE_FLAG,
+  UPDATE_FEATURE_FLAG,
+  DELETE_FEATURE_FLAG,
+  TOGGLE_FEATURE_FLAG,
+} from '../graphql/mutations';
 
 interface FeatureFlag {
   id: string;
@@ -126,25 +131,35 @@ const FeatureFlagsPage: React.FC = () => {
     refetch();
   }, [editingFlag, form, updateFlag, createFlag, refetch]);
 
-  const handleDelete = useCallback(async (id: string) => {
-    await deleteFlag({ variables: { id } });
-    refetch();
-  }, [deleteFlag, refetch]);
+  const handleDelete = useCallback(
+    async (id: string) => {
+      await deleteFlag({ variables: { id } });
+      refetch();
+    },
+    [deleteFlag, refetch],
+  );
 
-  const handleToggle = useCallback(async (id: string) => {
-    await toggleFlag({ variables: { id } });
-    refetch();
-  }, [toggleFlag, refetch]);
+  const handleToggle = useCallback(
+    async (id: string) => {
+      await toggleFlag({ variables: { id } });
+      refetch();
+    },
+    [toggleFlag, refetch],
+  );
 
   return (
     <Box>
       <Breadcrumbs sx={{ mb: 2 }}>
-        <Link underline="hover" color="inherit" href="/dashboard">Dashboard</Link>
+        <Link underline="hover" color="inherit" href="/dashboard">
+          Dashboard
+        </Link>
         <Typography color="text.primary">Feature Flags</Typography>
       </Breadcrumbs>
 
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h5" fontWeight={700}>Feature Flags</Typography>
+        <Typography variant="h5" fontWeight={700}>
+          Feature Flags
+        </Typography>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
           Create Flag
         </Button>
@@ -160,11 +175,17 @@ const FeatureFlagsPage: React.FC = () => {
         />
       </Paper>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error.message}
+        </Alert>
+      )}
 
       <TableContainer component={Paper}>
         {loading && !data ? (
-          <Box display="flex" justifyContent="center" p={4}><CircularProgress /></Box>
+          <Box display="flex" justifyContent="center" p={4}>
+            <CircularProgress />
+          </Box>
         ) : flags.length === 0 ? (
           <Box p={4} textAlign="center">
             <Typography color="text.secondary">No feature flags found</Typography>
@@ -184,12 +205,20 @@ const FeatureFlagsPage: React.FC = () => {
             <TableBody>
               {flags.map((flag: FeatureFlag) => (
                 <TableRow key={flag.id}>
-                  <TableCell><code>{flag.key}</code></TableCell>
                   <TableCell>
-                    <Typography variant="body2" fontWeight={600}>{flag.name}</Typography>
-                    <Typography variant="caption" color="text.secondary">{flag.description}</Typography>
+                    <code>{flag.key}</code>
                   </TableCell>
-                  <TableCell><Chip label={flag.platform} size="small" /></TableCell>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={600}>
+                      {flag.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {flag.description}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip label={flag.platform} size="small" />
+                  </TableCell>
                   <TableCell>
                     <Chip
                       label={`${flag.rolloutPercentage}%`}
@@ -201,8 +230,12 @@ const FeatureFlagsPage: React.FC = () => {
                     <Switch checked={flag.enabled} onChange={() => handleToggle(flag.id)} />
                   </TableCell>
                   <TableCell>
-                    <IconButton onClick={() => handleOpenEdit(flag)} size="small"><EditIcon /></IconButton>
-                    <IconButton onClick={() => handleDelete(flag.id)} size="small" color="error"><DeleteIcon /></IconButton>
+                    <IconButton onClick={() => handleOpenEdit(flag)} size="small">
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={() => handleDelete(flag.id)} size="small" color="error">
+                      <DeleteIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -215,7 +248,10 @@ const FeatureFlagsPage: React.FC = () => {
           page={page}
           onPageChange={(_, p) => setPage(p)}
           rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
         />
       </TableContainer>
 
@@ -272,7 +308,9 @@ const FeatureFlagsPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>Save</Button>
+          <Button variant="contained" onClick={handleSave}>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

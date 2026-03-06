@@ -23,7 +23,16 @@ interface CreatePlaceDialogProps {
   onCreated: () => void;
 }
 
-const INITIAL = { name: '', description: '', address: '', city: '', category: 'Restaurant', phone: '', email: '', ownerId: '' };
+const INITIAL = {
+  name: '',
+  description: '',
+  address: '',
+  city: '',
+  category: 'Restaurant',
+  phone: '',
+  email: '',
+  ownerId: '',
+};
 
 const CreatePlaceDialog: React.FC<CreatePlaceDialogProps> = ({ open, onClose, onCreated }) => {
   const [form, setForm] = useState(INITIAL);
@@ -64,17 +73,45 @@ const CreatePlaceDialog: React.FC<CreatePlaceDialogProps> = ({ open, onClose, on
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Create Place</DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+      <DialogContent
+        sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}
+      >
         {error && <Alert severity="error">{error}</Alert>}
-        <TextField label="Name" value={form.name} onChange={(e) => update('name', e.target.value)} fullWidth />
-        <TextField label="Description" value={form.description} onChange={(e) => update('description', e.target.value)} multiline rows={3} fullWidth />
+        <TextField
+          label="Name"
+          value={form.name}
+          onChange={(e) => update('name', e.target.value)}
+          fullWidth
+        />
+        <TextField
+          label="Description"
+          value={form.description}
+          onChange={(e) => update('description', e.target.value)}
+          multiline
+          rows={3}
+          fullWidth
+        />
         <Box display="flex" gap={2}>
-          <TextField label="Address" value={form.address} onChange={(e) => update('address', e.target.value)} fullWidth />
-          <TextField label="City" value={form.city} onChange={(e) => update('city', e.target.value)} fullWidth />
+          <TextField
+            label="Address"
+            value={form.address}
+            onChange={(e) => update('address', e.target.value)}
+            fullWidth
+          />
+          <TextField
+            label="City"
+            value={form.city}
+            onChange={(e) => update('city', e.target.value)}
+            fullWidth
+          />
         </Box>
         <FormControl fullWidth>
           <InputLabel>Category</InputLabel>
-          <Select value={form.category} label="Category" onChange={(e) => update('category', e.target.value)}>
+          <Select
+            value={form.category}
+            label="Category"
+            onChange={(e) => update('category', e.target.value)}
+          >
             <MenuItem value="Restaurant">Restaurant</MenuItem>
             <MenuItem value="Cafe">Cafe</MenuItem>
             <MenuItem value="Bar">Bar</MenuItem>
@@ -84,10 +121,25 @@ const CreatePlaceDialog: React.FC<CreatePlaceDialogProps> = ({ open, onClose, on
           </Select>
         </FormControl>
         <Box display="flex" gap={2}>
-          <TextField label="Phone" value={form.phone} onChange={(e) => update('phone', e.target.value)} fullWidth />
-          <TextField label="Email" value={form.email} onChange={(e) => update('email', e.target.value)} fullWidth />
+          <TextField
+            label="Phone"
+            value={form.phone}
+            onChange={(e) => update('phone', e.target.value)}
+            fullWidth
+          />
+          <TextField
+            label="Email"
+            value={form.email}
+            onChange={(e) => update('email', e.target.value)}
+            fullWidth
+          />
         </Box>
-        <TextField label="Owner ID (optional, defaults to admin)" value={form.ownerId} onChange={(e) => update('ownerId', e.target.value)} fullWidth />
+        <TextField
+          label="Owner ID (optional, defaults to admin)"
+          value={form.ownerId}
+          onChange={(e) => update('ownerId', e.target.value)}
+          fullWidth
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>

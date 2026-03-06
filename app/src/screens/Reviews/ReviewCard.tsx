@@ -15,17 +15,17 @@ interface ReviewCardProps {
 const Stars: React.FC<{ rating: number; size?: number }> = ({ rating, size = 14 }) => {
   const colors = useAppColors();
   return (
-  <View style={{ flexDirection: 'row', gap: 1 }}>
-    {[1, 2, 3, 4, 5].map((i) => (
-      <MaterialIcons
-        key={i}
-        name={i <= rating ? 'star' : 'star-border'}
-        size={size}
-        color={i <= rating ? colors.warning : colors.textTertiary}
-      />
-    ))}
-  </View>
-);
+    <View style={{ flexDirection: 'row', gap: 1 }}>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <MaterialIcons
+          key={i}
+          name={i <= rating ? 'star' : 'star-border'}
+          size={size}
+          color={i <= rating ? colors.warning : colors.textTertiary}
+        />
+      ))}
+    </View>
+  );
 };
 
 const ReviewCard: React.FC<ReviewCardProps> = memo(({ review, onReply, onReport }) => {
@@ -71,7 +71,9 @@ const ReviewCard: React.FC<ReviewCardProps> = memo(({ review, onReply, onReport 
             <View key={reply.id} style={styles.replyCard}>
               <View style={styles.replyHeader}>
                 <Text style={styles.replyName}>{reply.user.name}</Text>
-                <Text style={styles.replyDate}>• {new Date(reply.createdAt).toLocaleDateString()}</Text>
+                <Text style={styles.replyDate}>
+                  • {new Date(reply.createdAt).toLocaleDateString()}
+                </Text>
               </View>
               <Text style={styles.replyText}>{reply.comment}</Text>
             </View>

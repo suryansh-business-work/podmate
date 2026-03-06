@@ -1,9 +1,17 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FeedbackModel, toFeedback } from './feedback.models';
-import type { Feedback, PaginatedFeedback, CreateFeedbackInput, FeedbackStatus } from './feedback.models';
+import type {
+  Feedback,
+  PaginatedFeedback,
+  CreateFeedbackInput,
+  FeedbackStatus,
+} from './feedback.models';
 import logger from '../../lib/logger';
 
-export async function createFeedback(userId: string, input: CreateFeedbackInput): Promise<Feedback> {
+export async function createFeedback(
+  userId: string,
+  input: CreateFeedbackInput,
+): Promise<Feedback> {
   const now = new Date().toISOString();
   const doc = await FeedbackModel.create({
     _id: uuidv4(),

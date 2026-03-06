@@ -111,7 +111,11 @@ const DashboardPage: React.FC = () => {
         Dashboard
       </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error.message}
+        </Alert>
+      )}
 
       <Grid container spacing={3}>
         {stats.map((stat) => (

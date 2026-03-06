@@ -72,7 +72,11 @@ export const useAuth = () => {
           verifyingOtp: false,
         }));
       } else {
-        setState((prev) => ({ ...prev, otpError: 'Verification failed. Please try again.', verifyingOtp: false }));
+        setState((prev) => ({
+          ...prev,
+          otpError: 'Verification failed. Please try again.',
+          verifyingOtp: false,
+        }));
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Verification failed. Please try again.';

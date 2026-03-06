@@ -3,7 +3,6 @@ import { Image, View, type ImageStyle, type StyleProp, type ViewStyle } from 're
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useAppColors } from '../hooks/useThemedStyles';
 
-
 interface SafeImageProps {
   uri: string | null | undefined;
   style?: StyleProp<ImageStyle>;

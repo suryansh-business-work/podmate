@@ -1,6 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, TextInput, ActivityIndicator, Alert,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@apollo/client';
@@ -26,9 +32,7 @@ const ContactPicker: React.FC<ContactPickerProps> = ({ podId, podTitle, onDone, 
   });
 
   const toggleContact = useCallback((id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }, []);
 
   const handleSend = async () => {
@@ -48,26 +52,33 @@ const ContactPicker: React.FC<ContactPickerProps> = ({ podId, podTitle, onDone, 
     }
   };
 
-  const renderContact = useCallback(({ item }: { item: DeviceContact }) => {
-    const isSelected = selectedIds.includes(item.id);
-    return (
-      <TouchableOpacity style={styles.contactRow} onPress={() => toggleContact(item.id)} activeOpacity={0.7}>
-        <View style={styles.contactAvatar}>
-          <Text style={styles.contactInitial}>{item.name.charAt(0).toUpperCase()}</Text>
-        </View>
-        <View style={styles.contactInfo}>
-          <Text style={styles.contactName}>{item.name}</Text>
-          <View style={styles.phoneRow}>
-            <MaterialIcons name="smartphone" size={13} color={colors.textTertiary} />
-            <Text style={styles.contactPhone}>{item.phone}</Text>
+  const renderContact = useCallback(
+    ({ item }: { item: DeviceContact }) => {
+      const isSelected = selectedIds.includes(item.id);
+      return (
+        <TouchableOpacity
+          style={styles.contactRow}
+          onPress={() => toggleContact(item.id)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.contactAvatar}>
+            <Text style={styles.contactInitial}>{item.name.charAt(0).toUpperCase()}</Text>
           </View>
-        </View>
-        <View style={[styles.checkCircle, isSelected && styles.checkCircleActive]}>
-          {isSelected && <MaterialIcons name="check" size={16} color={colors.white} />}
-        </View>
-      </TouchableOpacity>
-    );
-  }, [selectedIds, toggleContact]);
+          <View style={styles.contactInfo}>
+            <Text style={styles.contactName}>{item.name}</Text>
+            <View style={styles.phoneRow}>
+              <MaterialIcons name="smartphone" size={13} color={colors.textTertiary} />
+              <Text style={styles.contactPhone}>{item.phone}</Text>
+            </View>
+          </View>
+          <View style={[styles.checkCircle, isSelected && styles.checkCircleActive]}>
+            {isSelected && <MaterialIcons name="check" size={16} color={colors.white} />}
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [selectedIds, toggleContact],
+  );
 
   if (loadingContacts) {
     return (
@@ -109,7 +120,7 @@ const ContactPicker: React.FC<ContactPickerProps> = ({ podId, podTitle, onDone, 
       </View>
 
       <Text style={styles.podLabel}>
-        <MaterialIcons name="event" size={14} color={colors.primary} />{' '}{podTitle}
+        <MaterialIcons name="event" size={14} color={colors.primary} /> {podTitle}
       </Text>
 
       <View style={styles.searchRow}>
@@ -157,7 +168,12 @@ const ContactPicker: React.FC<ContactPickerProps> = ({ podId, podTitle, onDone, 
 
       {selectedIds.length > 0 && (
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.sendBtn} onPress={handleSend} disabled={sending} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.sendBtn}
+            onPress={handleSend}
+            disabled={sending}
+            activeOpacity={0.8}
+          >
             {sending ? (
               <ActivityIndicator size="small" color={colors.white} />
             ) : (

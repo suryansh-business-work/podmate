@@ -146,7 +146,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
         contentContainerStyle={styles.categoriesContent}
       >
         {CATEGORIES.map((cat) => (
-          <CategoryChip key={cat} label={cat} selected={selectedCategory === cat} onPress={() => setSelectedCategory(cat)} />
+          <CategoryChip
+            key={cat}
+            label={cat}
+            selected={selectedCategory === cat}
+            onPress={() => setSelectedCategory(cat)}
+          />
         ))}
       </ScrollView>
 
@@ -208,7 +213,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
             {locationLoading ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : (
-              <MaterialIcons name="my-location" size={22} color={location ? colors.primary : colors.text} />
+              <MaterialIcons
+                name="my-location"
+                size={22}
+                color={location ? colors.primary : colors.text}
+              />
             )}
           </TouchableOpacity>
           <TouchableOpacity style={styles.notificationBtn}>
@@ -228,7 +237,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress }) => {
         onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[colors.primary]} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={[colors.primary]}
+          />
+        }
       />
     </SafeAreaView>
   );

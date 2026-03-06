@@ -42,4 +42,8 @@ export const statusColor: Record<string, 'warning' | 'success' | 'error' | 'defa
 export const STATUS_TABS = ['ALL', 'PENDING', 'APPROVED', 'REJECTED'];
 
 export const formatDate = (dateStr: string): string =>
-  new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  new Date(dateStr).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });

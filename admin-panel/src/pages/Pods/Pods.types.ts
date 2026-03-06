@@ -53,7 +53,11 @@ export const statusColor: Record<string, 'success' | 'warning' | 'info' | 'defau
 };
 
 export const formatDate = (dateStr: string): string =>
-  new Date(dateStr).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  new Date(dateStr).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
 
 export const formatTime = (dateStr: string): string =>
   new Date(dateStr).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });

@@ -3,7 +3,10 @@ import { LiveSessionModel, toLiveSession } from './goLive.models';
 import type { LiveSession, PaginatedLiveSessions, StartLiveInput } from './goLive.models';
 import logger from '../../lib/logger';
 
-export async function startLiveSession(hostId: string, input: StartLiveInput): Promise<LiveSession> {
+export async function startLiveSession(
+  hostId: string,
+  input: StartLiveInput,
+): Promise<LiveSession> {
   // Check if user already has an active session
   const existing = await LiveSessionModel.findOne({ hostId, status: 'LIVE' }).lean();
   if (existing) {

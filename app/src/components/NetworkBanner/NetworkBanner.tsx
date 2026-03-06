@@ -5,7 +5,6 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../../hooks/useThemedStyles';
 
-
 const NetworkBanner: React.FC = () => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
@@ -92,31 +91,32 @@ const NetworkBanner: React.FC = () => {
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 9999,
-    elevation: 10,
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  text: {
-    color: colors.white,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  retryBtn: {
-    padding: 4,
-  },
-});
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+  StyleSheet.create({
+    container: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 9999,
+      elevation: 10,
+    },
+    content: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      gap: 8,
+    },
+    text: {
+      color: colors.white,
+      fontSize: 13,
+      fontWeight: '600',
+    },
+    retryBtn: {
+      padding: 4,
+    },
+  });
 
 export default NetworkBanner;

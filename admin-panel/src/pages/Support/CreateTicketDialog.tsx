@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, MenuItem, Button, CircularProgress, Stack, Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Button,
+  CircularProgress,
+  Stack,
+  Alert,
 } from '@mui/material';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_USERS } from '../../graphql/queries';

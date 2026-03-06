@@ -39,9 +39,7 @@ export async function getCurrentLocation(): Promise<LocationData | null> {
     }
 
     const position = await Location.getCurrentPositionAsync({
-      accuracy: Platform.OS === 'android'
-        ? Location.Accuracy.Balanced
-        : Location.Accuracy.Balanced,
+      accuracy: Platform.OS === 'android' ? Location.Accuracy.Balanced : Location.Accuracy.Balanced,
     });
 
     const { latitude, longitude } = position.coords;
@@ -86,7 +84,16 @@ export async function getLocationFromPincode(pincode: string): Promise<LocationD
     const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
     if (!response.ok) return null;
 
-    const data = await response.json() as Array<{ Status: string; PostOffice?: Array<{ District: string; Division: string; Pincode: string; State: string; Name: string }> }>;
+    const data = (await response.json()) as Array<{
+      Status: string;
+      PostOffice?: Array<{
+        District: string;
+        Division: string;
+        Pincode: string;
+        State: string;
+        Name: string;
+      }>;
+    }>;
     if (!data || data.length === 0 || data[0].Status !== 'Success') return null;
 
     const postOffice = data[0].PostOffice?.[0];
@@ -112,7 +119,10 @@ const STORAGE_KEYS = {
   SERVICE_AVAILABLE: '@partywings_service_available',
 } as const;
 
-export async function saveLocation(location: LocationData, serviceAvailable: boolean): Promise<void> {
+export async function saveLocation(
+  location: LocationData,
+  serviceAvailable: boolean,
+): Promise<void> {
   try {
     await AsyncStorage.multiSet([
       [STORAGE_KEYS.LOCATION, JSON.stringify(location)],
@@ -123,9 +133,15 @@ export async function saveLocation(location: LocationData, serviceAvailable: boo
   }
 }
 
-export async function getSavedLocation(): Promise<{ location: LocationData | null; isServiceAvailable: boolean }> {
+export async function getSavedLocation(): Promise<{
+  location: LocationData | null;
+  isServiceAvailable: boolean;
+}> {
   try {
-    const results = await AsyncStorage.multiGet([STORAGE_KEYS.LOCATION, STORAGE_KEYS.SERVICE_AVAILABLE]);
+    const results = await AsyncStorage.multiGet([
+      STORAGE_KEYS.LOCATION,
+      STORAGE_KEYS.SERVICE_AVAILABLE,
+    ]);
     const locationStr = results[0][1];
     const serviceStr = results[1][1];
 

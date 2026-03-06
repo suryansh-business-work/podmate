@@ -7,7 +7,7 @@ jest.mock('react-native-safe-area-context', () => {
   const inset = { top: 0, right: 0, bottom: 0, left: 0 };
   return {
     SafeAreaProvider: ({ children }: { children: any }) => children,
-    SafeAreaView: ({ children, ...props }: { children: any; [key: string]: any }) => 
+    SafeAreaView: ({ children, ...props }: { children: any; [key: string]: any }) =>
       mockReact.createElement(View, props, children),
     useSafeAreaInsets: () => inset,
     useSafeAreaFrame: () => ({ x: 0, y: 0, width: 390, height: 844 }),
@@ -19,7 +19,7 @@ jest.mock('expo-linear-gradient', () => {
   const mockReact = require('react');
   const { View } = require('react-native');
   return {
-    LinearGradient: ({ children, ...props }: { children: any; [key: string]: any }) => 
+    LinearGradient: ({ children, ...props }: { children: any; [key: string]: any }) =>
       mockReact.createElement(View, props, children),
   };
 });
@@ -42,7 +42,7 @@ jest.mock('@apollo/client', () => ({
 
 // Mock async storage
 jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 
 // Mock useThemedStyles hook
@@ -103,8 +103,7 @@ beforeAll(() => {
   console.warn = (...args: unknown[]) => {
     if (
       typeof args[0] === 'string' &&
-      (args[0].includes('componentWillReceiveProps') ||
-        args[0].includes('componentWillMount'))
+      (args[0].includes('componentWillReceiveProps') || args[0].includes('componentWillMount'))
     ) {
       return;
     }
@@ -112,10 +111,7 @@ beforeAll(() => {
   };
 
   console.error = (...args: unknown[]) => {
-    if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: An update to')
-    ) {
+    if (typeof args[0] === 'string' && args[0].includes('Warning: An update to')) {
       return;
     }
     originalError.apply(console, args);

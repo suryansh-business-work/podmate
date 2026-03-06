@@ -45,9 +45,15 @@ const RootNavigator: React.FC = () => {
 
   useEffect(() => {
     const onBackPress = () => {
-      if (drawer.drawerOpen) { drawer.closeDrawer(); return true; }
+      if (drawer.drawerOpen) {
+        drawer.closeDrawer();
+        return true;
+      }
       const nav = navigationRef.current;
-      if (nav && nav.canGoBack()) { nav.goBack(); return true; }
+      if (nav && nav.canGoBack()) {
+        nav.goBack();
+        return true;
+      }
       Alert.alert('Exit PartyWings', 'Are you sure you want to exit?', [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Exit', style: 'destructive', onPress: () => BackHandler.exitApp() },
@@ -58,7 +64,10 @@ const RootNavigator: React.FC = () => {
     return () => sub.remove();
   }, [drawer.drawerOpen, drawer.closeDrawer]);
 
-  const handleProfileNavigate = (screen: string, navigation: { navigate: (name: string, params?: Record<string, unknown>) => void }) => {
+  const handleProfileNavigate = (
+    screen: string,
+    navigation: { navigate: (name: string, params?: Record<string, unknown>) => void },
+  ) => {
     const map: Record<string, () => void> = {
       EditProfile: () => navigation.navigate('EditProfile'),
       MyPods: () => navigation.navigate('MyPods'),
@@ -107,7 +116,13 @@ const RootNavigator: React.FC = () => {
     <View style={{ flex: 1 }}>
       <NetworkBanner />
       <NavigationContainer ref={navigationRef}>
-        <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade_from_bottom', animationDuration: 250 }}>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            animation: 'fade_from_bottom',
+            animationDuration: 250,
+          }}
+        >
           {!auth.isAuthenticated ? (
             <>
               {!auth.otpPhone ? (
@@ -117,7 +132,14 @@ const RootNavigator: React.FC = () => {
               ) : (
                 <Stack.Screen name="Otp">
                   {() => (
-                    <OtpScreen phone={auth.otpPhone} onVerify={auth.handleVerifyOtp} onBack={auth.clearOtp} onResend={auth.handleResendOtp} loading={auth.verifyingOtp} error={auth.otpError} />
+                    <OtpScreen
+                      phone={auth.otpPhone}
+                      onVerify={auth.handleVerifyOtp}
+                      onBack={auth.clearOtp}
+                      onResend={auth.handleResendOtp}
+                      loading={auth.verifyingOtp}
+                      error={auth.otpError}
+                    />
                   )}
                 </Stack.Screen>
               )}
@@ -146,7 +168,9 @@ const RootNavigator: React.FC = () => {
                     podId={(route.params as { podId: string })?.podId}
                     onBack={() => navigation.goBack()}
                     onCheckout={(id: string) => navigation.navigate('Checkout', { podId: id })}
-                    onReviews={(targetType, targetId, targetTitle) => navigation.navigate('Reviews', { targetType, targetId, targetTitle })}
+                    onReviews={(targetType, targetId, targetTitle) =>
+                      navigation.navigate('Reviews', { targetType, targetId, targetTitle })
+                    }
                     onGoLive={() => navigation.navigate('GoLive')}
                     onUserProfile={(userId) => navigation.navigate('UserProfile', { userId })}
                   />
@@ -198,7 +222,11 @@ const RootNavigator: React.FC = () => {
               </Stack.Screen>
               <Stack.Screen name="Reviews" options={{ presentation: 'card' }}>
                 {({ navigation, route }) => {
-                  const params = route.params as { targetType: 'POD' | 'PLACE'; targetId: string; targetTitle: string };
+                  const params = route.params as {
+                    targetType: 'POD' | 'PLACE';
+                    targetId: string;
+                    targetTitle: string;
+                  };
                   return (
                     <ReviewsScreen
                       targetType={params.targetType}
@@ -220,7 +248,11 @@ const RootNavigator: React.FC = () => {
               </Stack.Screen>
               <Stack.Screen name="FollowList" options={{ presentation: 'card' }}>
                 {({ navigation, route }) => {
-                  const params = route.params as { userId: string; userName: string; initialTab?: 'followers' | 'following' };
+                  const params = route.params as {
+                    userId: string;
+                    userName: string;
+                    initialTab?: 'followers' | 'following';
+                  };
                   return (
                     <FollowListScreen
                       userId={params.userId}
@@ -240,8 +272,20 @@ const RootNavigator: React.FC = () => {
                       userId={params.userId}
                       onBack={() => navigation.goBack()}
                       onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
-                      onFollowers={(id, name) => navigation.navigate('FollowList', { userId: id, userName: name, initialTab: 'followers' })}
-                      onFollowing={(id, name) => navigation.navigate('FollowList', { userId: id, userName: name, initialTab: 'following' })}
+                      onFollowers={(id, name) =>
+                        navigation.navigate('FollowList', {
+                          userId: id,
+                          userName: name,
+                          initialTab: 'followers',
+                        })
+                      }
+                      onFollowing={(id, name) =>
+                        navigation.navigate('FollowList', {
+                          userId: id,
+                          userName: name,
+                          initialTab: 'following',
+                        })
+                      }
                     />
                   );
                 }}
@@ -258,10 +302,23 @@ const RootNavigator: React.FC = () => {
       {drawer.drawerOpen && (
         <>
           <Animated.View style={[drawerStyles.overlay, { opacity: drawer.overlayAnim }]}>
-            <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={drawer.closeDrawer} />
+            <TouchableOpacity
+              style={StyleSheet.absoluteFill}
+              activeOpacity={1}
+              onPress={drawer.closeDrawer}
+            />
           </Animated.View>
-          <Animated.View style={[drawerStyles.drawer, { transform: [{ translateX: drawer.drawerAnim }], width: DRAWER_WIDTH }]}>
-            <DrawerMenu onClose={drawer.closeDrawer} onNavigate={handleDrawerNavigate} onLogout={handleLogoutAndClose} />
+          <Animated.View
+            style={[
+              drawerStyles.drawer,
+              { transform: [{ translateX: drawer.drawerAnim }], width: DRAWER_WIDTH },
+            ]}
+          >
+            <DrawerMenu
+              onClose={drawer.closeDrawer}
+              onNavigate={handleDrawerNavigate}
+              onLogout={handleLogoutAndClose}
+            />
           </Animated.View>
         </>
       )}

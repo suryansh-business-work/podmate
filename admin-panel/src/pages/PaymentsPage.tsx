@@ -120,51 +120,88 @@ const PaymentsPage: React.FC = () => {
     refetch();
   }, [selectedPayment, refundAmount, refundNotes, processRefund, refetch]);
 
-  const handleCompletePayment = useCallback(async (id: string) => {
-    await completePayment({ variables: { id } });
-    refetch();
-  }, [completePayment, refetch]);
+  const handleCompletePayment = useCallback(
+    async (id: string) => {
+      await completePayment({ variables: { id } });
+      refetch();
+    },
+    [completePayment, refetch],
+  );
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <Breadcrumbs sx={{ mb: 2 }}>
-        <Link underline="hover" color="inherit" href="/dashboard">Dashboard</Link>
+        <Link underline="hover" color="inherit" href="/dashboard">
+          Dashboard
+        </Link>
         <Typography color="text.primary">Payments</Typography>
       </Breadcrumbs>
 
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>Payments</Typography>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>
+        Payments
+      </Typography>
 
       {stats && (
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
-            <Card><CardContent>
-              <Typography variant="caption" color="text.secondary">Total Revenue</Typography>
-              <Typography variant="h6" fontWeight={700}>₹{stats.totalRevenue.toLocaleString()}</Typography>
-            </CardContent></Card>
+            <Card>
+              <CardContent>
+                <Typography variant="caption" color="text.secondary">
+                  Total Revenue
+                </Typography>
+                <Typography variant="h6" fontWeight={700}>
+                  ₹{stats.totalRevenue.toLocaleString()}
+                </Typography>
+              </CardContent>
+            </Card>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
-            <Card><CardContent>
-              <Typography variant="caption" color="text.secondary">Total Refunds</Typography>
-              <Typography variant="h6" fontWeight={700} color="error">₹{stats.totalRefunds.toLocaleString()}</Typography>
-            </CardContent></Card>
+            <Card>
+              <CardContent>
+                <Typography variant="caption" color="text.secondary">
+                  Total Refunds
+                </Typography>
+                <Typography variant="h6" fontWeight={700} color="error">
+                  ₹{stats.totalRefunds.toLocaleString()}
+                </Typography>
+              </CardContent>
+            </Card>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
-            <Card><CardContent>
-              <Typography variant="caption" color="text.secondary">Net Revenue</Typography>
-              <Typography variant="h6" fontWeight={700} color="success.main">₹{stats.netRevenue.toLocaleString()}</Typography>
-            </CardContent></Card>
+            <Card>
+              <CardContent>
+                <Typography variant="caption" color="text.secondary">
+                  Net Revenue
+                </Typography>
+                <Typography variant="h6" fontWeight={700} color="success.main">
+                  ₹{stats.netRevenue.toLocaleString()}
+                </Typography>
+              </CardContent>
+            </Card>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
-            <Card><CardContent>
-              <Typography variant="caption" color="text.secondary">Transactions</Typography>
-              <Typography variant="h6" fontWeight={700}>{stats.totalTransactions}</Typography>
-            </CardContent></Card>
+            <Card>
+              <CardContent>
+                <Typography variant="caption" color="text.secondary">
+                  Transactions
+                </Typography>
+                <Typography variant="h6" fontWeight={700}>
+                  {stats.totalTransactions}
+                </Typography>
+              </CardContent>
+            </Card>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
-            <Card><CardContent>
-              <Typography variant="caption" color="text.secondary">Pending</Typography>
-              <Typography variant="h6" fontWeight={700} color="warning.main">{stats.pendingPayments}</Typography>
-            </CardContent></Card>
+            <Card>
+              <CardContent>
+                <Typography variant="caption" color="text.secondary">
+                  Pending
+                </Typography>
+                <Typography variant="h6" fontWeight={700} color="warning.main">
+                  {stats.pendingPayments}
+                </Typography>
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
       )}
@@ -180,7 +217,12 @@ const PaymentsPage: React.FC = () => {
           />
           <FormControl size="small" sx={{ minWidth: 120, zIndex: 2 }}>
             <InputLabel>Type</InputLabel>
-            <Select label="Type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} MenuProps={{ disablePortal: false }}>
+            <Select
+              label="Type"
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              MenuProps={{ disablePortal: false }}
+            >
               <MenuItem value="">All</MenuItem>
               <MenuItem value="PAYMENT">Payment</MenuItem>
               <MenuItem value="REFUND">Refund</MenuItem>
@@ -189,7 +231,12 @@ const PaymentsPage: React.FC = () => {
           </FormControl>
           <FormControl size="small" sx={{ minWidth: 120, zIndex: 2 }}>
             <InputLabel>Status</InputLabel>
-            <Select label="Status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} MenuProps={{ disablePortal: false }}>
+            <Select
+              label="Status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              MenuProps={{ disablePortal: false }}
+            >
               <MenuItem value="">All</MenuItem>
               <MenuItem value="PENDING">Pending</MenuItem>
               <MenuItem value="COMPLETED">Completed</MenuItem>
@@ -199,11 +246,17 @@ const PaymentsPage: React.FC = () => {
         </Stack>
       </Paper>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error.message}
+        </Alert>
+      )}
 
       <TableContainer component={Paper}>
         {loading && !data ? (
-          <Box display="flex" justifyContent="center" p={4}><CircularProgress /></Box>
+          <Box display="flex" justifyContent="center" p={4}>
+            <CircularProgress />
+          </Box>
         ) : payments.length === 0 ? (
           <Box p={4} textAlign="center">
             <Typography color="text.secondary">No payments found</Typography>
@@ -227,23 +280,44 @@ const PaymentsPage: React.FC = () => {
                 <TableRow key={p.id}>
                   <TableCell>{p.user?.name ?? p.userId}</TableCell>
                   <TableCell>₹{p.amount.toLocaleString()}</TableCell>
-                  <TableCell><Chip label={p.type} size="small" color={typeColors[p.type] ?? 'default'} /></TableCell>
-                  <TableCell><Chip label={p.status} size="small" color={statusColors[p.status] ?? 'default'} /></TableCell>
-                  <TableCell><Typography variant="caption">{p.transactionId || '—'}</Typography></TableCell>
+                  <TableCell>
+                    <Chip label={p.type} size="small" color={typeColors[p.type] ?? 'default'} />
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={p.status}
+                      size="small"
+                      color={statusColors[p.status] ?? 'default'}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="caption">{p.transactionId || '—'}</Typography>
+                  </TableCell>
                   <TableCell>{p.refundAmount > 0 ? `₹${p.refundAmount}` : '—'}</TableCell>
                   <TableCell>{new Date(p.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={1}>
                       {p.status === 'PENDING' && (
-                        <Button size="small" variant="outlined" onClick={() => handleCompletePayment(p.id)}>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => handleCompletePayment(p.id)}
+                        >
                           Complete
                         </Button>
                       )}
-                      {p.status === 'COMPLETED' && p.type === 'PAYMENT' && p.refundAmount < p.amount && (
-                        <Button size="small" variant="outlined" color="error" onClick={() => handleRefund(p)}>
-                          Refund
-                        </Button>
-                      )}
+                      {p.status === 'COMPLETED' &&
+                        p.type === 'PAYMENT' &&
+                        p.refundAmount < p.amount && (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            onClick={() => handleRefund(p)}
+                          >
+                            Refund
+                          </Button>
+                        )}
                     </Stack>
                   </TableCell>
                 </TableRow>
@@ -257,7 +331,10 @@ const PaymentsPage: React.FC = () => {
           page={page}
           onPageChange={(_, p) => setPage(p)}
           rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
         />
       </TableContainer>
 
@@ -267,7 +344,9 @@ const PaymentsPage: React.FC = () => {
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Typography>
               Original amount: ₹{selectedPayment?.amount.toLocaleString()}
-              {selectedPayment && selectedPayment.refundAmount > 0 && ` (Already refunded: ₹${selectedPayment.refundAmount})`}
+              {selectedPayment &&
+                selectedPayment.refundAmount > 0 &&
+                ` (Already refunded: ₹${selectedPayment.refundAmount})`}
             </Typography>
             <TextField
               label="Refund Amount"
@@ -288,7 +367,9 @@ const PaymentsPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRefundDialog(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleProcessRefund}>Process Refund</Button>
+          <Button variant="contained" color="error" onClick={handleProcessRefund}>
+            Process Refund
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

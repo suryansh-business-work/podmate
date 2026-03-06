@@ -9,7 +9,14 @@ const podResolvers = {
   Query: {
     pods: (
       _: unknown,
-      args: { category?: string; page?: number; limit?: number; search?: string; sortBy?: string; order?: string },
+      args: {
+        category?: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+        sortBy?: string;
+        order?: string;
+      },
     ) => {
       return podService.getPaginatedPods({
         page: args.page ?? 1,
@@ -42,7 +49,11 @@ const podResolvers = {
       return podService.createPod(args.input, auth.userId);
     },
 
-    updatePod: (_: unknown, args: { id: string; input: UpdatePodInput }, context: GraphQLContext) => {
+    updatePod: (
+      _: unknown,
+      args: { id: string; input: UpdatePodInput },
+      context: GraphQLContext,
+    ) => {
       const auth = requireAuth(context);
       return podService.updatePod(args.id, auth.userId, args.input);
     },
@@ -85,17 +96,29 @@ const podResolvers = {
       return podService.trackPodView(args.podId, auth.userId);
     },
 
-    removeAttendee: (_: unknown, args: { podId: string; userId: string; issueRefund: boolean }, context: GraphQLContext) => {
+    removeAttendee: (
+      _: unknown,
+      args: { podId: string; userId: string; issueRefund: boolean },
+      context: GraphQLContext,
+    ) => {
       requireRole(context, UserRole.ADMIN);
       return podService.removeAttendee(args.podId, args.userId, args.issueRefund);
     },
 
-    forceDeletePod: (_: unknown, args: { id: string; issueRefunds: boolean }, context: GraphQLContext) => {
+    forceDeletePod: (
+      _: unknown,
+      args: { id: string; issueRefunds: boolean },
+      context: GraphQLContext,
+    ) => {
       requireRole(context, UserRole.ADMIN);
       return podService.forceDeletePod(args.id, args.issueRefunds);
     },
 
-    bulkDeletePods: (_: unknown, args: { ids: string[]; issueRefunds: boolean }, context: GraphQLContext) => {
+    bulkDeletePods: (
+      _: unknown,
+      args: { ids: string[]; issueRefunds: boolean },
+      context: GraphQLContext,
+    ) => {
       requireRole(context, UserRole.ADMIN);
       return podService.bulkDeletePods(args.ids, args.issueRefunds);
     },

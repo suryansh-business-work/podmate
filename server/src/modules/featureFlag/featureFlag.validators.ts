@@ -7,7 +7,9 @@ export function validateCreateFeatureFlag(input: CreateFeatureFlagInput): void {
     throw new Error('Feature flag key is required');
   }
   if (!KEY_PATTERN.test(input.key)) {
-    throw new Error('Key must be lowercase, start with a letter, and contain only letters, digits, and underscores');
+    throw new Error(
+      'Key must be lowercase, start with a letter, and contain only letters, digits, and underscores',
+    );
   }
   if (input.key.length > 100) {
     throw new Error('Key must be less than 100 characters');

@@ -4,10 +4,7 @@ import type {
   PlatformFeeOverride,
   PaginatedPlatformFeeOverrides,
 } from './platformFee.models';
-import {
-  PlatformFeeConfigModel,
-  PlatformFeeOverrideModel,
-} from './platformFee.models';
+import { PlatformFeeConfigModel, PlatformFeeOverrideModel } from './platformFee.models';
 import logger from '../../lib/logger';
 
 const DEFAULT_FEE_PERCENT = 5;
@@ -23,7 +20,11 @@ export async function getGlobalConfig(): Promise<PlatformFeeConfig> {
     };
   }
   // Return default if not yet configured
-  return { id: 'global', globalFeePercent: DEFAULT_FEE_PERCENT, updatedAt: new Date().toISOString() };
+  return {
+    id: 'global',
+    globalFeePercent: DEFAULT_FEE_PERCENT,
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 export async function upsertGlobalFee(globalFeePercent: number): Promise<PlatformFeeConfig> {
@@ -93,7 +94,14 @@ export async function upsertOverride(input: {
   if (input.id) {
     const doc = await PlatformFeeOverrideModel.findByIdAndUpdate(
       input.id,
-      { $set: { pincode: input.pincode, feePercent: input.feePercent, label: input.label ?? '', updatedAt: now } },
+      {
+        $set: {
+          pincode: input.pincode,
+          feePercent: input.feePercent,
+          label: input.label ?? '',
+          updatedAt: now,
+        },
+      },
       { returnDocument: 'after', lean: true },
     );
     if (!doc) throw new Error('Override not found');

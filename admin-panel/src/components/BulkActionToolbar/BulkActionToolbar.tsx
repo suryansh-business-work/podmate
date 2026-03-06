@@ -34,7 +34,8 @@ const BulkActionToolbar: React.FC<BulkActionToolbarProps> = ({
           </IconButton>
         </Tooltip>
         <Typography variant="subtitle2" color="primary" fontWeight={600}>
-          {selectedCount} {entityType}{selectedCount > 1 ? 's' : ''} selected
+          {selectedCount} {entityType}
+          {selectedCount > 1 ? 's' : ''} selected
         </Typography>
       </Box>
       <Button

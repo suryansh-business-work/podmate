@@ -225,7 +225,29 @@ const rootSchema = `#graphql
   }
 `;
 
-const typeDefs = [rootSchema, userTypeDefs, podTypeDefs, authTypeDefs, chatTypeDefs, inviteTypeDefs, policyTypeDefs, placeTypeDefs, supportTypeDefs, settingsTypeDefs, featureFlagTypeDefs, paymentTypeDefs, chatbotTypeDefs, notificationTypeDefs, platformFeeTypeDefs, reviewTypeDefs, followTypeDefs, feedbackTypeDefs, podIdeaTypeDefs, goLiveTypeDefs, callbackTypeDefs];
+const typeDefs = [
+  rootSchema,
+  userTypeDefs,
+  podTypeDefs,
+  authTypeDefs,
+  chatTypeDefs,
+  inviteTypeDefs,
+  policyTypeDefs,
+  placeTypeDefs,
+  supportTypeDefs,
+  settingsTypeDefs,
+  featureFlagTypeDefs,
+  paymentTypeDefs,
+  chatbotTypeDefs,
+  notificationTypeDefs,
+  platformFeeTypeDefs,
+  reviewTypeDefs,
+  followTypeDefs,
+  feedbackTypeDefs,
+  podIdeaTypeDefs,
+  goLiveTypeDefs,
+  callbackTypeDefs,
+];
 
 const resolvers = {
   Query: {
@@ -325,25 +347,29 @@ async function main(): Promise<void> {
   await server.start();
 
   /* ── Security headers ── */
-  app.use(helmet({
-    contentSecurityPolicy: IS_PRODUCTION ? undefined : false,
-    crossOriginEmbedderPolicy: false,
-  }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: IS_PRODUCTION ? undefined : false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
 
   /* ── Gzip compression ── */
   app.use(compression());
 
   /* ── CORS configuration ── */
-  app.use(cors({
-    origin: IS_PRODUCTION
-      ? [
-          'https://podify-admin.exyconn.com',
-          'https://podify-website.exyconn.com',
-          'https://podify-api.exyconn.com',
-        ]
-      : true,
-    credentials: true,
-  }));
+  app.use(
+    cors({
+      origin: IS_PRODUCTION
+        ? [
+            'https://podify-admin.exyconn.com',
+            'https://podify-website.exyconn.com',
+            'https://podify-api.exyconn.com',
+          ]
+        : true,
+      credentials: true,
+    }),
+  );
 
   app.use(express.json({ limit: '10mb' }));
 
@@ -403,7 +429,10 @@ query Me {
   });
 
   /* ── File Upload REST endpoint ── */
-  const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 },
+  });
 
   app.post('/api/upload', upload.single('file'), async (req, res) => {
     try {
@@ -419,7 +448,10 @@ query Me {
         return;
       }
 
-      const fileName = (req.body as Record<string, string>).fileName || file.originalname || `upload-${Date.now()}`;
+      const fileName =
+        (req.body as Record<string, string>).fileName ||
+        file.originalname ||
+        `upload-${Date.now()}`;
       const folder = (req.body as Record<string, string>).folder || '/uploads';
 
       const result = await uploadToImageKit(file.buffer, fileName, folder);

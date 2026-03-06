@@ -1,7 +1,15 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, Modal,
-  TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
@@ -14,7 +22,12 @@ import { ReviewCard, Stars } from './ReviewCard';
 import { createStyles } from './Reviews.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
-const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, targetTitle, onBack }) => {
+const ReviewsScreen: React.FC<ReviewsScreenProps> = ({
+  targetType,
+  targetId,
+  targetTitle,
+  onBack,
+}) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [showModal, setShowModal] = useState(false);
@@ -23,14 +36,20 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, tar
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
 
-  const { data, loading, refetch } = useQuery<{ reviews: { items: Review[]; total: number } }>(GET_REVIEWS, {
-    variables: { targetType, targetId, page: 1, limit: 50 },
-    fetchPolicy: 'cache-and-network',
-  });
+  const { data, loading, refetch } = useQuery<{ reviews: { items: Review[]; total: number } }>(
+    GET_REVIEWS,
+    {
+      variables: { targetType, targetId, page: 1, limit: 50 },
+      fetchPolicy: 'cache-and-network',
+    },
+  );
 
-  const { data: statsData, refetch: refetchStats } = useQuery<{ reviewStats: ReviewStats }>(GET_REVIEW_STATS, {
-    variables: { targetType, targetId },
-  });
+  const { data: statsData, refetch: refetchStats } = useQuery<{ reviewStats: ReviewStats }>(
+    GET_REVIEW_STATS,
+    {
+      variables: { targetType, targetId },
+    },
+  );
 
   const [createReview, { loading: submitting }] = useMutation(CREATE_REVIEW);
   const [replyToReview, { loading: replying }] = useMutation(REPLY_TO_REVIEW);
@@ -42,7 +61,9 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, tar
   const handleSubmit = useCallback(async () => {
     if (rating === 0 || !comment.trim()) return;
     try {
-      await createReview({ variables: { input: { targetType, targetId, rating, comment: comment.trim() } } });
+      await createReview({
+        variables: { input: { targetType, targetId, rating, comment: comment.trim() } },
+      });
       setShowModal(false);
       setRating(0);
       setComment('');
@@ -61,7 +82,9 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, tar
   const handleSubmitReply = useCallback(async () => {
     if (!replyTo || !replyText.trim()) return;
     try {
-      await replyToReview({ variables: { input: { reviewId: replyTo, comment: replyText.trim() } } });
+      await replyToReview({
+        variables: { input: { reviewId: replyTo, comment: replyText.trim() } },
+      });
       setReplyTo(null);
       setReplyText('');
       refetch();
@@ -70,21 +93,28 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, tar
     }
   }, [replyTo, replyText, replyToReview, refetch]);
 
-  const handleReport = useCallback((reviewId: string) => {
-    Alert.alert('Report Review', 'Are you sure you want to report this review?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Report', style: 'destructive', onPress: async () => {
-          try {
-            await reportReview({ variables: { input: { reviewId, reason: 'Inappropriate content' } } });
-            refetch();
-          } catch (err) {
-            Alert.alert('Error', (err as Error).message);
-          }
+  const handleReport = useCallback(
+    (reviewId: string) => {
+      Alert.alert('Report Review', 'Are you sure you want to report this review?', [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Report',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await reportReview({
+                variables: { input: { reviewId, reason: 'Inappropriate content' } },
+              });
+              refetch();
+            } catch (err) {
+              Alert.alert('Error', (err as Error).message);
+            }
+          },
         },
-      },
-    ]);
-  }, [reportReview, refetch]);
+      ]);
+    },
+    [reportReview, refetch],
+  );
 
   const renderHeader = () => {
     if (!stats) return null;
@@ -102,7 +132,12 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, tar
               <View key={star} style={styles.distRow}>
                 <Text style={styles.distLabel}>{star}</Text>
                 <View style={styles.distBar}>
-                  <View style={[styles.distFill, { width: `${(stats.distribution[star - 1] / max) * 100}%` }]} />
+                  <View
+                    style={[
+                      styles.distFill,
+                      { width: `${(stats.distribution[star - 1] / max) * 100}%` },
+                    ]}
+                  />
                 </View>
               </View>
             ))}
@@ -147,9 +182,25 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, tar
       {/* Reply inline input */}
       {replyTo && (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View style={{ flexDirection: 'row', padding: 12, borderTopWidth: 1, borderTopColor: colors.surfaceVariant, backgroundColor: colors.white, gap: 8 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              padding: 12,
+              borderTopWidth: 1,
+              borderTopColor: colors.surfaceVariant,
+              backgroundColor: colors.white,
+              gap: 8,
+            }}
+          >
             <TextInput
-              style={{ flex: 1, backgroundColor: colors.surfaceVariant, borderRadius: 20, paddingHorizontal: 16, fontSize: 14, color: colors.text }}
+              style={{
+                flex: 1,
+                backgroundColor: colors.surfaceVariant,
+                borderRadius: 20,
+                paddingHorizontal: 16,
+                fontSize: 14,
+                color: colors.text,
+              }}
               placeholder="Write a reply…"
               placeholderTextColor={colors.textTertiary}
               value={replyText}
@@ -157,7 +208,11 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, tar
               autoFocus
             />
             <TouchableOpacity onPress={handleSubmitReply} disabled={replying || !replyText.trim()}>
-              <MaterialIcons name="send" size={24} color={replyText.trim() ? colors.primary : colors.textTertiary} />
+              <MaterialIcons
+                name="send"
+                size={24}
+                color={replyText.trim() ? colors.primary : colors.textTertiary}
+              />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setReplyTo(null)}>
               <MaterialIcons name="close" size={24} color={colors.textSecondary} />
@@ -174,8 +229,17 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, tar
       )}
 
       {/* Write Review Modal */}
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowModal(false)}>
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowModal(false)}
+        >
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
@@ -201,7 +265,10 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({ targetType, targetId, tar
                   maxLength={1000}
                 />
                 <TouchableOpacity
-                  style={[styles.submitBtn, (submitting || rating === 0 || !comment.trim()) && styles.submitBtnDisabled]}
+                  style={[
+                    styles.submitBtn,
+                    (submitting || rating === 0 || !comment.trim()) && styles.submitBtnDisabled,
+                  ]}
                   onPress={handleSubmit}
                   disabled={submitting || rating === 0 || !comment.trim()}
                 >

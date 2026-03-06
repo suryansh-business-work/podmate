@@ -1,8 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import {
-  ReviewModel,
-  toReview,
-} from './review.models';
+import { ReviewModel, toReview } from './review.models';
 import type {
   Review,
   PaginatedReviews,
@@ -41,7 +38,11 @@ export async function createReview(userId: string, input: CreateReviewInput): Pr
   return toReview(doc.toObject({ virtuals: true }));
 }
 
-export async function replyToReview(userId: string, reviewId: string, comment: string): Promise<Review> {
+export async function replyToReview(
+  userId: string,
+  reviewId: string,
+  comment: string,
+): Promise<Review> {
   const parent = await ReviewModel.findById(reviewId).lean();
   if (!parent) throw new Error('Review not found');
 
@@ -62,7 +63,11 @@ export async function replyToReview(userId: string, reviewId: string, comment: s
   return toReview(doc.toObject({ virtuals: true }));
 }
 
-export async function reportReview(userId: string, reviewId: string, reason: string): Promise<Review> {
+export async function reportReview(
+  userId: string,
+  reviewId: string,
+  reason: string,
+): Promise<Review> {
   const doc = await ReviewModel.findByIdAndUpdate(
     reviewId,
     { $set: { isReported: true, reportReason: reason, updatedAt: new Date().toISOString() } },
@@ -100,9 +105,7 @@ export async function getReviewsForTarget(
 }
 
 export async function getReplies(parentId: string): Promise<Review[]> {
-  const docs = await ReviewModel.find({ parentId })
-    .sort({ createdAt: 1 })
-    .lean({ virtuals: true });
+  const docs = await ReviewModel.find({ parentId }).sort({ createdAt: 1 }).lean({ virtuals: true });
   return docs.map((d) => toReview(d as never));
 }
 

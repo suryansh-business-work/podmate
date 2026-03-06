@@ -10,20 +10,12 @@ const settingsResolvers = {
       return settingsService.getAllSettings();
     },
 
-    appSettingsByCategory: (
-      _: unknown,
-      args: { category: string },
-      context: GraphQLContext,
-    ) => {
+    appSettingsByCategory: (_: unknown, args: { category: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return settingsService.getSettingsByCategory(args.category);
     },
 
-    appConfig: async (
-      _: unknown,
-      args: { keys: string[] },
-      context: GraphQLContext,
-    ) => {
+    appConfig: async (_: unknown, args: { keys: string[] }, context: GraphQLContext) => {
       requireAuth(context);
       const results = await Promise.all(args.keys.map((key) => settingsService.getSetting(key)));
       return results.filter(Boolean);
@@ -66,11 +58,7 @@ const settingsResolvers = {
       return settingsService.upsertBulkSettings(args.inputs);
     },
 
-    deleteSetting: (
-      _: unknown,
-      args: { key: string },
-      context: GraphQLContext,
-    ) => {
+    deleteSetting: (_: unknown, args: { key: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return settingsService.deleteSetting(args.key);
     },

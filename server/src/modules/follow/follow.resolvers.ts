@@ -4,45 +4,27 @@ import * as followService from './follow.services';
 
 const followResolvers = {
   Query: {
-    followers: (
-      _: unknown,
-      args: { userId: string; page?: number; limit?: number },
-    ) => {
+    followers: (_: unknown, args: { userId: string; page?: number; limit?: number }) => {
       return followService.getFollowers(args.userId, args.page ?? 1, args.limit ?? 20);
     },
 
-    following: (
-      _: unknown,
-      args: { userId: string; page?: number; limit?: number },
-    ) => {
+    following: (_: unknown, args: { userId: string; page?: number; limit?: number }) => {
       return followService.getFollowing(args.userId, args.page ?? 1, args.limit ?? 20);
     },
 
-    followStats: (
-      _: unknown,
-      args: { userId: string },
-      context: GraphQLContext,
-    ) => {
+    followStats: (_: unknown, args: { userId: string }, context: GraphQLContext) => {
       const viewerId = context.user?.userId;
       return followService.getFollowStats(args.userId, viewerId);
     },
   },
 
   Mutation: {
-    followUser: (
-      _: unknown,
-      args: { userId: string },
-      context: GraphQLContext,
-    ) => {
+    followUser: (_: unknown, args: { userId: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return followService.followUser(auth.userId, args.userId);
     },
 
-    unfollowUser: (
-      _: unknown,
-      args: { userId: string },
-      context: GraphQLContext,
-    ) => {
+    unfollowUser: (_: unknown, args: { userId: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return followService.unfollowUser(auth.userId, args.userId);
     },

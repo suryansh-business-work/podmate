@@ -12,11 +12,7 @@ const featureFlagResolvers = {
       context: GraphQLContext,
     ) => {
       requireRole(context, UserRole.ADMIN);
-      return featureFlagService.getFeatureFlags(
-        args.page ?? 1,
-        args.limit ?? 20,
-        args.search,
-      );
+      return featureFlagService.getFeatureFlags(args.page ?? 1, args.limit ?? 20, args.search);
     },
 
     featureFlag: (_: unknown, args: { key: string }, context: GraphQLContext) => {

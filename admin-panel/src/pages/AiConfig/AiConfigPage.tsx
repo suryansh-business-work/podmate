@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box, Typography, Card, CardContent, Button, TextField, MenuItem,
-  CircularProgress, Alert, Breadcrumbs, Link, Divider, Stack,
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  TextField,
+  MenuItem,
+  CircularProgress,
+  Alert,
+  Breadcrumbs,
+  Link,
+  Divider,
+  Stack,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import SaveIcon from '@mui/icons-material/Save';
@@ -34,8 +45,13 @@ const AiConfigPage: React.FC = () => {
   const [error, setError] = useState('');
   const [testResult, setTestResult] = useState<TestConnectionResult | null>(null);
 
-  const { data, loading } = useQuery<SettingsData>(GET_APP_SETTINGS, { fetchPolicy: 'cache-and-network' });
-  const { data: modelsData, loading: modelsLoading } = useQuery<{ openAiModels: string[] }>(GET_OPENAI_MODELS, { fetchPolicy: 'cache-and-network' });
+  const { data, loading } = useQuery<SettingsData>(GET_APP_SETTINGS, {
+    fetchPolicy: 'cache-and-network',
+  });
+  const { data: modelsData, loading: modelsLoading } = useQuery<{ openAiModels: string[] }>(
+    GET_OPENAI_MODELS,
+    { fetchPolicy: 'cache-and-network' },
+  );
   const [upsertSetting, { loading: saving }] = useMutation(UPSERT_SETTING);
   const [testOpenAi, { loading: testingOpenAi }] = useMutation(TEST_OPENAI_CONNECTION);
 
@@ -63,7 +79,9 @@ const AiConfigPage: React.FC = () => {
       ];
       await Promise.all(
         entries.map((e) =>
-          upsertSetting({ variables: { input: { key: e.key, value: e.value, category: 'openai' } } }),
+          upsertSetting({
+            variables: { input: { key: e.key, value: e.value, category: 'openai' } },
+          }),
         ),
       );
       setSuccess('AI configuration saved successfully');
@@ -76,39 +94,70 @@ const AiConfigPage: React.FC = () => {
     setTestResult(null);
     try {
       const result = await testOpenAi();
-      const data = (result?.data as Record<string, TestConnectionResult> | undefined)?.testOpenAiConnection;
+      const data = (result?.data as Record<string, TestConnectionResult> | undefined)
+        ?.testOpenAiConnection;
       if (data) setTestResult(data);
     } catch (err) {
-      setTestResult({ success: false, message: err instanceof Error ? err.message : 'Test failed' });
+      setTestResult({
+        success: false,
+        message: err instanceof Error ? err.message : 'Test failed',
+      });
     }
   };
 
   if (loading) {
-    return <Box display="flex" justifyContent="center" py={10}><CircularProgress /></Box>;
+    return (
+      <Box display="flex" justifyContent="center" py={10}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
     <Box>
       <Breadcrumbs sx={{ mb: 2 }}>
-        <Link underline="hover" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} color="inherit" href="/dashboard">
+        <Link
+          underline="hover"
+          sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+          color="inherit"
+          href="/dashboard"
+        >
           <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" /> Dashboard
         </Link>
-        <Typography color="text.primary" fontWeight={600}>AI / Chatbot</Typography>
+        <Typography color="text.primary" fontWeight={600}>
+          AI / Chatbot
+        </Typography>
       </Breadcrumbs>
 
-      <Typography variant="h5" fontWeight={700} mb={3}>AI / Chatbot Configuration</Typography>
+      <Typography variant="h5" fontWeight={700} mb={3}>
+        AI / Chatbot Configuration
+      </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>{success}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
+          {success}
+        </Alert>
+      )}
       {testResult && (
-        <Alert severity={testResult.success ? 'success' : 'error'} sx={{ mb: 2 }} onClose={() => setTestResult(null)}>
+        <Alert
+          severity={testResult.success ? 'success' : 'error'}
+          sx={{ mb: 2 }}
+          onClose={() => setTestResult(null)}
+        >
           {testResult.message}
         </Alert>
       )}
 
       <Card>
         <CardContent>
-          <Typography variant="h6" mb={1}>OpenAI Settings</Typography>
+          <Typography variant="h6" mb={1}>
+            OpenAI Settings
+          </Typography>
           <Typography variant="body2" color="text.secondary" mb={3}>
             Configure the OpenAI API key, model, and system prompt used by the AI chatbot.
           </Typography>
@@ -132,10 +181,14 @@ const AiConfigPage: React.FC = () => {
               helperText={modelsLoading ? 'Loading models...' : 'Select an OpenAI chat model'}
             >
               {(modelsData?.openAiModels ?? []).length === 0 && (
-                <MenuItem value={aiConfig.model || 'gpt-4o-mini'}>{aiConfig.model || 'gpt-4o-mini'}</MenuItem>
+                <MenuItem value={aiConfig.model || 'gpt-4o-mini'}>
+                  {aiConfig.model || 'gpt-4o-mini'}
+                </MenuItem>
               )}
               {(modelsData?.openAiModels ?? []).map((m) => (
-                <MenuItem key={m} value={m}>{m}</MenuItem>
+                <MenuItem key={m} value={m}>
+                  {m}
+                </MenuItem>
               ))}
             </TextField>
             <TextField

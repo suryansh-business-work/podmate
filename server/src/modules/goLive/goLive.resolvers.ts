@@ -5,54 +5,32 @@ import type { StartLiveInput } from './goLive.models';
 
 const goLiveResolvers = {
   Query: {
-    activeLiveSessions: (
-      _: unknown,
-      args: { page?: number; limit?: number },
-    ) => {
+    activeLiveSessions: (_: unknown, args: { page?: number; limit?: number }) => {
       return goLiveService.getActiveSessions(args.page ?? 1, args.limit ?? 20);
     },
 
-    liveSessionForPod: (
-      _: unknown,
-      args: { podId: string },
-    ) => {
+    liveSessionForPod: (_: unknown, args: { podId: string }) => {
       return goLiveService.getLiveSessionForPod(args.podId);
     },
   },
 
   Mutation: {
-    startLiveSession: (
-      _: unknown,
-      args: { input: StartLiveInput },
-      context: GraphQLContext,
-    ) => {
+    startLiveSession: (_: unknown, args: { input: StartLiveInput }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return goLiveService.startLiveSession(auth.userId, args.input);
     },
 
-    endLiveSession: (
-      _: unknown,
-      args: { id: string },
-      context: GraphQLContext,
-    ) => {
+    endLiveSession: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return goLiveService.endLiveSession(args.id, auth.userId);
     },
 
-    joinLiveSession: (
-      _: unknown,
-      args: { id: string },
-      context: GraphQLContext,
-    ) => {
+    joinLiveSession: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return goLiveService.joinLiveSession(args.id, auth.userId);
     },
 
-    leaveLiveSession: (
-      _: unknown,
-      args: { id: string },
-      context: GraphQLContext,
-    ) => {
+    leaveLiveSession: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return goLiveService.leaveLiveSession(args.id, auth.userId);
     },

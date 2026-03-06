@@ -1,9 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { StyleSheet,
+import {
+  StyleSheet,
   View,
   TextInput,
   NativeSyntheticEvent,
-  TextInputKeyPressEventData} from 'react-native';
+  TextInputKeyPressEventData,
+} from 'react-native';
 import { borderRadius } from '../theme';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 
@@ -64,26 +66,27 @@ export const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onComplete, test
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  input: {
-    width: 48,
-    height: 56,
-    borderRadius: borderRadius.md,
-    borderWidth: 2,
-    borderColor: colors.border,
-    textAlign: 'center',
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.text,
-    backgroundColor: colors.surface,
-  },
-  inputFilled: {
-    borderColor: colors.primary,
-    backgroundColor: colors.white,
-  },
-});
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: 12,
+    },
+    input: {
+      width: 48,
+      height: 56,
+      borderRadius: borderRadius.md,
+      borderWidth: 2,
+      borderColor: colors.border,
+      textAlign: 'center',
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.text,
+      backgroundColor: colors.surface,
+    },
+    inputFilled: {
+      borderColor: colors.primary,
+      backgroundColor: colors.white,
+    },
+  });

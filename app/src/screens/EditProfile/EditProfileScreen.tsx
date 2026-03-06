@@ -29,9 +29,7 @@ const validationSchema = Yup.object().shape({
     .min(2, 'Name must be at least 2 characters')
     .max(50, 'Name must be at most 50 characters')
     .required('Name is required'),
-  email: Yup.string()
-    .email('Enter a valid email address')
-    .notRequired(),
+  email: Yup.string().email('Enter a valid email address').notRequired(),
 });
 
 const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
@@ -69,9 +67,7 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
             email: values.email || undefined,
           },
         });
-        Alert.alert('Success', 'Profile updated successfully.', [
-          { text: 'OK', onPress: onBack },
-        ]);
+        Alert.alert('Success', 'Profile updated successfully.', [{ text: 'OK', onPress: onBack }]);
       } catch {
         Alert.alert('Error', 'Failed to update profile. Please try again.');
       } finally {
@@ -177,7 +173,15 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ handleChange, handleBlur, handleSubmit: submit, values, errors, touched, isSubmitting }) => (
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit: submit,
+              values,
+              errors,
+              touched,
+              isSubmitting,
+            }) => (
               <>
                 <View style={styles.fieldContainer}>
                   <Text style={styles.label}>Full Name</Text>
@@ -221,10 +225,7 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
                 </View>
 
                 <TouchableOpacity
-                  style={[
-                    styles.saveButton,
-                    isSubmitting && styles.saveButtonDisabled,
-                  ]}
+                  style={[styles.saveButton, isSubmitting && styles.saveButtonDisabled]}
                   onPress={() => submit()}
                   disabled={isSubmitting}
                   activeOpacity={0.8}

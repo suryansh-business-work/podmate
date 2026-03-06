@@ -1,5 +1,15 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { View, Text, Image, TouchableOpacity, FlatList, NativeScrollEvent, NativeSyntheticEvent, Share, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Share,
+  Alert,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -105,26 +115,45 @@ const PodCard: React.FC<PodCardProps> = ({
     p.play();
   });
 
-  const renderSliderItem = useCallback(({ item: uri }: { item: string }) => {
-    if (isVideoUrl(uri)) {
-      return (
-        <View style={[styles.bgImage, { width: SCREEN_W, height: slideHeight, position: 'relative' }]}>
-          <VideoView
-            player={videoPlayer}
-            style={{ width: SCREEN_W, height: slideHeight }}
-            nativeControls={false}
-            contentFit="cover"
-          />
-          <View style={{ position: 'absolute', bottom: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2 }}>
-            <MaterialIcons name="videocam" size={16} color={colors.white} />
+  const renderSliderItem = useCallback(
+    ({ item: uri }: { item: string }) => {
+      if (isVideoUrl(uri)) {
+        return (
+          <View
+            style={[styles.bgImage, { width: SCREEN_W, height: slideHeight, position: 'relative' }]}
+          >
+            <VideoView
+              player={videoPlayer}
+              style={{ width: SCREEN_W, height: slideHeight }}
+              nativeControls={false}
+              contentFit="cover"
+            />
+            <View
+              style={{
+                position: 'absolute',
+                bottom: 12,
+                left: 12,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                borderRadius: 12,
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+              }}
+            >
+              <MaterialIcons name="videocam" size={16} color={colors.white} />
+            </View>
           </View>
-        </View>
+        );
+      }
+      return (
+        <Image
+          source={{ uri }}
+          style={[styles.bgImage, { width: SCREEN_W, height: slideHeight, position: 'relative' }]}
+          resizeMode="cover"
+        />
       );
-    }
-    return (
-      <Image source={{ uri }} style={[styles.bgImage, { width: SCREEN_W, height: slideHeight, position: 'relative' }]} resizeMode="cover" />
-    );
-  }, [slideHeight, videoPlayer]);
+    },
+    [slideHeight, videoPlayer],
+  );
 
   return (
     <View style={[styles.slide, { height: slideHeight }]}>
@@ -159,7 +188,17 @@ const PodCard: React.FC<PodCardProps> = ({
               nativeControls={false}
               contentFit="cover"
             />
-            <View style={{ position: 'absolute', bottom: 12, left: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2 }}>
+            <View
+              style={{
+                position: 'absolute',
+                bottom: 12,
+                left: 12,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                borderRadius: 12,
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+              }}
+            >
               <MaterialIcons name="videocam" size={16} color={colors.white} />
             </View>
           </View>
@@ -202,10 +241,18 @@ const PodCard: React.FC<PodCardProps> = ({
           <Text style={styles.sideBtnText}>Share</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.sideBtn} onPress={handleSave}>
-          <MaterialIcons name={isSaved ? 'bookmark' : 'bookmark-border'} size={28} color={isSaved ? colors.accent : colors.white} />
+          <MaterialIcons
+            name={isSaved ? 'bookmark' : 'bookmark-border'}
+            size={28}
+            color={isSaved ? colors.accent : colors.white}
+          />
           <Text style={styles.sideBtnText}>{isSaved ? 'Saved' : 'Save'}</Text>
         </TouchableOpacity>
-        <SafeImage uri={item.host.avatar} style={styles.hostAvatarSide} fallbackIcon="person" fallbackIconSize={18}
+        <SafeImage
+          uri={item.host.avatar}
+          style={styles.hostAvatarSide}
+          fallbackIcon="person"
+          fallbackIconSize={18}
           fallbackStyle={{ backgroundColor: colors.primary }}
         />
       </View>
@@ -213,11 +260,17 @@ const PodCard: React.FC<PodCardProps> = ({
       <View style={styles.bottomContent}>
         <View style={styles.hostRow}>
           <Text style={styles.hostName}>@{item.host.name}</Text>
-          {item.host.isVerifiedHost && <MaterialIcons name="verified" size={14} color={colors.accent} />}
+          {item.host.isVerifiedHost && (
+            <MaterialIcons name="verified" size={14} color={colors.accent} />
+          )}
         </View>
 
-        <Text style={styles.podTitle} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.podDesc} numberOfLines={2}>{item.description}</Text>
+        <Text style={styles.podTitle} numberOfLines={2}>
+          {item.title}
+        </Text>
+        <Text style={styles.podDesc} numberOfLines={2}>
+          {item.description}
+        </Text>
 
         <View style={styles.chipRow}>
           <View style={styles.chip}>
@@ -238,7 +291,9 @@ const PodCard: React.FC<PodCardProps> = ({
           <View style={styles.seatsBarBg}>
             <View style={[styles.seatsBarFill, { width: `${Math.min(fillPct, 100)}%` }]} />
           </View>
-          <Text style={styles.seatsLabel}>{item.currentSeats}/{item.maxSeats} seats</Text>
+          <Text style={styles.seatsLabel}>
+            {item.currentSeats}/{item.maxSeats} seats
+          </Text>
         </View>
 
         <View style={styles.actionRow}>
@@ -258,7 +313,11 @@ const PodCard: React.FC<PodCardProps> = ({
               onPress={() => (isFull ? null : onJoinPress(item.id))}
               disabled={isFull}
             >
-              <MaterialIcons name={isFull ? 'event-busy' : 'group-add'} size={18} color={colors.white} />
+              <MaterialIcons
+                name={isFull ? 'event-busy' : 'group-add'}
+                size={18}
+                color={colors.white}
+              />
               <Text style={styles.joinBtnText}>{isFull ? 'Full' : 'Join Pod'}</Text>
             </TouchableOpacity>
           )}

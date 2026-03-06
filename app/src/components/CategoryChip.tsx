@@ -23,26 +23,27 @@ export const CategoryChip: React.FC<CategoryChipProps> = ({ label, selected, onP
   );
 };
 
-const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) => StyleSheet.create({
-  chip: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.full,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    marginRight: spacing.sm,
-    backgroundColor: colors.white,
-  },
-  chipSelected: {
-    backgroundColor: colors.text,
-    borderColor: colors.text,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text,
-  },
-  labelSelected: {
-    color: colors.white,
-  },
-});
+const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
+  StyleSheet.create({
+    chip: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.full,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      marginRight: spacing.sm,
+      backgroundColor: colors.white,
+    },
+    chipSelected: {
+      backgroundColor: colors.text,
+      borderColor: colors.text,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: colors.text,
+    },
+    labelSelected: {
+      color: colors.white,
+    },
+  });

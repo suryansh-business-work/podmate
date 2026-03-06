@@ -39,7 +39,9 @@ export const ChatMessageModel =
   (mongoose.models['ChatMessage'] as mongoose.Model<ChatMessageMongoDoc> | undefined) ??
   model<ChatMessageMongoDoc>('ChatMessage', ChatMessageSchema);
 
-export function toChatMessage(doc: (ChatMessageMongoDoc & { id?: string }) | null): ChatMessage | null {
+export function toChatMessage(
+  doc: (ChatMessageMongoDoc & { id?: string }) | null,
+): ChatMessage | null {
   if (!doc) return null;
   return { ...doc, id: doc.id ?? doc._id } as ChatMessage;
 }

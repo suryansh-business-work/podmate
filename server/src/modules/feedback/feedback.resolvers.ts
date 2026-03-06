@@ -6,11 +6,7 @@ import type { CreateFeedbackInput, FeedbackStatus } from './feedback.models';
 
 const feedbackResolvers = {
   Query: {
-    myFeedback: (
-      _: unknown,
-      __: unknown,
-      context: GraphQLContext,
-    ) => {
+    myFeedback: (_: unknown, __: unknown, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return feedbackService.getMyFeedback(auth.userId);
     },
@@ -31,11 +27,7 @@ const feedbackResolvers = {
   },
 
   Mutation: {
-    submitFeedback: (
-      _: unknown,
-      args: { input: CreateFeedbackInput },
-      context: GraphQLContext,
-    ) => {
+    submitFeedback: (_: unknown, args: { input: CreateFeedbackInput }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return feedbackService.createFeedback(auth.userId, args.input);
     },
@@ -49,11 +41,7 @@ const feedbackResolvers = {
       return feedbackService.updateFeedback(args.id, args.input.status, args.input.adminNotes);
     },
 
-    deleteFeedback: (
-      _: unknown,
-      args: { id: string },
-      context: GraphQLContext,
-    ) => {
+    deleteFeedback: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return feedbackService.deleteFeedback(args.id);
     },

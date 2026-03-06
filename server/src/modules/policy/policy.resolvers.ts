@@ -33,11 +33,7 @@ const policyResolvers = {
   },
 
   Mutation: {
-    createPolicy: (
-      _: unknown,
-      args: { input: CreatePolicyInput },
-      context: GraphQLContext,
-    ) => {
+    createPolicy: (_: unknown, args: { input: CreatePolicyInput }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return policyService.createPolicy(args.input);
     },
@@ -51,11 +47,7 @@ const policyResolvers = {
       return policyService.updatePolicy(args.id, args.input);
     },
 
-    deletePolicy: (
-      _: unknown,
-      args: { id: string },
-      context: GraphQLContext,
-    ) => {
+    deletePolicy: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return policyService.deletePolicy(args.id);
     },

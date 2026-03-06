@@ -34,10 +34,7 @@ export async function createPlace(input: CreatePlaceInput, ownerId: string): Pro
   return toPlace(doc.toObject({ virtuals: true })) as Place;
 }
 
-export async function adminCreatePlace(
-  input: CreatePlaceInput,
-  ownerId: string,
-): Promise<Place> {
+export async function adminCreatePlace(input: CreatePlaceInput, ownerId: string): Promise<Place> {
   const now = new Date().toISOString();
   const doc = await PlaceModel.create({
     _id: uuidv4(),
@@ -73,7 +70,11 @@ export async function updatePlace(id: string, input: UpdatePlaceInput): Promise<
   if (input.latitude !== undefined) update.latitude = input.latitude;
   if (input.longitude !== undefined) update.longitude = input.longitude;
 
-  const updated = await PlaceModel.findByIdAndUpdate(id, { $set: update }, { returnDocument: 'after' }).lean({
+  const updated = await PlaceModel.findByIdAndUpdate(
+    id,
+    { $set: update },
+    { returnDocument: 'after' },
+  ).lean({
     virtuals: true,
   });
   const result = toPlace(updated);
@@ -84,7 +85,9 @@ export async function updatePlace(id: string, input: UpdatePlaceInput): Promise<
 export async function approvePlace(id: string): Promise<Place> {
   const updated = await PlaceModel.findByIdAndUpdate(
     id,
-    { $set: { status: PlaceStatus.APPROVED, isVerified: true, updatedAt: new Date().toISOString() } },
+    {
+      $set: { status: PlaceStatus.APPROVED, isVerified: true, updatedAt: new Date().toISOString() },
+    },
     { returnDocument: 'after' },
   ).lean({ virtuals: true });
   const result = toPlace(updated);
@@ -95,7 +98,13 @@ export async function approvePlace(id: string): Promise<Place> {
 export async function rejectPlace(id: string): Promise<Place> {
   const updated = await PlaceModel.findByIdAndUpdate(
     id,
-    { $set: { status: PlaceStatus.REJECTED, isVerified: false, updatedAt: new Date().toISOString() } },
+    {
+      $set: {
+        status: PlaceStatus.REJECTED,
+        isVerified: false,
+        updatedAt: new Date().toISOString(),
+      },
+    },
     { returnDocument: 'after' },
   ).lean({ virtuals: true });
   const result = toPlace(updated);

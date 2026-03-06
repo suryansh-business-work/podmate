@@ -51,9 +51,17 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ open, onClose, onCr
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Create User</DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+      <DialogContent
+        sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}
+      >
         {error && <Alert severity="error">{error}</Alert>}
-        <TextField label="Phone" placeholder="+91XXXXXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} fullWidth />
+        <TextField
+          label="Phone"
+          placeholder="+91XXXXXXXXXX"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          fullWidth
+        />
         <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
         <FormControl fullWidth>
           <InputLabel>Role</InputLabel>

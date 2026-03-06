@@ -1,5 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { signToken, verifyToken, getUserFromRequest, requireAuth, requireRole } from '../auth.services';
+import {
+  signToken,
+  verifyToken,
+  getUserFromRequest,
+  requireAuth,
+  requireRole,
+} from '../auth.services';
 import { UserRole } from '../../user/user.models';
 import type { GraphQLContext, AuthPayload } from '../auth.models';
 

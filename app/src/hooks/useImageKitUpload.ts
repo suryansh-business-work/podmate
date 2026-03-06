@@ -41,11 +41,7 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
    * This avoids client-side signature issues with ImageKit's upload API.
    */
   const uploadToServer = useCallback(
-    async (
-      localUri: string,
-      fileName: string,
-      folder: string,
-    ): Promise<string | null> => {
+    async (localUri: string, fileName: string, folder: string): Promise<string | null> => {
       try {
         const token = await AsyncStorage.getItem('token');
         if (!token) {
@@ -87,7 +83,9 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
         setProgress(0.8);
 
         if (!response.ok) {
-          const errBody = await response.json().catch(() => ({ error: 'Upload failed' })) as { error?: string };
+          const errBody = (await response.json().catch(() => ({ error: 'Upload failed' }))) as {
+            error?: string;
+          };
           throw new Error(errBody.error ?? `Upload failed: ${response.status}`);
         }
 

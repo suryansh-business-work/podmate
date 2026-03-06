@@ -2,7 +2,12 @@ import type { GraphQLContext } from '../auth/auth.models';
 import { requireAuth, requireRole } from '../auth/auth.services';
 import { UserRole } from '../user/user.models';
 import * as reviewService from './review.services';
-import type { CreateReviewInput, ReplyReviewInput, ReportReviewInput, ReviewTargetType } from './review.models';
+import type {
+  CreateReviewInput,
+  ReplyReviewInput,
+  ReportReviewInput,
+  ReviewTargetType,
+} from './review.models';
 
 const reviewResolvers = {
   Query: {
@@ -18,47 +23,28 @@ const reviewResolvers = {
       );
     },
 
-    reviewStats: (
-      _: unknown,
-      args: { targetType: ReviewTargetType; targetId: string },
-    ) => {
+    reviewStats: (_: unknown, args: { targetType: ReviewTargetType; targetId: string }) => {
       return reviewService.getReviewStats(args.targetType, args.targetId);
     },
   },
 
   Mutation: {
-    createReview: (
-      _: unknown,
-      args: { input: CreateReviewInput },
-      context: GraphQLContext,
-    ) => {
+    createReview: (_: unknown, args: { input: CreateReviewInput }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return reviewService.createReview(auth.userId, args.input);
     },
 
-    replyToReview: (
-      _: unknown,
-      args: { input: ReplyReviewInput },
-      context: GraphQLContext,
-    ) => {
+    replyToReview: (_: unknown, args: { input: ReplyReviewInput }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return reviewService.replyToReview(auth.userId, args.input.reviewId, args.input.comment);
     },
 
-    reportReview: (
-      _: unknown,
-      args: { input: ReportReviewInput },
-      context: GraphQLContext,
-    ) => {
+    reportReview: (_: unknown, args: { input: ReportReviewInput }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return reviewService.reportReview(auth.userId, args.input.reviewId, args.input.reason);
     },
 
-    deleteReview: (
-      _: unknown,
-      args: { id: string },
-      context: GraphQLContext,
-    ) => {
+    deleteReview: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return reviewService.deleteReview(args.id);
     },

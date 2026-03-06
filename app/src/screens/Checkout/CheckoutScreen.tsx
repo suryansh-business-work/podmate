@@ -51,7 +51,8 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
           <MaterialIcons name="check-circle" size={80} color={colors.success} />
           <Text style={styles.successTitle}>You&apos;re In!</Text>
           <Text style={styles.successSubtitle}>
-            Payment successful. You have joined the pod. Check your chat to connect with other members.
+            Payment successful. You have joined the pod. Check your chat to connect with other
+            members.
           </Text>
           <TouchableOpacity style={styles.successBtn} onPress={onSuccess}>
             <Text style={styles.successBtnText}>Go Back</Text>
@@ -78,8 +79,17 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
   }
 
   const date = new Date(pod.dateTime);
-  const formattedDate = date.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-  const formattedTime = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const formattedDate = date.toLocaleDateString('en-IN', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  const formattedTime = date.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
   const spotsLeft = pod.maxSeats - pod.currentSeats;
 
   return (
@@ -91,7 +101,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
         <Text style={styles.headerTitle}>Checkout</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Pod Info */}
         <View style={styles.podCard}>
           {pod.imageUrl ? (
@@ -102,8 +116,12 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
             </View>
           )}
           <View style={styles.podInfo}>
-            <Text style={styles.podTitle} numberOfLines={2}>{pod.title}</Text>
-            <Text style={styles.podMeta}>{pod.category} · {formattedDate}</Text>
+            <Text style={styles.podTitle} numberOfLines={2}>
+              {pod.title}
+            </Text>
+            <Text style={styles.podMeta}>
+              {pod.category} · {formattedDate}
+            </Text>
             <Text style={styles.podMeta}>{pod.location}</Text>
           </View>
         </View>
@@ -139,7 +157,9 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
           <Text style={styles.sectionTitle}>Event Details</Text>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Date & Time</Text>
-            <Text style={styles.rowValue}>{formattedDate}, {formattedTime}</Text>
+            <Text style={styles.rowValue}>
+              {formattedDate}, {formattedTime}
+            </Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Host</Text>
@@ -147,7 +167,9 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
           </View>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Spots Left</Text>
-            <Text style={styles.rowValue}>{spotsLeft} / {pod.maxSeats}</Text>
+            <Text style={styles.rowValue}>
+              {spotsLeft} / {pod.maxSeats}
+            </Text>
           </View>
         </View>
       </ScrollView>

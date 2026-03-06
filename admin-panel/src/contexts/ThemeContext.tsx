@@ -114,11 +114,14 @@ export const AdminThemeProvider: React.FC<AdminThemeProviderProps> = ({ children
     }
   }, [meData?.me?.themePreference]);
 
-  const setMode = useCallback((newMode: ThemeMode) => {
-    setModeState(newMode);
-    localStorage.setItem(STORAGE_KEY, newMode);
-    updateThemeMutation({ variables: { themePreference: newMode } }).catch(() => {});
-  }, [updateThemeMutation]);
+  const setMode = useCallback(
+    (newMode: ThemeMode) => {
+      setModeState(newMode);
+      localStorage.setItem(STORAGE_KEY, newMode);
+      updateThemeMutation({ variables: { themePreference: newMode } }).catch(() => {});
+    },
+    [updateThemeMutation],
+  );
 
   const toggleTheme = useCallback(() => {
     setMode(mode === 'light' ? 'dark' : 'light');

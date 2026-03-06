@@ -25,13 +25,26 @@ interface PaymentsResponse {
   };
 }
 
-interface TypeConfigItem { icon: string; label: string; color: string; bgColor: string }
-interface StatusConfigItem { bg: string; color: string }
+interface TypeConfigItem {
+  icon: string;
+  label: string;
+  color: string;
+  bgColor: string;
+}
+interface StatusConfigItem {
+  bg: string;
+  color: string;
+}
 
 const getTypeConfig = (c: Record<string, string>): Record<string, TypeConfigItem> => ({
   PAYMENT: { icon: 'arrow-upward', label: 'Payment', color: c.primary, bgColor: c.primary + '15' },
   REFUND: { icon: 'arrow-downward', label: 'Refund', color: c.success, bgColor: c.success + '15' },
-  PARTIAL_REFUND: { icon: 'swap-vert', label: 'Partial Refund', color: c.warning, bgColor: c.warning + '15' },
+  PARTIAL_REFUND: {
+    icon: 'swap-vert',
+    label: 'Partial Refund',
+    color: c.warning,
+    bgColor: c.warning + '15',
+  },
 });
 
 const getStatusConfig = (c: Record<string, string>): Record<string, StatusConfigItem> => ({
@@ -54,13 +67,10 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ onBack }) => {
   const colors = useAppColors();
   const [page] = useState(1);
 
-  const { data, loading, error, refetch } = useQuery<PaymentsResponse>(
-    GET_MY_PAYMENTS,
-    {
-      variables: { page, limit: 50 },
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+  const { data, loading, error, refetch } = useQuery<PaymentsResponse>(GET_MY_PAYMENTS, {
+    variables: { page, limit: 50 },
+    fetchPolicy: 'cache-and-network',
+  });
 
   const payments = data?.myPayments?.items ?? [];
 
@@ -99,9 +109,7 @@ const PaymentsScreen: React.FC<PaymentsScreenProps> = ({ onBack }) => {
           <View style={[styles.statusBadge, { backgroundColor: statusConf.bg }]}>
             <Text style={[styles.statusText, { color: statusConf.color }]}>{item.status}</Text>
           </View>
-          {item.transactionId ? (
-            <Text style={styles.txnId}>TXN: {item.transactionId}</Text>
-          ) : null}
+          {item.transactionId ? <Text style={styles.txnId}>TXN: {item.transactionId}</Text> : null}
         </View>
 
         {item.notes ? (

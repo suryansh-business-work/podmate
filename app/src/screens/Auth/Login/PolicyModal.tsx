@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, Modal, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useQuery } from '@apollo/client';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -41,7 +34,11 @@ const PolicyModal: React.FC<PolicyModalProps> = ({ policyType, onClose }) => {
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>{policyType ? MODAL_TITLES[policyType] : ''}</Text>
-            <TouchableOpacity onPress={onClose} style={styles.modalCloseBtn} testID="modal-close-button">
+            <TouchableOpacity
+              onPress={onClose}
+              style={styles.modalCloseBtn}
+              testID="modal-close-button"
+            >
               <MaterialIcons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
           </View>

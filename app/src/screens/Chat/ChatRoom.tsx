@@ -273,7 +273,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ pod, onBack }) => {
       {/* ── Keyboard-aware body ── */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 56 : 0}
       >
         {/* Messages */}

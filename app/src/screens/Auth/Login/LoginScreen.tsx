@@ -35,7 +35,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp, loading, error }) 
     <SafeAreaView style={styles.container} testID="login-screen">
       <KeyboardAvoidingView
         style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.topSection}>
           <LinearGradient

@@ -218,7 +218,11 @@ const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack }) => {
           activeOpacity={1}
           onPress={() => setShowModal(false)}
         >
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <KeyboardAvoidingView
+            behavior={
+              Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'
+            }
+          >
             <TouchableOpacity activeOpacity={1} onPress={() => {}}>
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitle}>Go Live</Text>

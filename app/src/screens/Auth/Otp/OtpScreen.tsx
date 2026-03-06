@@ -67,7 +67,7 @@ const OtpScreen: React.FC<OtpScreenProps> = ({
     <SafeAreaView style={styles.container} testID="otp-screen">
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.content}>
           <TouchableOpacity onPress={onBack} style={styles.backButton} testID="back-button">

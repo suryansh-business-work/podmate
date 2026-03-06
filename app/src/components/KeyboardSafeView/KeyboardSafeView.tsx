@@ -31,7 +31,7 @@ const KeyboardSafeView: React.FC<KeyboardSafeViewProps> = ({
   return (
     <KeyboardAvoidingView
       style={[styles.container, style]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={keyboardVerticalOffset ?? defaultOffset}
     >
       {children}

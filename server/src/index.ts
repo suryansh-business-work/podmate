@@ -337,6 +337,10 @@ chatService.setBroadcast(broadcastToPod);
 async function main(): Promise<void> {
   const app = express();
 
+  // Trust the first proxy hop (nginx/load-balancer) so that express-rate-limit
+  // can correctly read the real client IP from X-Forwarded-For.
+  app.set('trust proxy', 1);
+
   const server = new ApolloServer<GraphQLContext>({
     typeDefs,
     resolvers,

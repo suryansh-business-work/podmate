@@ -154,7 +154,7 @@ const ChatbotScreen: React.FC<ChatbotScreenProps> = ({ onBack }) => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={0}
     >
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>

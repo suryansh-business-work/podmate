@@ -4,7 +4,7 @@ import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     profileHeader: { alignItems: 'center', paddingTop: spacing.xxl, paddingBottom: spacing.xl },
     avatarGradient: {

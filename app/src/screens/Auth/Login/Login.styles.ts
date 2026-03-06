@@ -3,7 +3,7 @@ import { ThemeUtils } from '../../../hooks/useThemedStyles';
 
 export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     content: { flex: 1, paddingHorizontal: spacing.xl },
     topSection: { paddingTop: 60, flex: 1 },
     logoBox: {
@@ -91,9 +91,9 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     },
     policyLinkSmall: { fontSize: 12, color: colors.primary, fontWeight: '600' },
     policyDot: { fontSize: 12, color: colors.textTertiary },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+    modalOverlay: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
     modalContainer: {
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       maxHeight: '85%',

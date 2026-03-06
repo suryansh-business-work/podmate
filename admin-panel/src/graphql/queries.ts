@@ -272,7 +272,45 @@ export const GET_USER = gql`
       isActive
       disableReason
       podCount
+      themePreference
+      savedPodIds
       createdAt
+    }
+  }
+`;
+
+export const GET_USER_HOSTED_PODS = gql`
+  query GetUserHostedPods($userId: ID!) {
+    userHostedPods(userId: $userId) {
+      id
+      title
+      category
+      status
+      dateTime
+      currentSeats
+      maxSeats
+      feePerPerson
+      location
+    }
+  }
+`;
+
+export const GET_USER_JOINED_PODS = gql`
+  query GetUserJoinedPods($userId: ID!) {
+    userJoinedPods(userId: $userId) {
+      id
+      title
+      category
+      status
+      dateTime
+      currentSeats
+      maxSeats
+      feePerPerson
+      location
+      host {
+        id
+        name
+      }
     }
   }
 `;
@@ -614,6 +652,67 @@ export const GET_CALLBACK_REQUEST_COUNTS = gql`
       completed
       cancelled
       total
+    }
+  }
+`;
+
+/* ── Feedback ── */
+
+export const GET_ALL_FEEDBACK = gql`
+  query GetAllFeedback($page: Int, $limit: Int, $search: String, $status: String) {
+    allFeedback(page: $page, limit: $limit, search: $search, status: $status) {
+      items {
+        id
+        userId
+        user {
+          id
+          name
+          phone
+        }
+        type
+        title
+        description
+        status
+        adminNotes
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;
+
+/* ── Pod Ideas ── */
+
+export const GET_POD_IDEAS = gql`
+  query GetPodIdeas($page: Int, $limit: Int, $category: String) {
+    podIdeas(page: $page, limit: $limit, category: $category) {
+      items {
+        id
+        userId
+        user {
+          id
+          name
+          phone
+        }
+        title
+        description
+        category
+        location
+        estimatedBudget
+        status
+        adminNotes
+        upvoteCount
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
     }
   }
 `;

@@ -5,7 +5,7 @@ const { width } = Dimensions.get('window');
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     scrollView: { flex: 1 },
     heroContainer: { height: 280, position: 'relative' },
     heroImage: { width: '100%', height: '100%' },
@@ -23,7 +23,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: 'rgba(0,0,0,0.3)',
+      backgroundColor: colors.overlay,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -78,7 +78,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       borderRadius: borderRadius.md,
       borderWidth: 1,
       borderColor: colors.border,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     infoLabel: {
       fontSize: 12,
@@ -120,7 +120,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     planText: { fontSize: 15, color: colors.textSecondary, lineHeight: 24, marginTop: spacing.md },
     trustNote: {
       flexDirection: 'row',
-      backgroundColor: '#EFF6FF',
+      backgroundColor: colors.infoBg,
       padding: spacing.lg,
       borderRadius: borderRadius.md,
       gap: spacing.sm,
@@ -136,7 +136,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       paddingVertical: spacing.lg,
       borderTopWidth: 1,
       borderTopColor: colors.border,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     priceInfo: {},
     totalLabel: { fontSize: 12, color: colors.textSecondary },

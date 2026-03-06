@@ -192,7 +192,7 @@ const ReviewsScreen: React.FC<ReviewsScreenProps> = ({
               padding: 12,
               borderTopWidth: 1,
               borderTopColor: colors.surfaceVariant,
-              backgroundColor: colors.white,
+              backgroundColor: colors.surface,
               gap: 8,
             }}
           >

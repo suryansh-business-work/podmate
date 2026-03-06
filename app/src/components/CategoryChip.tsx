@@ -32,7 +32,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       borderWidth: 1.5,
       borderColor: colors.border,
       marginRight: spacing.sm,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     chipSelected: {
       backgroundColor: colors.text,

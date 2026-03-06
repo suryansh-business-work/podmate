@@ -136,7 +136,7 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket }) => {
           <TextInput
             style={{
               flex: 1,
-              backgroundColor: colors.white,
+              backgroundColor: colors.surface,
               borderWidth: 1,
               borderColor: colors.border,
               borderRadius: borderRadius.sm,

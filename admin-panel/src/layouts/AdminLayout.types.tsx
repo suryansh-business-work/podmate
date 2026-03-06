@@ -14,6 +14,8 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PhoneCallbackIcon from '@mui/icons-material/PhoneCallback';
 import CodeIcon from '@mui/icons-material/Code';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 export const DRAWER_WIDTH = 240;
 
@@ -70,6 +72,8 @@ export const navGroups: NavGroupConfig[] = [
       { icon: <SettingsIcon />, label: 'Settings', path: '/settings' },
       { icon: <PolicyIcon />, label: 'Policies', path: '/policies' },
       { icon: <FlagIcon />, label: 'Feature Flags', path: '/feature-flags' },
+      { icon: <FeedbackIcon />, label: 'Feedback', path: '/feedback' },
+      { icon: <LightbulbIcon />, label: 'Pod Ideas', path: '/pod-ideas' },
       { icon: <CodeIcon />, label: 'Dev Tools', path: '/configuration' },
     ],
   },

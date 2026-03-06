@@ -141,7 +141,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
     card: {
       borderRadius: borderRadius.lg,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
       marginBottom: spacing.lg,
       shadowColor: colors.black,
       shadowOffset: { width: 0, height: 4 },
@@ -158,7 +158,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       ...StyleSheet.absoluteFillObject,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.15)',
+      backgroundColor: colors.overlayLight,
     },
     statusBadge: {
       position: 'absolute',

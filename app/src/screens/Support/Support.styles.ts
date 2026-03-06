@@ -4,7 +4,7 @@ import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -41,7 +41,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       marginTop: spacing.md,
     },
     textInput: {
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: borderRadius.sm,

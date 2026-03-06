@@ -2,11 +2,31 @@ import { v4 as uuidv4 } from 'uuid';
 import type { ChatbotMessage, ChatbotResponse } from './chatbot.models';
 import { ChatbotMessageModel, toChatbotMessage } from './chatbot.models';
 import { getConfigValue } from '../settings/settings.services';
+import { findUserById } from '../user/user.services';
 import logger from '../../lib/logger';
 
 interface OpenAiMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
+}
+
+function replacePromptSlugs(
+  prompt: string,
+  user: { name: string; phone: string; email: string; role: string; id: string } | null,
+  model: string,
+): string {
+  let result = prompt;
+  if (user) {
+    result = result.replace(/\{\{user_name\}\}/g, user.name || 'User');
+    result = result.replace(/\{\{user_phone\}\}/g, user.phone || '');
+    result = result.replace(/\{\{user_email\}\}/g, user.email || '');
+    result = result.replace(/\{\{user_role\}\}/g, user.role || 'USER');
+    result = result.replace(/\{\{user_id\}\}/g, user.id || '');
+  }
+  result = result.replace(/\{\{bot_model\}\}/g, model);
+  result = result.replace(/\{\{bot_name\}\}/g, 'PartyWings Assistant');
+  result = result.replace(/\{\{platform_name\}\}/g, 'PartyWings');
+  return result;
 }
 
 export async function askChatbot(userId: string, message: string): Promise<ChatbotResponse> {
@@ -19,6 +39,16 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
   if (!apiKey) {
     throw new Error('AI chatbot is not configured. Please set up OpenAI API key in settings.');
   }
+
+  /* Resolve current user info for slug replacement */
+  const currentUser = await findUserById(userId);
+  const resolvedPrompt = replacePromptSlugs(
+    prePrompt,
+    currentUser
+      ? { name: currentUser.name, phone: currentUser.phone, email: currentUser.email, role: currentUser.role, id: currentUser.id }
+      : null,
+    model,
+  );
 
   /* Get recent conversation history BEFORE saving current message (last 10 messages) */
   const history = await ChatbotMessageModel.find({ userId })
@@ -36,7 +66,7 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
   });
 
   const messages: OpenAiMessage[] = [
-    { role: 'system', content: prePrompt },
+    { role: 'system', content: resolvedPrompt },
     ...history.reverse().map((msg) => ({
       role: msg.role as 'user' | 'assistant',
       content: msg.content,

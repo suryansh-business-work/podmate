@@ -114,7 +114,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     thumbImg: { width: '100%', height: '100%', resizeMode: 'cover' },
     videoOverlay: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: 'rgba(0,0,0,0.3)',
+      backgroundColor: colors.overlay,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -125,7 +125,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       width: 20,
       height: 20,
       borderRadius: 10,
-      backgroundColor: 'rgba(0,0,0,0.6)',
+      backgroundColor: colors.overlayHeavy,
       justifyContent: 'center',
       alignItems: 'center',
     },

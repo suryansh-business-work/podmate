@@ -280,14 +280,15 @@ const PaymentsPage: React.FC = () => {
                 <TableRow key={p.id}>
                   <TableCell>{p.user?.name ?? p.userId}</TableCell>
                   <TableCell>₹{p.amount.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Chip label={p.type} size="small" color={typeColors[p.type] ?? 'default'} />
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                    <Chip label={p.type} size="small" color={typeColors[p.type] ?? 'default'} sx={{ whiteSpace: 'nowrap' }} />
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
                     <Chip
                       label={p.status}
                       size="small"
                       color={statusColors[p.status] ?? 'default'}
+                      sx={{ whiteSpace: 'nowrap' }}
                     />
                   </TableCell>
                   <TableCell>

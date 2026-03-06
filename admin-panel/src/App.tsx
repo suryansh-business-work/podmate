@@ -18,6 +18,8 @@ import AiConfigPage from './pages/AiConfig';
 import NotificationsPage from './pages/Notifications';
 import FinancePage from './pages/Finance';
 import CallbacksPage from './pages/CallbacksPage';
+import FeedbackPage from './pages/Feedback';
+import PodIdeasPage from './pages/PodIdeas';
 import AdminLayout from './layouts/AdminLayout';
 
 const App: React.FC = () => {
@@ -67,6 +69,8 @@ const App: React.FC = () => {
           <Route path="/callbacks" element={<CallbacksPage />} />
           <Route path="/feature-flags" element={<FeatureFlagsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/feedback" element={<FeedbackPage />} />
+          <Route path="/pod-ideas" element={<PodIdeasPage />} />
           <Route path="/configuration" element={<ConfigurationPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

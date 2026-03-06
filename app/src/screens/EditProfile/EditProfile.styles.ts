@@ -6,7 +6,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     header: {
       flexDirection: 'row',

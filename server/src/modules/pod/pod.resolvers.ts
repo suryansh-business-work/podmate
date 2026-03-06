@@ -1,5 +1,6 @@
 import type { GraphQLContext } from '../auth/auth.models';
 import type { CreatePodInput, UpdatePodInput } from './pod.models';
+import type { AdminUpdatePodInput } from './pod.services';
 import { UserRole } from '../user/user.models';
 import { requireAuth, requireRole } from '../auth/auth.services';
 import * as podService from './pod.services';
@@ -40,6 +41,16 @@ const podResolvers = {
     userPods: (_: unknown, args: { userId: string }, context: GraphQLContext) => {
       requireAuth(context);
       return podService.getMyPods(args.userId);
+    },
+
+    userHostedPods: (_: unknown, args: { userId: string }, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return podService.getMyPods(args.userId);
+    },
+
+    userJoinedPods: (_: unknown, args: { userId: string }, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      return podService.getJoinedPods(args.userId);
     },
   },
 
@@ -121,6 +132,15 @@ const podResolvers = {
     ) => {
       requireRole(context, UserRole.ADMIN);
       return podService.bulkDeletePods(args.ids, args.issueRefunds);
+    },
+
+    adminUpdatePod: (
+      _: unknown,
+      args: { id: string; input: AdminUpdatePodInput },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return podService.adminUpdatePod(args.id, args.input);
     },
   },
 

@@ -1,69 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Avatar,
-  Chip,
-  CircularProgress,
-  Alert,
-  Breadcrumbs,
-  Link,
-  Button,
-  Divider,
-  Grid2 as Grid,
-  LinearProgress,
-  Tooltip,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Snackbar,
-} from '@mui/material';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Avatar from '@mui/material/Avatar';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Link from '@mui/material/Link';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid2';
+import LinearProgress from '@mui/material/LinearProgress';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemText from '@mui/material/ListItemText';
+import Snackbar from '@mui/material/Snackbar';
 import HomeIcon from '@mui/icons-material/Home';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_POD } from '../graphql/queries';
-import { REMOVE_ATTENDEE } from '../graphql/mutations';
+import { REMOVE_ATTENDEE, ADMIN_UPDATE_POD } from '../graphql/mutations';
 import RemoveAttendeeDialog from './Pods/RemoveAttendeeDialog';
-
-interface Host {
-  id: string;
-  name: string;
-  avatar: string;
-  isVerifiedHost: boolean;
-}
+import PodEditForm from './Pods/PodEditForm';
+import type { PodDetailData, AdminUpdatePodInput } from './Pods/PodDetail.types';
 
 interface Attendee {
   id: string;
   name: string;
   avatar: string;
-}
-
-interface PodDetail {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  imageUrl: string;
-  mediaUrls: string[];
-  feePerPerson: number;
-  maxSeats: number;
-  currentSeats: number;
-  dateTime: string;
-  location: string;
-  locationDetail: string;
-  rating: number;
-  reviewCount: number;
-  status: string;
-  refundPolicy: string;
-  createdAt: string;
-  host: Host;
-  attendees: Attendee[];
 }
 
 const statusColor: Record<string, 'success' | 'warning' | 'info' | 'default' | 'error'> = {
@@ -72,6 +43,8 @@ const statusColor: Record<string, 'success' | 'warning' | 'info' | 'default' | '
   PENDING: 'warning',
   COMPLETED: 'default',
   CANCELLED: 'error',
+  OPEN: 'success',
+  CLOSED: 'error',
 };
 
 const InfoRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
@@ -92,33 +65,54 @@ const PodDetailPage: React.FC = () => {
   const [removeTarget, setRemoveTarget] = useState<Attendee | null>(null);
   const [snackMsg, setSnackMsg] = useState('');
 
-  const { data, loading, error } = useQuery<{ pod: PodDetail }>(GET_POD, {
+  const { data, loading, error } = useQuery<{ pod: PodDetailData }>(GET_POD, {
     variables: { id },
     skip: !id,
   });
 
   const [removeAttendeeMutation, { loading: removing }] = useMutation(REMOVE_ATTENDEE);
+  const [adminUpdatePod, { loading: saving }] = useMutation(ADMIN_UPDATE_POD);
 
   const pod = data?.pod;
 
-  const handleRemoveConfirm = async (issueRefund: boolean) => {
-    if (!removeTarget || !pod) return;
-    try {
-      const { data: result } = await removeAttendeeMutation({
-        variables: { podId: pod.id, userId: removeTarget.id, issueRefund },
-      });
-      const refunded = result?.removeAttendee?.refunded;
-      const amount = result?.removeAttendee?.refundAmount ?? 0;
-      setSnackMsg(
-        refunded
-          ? `Removed ${removeTarget.name} and refunded ₹${amount.toLocaleString()}`
-          : `Removed ${removeTarget.name} (no refund)`,
-      );
-      setRemoveTarget(null);
-    } catch {
-      /* Apollo error handler */
-    }
-  };
+  const handleRemoveConfirm = useCallback(
+    async (issueRefund: boolean) => {
+      if (!removeTarget || !pod) return;
+      try {
+        const { data: result } = await removeAttendeeMutation({
+          variables: { podId: pod.id, userId: removeTarget.id, issueRefund },
+        });
+        const refunded = result?.removeAttendee?.refunded;
+        const amount = result?.removeAttendee?.refundAmount ?? 0;
+        setSnackMsg(
+          refunded
+            ? `Removed ${removeTarget.name} and refunded ₹${amount.toLocaleString()}`
+            : `Removed ${removeTarget.name} (no refund)`,
+        );
+        setRemoveTarget(null);
+      } catch {
+        /* Apollo error handler */
+      }
+    },
+    [removeTarget, pod, removeAttendeeMutation],
+  );
+
+  const handleSavePod = useCallback(
+    async (input: AdminUpdatePodInput) => {
+      if (!id) return;
+      try {
+        await adminUpdatePod({
+          variables: { id, input },
+          refetchQueries: [{ query: GET_POD, variables: { id } }],
+        });
+        setSnackMsg('Pod updated successfully');
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to update pod';
+        setSnackMsg(message);
+      }
+    },
+    [id, adminUpdatePod],
+  );
 
   const formatDateTime = (d: string) =>
     new Date(d).toLocaleString('en-IN', {
@@ -215,13 +209,11 @@ const PodDetailPage: React.FC = () => {
               </CardContent>
             </Card>
           )}
-        </Grid>
 
-        {/* Details */}
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Card>
+          {/* Info Card */}
+          <Card sx={{ mt: 2 }}>
             <CardContent>
-              <Typography variant="h6" mb={2}>
+              <Typography variant="subtitle2" mb={1}>
                 Details
               </Typography>
               <Divider sx={{ mb: 1 }} />
@@ -232,6 +224,7 @@ const PodDetailPage: React.FC = () => {
               <InfoRow label="Location Detail" value={pod.locationDetail || '—'} />
               <InfoRow label="Rating" value={`${pod.rating} (${pod.reviewCount} reviews)`} />
               <InfoRow label="Refund Policy" value={pod.refundPolicy || '—'} />
+              <InfoRow label="Views" value={String(pod.viewCount)} />
               <InfoRow label="Created" value={formatDateTime(pod.createdAt)} />
 
               <Divider sx={{ my: 2 }} />
@@ -241,23 +234,42 @@ const PodDetailPage: React.FC = () => {
               <LinearProgress
                 variant="determinate"
                 value={fillPercent}
-                sx={{ height: 8, borderRadius: 4, mb: 2 }}
+                sx={{ height: 8, borderRadius: 4 }}
               />
+            </CardContent>
+          </Card>
+        </Grid>
 
-              {/* Host */}
+        {/* Right Column: Edit Form + Host + Attendees */}
+        <Grid size={{ xs: 12, md: 8 }}>
+          <PodEditForm pod={pod} saving={saving} onSave={handleSavePod} />
+
+          {/* Host */}
+          <Card sx={{ mt: 2 }}>
+            <CardContent>
               <Typography variant="subtitle2" mb={1}>
                 Host
               </Typography>
-              <Box display="flex" alignItems="center" gap={1.5} mb={2}>
+              <Box display="flex" alignItems="center" gap={1.5}>
                 <Avatar src={pod.host.avatar} sx={{ width: 36, height: 36 }}>
                   {pod.host.name?.[0]}
                 </Avatar>
-                <Typography variant="body2" fontWeight={600}>
-                  {pod.host.name}
-                </Typography>
+                <Link
+                  underline="hover"
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => navigate(`/users/${pod.host.id}`)}
+                >
+                  <Typography variant="body2" fontWeight={600}>
+                    {pod.host.name}
+                  </Typography>
+                </Link>
               </Box>
+            </CardContent>
+          </Card>
 
-              {/* Attendees */}
+          {/* Attendees */}
+          <Card sx={{ mt: 2 }}>
+            <CardContent>
               <Typography variant="subtitle2" mb={1}>
                 Attendees ({pod.attendees.length})
               </Typography>
@@ -286,7 +298,15 @@ const PodDetailPage: React.FC = () => {
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText
-                        primary={a.name}
+                        primary={
+                          <Link
+                            underline="hover"
+                            sx={{ cursor: 'pointer' }}
+                            onClick={() => navigate(`/users/${a.id}`)}
+                          >
+                            {a.name}
+                          </Link>
+                        }
                         primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
                       />
                     </ListItem>

@@ -155,8 +155,18 @@ const SupportPage: React.FC = () => {
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={activeTab} onChange={(_, v: number) => setActiveTab(v)}>
-          <Tab icon={<SupportAgentIcon />} iconPosition="start" label="Support Tickets" />
-          <Tab icon={<PhoneCallbackIcon />} iconPosition="start" label="Callback Requests" />
+          <Tab
+            icon={<SupportAgentIcon />}
+            iconPosition="start"
+            label="Support Tickets"
+            sx={{ minWidth: 0, maxWidth: 80, fontSize: 11, px: 1 }}
+          />
+          <Tab
+            icon={<PhoneCallbackIcon />}
+            iconPosition="start"
+            label="Callback Requests"
+            sx={{ minWidth: 0, maxWidth: 80, fontSize: 11, px: 1 }}
+          />
         </Tabs>
       </Box>
 

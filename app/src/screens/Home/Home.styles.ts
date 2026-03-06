@@ -4,7 +4,7 @@ import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     header: {
       flexDirection: 'row',
       justifyContent: 'space-between',

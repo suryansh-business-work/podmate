@@ -4,7 +4,7 @@ import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     header: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -31,7 +31,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       padding: spacing.lg,
       fontSize: 16,
       color: colors.text,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     textArea: { minHeight: 100 },
     inputError: { borderColor: colors.error },

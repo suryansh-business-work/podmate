@@ -14,7 +14,7 @@ export const createDrawerStyles = ({ colors }: ThemeUtils) =>
       left: 0,
       bottom: 0,
       zIndex: 101,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
       shadowColor: colors.black,
       shadowOffset: { width: 4, height: 0 },
       shadowOpacity: 0.15,

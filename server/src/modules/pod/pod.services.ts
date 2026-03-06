@@ -430,3 +430,88 @@ export async function enableUserPods(userId: string): Promise<number> {
   );
   return result.modifiedCount;
 }
+
+/* ── Admin Update Pod (full fields + chat notification) ── */
+
+export interface AdminUpdatePodInput {
+  title?: string;
+  description?: string;
+  category?: string;
+  imageUrl?: string;
+  mediaUrls?: string[];
+  feePerPerson?: number;
+  maxSeats?: number;
+  dateTime?: string;
+  location?: string;
+  locationDetail?: string;
+  latitude?: number;
+  longitude?: number;
+  status?: PodStatus;
+  closeReason?: string;
+  refundPolicy?: string;
+}
+
+export async function adminUpdatePod(
+  podId: string,
+  input: AdminUpdatePodInput,
+): Promise<Pod> {
+  const pod = await PodModel.findById(podId);
+  if (!pod) throw new Error('Pod not found');
+
+  const update: Record<string, unknown> = {};
+  if (input.title !== undefined) update.title = input.title;
+  if (input.description !== undefined) update.description = input.description;
+  if (input.category !== undefined) update.category = input.category;
+  if (input.imageUrl !== undefined) update.imageUrl = input.imageUrl;
+  if (input.mediaUrls !== undefined) update.mediaUrls = input.mediaUrls;
+  if (input.feePerPerson !== undefined) update.feePerPerson = input.feePerPerson;
+  if (input.maxSeats !== undefined) update.maxSeats = input.maxSeats;
+  if (input.dateTime !== undefined) update.dateTime = input.dateTime;
+  if (input.location !== undefined) update.location = input.location;
+  if (input.locationDetail !== undefined) update.locationDetail = input.locationDetail;
+  if (input.latitude !== undefined) update.latitude = input.latitude;
+  if (input.longitude !== undefined) update.longitude = input.longitude;
+  if (input.status !== undefined) update.status = input.status;
+  if (input.closeReason !== undefined) update.closeReason = input.closeReason;
+  if (input.refundPolicy !== undefined) update.refundPolicy = input.refundPolicy;
+
+  const updated = await PodModel.findByIdAndUpdate(
+    podId,
+    { $set: update },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
+  const result = toPod(updated);
+  if (!result) throw new Error('Pod not found');
+
+  /* Build a summary of what changed for chat notification */
+  const changedFields: string[] = [];
+  if (input.title !== undefined && input.title !== pod.title) changedFields.push('title');
+  if (input.description !== undefined && input.description !== pod.description) changedFields.push('description');
+  if (input.dateTime !== undefined && input.dateTime !== pod.dateTime) changedFields.push('date/time');
+  if (input.location !== undefined && input.location !== pod.location) changedFields.push('location');
+  if (input.feePerPerson !== undefined && input.feePerPerson !== pod.feePerPerson) changedFields.push('fee');
+  if (input.maxSeats !== undefined && input.maxSeats !== pod.maxSeats) changedFields.push('max seats');
+  if (input.status !== undefined && input.status !== pod.status) changedFields.push('status');
+
+  /* Send chat message to pod's group if fields changed */
+  if (changedFields.length > 0) {
+    const { addMessage, broadcast } = await import('../chat/chat.services');
+    const summaryMsg = `[Admin Update] Pod "${result.title}" has been updated: ${changedFields.join(', ')}`;
+    const chatMsg = await addMessage(podId, pod.hostId, summaryMsg, 'SYSTEM');
+    broadcast(podId, { type: 'NEW_MESSAGE', message: chatMsg });
+
+    /* Notify all attendees */
+    const attendeeIds = pod.attendeeIds as string[];
+    for (const userId of attendeeIds) {
+      await createNotification(
+        userId,
+        'POD_UPDATE',
+        'Pod Updated',
+        `"${result.title}" was updated by an admin: ${changedFields.join(', ')}`,
+        JSON.stringify({ podId }),
+      );
+    }
+  }
+
+  return result;
+}

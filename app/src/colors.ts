@@ -31,6 +31,16 @@ export interface AppColorPalette {
   gradientEnd: string;
   cardShadow: string;
   overlay: string;
+  errorBg: string;
+  warningBg: string;
+  warningText: string;
+  infoBg: string;
+  infoText: string;
+  indigoAccent: string;
+  overlayLight: string;
+  overlayHeavy: string;
+  scrim: string;
+  divider: string;
 }
 
 export const lightColors: AppColorPalette = {
@@ -59,6 +69,16 @@ export const lightColors: AppColorPalette = {
   gradientEnd: '#9333EA',
   cardShadow: 'rgba(0, 0, 0, 0.08)',
   overlay: 'rgba(0, 0, 0, 0.5)',
+  errorBg: '#FEF2F2',
+  warningBg: '#FFF3CD',
+  warningText: '#856404',
+  infoBg: '#EFF6FF',
+  infoText: '#1E40AF',
+  indigoAccent: '#6366F1',
+  overlayLight: 'rgba(0, 0, 0, 0.15)',
+  overlayHeavy: 'rgba(0, 0, 0, 0.6)',
+  scrim: 'rgba(0, 0, 0, 0.92)',
+  divider: '#E5E7EB',
 };
 
 export const darkColors: AppColorPalette = {
@@ -87,4 +107,14 @@ export const darkColors: AppColorPalette = {
   gradientEnd: '#9333EA',
   cardShadow: 'rgba(0, 0, 0, 0.3)',
   overlay: 'rgba(0, 0, 0, 0.7)',
+  errorBg: '#2D1515',
+  warningBg: '#2D2815',
+  warningText: '#F5D98E',
+  infoBg: '#15202D',
+  infoText: '#93B8F5',
+  indigoAccent: '#818CF8',
+  overlayLight: 'rgba(0, 0, 0, 0.3)',
+  overlayHeavy: 'rgba(0, 0, 0, 0.75)',
+  scrim: 'rgba(0, 0, 0, 0.95)',
+  divider: '#374151',
 };

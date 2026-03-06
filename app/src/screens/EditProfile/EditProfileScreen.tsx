@@ -40,6 +40,7 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
   });
   const [updateProfile] = useMutation(UPDATE_PROFILE, {
     refetchQueries: [{ query: GET_ME }],
+    awaitRefetchQueries: true,
   });
   const { pickAndUploadImage, uploading: avatarUploading } = useImageKitUpload();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);

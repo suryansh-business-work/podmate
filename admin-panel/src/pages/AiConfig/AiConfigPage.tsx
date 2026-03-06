@@ -13,6 +13,7 @@ import {
   Link,
   Divider,
   Stack,
+  Chip,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import SaveIcon from '@mui/icons-material/Save';
@@ -198,8 +199,41 @@ const AiConfigPage: React.FC = () => {
               fullWidth
               multiline
               rows={6}
-              helperText="This system prompt is sent to OpenAI before every conversation. It defines the chatbot's personality, context, and behavior."
+              helperText="This system prompt is sent to OpenAI before every conversation. Use slugs like {{user_name}}, {{user_phone}}, {{user_role}} for current user info and {{bot_model}}, {{bot_name}} for bot info."
             />
+
+            <Box>
+              <Typography variant="subtitle2" mb={1}>
+                Available Slugs
+              </Typography>
+              <Box display="flex" gap={1} flexWrap="wrap">
+                {[
+                  { slug: '{{user_name}}', label: 'User Name' },
+                  { slug: '{{user_phone}}', label: 'User Phone' },
+                  { slug: '{{user_email}}', label: 'User Email' },
+                  { slug: '{{user_role}}', label: 'User Role' },
+                  { slug: '{{user_id}}', label: 'User ID' },
+                  { slug: '{{bot_model}}', label: 'Bot Model' },
+                  { slug: '{{bot_name}}', label: 'Bot Name (PartyWings)' },
+                  { slug: '{{platform_name}}', label: 'Platform Name' },
+                ].map(({ slug, label }) => (
+                  <Chip
+                    key={slug}
+                    label={slug}
+                    size="small"
+                    variant="outlined"
+                    onClick={() =>
+                      setAiConfig((p) => ({
+                        ...p,
+                        prePrompt: p.prePrompt + ' ' + slug,
+                      }))
+                    }
+                    title={label}
+                    sx={{ cursor: 'pointer' }}
+                  />
+                ))}
+              </Box>
+            </Box>
           </Stack>
 
           <Stack direction="row" justifyContent="flex-end" spacing={2} mt={3}>

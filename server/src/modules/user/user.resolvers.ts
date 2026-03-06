@@ -1,5 +1,6 @@
 import type { GraphQLContext } from '../auth/auth.models';
 import { UserRole } from './user.models';
+import type { AdminUpdateUserInput } from './user.services';
 import { requireAuth, requireRole } from '../auth/auth.services';
 import * as userService from './user.services';
 import { sendSMS } from '../../lib/email';
@@ -112,6 +113,15 @@ const userResolvers = {
     ) => {
       const auth = requireAuth(context);
       return userService.updateThemePreference(auth.userId, args.themePreference);
+    },
+
+    adminUpdateUser: (
+      _: unknown,
+      args: { userId: string; input: AdminUpdateUserInput },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return userService.adminUpdateUser(args.userId, args.input);
     },
   },
 

@@ -89,6 +89,8 @@ const rootSchema = `#graphql
     pod(id: ID!): Pod
     myPods: [Pod!]!
     userPods(userId: ID!): [Pod!]!
+    userHostedPods(userId: ID!): [Pod!]!
+    userJoinedPods(userId: ID!): [Pod!]!
     chatMessages(podId: ID!): [ChatMessage!]!
     podInvites(podId: ID!): [Invite!]!
     policies(type: String): [Policy!]!
@@ -226,6 +228,39 @@ const rootSchema = `#graphql
     deleteCallbackRequest(id: ID!): Boolean!
     registerPushToken(input: RegisterPushTokenInput!): PushToken!
     unregisterPushToken(deviceId: String!): Boolean!
+    adminUpdateUser(userId: ID!, input: AdminUpdateUserInput!): User!
+    adminUpdatePod(id: ID!, input: AdminUpdatePodInput!): Pod!
+  }
+
+  input AdminUpdateUserInput {
+    name: String
+    email: String
+    phone: String
+    username: String
+    dob: String
+    avatar: String
+    role: UserRole
+    isVerifiedHost: Boolean
+    isActive: Boolean
+    disableReason: String
+  }
+
+  input AdminUpdatePodInput {
+    title: String
+    description: String
+    category: String
+    imageUrl: String
+    mediaUrls: [String!]
+    feePerPerson: Float
+    maxSeats: Int
+    dateTime: String
+    location: String
+    locationDetail: String
+    latitude: Float
+    longitude: Float
+    status: PodStatus
+    closeReason: String
+    refundPolicy: String
   }
 `;
 

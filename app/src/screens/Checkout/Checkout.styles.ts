@@ -4,7 +4,7 @@ import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -57,18 +57,18 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.sm,
-      backgroundColor: '#FFF3CD',
+      backgroundColor: colors.warningBg,
       borderRadius: borderRadius.md,
       padding: spacing.md,
       marginBottom: spacing.lg,
     },
-    dummyText: { flex: 1, fontSize: 13, color: '#856404', lineHeight: 18 },
+    dummyText: { flex: 1, fontSize: 13, color: colors.warningText, lineHeight: 18 },
     bottomBar: {
       position: 'absolute',
       bottom: 0,
       left: 0,
       right: 0,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
       borderTopWidth: 1,
       borderTopColor: colors.surfaceVariant,
       paddingHorizontal: spacing.lg,

@@ -4,7 +4,7 @@ import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     content: { flex: 1, paddingHorizontal: spacing.xl },
     topSection: { paddingTop: 60 },
     logoBox: {
@@ -43,7 +43,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       padding: spacing.lg,
       fontSize: 16,
       color: colors.text,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     textInputError: { borderColor: colors.error },
     errorText: {

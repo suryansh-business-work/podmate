@@ -249,3 +249,50 @@ export async function updateThemePreference(
   if (!result) throw new Error('User not found');
   return result;
 }
+
+export interface AdminUpdateUserInput {
+  name?: string;
+  email?: string;
+  phone?: string;
+  username?: string;
+  dob?: string;
+  avatar?: string;
+  role?: UserRole;
+  isVerifiedHost?: boolean;
+  isActive?: boolean;
+  disableReason?: string;
+}
+
+export async function adminUpdateUser(
+  userId: string,
+  input: AdminUpdateUserInput,
+): Promise<User> {
+  const update: Record<string, unknown> = {};
+  if (input.name !== undefined) update.name = input.name;
+  if (input.email !== undefined) update.email = input.email;
+  if (input.phone !== undefined) update.phone = input.phone;
+  if (input.username !== undefined) update.username = input.username;
+  if (input.dob !== undefined) update.dob = input.dob;
+  if (input.avatar !== undefined) update.avatar = input.avatar;
+  if (input.role !== undefined) update.role = input.role;
+  if (input.isVerifiedHost !== undefined) update.isVerifiedHost = input.isVerifiedHost;
+  if (input.isActive !== undefined) update.isActive = input.isActive;
+  if (input.disableReason !== undefined) update.disableReason = input.disableReason;
+
+  const updated = await UserModel.findByIdAndUpdate(
+    userId,
+    { $set: update },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+
+  /* Cascade pod disable/enable when isActive changes */
+  if (input.isActive === false) {
+    await disableUserPods(userId);
+  } else if (input.isActive === true) {
+    await enableUserPods(userId);
+  }
+
+  return result;
+}

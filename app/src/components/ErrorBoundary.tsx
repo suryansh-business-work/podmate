@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, spacing, borderRadius } from '../theme';
+import { lightColors } from '../colors';
+import { spacing, borderRadius } from '../theme';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -39,7 +40,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     if (this.state.hasError) {
       return (
         <View style={styles.container}>
-          <MaterialIcons name="error-outline" size={64} color={colors.error} style={styles.icon} />
+          <MaterialIcons name="error-outline" size={64} color={lightColors.error} style={styles.icon} />
           <Text style={styles.title}>Something went wrong</Text>
           <Text style={styles.message}>
             {this.props.fallbackMessage ?? 'An unexpected error occurred. Please try again.'}
@@ -48,7 +49,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             <Text style={styles.devError}>{this.state.error.message}</Text>
           )}
           <TouchableOpacity style={styles.retryBtn} onPress={this.handleRetry} activeOpacity={0.7}>
-            <MaterialIcons name="refresh" size={20} color={colors.white} />
+            <MaterialIcons name="refresh" size={20} color={lightColors.white} />
             <Text style={styles.retryText}>Try Again</Text>
           </TouchableOpacity>
         </View>
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.xxxl,
-    backgroundColor: colors.background,
+    backgroundColor: lightColors.background,
   },
   icon: {
     marginBottom: spacing.lg,
@@ -73,22 +74,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: colors.text,
+    color: lightColors.text,
     marginBottom: spacing.sm,
   },
   message: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: lightColors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: spacing.xl,
   },
   devError: {
     fontSize: 12,
-    color: colors.error,
+    color: lightColors.error,
     fontFamily: 'monospace',
     padding: spacing.md,
-    backgroundColor: colors.surfaceVariant,
+    backgroundColor: lightColors.surfaceVariant,
     borderRadius: borderRadius.sm,
     marginBottom: spacing.lg,
     maxWidth: '100%',
@@ -97,13 +98,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    backgroundColor: colors.primary,
+    backgroundColor: lightColors.primary,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
   },
   retryText: {
-    color: colors.white,
+    color: lightColors.white,
     fontSize: 14,
     fontWeight: '600',
   },

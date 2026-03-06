@@ -56,5 +56,14 @@ export const PolicyModel =
 
 export function toPolicy(doc: (PolicyMongoDoc & { id?: string }) | null): Policy | null {
   if (!doc) return null;
-  return { ...doc, id: doc.id ?? doc._id } as Policy;
+  return {
+    ...doc,
+    id: doc.id ?? doc._id,
+    version: doc.version ?? 1,
+    isActive: doc.isActive ?? true,
+    content: doc.content ?? '',
+    title: doc.title ?? '',
+    createdAt: doc.createdAt ?? new Date().toISOString(),
+    updatedAt: doc.updatedAt ?? new Date().toISOString(),
+  } as Policy;
 }

@@ -62,7 +62,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={[colors.primary, '#9333EA']}
+        colors={[colors.primary, colors.secondary]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.headerGradient}
@@ -123,8 +123,8 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ onClose, onNavigate, onLogout }
         <View style={styles.divider} />
 
         <View style={styles.menuRow}>
-          <View style={[styles.iconCircle, { backgroundColor: '#6366F1' + '18' }]}>
-            <MaterialIcons name={isDark ? 'dark-mode' : 'light-mode'} size={18} color="#6366F1" />
+          <View style={[styles.iconCircle, { backgroundColor: colors.indigoAccent + '18' }]}>
+            <MaterialIcons name={isDark ? 'dark-mode' : 'light-mode'} size={18} color={colors.indigoAccent} />
           </View>
           <Text style={[styles.menuLabel, { flex: 1 }]}>Dark Mode</Text>
           <Switch

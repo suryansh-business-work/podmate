@@ -1,6 +1,6 @@
 import { ComponentProps } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors } from '../../theme';
+import { lightColors } from '../../colors';
 
 export type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
@@ -37,5 +37,5 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { id: 'Feedback', icon: 'feedback', label: 'Feedback', color: '#F59E0B' },
   { id: 'PodIdeas', icon: 'emoji-objects', label: 'Pod Ideas', color: '#10B981' },
   { id: 'Help', icon: 'help-outline', label: 'Help & FAQs', color: '#8B5CF6' },
-  { id: 'Support', icon: 'support-agent', label: 'Support', color: colors.primary },
+  { id: 'Support', icon: 'support-agent', label: 'Support', color: lightColors.primary },
 ];

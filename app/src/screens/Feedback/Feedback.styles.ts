@@ -4,7 +4,7 @@ import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -12,7 +12,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       paddingVertical: spacing.sm,
       borderBottomWidth: 1,
       borderBottomColor: colors.surfaceVariant,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
       gap: spacing.sm,
     },
     headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text, flex: 1 },
@@ -105,11 +105,11 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     },
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.5)',
+      backgroundColor: colors.overlay,
       justifyContent: 'flex-end',
     },
     modalContent: {
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
       borderTopLeftRadius: borderRadius.lg,
       borderTopRightRadius: borderRadius.lg,
       padding: spacing.lg,

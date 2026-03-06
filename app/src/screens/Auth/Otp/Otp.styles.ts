@@ -5,7 +5,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     content: {
       flex: 1,
@@ -59,7 +59,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.sm,
-      backgroundColor: '#FEF2F2',
+      backgroundColor: colors.errorBg,
       borderRadius: borderRadius.md,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,

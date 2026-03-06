@@ -7,7 +7,7 @@ export interface Notification {
   title: string;
   message: string;
   data: string;
-  read: boolean;
+  isRead: boolean;
   createdAt: string;
 }
 

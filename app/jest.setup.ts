@@ -31,9 +31,16 @@ jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => 'MaterialCom
 // Mock expo-asset to prevent "Module is missing from the asset registry" errors
 jest.mock('expo-asset', () => ({
   Asset: {
-    fromModule: jest.fn(() => ({ downloadAsync: jest.fn().mockResolvedValue(undefined), uri: 'mock-asset-uri', localUri: 'mock-asset-uri' })),
+    fromModule: jest.fn(() => ({
+      downloadAsync: jest.fn().mockResolvedValue(undefined),
+      uri: 'mock-asset-uri',
+      localUri: 'mock-asset-uri',
+    })),
     loadAsync: jest.fn().mockResolvedValue([]),
-    fromURI: jest.fn(() => ({ downloadAsync: jest.fn().mockResolvedValue(undefined), uri: 'mock-asset-uri' })),
+    fromURI: jest.fn(() => ({
+      downloadAsync: jest.fn().mockResolvedValue(undefined),
+      uri: 'mock-asset-uri',
+    })),
   },
   useAssets: jest.fn(() => [[], null]),
 }));
@@ -59,8 +66,19 @@ jest.mock('@expo/vector-icons', () => {
   const mockReact = require('react');
   const { Text } = require('react-native');
   const createMockIcon = (displayName: string) => {
-    const Icon = ({ testID, size, color, name, ...rest }: { testID?: string; size?: number; color?: string; name?: string; [key: string]: unknown }) =>
-      mockReact.createElement(Text, { testID, ...rest }, name ?? displayName);
+    const Icon = ({
+      testID,
+      size,
+      color,
+      name,
+      ...rest
+    }: {
+      testID?: string;
+      size?: number;
+      color?: string;
+      name?: string;
+      [key: string]: unknown;
+    }) => mockReact.createElement(Text, { testID, ...rest }, name ?? displayName);
     Icon.font = {};
     Icon.displayName = displayName;
     return Icon;

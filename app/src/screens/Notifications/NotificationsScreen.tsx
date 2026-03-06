@@ -55,7 +55,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
   const [markAllRead] = useMutation(MARK_ALL_NOTIFICATIONS_READ);
 
   const notifications: Notification[] = data?.notifications?.items ?? [];
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const handleMarkRead = useCallback(
     async (id: string) => {
@@ -159,15 +159,15 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
         }
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={[styles.notificationRow, !item.read && styles.notificationUnread]}
-            onPress={() => !item.read && handleMarkRead(item.id)}
+            style={[styles.notificationRow, !item.isRead && styles.notificationUnread]}
+            onPress={() => !item.isRead && handleMarkRead(item.id)}
             activeOpacity={0.7}
           >
             <View style={styles.iconContainer}>{renderIcon(item.type)}</View>
             <View style={styles.notificationContent}>
               <View style={styles.notificationTop}>
                 <Text
-                  style={[styles.notificationTitle, !item.read && styles.notificationTitleUnread]}
+                  style={[styles.notificationTitle, !item.isRead && styles.notificationTitleUnread]}
                 >
                   {item.title}
                 </Text>
@@ -177,7 +177,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onBack }) => 
                 {item.message}
               </Text>
             </View>
-            {!item.read && <View style={styles.unreadDot} />}
+            {!item.isRead && <View style={styles.unreadDot} />}
           </TouchableOpacity>
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}

@@ -154,6 +154,6 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     dotActive: {
       width: 20,
       borderRadius: 3,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
   });

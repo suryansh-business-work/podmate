@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  NavigationContainerRef,
+  DefaultTheme,
+  DarkTheme,
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Animated, TouchableOpacity, StyleSheet, BackHandler, Alert } from 'react-native';
 import SplashScreen from '../screens/SplashScreen';
@@ -30,6 +35,8 @@ import DrawerMenu from '../components/DrawerMenu';
 import { RootStackParamList } from './RootNavigator.types';
 import { createDrawerStyles } from './RootNavigator.styles';
 import { useThemedStyles } from '../hooks/useThemedStyles';
+import { useAppColors } from '../hooks/useThemedStyles';
+import { useThemeMode } from '../contexts/ThemeContext';
 import { useAuth } from './hooks/useAuth';
 import { useDrawer, DRAWER_WIDTH } from './hooks/useDrawer';
 import { usePushNotifications } from '../hooks/usePushNotifications';
@@ -43,6 +50,8 @@ const RootNavigator: React.FC = () => {
   const auth = useAuth();
   const drawer = useDrawer();
   const drawerStyles = useThemedStyles(createDrawerStyles);
+  const colors = useAppColors();
+  const { isDark } = useThemeMode();
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   const handleNotificationTapped = useCallback((response: Notifications.NotificationResponse) => {
@@ -134,7 +143,21 @@ const RootNavigator: React.FC = () => {
   return (
     <View style={{ flex: 1 }}>
       <NetworkBanner />
-      <NavigationContainer ref={navigationRef}>
+      <NavigationContainer
+        ref={navigationRef}
+        theme={{
+          ...(isDark ? DarkTheme : DefaultTheme),
+          colors: {
+            ...(isDark ? DarkTheme : DefaultTheme).colors,
+            primary: colors.primary,
+            background: colors.background,
+            card: colors.surface,
+            text: colors.text,
+            border: colors.border,
+            notification: colors.error,
+          },
+        }}
+      >
         <Stack.Navigator
           screenOptions={{
             headerShown: false,

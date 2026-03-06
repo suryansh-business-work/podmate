@@ -87,6 +87,6 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     },
     inputFilled: {
       borderColor: colors.primary,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
   });

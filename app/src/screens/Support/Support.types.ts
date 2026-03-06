@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { colors } from '../../theme';
+import { lightColors } from '../../colors';
 
 export interface TicketReply {
   id: string;
@@ -29,8 +29,8 @@ export const ticketSchema = Yup.object().shape({
 });
 
 export const STATUS_COLORS: Record<string, string> = {
-  OPEN: colors.warning,
-  IN_PROGRESS: colors.accent,
-  RESOLVED: colors.success,
-  CLOSED: colors.textTertiary,
+  OPEN: lightColors.warning,
+  IN_PROGRESS: lightColors.accent,
+  RESOLVED: lightColors.success,
+  CLOSED: lightColors.textTertiary,
 };

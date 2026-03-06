@@ -511,3 +511,84 @@ export const DELETE_CALLBACK_REQUEST = gql`
     deleteCallbackRequest(id: $id)
   }
 `;
+
+/* ── Feedback ── */
+
+export const UPDATE_FEEDBACK_STATUS = gql`
+  mutation UpdateFeedbackStatus($id: ID!, $input: UpdateFeedbackInput!) {
+    updateFeedbackStatus(id: $id, input: $input) {
+      id
+      status
+      adminNotes
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_FEEDBACK = gql`
+  mutation DeleteFeedback($id: ID!) {
+    deleteFeedback(id: $id)
+  }
+`;
+
+/* ── Pod Ideas ── */
+
+export const UPDATE_POD_IDEA = gql`
+  mutation UpdatePodIdea($id: ID!, $input: UpdatePodIdeaInput!) {
+    updatePodIdea(id: $id, input: $input) {
+      id
+      status
+      adminNotes
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_POD_IDEA = gql`
+  mutation DeletePodIdea($id: ID!) {
+    deletePodIdea(id: $id)
+  }
+`;
+
+/* ── Admin Update User (full) ── */
+
+export const ADMIN_UPDATE_USER = gql`
+  mutation AdminUpdateUser($userId: ID!, $input: AdminUpdateUserInput!) {
+    adminUpdateUser(userId: $userId, input: $input) {
+      id
+      phone
+      email
+      name
+      username
+      dob
+      avatar
+      role
+      isVerifiedHost
+      isActive
+      disableReason
+      podCount
+      createdAt
+    }
+  }
+`;
+
+/* ── Admin Update Pod ── */
+
+export const ADMIN_UPDATE_POD = gql`
+  mutation AdminUpdatePod($id: ID!, $input: AdminUpdatePodInput!) {
+    adminUpdatePod(id: $id, input: $input) {
+      id
+      title
+      description
+      category
+      imageUrl
+      mediaUrls
+      feePerPerson
+      maxSeats
+      dateTime
+      location
+      locationDetail
+      status
+    }
+  }
+`;

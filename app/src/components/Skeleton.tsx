@@ -139,7 +139,7 @@ const createSkStyles = ({ colors }: { colors: Record<string, string> }) =>
       marginBottom: spacing.lg,
       borderRadius: borderRadius.md,
       overflow: 'hidden' as const,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     cardBody: { padding: spacing.md },
     feedWrap: { padding: spacing.xl, paddingTop: spacing.lg },

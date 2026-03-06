@@ -3,6 +3,7 @@ const chatTypeDefs = `#graphql
     TEXT
     IMAGE
     VIDEO
+    SYSTEM
   }
 
   type ChatMessage {

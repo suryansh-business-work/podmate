@@ -14,7 +14,7 @@ const SEND_BTN_SIZE = 40;
 export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
     /* Shared */
-    container: { flex: 1, backgroundColor: colors.white },
+    container: { flex: 1, backgroundColor: colors.surface },
     centered: {
       flex: 1,
       justifyContent: 'center',
@@ -75,7 +75,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       paddingVertical: spacing.sm,
       borderBottomWidth: 1,
       borderBottomColor: colors.surfaceVariant,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
       gap: spacing.sm,
       zIndex: 10,
       elevation: 4,
@@ -161,7 +161,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       ...StyleSheet.absoluteFillObject,
       justifyContent: 'center' as const,
       alignItems: 'center' as const,
-      backgroundColor: 'rgba(0,0,0,0.18)',
+      backgroundColor: colors.overlayLight,
     },
 
     /* Day separator */
@@ -170,7 +170,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       paddingHorizontal: spacing.md,
       paddingVertical: 4,
       borderRadius: borderRadius.full,
-      backgroundColor: 'rgba(0,0,0,0.06)',
+      backgroundColor: colors.surfaceVariant,
       marginVertical: spacing.md,
     },
     daySeparatorText: {
@@ -194,7 +194,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     inputBarOuter: {
       borderTopWidth: 1,
       borderTopColor: colors.surfaceVariant,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     inputBar: {
       flexDirection: 'row',
@@ -243,7 +243,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       gap: spacing.xl,
       borderTopWidth: 1,
       borderTopColor: colors.surfaceVariant,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
     },
     attachOption: { alignItems: 'center' as const, gap: spacing.xs },
     attachCircle: {
@@ -265,7 +265,7 @@ export const createPvStyles = ({ colors }: ThemeUtils) =>
   StyleSheet.create({
     backdrop: {
       flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.92)',
+      backgroundColor: colors.scrim,
       justifyContent: 'center',
       alignItems: 'center',
     },

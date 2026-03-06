@@ -4,7 +4,7 @@ import { ThemeUtils } from '../../hooks/useThemedStyles';
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#FAFBFC' },
+    container: { flex: 1, backgroundColor: colors.surface },
 
     /* Gradient header */
     headerGradient: {
@@ -40,7 +40,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       width: 56,
       height: 56,
       borderRadius: 28,
-      backgroundColor: colors.white,
+      backgroundColor: colors.surface,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -87,7 +87,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     menuLabel: { fontSize: 15, fontWeight: '500', color: colors.text, flex: 1 },
     divider: {
       height: 1,
-      backgroundColor: '#E5E7EB',
+      backgroundColor: colors.divider,
       marginVertical: spacing.sm,
       marginHorizontal: spacing.xl,
     },

@@ -393,11 +393,14 @@ const CallbackRequestsTab: React.FC = () => {
             />
             <TextField
               label="Scheduled At"
-              value={editScheduled}
-              onChange={(e) => setEditScheduled(e.target.value)}
-              placeholder="e.g. 2025-01-15T10:00:00.000Z"
+              type="datetime-local"
+              value={editScheduled ? editScheduled.slice(0, 16) : ''}
+              onChange={(e) =>
+                setEditScheduled(e.target.value ? new Date(e.target.value).toISOString() : '')
+              }
               fullWidth
               size="small"
+              slotProps={{ inputLabel: { shrink: true } }}
             />
           </DialogContent>
         )}

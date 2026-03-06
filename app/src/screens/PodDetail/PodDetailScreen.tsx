@@ -532,7 +532,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({
         ) : (
           <TouchableOpacity style={styles.joinButton} onPress={handleJoin}>
             <LinearGradient
-              colors={[colors.secondary, '#EF4444']}
+              colors={[colors.secondary, colors.error]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.joinGradient}

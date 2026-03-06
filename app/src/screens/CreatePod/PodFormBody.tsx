@@ -278,7 +278,7 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
               style={{
                 flex: 1,
                 marginTop: 120,
-                backgroundColor: colors.white,
+                backgroundColor: colors.surface,
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,
                 overflow: 'hidden',

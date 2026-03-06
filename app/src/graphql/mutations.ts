@@ -72,9 +72,16 @@ export const UPDATE_PROFILE = gql`
   mutation UpdateProfile($name: String, $avatar: String, $email: String) {
     updateProfile(name: $name, avatar: $avatar, email: $email) {
       id
-      name
-      avatar
+      phone
       email
+      name
+      username
+      dob
+      avatar
+      role
+      isVerifiedHost
+      savedPodIds
+      themePreference
     }
   }
 `;
@@ -199,10 +206,7 @@ export const REPLY_SUPPORT_TICKET = gql`
 
 export const MARK_NOTIFICATION_READ = gql`
   mutation MarkNotificationRead($id: ID!) {
-    markNotificationRead(id: $id) {
-      id
-      isRead
-    }
+    markNotificationRead(id: $id)
   }
 `;
 

@@ -2,7 +2,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package.json tsconfig.json ./
 COPY src ./src
-RUN npm install -g pnpm && pnpm install --frozen-lockfile && pnpm build
+RUN npm install -g pnpm && pnpm install && pnpm build
 
 FROM node:22-alpine
 WORKDIR /app

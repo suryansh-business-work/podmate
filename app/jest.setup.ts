@@ -28,6 +28,56 @@ jest.mock('expo-linear-gradient', () => {
 jest.mock('react-native-vector-icons/MaterialIcons', () => 'MaterialIcons');
 jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => 'MaterialCommunityIcons');
 
+// Mock expo-asset to prevent "Module is missing from the asset registry" errors
+jest.mock('expo-asset', () => ({
+  Asset: {
+    fromModule: jest.fn(() => ({ downloadAsync: jest.fn().mockResolvedValue(undefined), uri: 'mock-asset-uri', localUri: 'mock-asset-uri' })),
+    loadAsync: jest.fn().mockResolvedValue([]),
+    fromURI: jest.fn(() => ({ downloadAsync: jest.fn().mockResolvedValue(undefined), uri: 'mock-asset-uri' })),
+  },
+  useAssets: jest.fn(() => [[], null]),
+}));
+
+// Mock expo-font to prevent font loading in tests
+jest.mock('expo-font', () => ({
+  useFonts: jest.fn(() => [true, null]),
+  loadAsync: jest.fn().mockResolvedValue(undefined),
+  isLoaded: jest.fn(() => true),
+  isLoading: jest.fn(() => false),
+  unloadAllAsync: jest.fn().mockResolvedValue(undefined),
+  FontDisplay: {
+    AUTO: 'auto',
+    BLOCK: 'block',
+    SWAP: 'swap',
+    FALLBACK: 'fallback',
+    OPTIONAL: 'optional',
+  },
+}));
+
+// Mock @expo/vector-icons to prevent font asset loading in tests
+jest.mock('@expo/vector-icons', () => {
+  const mockReact = require('react');
+  const { Text } = require('react-native');
+  const createMockIcon = (displayName: string) => {
+    const Icon = ({ testID, size, color, name, ...rest }: { testID?: string; size?: number; color?: string; name?: string; [key: string]: unknown }) =>
+      mockReact.createElement(Text, { testID, ...rest }, name ?? displayName);
+    Icon.font = {};
+    Icon.displayName = displayName;
+    return Icon;
+  };
+  return {
+    MaterialIcons: createMockIcon('MaterialIcons'),
+    MaterialCommunityIcons: createMockIcon('MaterialCommunityIcons'),
+    Ionicons: createMockIcon('Ionicons'),
+    FontAwesome: createMockIcon('FontAwesome'),
+    FontAwesome5: createMockIcon('FontAwesome5'),
+    Entypo: createMockIcon('Entypo'),
+    AntDesign: createMockIcon('AntDesign'),
+    Feather: createMockIcon('Feather'),
+    SimpleLineIcons: createMockIcon('SimpleLineIcons'),
+  };
+});
+
 // Mock @apollo/client
 jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),

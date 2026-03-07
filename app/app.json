@@ -5,24 +5,33 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "extra": {
-      "apiUrl": "http://192.168.68.73:4039/graphql",
+      "apiUrl": "http://192.168.68.61:4039/graphql",
       "eas": {
         "projectId": "f12c936a-a509-4fdd-89ae-d83ed1959fd9"
       }
     },
     "icon": "./assets/icon-and-splash/logo-1024x1024.png",
     "userInterfaceStyle": "automatic",
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "splash": {
       "image": "./assets/icon-and-splash/logo-1284x2778.png",
       "resizeMode": "contain",
       "backgroundColor": "#111827"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.partywings.app",
-      "icon": "./assets/icon-and-splash/logo-1024x1024.png"
+      "icon": "./assets/icon-and-splash/logo-1024x1024.png",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {

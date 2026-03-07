@@ -24,7 +24,9 @@
     "version:major": "node scripts/version-bump.mjs major",
     "clean:cache": "node -e \"const fs=require('fs');const rm=p=>{try{fs.rmSync(p,{recursive:true,force:true})}catch{}};['node_modules/.cache','app/node_modules/.cache','app/.expo','admin-panel/node_modules/.cache','server/node_modules/.cache','website/node_modules/.cache'].forEach(rm);console.log('✅ Cache cleaned')\"",
     "clean": "pnpm clean:cache && pnpm install",
-    "prepare": "husky"
+    "node:clean": "rm -rf node_modules && rm -rf server/node_modules && rm -rf admin-panel/node_modules && rm -rf app/node_modules && rm -rf website/node_modules",
+    "prepare": "husky",
+    "port-kill": "npx kill-port 4039 4038 4040 4041"
   },
   "devDependencies": {
     "husky": "^9.1.7",

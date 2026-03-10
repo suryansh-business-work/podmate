@@ -87,9 +87,7 @@ describe('AdminMediaUploader', () => {
   });
 
   it('displays default label when none provided', () => {
-    renderWithProviders(
-      <AdminMediaUploader mediaItems={[]} onMediaChange={vi.fn()} />,
-    );
+    renderWithProviders(<AdminMediaUploader mediaItems={[]} onMediaChange={vi.fn()} />);
     // Default label "Media" appears in both label text and button; use getAllByText
     const matches = screen.getAllByText(/media/i);
     expect(matches.length).toBeGreaterThanOrEqual(1);

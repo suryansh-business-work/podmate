@@ -7,7 +7,10 @@ import SupportScreen from '../SupportScreen';
 jest.mock('../TicketForm', () => {
   const mockReact = require('react');
   const { View, TouchableOpacity, Text } = require('react-native');
-  return function MockTicketForm({ onSubmit, creating }: {
+  return function MockTicketForm({
+    onSubmit,
+    creating,
+  }: {
     onSubmit: (v: { subject: string; message: string }) => void;
     creating: boolean;
   }) {
@@ -45,10 +48,7 @@ describe('SupportScreen', () => {
       error: null,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReturnValue([
-      mockCreateTicket,
-      { loading: false },
-    ]);
+    (useMutation as jest.Mock).mockReturnValue([mockCreateTicket, { loading: false }]);
   });
 
   it('renders header title', () => {
@@ -89,7 +89,13 @@ describe('SupportScreen', () => {
     (useQuery as jest.Mock).mockReturnValue({
       data: {
         mySupportTickets: [
-          { id: '1', subject: 'Bug Report', message: 'Crash', status: 'OPEN', createdAt: new Date().toISOString() },
+          {
+            id: '1',
+            subject: 'Bug Report',
+            message: 'Crash',
+            status: 'OPEN',
+            createdAt: new Date().toISOString(),
+          },
         ],
       },
       loading: false,
@@ -101,18 +107,14 @@ describe('SupportScreen', () => {
   });
 
   it('toggles ticket form visibility on FAB press', () => {
-    const { getByText, queryByTestId } = render(
-      <SupportScreen {...defaultProps} />,
-    );
+    const { getByText, queryByTestId } = render(<SupportScreen {...defaultProps} />);
     expect(queryByTestId('ticket-form')).toBeNull();
     fireEvent.press(getByText('add'));
     expect(queryByTestId('ticket-form')).toBeTruthy();
   });
 
   it('creates ticket on form submit', async () => {
-    const { getByText, getByTestId } = render(
-      <SupportScreen {...defaultProps} />,
-    );
+    const { getByText, getByTestId } = render(<SupportScreen {...defaultProps} />);
     fireEvent.press(getByText('add'));
     fireEvent.press(getByTestId('submit-ticket'));
     await waitFor(() => {

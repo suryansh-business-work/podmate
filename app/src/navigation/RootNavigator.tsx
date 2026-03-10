@@ -399,8 +399,6 @@ const RootNavigator: React.FC = () => {
         </Stack.Navigator>
       </NavigationContainer>
 
-
-
       {drawer.drawerOpen && (
         <>
           <Animated.View style={[drawerStyles.overlay, { opacity: drawer.overlayAnim }]}>

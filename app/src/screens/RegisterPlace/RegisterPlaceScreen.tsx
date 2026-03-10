@@ -1,12 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  Platform,
-  KeyboardAvoidingView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -134,52 +127,52 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
         style={{ flex: 1 }}
         behavior={Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-          <View style={{ flex: 1 }}>
-            <View style={styles.header}>
-              <TouchableOpacity onPress={goBack} style={styles.headerBtn}>
-                <MaterialIcons
-                  name={step === 0 ? 'close' : 'arrow-back'}
-                  size={22}
-                  color={colors.text}
-                />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>Register Venue</Text>
-              <View style={styles.headerBtn} />
-            </View>
-            <StepIndicator step={step} />
-            {step === 0 && (
-              <StepVenueDetails
-                formValues={formValues}
-                venueMedia={venueMedia}
-                googleMapsApiKey={googleMapsApiKey}
-                onMediaChange={setVenueMedia}
-                onSubmit={handleStepOneSubmit}
+        <View style={{ flex: 1 }}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={goBack} style={styles.headerBtn}>
+              <MaterialIcons
+                name={step === 0 ? 'close' : 'arrow-back'}
+                size={22}
+                color={colors.text}
               />
-            )}
-            {step === 1 && (
-              <StepDocuments
-                businessLicenseUrl={businessLicenseUrl}
-                permitsUrl={permitsUrl}
-                uploading={uploading}
-                progress={progress}
-                onUploadLicense={handleUploadLicense}
-                onUploadPermits={handleUploadPermits}
-                onContinue={() => setStep(2)}
-              />
-            )}
-            {step === 2 && (
-              <StepPolicies
-                policies={policies}
-                policiesLoading={policiesLoading}
-                policiesAccepted={policiesAccepted}
-                hasScrolledPolicies={hasScrolledPolicies}
-                onToggleAccepted={() => setPoliciesAccepted(!policiesAccepted)}
-                onScrolledToBottom={() => setHasScrolledPolicies(true)}
-                onSubmit={handleFinalSubmit}
-                submitting={submitting}
-              />
-            )}
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Register Venue</Text>
+            <View style={styles.headerBtn} />
           </View>
+          <StepIndicator step={step} />
+          {step === 0 && (
+            <StepVenueDetails
+              formValues={formValues}
+              venueMedia={venueMedia}
+              googleMapsApiKey={googleMapsApiKey}
+              onMediaChange={setVenueMedia}
+              onSubmit={handleStepOneSubmit}
+            />
+          )}
+          {step === 1 && (
+            <StepDocuments
+              businessLicenseUrl={businessLicenseUrl}
+              permitsUrl={permitsUrl}
+              uploading={uploading}
+              progress={progress}
+              onUploadLicense={handleUploadLicense}
+              onUploadPermits={handleUploadPermits}
+              onContinue={() => setStep(2)}
+            />
+          )}
+          {step === 2 && (
+            <StepPolicies
+              policies={policies}
+              policiesLoading={policiesLoading}
+              policiesAccepted={policiesAccepted}
+              hasScrolledPolicies={hasScrolledPolicies}
+              onToggleAccepted={() => setPoliciesAccepted(!policiesAccepted)}
+              onScrolledToBottom={() => setHasScrolledPolicies(true)}
+              onSubmit={handleFinalSubmit}
+              submitting={submitting}
+            />
+          )}
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

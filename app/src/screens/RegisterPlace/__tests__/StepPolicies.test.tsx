@@ -6,7 +6,15 @@ import type { PolicyItem } from '../RegisterPlace.types';
 jest.mock('../../../components/GradientButton', () => {
   const { TouchableOpacity, Text } = require('react-native');
   return {
-    GradientButton: ({ title, onPress, disabled }: { title: string; onPress: () => void; disabled?: boolean }) => (
+    GradientButton: ({
+      title,
+      onPress,
+      disabled,
+    }: {
+      title: string;
+      onPress: () => void;
+      disabled?: boolean;
+    }) => (
       <TouchableOpacity onPress={onPress} disabled={disabled} testID="gradient-btn">
         <Text>{title}</Text>
       </TouchableOpacity>
@@ -15,8 +23,20 @@ jest.mock('../../../components/GradientButton', () => {
 });
 
 const makePolicies = (): PolicyItem[] => [
-  { id: 'p1', type: 'TERMS', title: 'Terms of Service', content: 'You agree to our terms.', isActive: true },
-  { id: 'p2', type: 'PRIVACY', title: 'Privacy Policy', content: 'We protect your data.', isActive: true },
+  {
+    id: 'p1',
+    type: 'TERMS',
+    title: 'Terms of Service',
+    content: 'You agree to our terms.',
+    isActive: true,
+  },
+  {
+    id: 'p2',
+    type: 'PRIVACY',
+    title: 'Privacy Policy',
+    content: 'We protect your data.',
+    isActive: true,
+  },
 ];
 
 describe('StepPolicies', () => {
@@ -52,16 +72,12 @@ describe('StepPolicies', () => {
   });
 
   it('shows loading indicator when policiesLoading', () => {
-    const { queryByText } = render(
-      <StepPolicies {...baseProps} policiesLoading={true} />,
-    );
+    const { queryByText } = render(<StepPolicies {...baseProps} policiesLoading={true} />);
     expect(queryByText('Terms of Service')).toBeNull();
   });
 
   it('shows empty state when no policies', () => {
-    const { getByText } = render(
-      <StepPolicies {...baseProps} policies={[]} />,
-    );
+    const { getByText } = render(<StepPolicies {...baseProps} policies={[]} />);
     expect(getByText('No policies available at this time.')).toBeTruthy();
   });
 
@@ -76,9 +92,7 @@ describe('StepPolicies', () => {
   });
 
   it('hides scroll hint when scrolled to bottom', () => {
-    const { queryByText } = render(
-      <StepPolicies {...baseProps} hasScrolledPolicies={true} />,
-    );
+    const { queryByText } = render(<StepPolicies {...baseProps} hasScrolledPolicies={true} />);
     expect(queryByText(/Scroll to the bottom to enable/)).toBeNull();
   });
 
@@ -89,9 +103,7 @@ describe('StepPolicies', () => {
   });
 
   it('toggles acceptance after scrolling', () => {
-    const { getByText } = render(
-      <StepPolicies {...baseProps} hasScrolledPolicies={true} />,
-    );
+    const { getByText } = render(<StepPolicies {...baseProps} hasScrolledPolicies={true} />);
     fireEvent.press(getByText(/I have read and accept/));
     expect(baseProps.onToggleAccepted).toHaveBeenCalled();
   });
@@ -102,16 +114,12 @@ describe('StepPolicies', () => {
   });
 
   it('shows Submitting… text when submitting', () => {
-    const { getByText } = render(
-      <StepPolicies {...baseProps} submitting={true} />,
-    );
+    const { getByText } = render(<StepPolicies {...baseProps} submitting={true} />);
     expect(getByText('Submitting…')).toBeTruthy();
   });
 
   it('calls onSubmit when button pressed', () => {
-    const { getByText } = render(
-      <StepPolicies {...baseProps} policiesAccepted={true} />,
-    );
+    const { getByText } = render(<StepPolicies {...baseProps} policiesAccepted={true} />);
     fireEvent.press(getByText('Submit Registration'));
     expect(baseProps.onSubmit).toHaveBeenCalled();
   });
@@ -123,16 +131,12 @@ describe('StepPolicies', () => {
   });
 
   it('does not show checkbox row when loading', () => {
-    const { queryByText } = render(
-      <StepPolicies {...baseProps} policiesLoading={true} />,
-    );
+    const { queryByText } = render(<StepPolicies {...baseProps} policiesLoading={true} />);
     expect(queryByText(/I have read and accept/)).toBeNull();
   });
 
   it('does not show checkbox row when no policies', () => {
-    const { queryByText } = render(
-      <StepPolicies {...baseProps} policies={[]} />,
-    );
+    const { queryByText } = render(<StepPolicies {...baseProps} policies={[]} />);
     expect(queryByText(/I have read and accept/)).toBeNull();
   });
 });

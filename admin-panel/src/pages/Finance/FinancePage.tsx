@@ -74,9 +74,7 @@ const FinancePage: React.FC = () => {
   const [upsertFee, { loading: savingFee }] = useMutation(UPSERT_PLATFORM_FEE);
   const [upsertOverride, { loading: savingOverride }] = useMutation(UPSERT_PLATFORM_FEE_OVERRIDE);
   const [deleteOverride] = useMutation(DELETE_PLATFORM_FEE_OVERRIDE);
-  const [upsertEntityOverride, { loading: savingEntity }] = useMutation(
-    UPSERT_ENTITY_FEE_OVERRIDE,
-  );
+  const [upsertEntityOverride, { loading: savingEntity }] = useMutation(UPSERT_ENTITY_FEE_OVERRIDE);
   const [deleteEntityOverride] = useMutation(DELETE_ENTITY_FEE_OVERRIDE);
 
   const globalFee = feeData?.platformFees?.globalFeePercent ?? 5;

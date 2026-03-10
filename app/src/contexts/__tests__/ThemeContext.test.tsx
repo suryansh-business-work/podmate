@@ -122,10 +122,7 @@ describe('ThemeContext', () => {
     fireEvent.press(getByTestId('setDark'));
 
     await waitFor(() => {
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-        '@partywings_theme_mode',
-        'dark',
-      );
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith('@partywings_theme_mode', 'dark');
     });
   });
 

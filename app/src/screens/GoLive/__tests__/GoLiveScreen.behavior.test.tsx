@@ -21,11 +21,16 @@ function setupMocks(sessions: unknown[] = []): void {
   (useMutation as jest.Mock).mockImplementation(() => {
     mutCall++;
     switch ((mutCall - 1) % 4) {
-      case 0: return [mockStartLive, { loading: false }];
-      case 1: return [mockEndLive, { loading: false }];
-      case 2: return [mockJoinLive, { loading: false }];
-      case 3: return [mockLeaveLive, { loading: false }];
-      default: return [jest.fn(), { loading: false }];
+      case 0:
+        return [mockStartLive, { loading: false }];
+      case 1:
+        return [mockEndLive, { loading: false }];
+      case 2:
+        return [mockJoinLive, { loading: false }];
+      case 3:
+        return [mockLeaveLive, { loading: false }];
+      default:
+        return [jest.fn(), { loading: false }];
     }
   });
 }
@@ -46,9 +51,7 @@ describe('GoLiveScreen — behavior', () => {
 
   it('submits go live form', async () => {
     setupMocks([]);
-    const { getAllByText, getByPlaceholderText } = render(
-      <GoLiveScreen {...defaultProps} />,
-    );
+    const { getAllByText, getByPlaceholderText } = render(<GoLiveScreen {...defaultProps} />);
     fireEvent.press(getAllByText('videocam')[0]);
 
     const podIdInput = getByPlaceholderText(/Pod ID/i);
@@ -90,11 +93,7 @@ describe('GoLiveScreen — behavior', () => {
   it('pre-opens modal when podId prop is provided', () => {
     setupMocks([]);
     const { getAllByText } = render(
-      <GoLiveScreen
-        {...defaultProps}
-        podId="pod1"
-        podTitle="My Pod"
-      />,
+      <GoLiveScreen {...defaultProps} podId="pod1" podTitle="My Pod" />,
     );
     expect(getAllByText('Go Live').length).toBeGreaterThanOrEqual(1);
   });

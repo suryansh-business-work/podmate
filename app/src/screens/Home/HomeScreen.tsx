@@ -32,7 +32,12 @@ import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
 const PAGE_SIZE = 20;
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress, onNotificationPress, onChatbotPress }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({
+  onPodPress,
+  onMenuPress,
+  onNotificationPress,
+  onChatbotPress,
+}) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -249,16 +254,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress, onNoti
             accessibilityLabel="Open AI chatbot"
             accessibilityRole="button"
           >
-            <FontAwesomeIcon
-              icon={faWandMagicSparkles}
-              size={20}
-              color={colors.primary}
-            />
+            <FontAwesomeIcon icon={faWandMagicSparkles} size={20} color={colors.primary} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.notificationBtn}
-            onPress={onNotificationPress}
-          >
+          <TouchableOpacity style={styles.notificationBtn} onPress={onNotificationPress}>
             <MaterialIcons name="notifications-none" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -359,9 +357,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress, onNoti
                     marginBottom: 12,
                   }}
                 >
-                  <View
-                    style={{ flex: 1, height: 1, backgroundColor: colors.border }}
-                  />
+                  <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
                   <Text
                     style={{
                       marginHorizontal: 12,
@@ -371,9 +367,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onPodPress, onMenuPress, onNoti
                   >
                     OR
                   </Text>
-                  <View
-                    style={{ flex: 1, height: 1, backgroundColor: colors.border }}
-                  />
+                  <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
                 </View>
 
                 <Text

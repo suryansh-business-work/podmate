@@ -36,9 +36,9 @@ jest.mock('expo-location', () => ({
   getCurrentPositionAsync: jest.fn().mockResolvedValue({
     coords: { latitude: 28.6, longitude: 77.2 },
   }),
-  reverseGeocodeAsync: jest.fn().mockResolvedValue([
-    { city: 'Delhi', region: 'Delhi', postalCode: '110001' },
-  ]),
+  reverseGeocodeAsync: jest
+    .fn()
+    .mockResolvedValue([{ city: 'Delhi', region: 'Delhi', postalCode: '110001' }]),
 }));
 
 // Mock expo-contacts

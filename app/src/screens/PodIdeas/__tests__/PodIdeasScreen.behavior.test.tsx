@@ -35,10 +35,14 @@ function setupMocks(ideas = [ideaWithUpvote]): void {
   (useMutation as jest.Mock).mockImplementation(() => {
     mutCall++;
     switch ((mutCall - 1) % 3) {
-      case 0: return [mockSubmitIdea, { loading: false }];
-      case 1: return [mockUpvote];
-      case 2: return [mockRemoveUpvote];
-      default: return [jest.fn(), { loading: false }];
+      case 0:
+        return [mockSubmitIdea, { loading: false }];
+      case 1:
+        return [mockUpvote];
+      case 2:
+        return [mockRemoveUpvote];
+      default:
+        return [jest.fn(), { loading: false }];
     }
   });
 }
@@ -59,9 +63,7 @@ describe('PodIdeasScreen — behavior', () => {
 
   it('renders form fields in modal', () => {
     setupMocks();
-    const { getByText, getByPlaceholderText } = render(
-      <PodIdeasScreen {...defaultProps} />,
-    );
+    const { getByText, getByPlaceholderText } = render(<PodIdeasScreen {...defaultProps} />);
     fireEvent.press(getByText('add'));
     expect(getByPlaceholderText(/title/i)).toBeTruthy();
     expect(getByPlaceholderText(/describe/i)).toBeTruthy();

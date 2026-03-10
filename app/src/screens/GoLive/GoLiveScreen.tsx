@@ -46,7 +46,11 @@ const formatElapsed = (startedAt: string): string => {
   return `${hrs}h ${mins % 60}m ago`;
 };
 
-const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack, podId: initialPodId, podTitle: _initialPodTitle }) => {
+const GoLiveScreen: React.FC<GoLiveScreenProps> = ({
+  onBack,
+  podId: initialPodId,
+  podTitle: _initialPodTitle,
+}) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [showModal, setShowModal] = useState(!!initialPodId);
@@ -294,9 +298,7 @@ const GoLiveScreen: React.FC<GoLiveScreenProps> = ({ onBack, podId: initialPodId
                         style={[
                           styles.input,
                           styles.textArea,
-                          touched.description && errors.description
-                            ? styles.inputError
-                            : undefined,
+                          touched.description && errors.description ? styles.inputError : undefined,
                         ]}
                         placeholder="What's happening?"
                         placeholderTextColor={colors.textTertiary}

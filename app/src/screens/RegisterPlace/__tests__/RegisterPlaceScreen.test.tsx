@@ -26,15 +26,34 @@ jest.mock('../StepVenueDetails', () => {
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
     __esModule: true,
-    default: ({ onSubmit, onMediaChange }: { onSubmit: (values: Record<string, string>) => void; onMediaChange: (media: Array<{ type: string; url: string }>) => void }) => {
+    default: ({
+      onSubmit,
+      onMediaChange,
+    }: {
+      onSubmit: (values: Record<string, string>) => void;
+      onMediaChange: (media: Array<{ type: string; url: string }>) => void;
+    }) => {
       mockReact.useEffect(() => {
         onMediaChange([{ type: 'image', url: 'https://img.jpg' }]);
       }, [onMediaChange]);
-      return mockReact.createElement(View, { testID: 'step-venue' },
+      return mockReact.createElement(
+        View,
+        { testID: 'step-venue' },
         mockReact.createElement(Text, null, 'Venue Details'),
         mockReact.createElement(
           TouchableOpacity,
-          { onPress: () => onSubmit({ name: 'Test Venue', category: 'Bar', description: 'desc', address: '123 Main', city: 'Delhi', capacity: '100' }), testID: 'next-step' },
+          {
+            onPress: () =>
+              onSubmit({
+                name: 'Test Venue',
+                category: 'Bar',
+                description: 'desc',
+                address: '123 Main',
+                city: 'Delhi',
+                capacity: '100',
+              }),
+            testID: 'next-step',
+          },
           mockReact.createElement(Text, null, 'Next'),
         ),
       );
@@ -48,7 +67,9 @@ jest.mock('../StepDocuments', () => {
   return {
     __esModule: true,
     default: ({ onContinue }: { onContinue: () => void }) =>
-      mockReact.createElement(View, { testID: 'step-documents' },
+      mockReact.createElement(
+        View,
+        { testID: 'step-documents' },
         mockReact.createElement(Text, null, 'Documents'),
         mockReact.createElement(
           TouchableOpacity,
@@ -65,7 +86,9 @@ jest.mock('../StepPolicies', () => {
   return {
     __esModule: true,
     default: () =>
-      mockReact.createElement(View, { testID: 'step-policies' },
+      mockReact.createElement(
+        View,
+        { testID: 'step-policies' },
         mockReact.createElement(Text, null, 'Policies'),
       ),
   };
@@ -78,10 +101,7 @@ describe('RegisterPlaceScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useMutation as jest.Mock).mockReturnValue([
-      mockCreatePlace,
-      { loading: false },
-    ]);
+    (useMutation as jest.Mock).mockReturnValue([mockCreatePlace, { loading: false }]);
     (useQuery as jest.Mock).mockReturnValue({
       data: { policies: [] },
       loading: false,
@@ -89,39 +109,29 @@ describe('RegisterPlaceScreen', () => {
   });
 
   it('renders header title', () => {
-    const { getByText } = render(
-      <RegisterPlaceScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<RegisterPlaceScreen {...defaultProps} />);
     expect(getByText('Register Venue')).toBeTruthy();
   });
 
   it('renders step indicator at step 1', () => {
-    const { getByText } = render(
-      <RegisterPlaceScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<RegisterPlaceScreen {...defaultProps} />);
     expect(getByText('Step 1')).toBeTruthy();
   });
 
   it('renders venue details step initially', () => {
-    const { getByTestId } = render(
-      <RegisterPlaceScreen {...defaultProps} />,
-    );
+    const { getByTestId } = render(<RegisterPlaceScreen {...defaultProps} />);
     expect(getByTestId('step-venue')).toBeTruthy();
   });
 
   it('advances to documents step on next', () => {
-    const { getByTestId, getByText } = render(
-      <RegisterPlaceScreen {...defaultProps} />,
-    );
+    const { getByTestId, getByText } = render(<RegisterPlaceScreen {...defaultProps} />);
     fireEvent.press(getByTestId('next-step'));
     expect(getByTestId('step-documents')).toBeTruthy();
     expect(getByText('Step 2')).toBeTruthy();
   });
 
   it('advances to policies step', () => {
-    const { getByTestId, getByText } = render(
-      <RegisterPlaceScreen {...defaultProps} />,
-    );
+    const { getByTestId, getByText } = render(<RegisterPlaceScreen {...defaultProps} />);
     fireEvent.press(getByTestId('next-step'));
     fireEvent.press(getByTestId('next-doc'));
     expect(getByTestId('step-policies')).toBeTruthy();
@@ -129,9 +139,7 @@ describe('RegisterPlaceScreen', () => {
   });
 
   it('calls onClose when close button pressed', () => {
-    const { getByText } = render(
-      <RegisterPlaceScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<RegisterPlaceScreen {...defaultProps} />);
     fireEvent.press(getByText('close'));
     expect(defaultProps.onClose).toHaveBeenCalled();
   });

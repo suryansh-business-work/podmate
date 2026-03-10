@@ -6,9 +6,7 @@ import { usePushNotifications } from '../usePushNotifications';
 // --- Module mocks ---
 const mockGetPermissions = jest.fn().mockResolvedValue({ status: 'granted' });
 const mockRequestPermissions = jest.fn().mockResolvedValue({ status: 'granted' });
-const mockGetExpoPushToken = jest
-  .fn()
-  .mockResolvedValue({ data: 'ExponentPushToken[mock-token]' });
+const mockGetExpoPushToken = jest.fn().mockResolvedValue({ data: 'ExponentPushToken[mock-token]' });
 const mockSetNotificationChannel = jest.fn().mockResolvedValue(undefined);
 const mockAddReceivedListener = jest.fn().mockReturnValue({ remove: jest.fn() });
 const mockAddResponseListener = jest.fn().mockReturnValue({ remove: jest.fn() });
@@ -56,9 +54,7 @@ describe('usePushNotifications', () => {
   });
 
   it('registers push token when user is authenticated', async () => {
-    renderHook(() =>
-      usePushNotifications({ isAuthenticated: true }),
-    );
+    renderHook(() => usePushNotifications({ isAuthenticated: true }));
 
     await act(async () => {
       jest.runAllTimers();
@@ -76,9 +72,7 @@ describe('usePushNotifications', () => {
   });
 
   it('does not register when user is not authenticated', async () => {
-    renderHook(() =>
-      usePushNotifications({ isAuthenticated: false }),
-    );
+    renderHook(() => usePushNotifications({ isAuthenticated: false }));
 
     await act(async () => {
       jest.runAllTimers();
@@ -106,9 +100,7 @@ describe('usePushNotifications', () => {
     mockAddReceivedListener.mockReturnValue({ remove: removeReceived });
     mockAddResponseListener.mockReturnValue({ remove: removeResponse });
 
-    const { unmount } = renderHook(() =>
-      usePushNotifications({ isAuthenticated: true }),
-    );
+    const { unmount } = renderHook(() => usePushNotifications({ isAuthenticated: true }));
 
     unmount();
 
@@ -120,9 +112,7 @@ describe('usePushNotifications', () => {
     mockGetPermissions.mockResolvedValueOnce({ status: 'denied' });
     mockRequestPermissions.mockResolvedValueOnce({ status: 'denied' });
 
-    renderHook(() =>
-      usePushNotifications({ isAuthenticated: true }),
-    );
+    renderHook(() => usePushNotifications({ isAuthenticated: true }));
 
     await act(async () => {
       jest.runAllTimers();

@@ -88,9 +88,9 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ open, onClose, onCr
     if (activeStep === 0) {
       return Boolean(
         formik.values.phone.trim() &&
-          formik.values.name.trim() &&
-          !formik.errors.phone &&
-          !formik.errors.name,
+        formik.values.name.trim() &&
+        !formik.errors.phone &&
+        !formik.errors.name,
       );
     }
     return true;

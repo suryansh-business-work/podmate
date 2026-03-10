@@ -145,8 +145,24 @@ describe('Platform Fee Services', () => {
       mockOverrideModel.countDocuments.mockResolvedValue(2);
       mockOverrideModel.find.mockReturnValue(
         chainableMock([
-          { _id: 'o1', id: 'o1', pincode: '110001', feePercent: 8, label: 'Delhi', createdAt: 'c', updatedAt: 'u' },
-          { _id: 'o2', id: 'o2', pincode: '400001', feePercent: 6, label: 'Mumbai', createdAt: 'c', updatedAt: 'u' },
+          {
+            _id: 'o1',
+            id: 'o1',
+            pincode: '110001',
+            feePercent: 8,
+            label: 'Delhi',
+            createdAt: 'c',
+            updatedAt: 'u',
+          },
+          {
+            _id: 'o2',
+            id: 'o2',
+            pincode: '400001',
+            feePercent: 6,
+            label: 'Mumbai',
+            createdAt: 'c',
+            updatedAt: 'u',
+          },
         ]),
       );
 
@@ -210,7 +226,12 @@ describe('Platform Fee Services', () => {
         updatedAt: 'u',
       });
 
-      const result = await upsertOverride({ id: 'o1', pincode: '110001', feePercent: 10, label: 'Updated' });
+      const result = await upsertOverride({
+        id: 'o1',
+        pincode: '110001',
+        feePercent: 10,
+        label: 'Updated',
+      });
       expect(result.feePercent).toBe(10);
       expect(mockOverrideModel.findByIdAndUpdate).toHaveBeenCalledWith(
         'o1',
@@ -221,9 +242,9 @@ describe('Platform Fee Services', () => {
 
     it('should throw when updating non-existent override', async () => {
       mockOverrideModel.findByIdAndUpdate.mockResolvedValue(null);
-      await expect(upsertOverride({ id: 'missing', pincode: '110001', feePercent: 8 })).rejects.toThrow(
-        'Override not found',
-      );
+      await expect(
+        upsertOverride({ id: 'missing', pincode: '110001', feePercent: 8 }),
+      ).rejects.toThrow('Override not found');
     });
 
     it('should throw when pincode already exists without id', async () => {
@@ -268,8 +289,26 @@ describe('Platform Fee Services', () => {
       mockEntityModel.countDocuments.mockResolvedValue(3);
       mockEntityModel.find.mockReturnValue(
         chainableMock([
-          { _id: 'e1', id: 'e1', entityType: 'USER', entityId: 'u1', feePercent: 7, enabled: true, createdAt: 'c', updatedAt: 'u' },
-          { _id: 'e2', id: 'e2', entityType: 'POD', entityId: 'p1', feePercent: 6, enabled: true, createdAt: 'c', updatedAt: 'u' },
+          {
+            _id: 'e1',
+            id: 'e1',
+            entityType: 'USER',
+            entityId: 'u1',
+            feePercent: 7,
+            enabled: true,
+            createdAt: 'c',
+            updatedAt: 'u',
+          },
+          {
+            _id: 'e2',
+            id: 'e2',
+            entityType: 'POD',
+            entityId: 'p1',
+            feePercent: 6,
+            enabled: true,
+            createdAt: 'c',
+            updatedAt: 'u',
+          },
         ]),
       );
 
@@ -283,7 +322,16 @@ describe('Platform Fee Services', () => {
       mockEntityModel.countDocuments.mockResolvedValue(1);
       mockEntityModel.find.mockReturnValue(
         chainableMock([
-          { _id: 'e1', id: 'e1', entityType: 'USER', entityId: 'u1', feePercent: 7, enabled: true, createdAt: 'c', updatedAt: 'u' },
+          {
+            _id: 'e1',
+            id: 'e1',
+            entityType: 'USER',
+            entityId: 'u1',
+            feePercent: 7,
+            enabled: true,
+            createdAt: 'c',
+            updatedAt: 'u',
+          },
         ]),
       );
 
@@ -373,21 +421,27 @@ describe('Platform Fee Services', () => {
     });
 
     it('should throw for fee below 2%', async () => {
-      await expect(
-        upsertEntityFeeOverride({ ...validInput, feePercent: 1 }),
-      ).rejects.toThrow('Platform fee must be between 2% and 15%');
+      await expect(upsertEntityFeeOverride({ ...validInput, feePercent: 1 })).rejects.toThrow(
+        'Platform fee must be between 2% and 15%',
+      );
     });
 
     it('should throw for fee above 15%', async () => {
-      await expect(
-        upsertEntityFeeOverride({ ...validInput, feePercent: 16 }),
-      ).rejects.toThrow('Platform fee must be between 2% and 15%');
+      await expect(upsertEntityFeeOverride({ ...validInput, feePercent: 16 })).rejects.toThrow(
+        'Platform fee must be between 2% and 15%',
+      );
     });
 
     it('should accept boundary value of 2%', async () => {
       mockEntityModel.findOneAndUpdate.mockResolvedValue({
-        _id: 'e1', id: 'e1', entityType: 'USER', entityId: 'user-123',
-        feePercent: 2, enabled: true, createdAt: 'c', updatedAt: 'u',
+        _id: 'e1',
+        id: 'e1',
+        entityType: 'USER',
+        entityId: 'user-123',
+        feePercent: 2,
+        enabled: true,
+        createdAt: 'c',
+        updatedAt: 'u',
       });
 
       const result = await upsertEntityFeeOverride({ ...validInput, feePercent: 2 });
@@ -396,8 +450,14 @@ describe('Platform Fee Services', () => {
 
     it('should accept boundary value of 15%', async () => {
       mockEntityModel.findOneAndUpdate.mockResolvedValue({
-        _id: 'e1', id: 'e1', entityType: 'USER', entityId: 'user-123',
-        feePercent: 15, enabled: true, createdAt: 'c', updatedAt: 'u',
+        _id: 'e1',
+        id: 'e1',
+        entityType: 'USER',
+        entityId: 'user-123',
+        feePercent: 15,
+        enabled: true,
+        createdAt: 'c',
+        updatedAt: 'u',
       });
 
       const result = await upsertEntityFeeOverride({ ...validInput, feePercent: 15 });
@@ -506,7 +566,10 @@ describe('Platform Fee Services', () => {
       });
       mockConfigModel.findById.mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          _id: 'global', id: 'global', globalFeePercent: 5, updatedAt: 'u',
+          _id: 'global',
+          id: 'global',
+          globalFeePercent: 5,
+          updatedAt: 'u',
         }),
       });
 

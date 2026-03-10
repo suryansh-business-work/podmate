@@ -18,7 +18,11 @@ jest.mock('../../../components/MediaUploader', () => {
   const { View, Text } = require('react-native');
   return {
     __esModule: true,
-    default: () => <View><Text>MediaUploader</Text></View>,
+    default: () => (
+      <View>
+        <Text>MediaUploader</Text>
+      </View>
+    ),
   };
 });
 
@@ -26,7 +30,11 @@ jest.mock('../VenueLocationPicker', () => {
   const { View, Text } = require('react-native');
   return {
     __esModule: true,
-    default: () => <View><Text>VenueLocationPicker</Text></View>,
+    default: () => (
+      <View>
+        <Text>VenueLocationPicker</Text>
+      </View>
+    ),
   };
 });
 
@@ -59,9 +67,7 @@ describe('StepVenueDetails', () => {
   });
 
   it('renders Venue Name field', () => {
-    const { getByText, getByPlaceholderText } = render(
-      <StepVenueDetails {...baseProps} />,
-    );
+    const { getByText, getByPlaceholderText } = render(<StepVenueDetails {...baseProps} />);
     expect(getByText('Venue Name')).toBeTruthy();
     expect(getByPlaceholderText('e.g. Sky Lounge')).toBeTruthy();
   });
@@ -79,17 +85,13 @@ describe('StepVenueDetails', () => {
   });
 
   it('renders Description field', () => {
-    const { getByText, getByPlaceholderText } = render(
-      <StepVenueDetails {...baseProps} />,
-    );
+    const { getByText, getByPlaceholderText } = render(<StepVenueDetails {...baseProps} />);
     expect(getByText('Description')).toBeTruthy();
     expect(getByPlaceholderText('Describe your venue...')).toBeTruthy();
   });
 
   it('renders Max Capacity field', () => {
-    const { getByText, getByPlaceholderText } = render(
-      <StepVenueDetails {...baseProps} />,
-    );
+    const { getByText, getByPlaceholderText } = render(<StepVenueDetails {...baseProps} />);
     expect(getByText('Max Capacity')).toBeTruthy();
     expect(getByPlaceholderText('e.g. 200')).toBeTruthy();
   });
@@ -112,9 +114,7 @@ describe('StepVenueDetails', () => {
   });
 
   it('shows validation error for short venue name', async () => {
-    const { getByPlaceholderText, findByText } = render(
-      <StepVenueDetails {...baseProps} />,
-    );
+    const { getByPlaceholderText, findByText } = render(<StepVenueDetails {...baseProps} />);
     const input = getByPlaceholderText('e.g. Sky Lounge');
     fireEvent.changeText(input, 'AB');
     fireEvent(input, 'onBlur', { persist: jest.fn(), target: { name: 'name' } });
@@ -122,9 +122,7 @@ describe('StepVenueDetails', () => {
   });
 
   it('shows required error when venue name cleared', async () => {
-    const { getByPlaceholderText, findByText } = render(
-      <StepVenueDetails {...baseProps} />,
-    );
+    const { getByPlaceholderText, findByText } = render(<StepVenueDetails {...baseProps} />);
     const input = getByPlaceholderText('e.g. Sky Lounge');
     fireEvent.changeText(input, '');
     fireEvent(input, 'onBlur', { persist: jest.fn(), target: { name: 'name' } });
@@ -133,12 +131,14 @@ describe('StepVenueDetails', () => {
 
   it('initializes form with provided values', () => {
     const values: VenueFormValues = {
-      name: 'Test Venue', category: 'Bar', description: 'A nice bar',
-      address: '123 St', city: 'Delhi', capacity: '100',
+      name: 'Test Venue',
+      category: 'Bar',
+      description: 'A nice bar',
+      address: '123 St',
+      city: 'Delhi',
+      capacity: '100',
     };
-    const { getByDisplayValue } = render(
-      <StepVenueDetails {...baseProps} formValues={values} />,
-    );
+    const { getByDisplayValue } = render(<StepVenueDetails {...baseProps} formValues={values} />);
     expect(getByDisplayValue('Test Venue')).toBeTruthy();
     expect(getByDisplayValue('A nice bar')).toBeTruthy();
     expect(getByDisplayValue('100')).toBeTruthy();

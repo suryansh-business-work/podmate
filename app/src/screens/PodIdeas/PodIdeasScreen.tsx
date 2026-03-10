@@ -285,9 +285,7 @@ const PodIdeasScreen: React.FC<PodIdeasScreenProps> = ({ onBack }) => {
                         style={[
                           styles.input,
                           styles.textArea,
-                          touched.description && errors.description
-                            ? styles.inputError
-                            : undefined,
+                          touched.description && errors.description ? styles.inputError : undefined,
                         ]}
                         placeholder="Describe your idea… *"
                         placeholderTextColor={colors.textTertiary}

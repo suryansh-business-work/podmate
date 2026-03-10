@@ -32,9 +32,7 @@ describe('ChatInputBar', () => {
 
   it('disables send button when message is empty', () => {
     const onSend = jest.fn();
-    const { getByText } = render(
-      <ChatInputBar {...defaultProps} value="" onSend={onSend} />,
-    );
+    const { getByText } = render(<ChatInputBar {...defaultProps} value="" onSend={onSend} />);
 
     // The send icon is "send"
     fireEvent.press(getByText('send'));
@@ -43,9 +41,7 @@ describe('ChatInputBar', () => {
 
   it('enables send button when message has content', () => {
     const onSend = jest.fn();
-    const { getByText } = render(
-      <ChatInputBar {...defaultProps} value="Hello!" onSend={onSend} />,
-    );
+    const { getByText } = render(<ChatInputBar {...defaultProps} value="Hello!" onSend={onSend} />);
 
     fireEvent.press(getByText('send'));
     expect(onSend).toHaveBeenCalledTimes(1);
@@ -77,9 +73,7 @@ describe('ChatInputBar', () => {
 
   it('calls onSendImage when image option pressed', () => {
     const onSendImage = jest.fn();
-    const { getByText } = render(
-      <ChatInputBar {...defaultProps} onSendImage={onSendImage} />,
-    );
+    const { getByText } = render(<ChatInputBar {...defaultProps} onSendImage={onSendImage} />);
 
     fireEvent.press(getByText('add'));
     fireEvent.press(getByText('image'));
@@ -89,9 +83,7 @@ describe('ChatInputBar', () => {
 
   it('calls onSendVideo when video option pressed', () => {
     const onSendVideo = jest.fn();
-    const { getByText } = render(
-      <ChatInputBar {...defaultProps} onSendVideo={onSendVideo} />,
-    );
+    const { getByText } = render(<ChatInputBar {...defaultProps} onSendVideo={onSendVideo} />);
 
     fireEvent.press(getByText('add'));
     fireEvent.press(getByText('videocam'));

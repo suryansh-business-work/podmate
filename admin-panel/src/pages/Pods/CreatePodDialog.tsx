@@ -107,10 +107,10 @@ const CreatePodDialog: React.FC<CreatePodDialogProps> = ({ open, onClose, onCrea
     if (activeStep === 0) {
       return Boolean(
         formik.values.title.trim() &&
-          formik.values.description.trim() &&
-          formik.values.category &&
-          !formik.errors.title &&
-          !formik.errors.description,
+        formik.values.description.trim() &&
+        formik.values.category &&
+        !formik.errors.title &&
+        !formik.errors.description,
       );
     }
     if (activeStep === 1) {
@@ -153,9 +153,7 @@ const CreatePodDialog: React.FC<CreatePodDialogProps> = ({ open, onClose, onCrea
 
         <Box sx={{ minHeight: 200 }}>
           {activeStep === 0 && <StepBasicInfo formik={formik} />}
-          {activeStep === 1 && (
-            <StepMedia mediaItems={mediaItems} onMediaChange={setMediaItems} />
-          )}
+          {activeStep === 1 && <StepMedia mediaItems={mediaItems} onMediaChange={setMediaItems} />}
           {activeStep === 2 && <StepLogistics formik={formik} />}
         </Box>
       </DialogContent>

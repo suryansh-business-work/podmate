@@ -12,7 +12,9 @@ interface StepVenueMediaProps {
 
 const StepVenueMedia: React.FC<StepVenueMediaProps> = ({ mediaItems, onMediaChange }) => (
   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-    <Alert severity="info">Upload images of the venue. The first image will be the cover photo.</Alert>
+    <Alert severity="info">
+      Upload images of the venue. The first image will be the cover photo.
+    </Alert>
     <Typography variant="subtitle2">Venue Photos</Typography>
     <AdminMediaUploader
       folder="/places"

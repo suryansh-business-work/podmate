@@ -59,7 +59,8 @@ describe('ChatRoom', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (global as unknown as Record<string, unknown>).WebSocket = MockWebSocket as unknown as typeof WebSocket;
+    (global as unknown as Record<string, unknown>).WebSocket =
+      MockWebSocket as unknown as typeof WebSocket;
     (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) => {
       if (key === 'token') return Promise.resolve('test-token');
       if (key === 'userId') return Promise.resolve('me1');
@@ -123,9 +124,7 @@ describe('ChatRoom', () => {
 
   it('sends text message via mutation', async () => {
     (useQuery as jest.Mock).mockReturnValue({ data: { chatMessages: [] }, loading: false });
-    const { getByPlaceholderText, getByText } = render(
-      <ChatRoom pod={mockPod} onBack={onBack} />,
-    );
+    const { getByPlaceholderText, getByText } = render(<ChatRoom pod={mockPod} onBack={onBack} />);
     fireEvent.changeText(getByPlaceholderText('Type a message…'), 'Hi there');
     fireEvent.press(getByText('send'));
     await waitFor(() => {

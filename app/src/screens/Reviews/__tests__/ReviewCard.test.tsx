@@ -118,7 +118,12 @@ describe('ReviewCard', () => {
   it('renders replies when present', () => {
     const review = makeReview({
       replies: [
-        { id: 'rp1', comment: 'Thanks!', createdAt: '2025-01-16T10:00:00Z', user: { id: 'u3', name: 'Charlie', avatar: '' } },
+        {
+          id: 'rp1',
+          comment: 'Thanks!',
+          createdAt: '2025-01-16T10:00:00Z',
+          user: { id: 'u3', name: 'Charlie', avatar: '' },
+        },
       ],
     });
     const { getByText } = render(

@@ -35,23 +35,16 @@ describe('EditProfileScreen', () => {
       loading: false,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReturnValue([
-      mockUpdateProfile,
-      { loading: false },
-    ]);
+    (useMutation as jest.Mock).mockReturnValue([mockUpdateProfile, { loading: false }]);
   });
 
   it('renders header title', () => {
-    const { getByText } = render(
-      <EditProfileScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<EditProfileScreen {...defaultProps} />);
     expect(getByText('Edit Profile')).toBeTruthy();
   });
 
   it('calls onBack when back pressed', () => {
-    const { getByText } = render(
-      <EditProfileScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<EditProfileScreen {...defaultProps} />);
     fireEvent.press(getByText('arrow-back'));
     expect(defaultProps.onBack).toHaveBeenCalled();
   });
@@ -62,56 +55,39 @@ describe('EditProfileScreen', () => {
       loading: true,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReturnValue([
-      mockUpdateProfile,
-      { loading: false },
-    ]);
-    const { UNSAFE_getByType } = render(
-      <EditProfileScreen {...defaultProps} />,
-    );
+    (useMutation as jest.Mock).mockReturnValue([mockUpdateProfile, { loading: false }]);
+    const { UNSAFE_getByType } = render(<EditProfileScreen {...defaultProps} />);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
     expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
 
   it('renders read-only username', () => {
-    const { getByText } = render(
-      <EditProfileScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<EditProfileScreen {...defaultProps} />);
     expect(getByText(/@testuser/)).toBeTruthy();
   });
 
   it('renders read-only phone', () => {
-    const { getByText } = render(
-      <EditProfileScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<EditProfileScreen {...defaultProps} />);
     expect(getByText('+919999999999')).toBeTruthy();
   });
 
   it('renders editable name field', () => {
-    const { getByDisplayValue } = render(
-      <EditProfileScreen {...defaultProps} />,
-    );
+    const { getByDisplayValue } = render(<EditProfileScreen {...defaultProps} />);
     expect(getByDisplayValue('Test User')).toBeTruthy();
   });
 
   it('renders editable email field', () => {
-    const { getByDisplayValue } = render(
-      <EditProfileScreen {...defaultProps} />,
-    );
+    const { getByDisplayValue } = render(<EditProfileScreen {...defaultProps} />);
     expect(getByDisplayValue('test@example.com')).toBeTruthy();
   });
 
   it('renders save button', () => {
-    const { getByText } = render(
-      <EditProfileScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<EditProfileScreen {...defaultProps} />);
     expect(getByText('Save Changes')).toBeTruthy();
   });
 
   it('calls updateProfile on save', async () => {
-    const { getByText, getByDisplayValue } = render(
-      <EditProfileScreen {...defaultProps} />,
-    );
+    const { getByText, getByDisplayValue } = render(<EditProfileScreen {...defaultProps} />);
     fireEvent.changeText(getByDisplayValue('Test User'), 'New Name');
     fireEvent.press(getByText('Save Changes'));
     await waitFor(() => {

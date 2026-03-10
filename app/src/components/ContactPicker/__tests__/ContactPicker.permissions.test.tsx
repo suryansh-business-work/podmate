@@ -32,9 +32,7 @@ describe('ContactPicker — permission denied', () => {
 
   it('shows permission explanation text', () => {
     const { getByText } = render(<ContactPicker {...defaultProps} />);
-    expect(
-      getByText(/grant contacts permission/i),
-    ).toBeTruthy();
+    expect(getByText(/grant contacts permission/i)).toBeTruthy();
   });
 
   it('shows Try Again button', () => {
@@ -49,9 +47,7 @@ describe('ContactPicker — permission denied', () => {
 
   it('calls onSkip when Skip is pressed', () => {
     const onSkip = jest.fn();
-    const { getByText } = render(
-      <ContactPicker {...defaultProps} onSkip={onSkip} />,
-    );
+    const { getByText } = render(<ContactPicker {...defaultProps} onSkip={onSkip} />);
 
     fireEvent.press(getByText('Skip'));
     expect(onSkip).toHaveBeenCalledTimes(1);

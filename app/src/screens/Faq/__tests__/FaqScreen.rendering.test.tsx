@@ -18,7 +18,13 @@ const mockPolicies = [
 ];
 
 const mockTickets = [
-  { id: 't1', subject: 'Help me', message: 'Need help', status: 'OPEN', createdAt: new Date().toISOString() },
+  {
+    id: 't1',
+    subject: 'Help me',
+    message: 'Need help',
+    status: 'OPEN',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 const mockCallbacks = [
@@ -84,9 +90,7 @@ describe('FaqScreen — rendering', () => {
   });
 
   it('shows support tab content when selected', () => {
-    const { getAllByText } = render(
-      <FaqScreen {...defaultProps} initialTab="support" />,
-    );
+    const { getAllByText } = render(<FaqScreen {...defaultProps} initialTab="support" />);
     expect(getAllByText(/Support Tickets/i).length).toBeGreaterThanOrEqual(1);
   });
 });

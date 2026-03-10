@@ -31,10 +31,7 @@ describe('ContactPicker', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useMutation as jest.Mock).mockReturnValue([
-      mockSendInvites,
-      { loading: false },
-    ]);
+    (useMutation as jest.Mock).mockReturnValue([mockSendInvites, { loading: false }]);
   });
 
   it('renders Invite Friends header', () => {
@@ -80,9 +77,7 @@ describe('ContactPicker', () => {
   });
 
   it('filters contacts by search query', () => {
-    const { getByPlaceholderText, queryByText } = render(
-      <ContactPicker {...defaultProps} />,
-    );
+    const { getByPlaceholderText, queryByText } = render(<ContactPicker {...defaultProps} />);
 
     const searchInput = getByPlaceholderText('Search contacts...');
     fireEvent.changeText(searchInput, 'Alice');
@@ -93,9 +88,7 @@ describe('ContactPicker', () => {
   });
 
   it('filters contacts by phone number', () => {
-    const { getByPlaceholderText, queryByText } = render(
-      <ContactPicker {...defaultProps} />,
-    );
+    const { getByPlaceholderText, queryByText } = render(<ContactPicker {...defaultProps} />);
 
     const searchInput = getByPlaceholderText('Search contacts...');
     fireEvent.changeText(searchInput, '3211');
@@ -106,9 +99,7 @@ describe('ContactPicker', () => {
 
   it('calls onSkip when Skip is pressed', () => {
     const onSkip = jest.fn();
-    const { getAllByText } = render(
-      <ContactPicker {...defaultProps} onSkip={onSkip} />,
-    );
+    const { getAllByText } = render(<ContactPicker {...defaultProps} onSkip={onSkip} />);
 
     // Skip text appears in header
     const skipButtons = getAllByText('Skip');

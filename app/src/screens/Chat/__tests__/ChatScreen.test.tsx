@@ -7,11 +7,10 @@ import ChatScreen from '../ChatScreen';
 jest.mock('../ChatRoom', () => {
   const mockReact = require('react');
   const { View, Text } = require('react-native');
-  return function MockChatRoom({ pod, onBack }: {
-    pod: { title: string };
-    onBack: () => void;
-  }) {
-    return mockReact.createElement(View, { testID: 'chat-room' },
+  return function MockChatRoom({ pod, onBack }: { pod: { title: string }; onBack: () => void }) {
+    return mockReact.createElement(
+      View,
+      { testID: 'chat-room' },
       mockReact.createElement(Text, null, pod.title),
       mockReact.createElement(
         require('react-native').TouchableOpacity,
@@ -103,9 +102,7 @@ describe('ChatScreen', () => {
   });
 
   it('returns to pod list from chat room', () => {
-    const { getByText, getByTestId, queryByTestId } = render(
-      <ChatScreen />,
-    );
+    const { getByText, getByTestId, queryByTestId } = render(<ChatScreen />);
     fireEvent.press(getByText('Social Pod'));
     expect(getByTestId('chat-room')).toBeTruthy();
     fireEvent.press(getByTestId('chat-back'));

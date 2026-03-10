@@ -107,9 +107,7 @@ describe('PayoutCard', () => {
   });
 
   it('does not show override indicator when feeSource undefined', () => {
-    const { queryByText } = render(
-      <PayoutCard feePerPerson={100} maxSeats={5} />,
-    );
+    const { queryByText } = render(<PayoutCard feePerPerson={100} maxSeats={5} />);
     expect(queryByText(/override active/i)).toBeNull();
   });
 

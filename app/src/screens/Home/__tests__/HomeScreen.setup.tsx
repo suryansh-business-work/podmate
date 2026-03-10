@@ -47,10 +47,7 @@ jest.mock('../../../components/EventCard', () => ({
 jest.mock('../../../components/Skeleton', () => ({
   SkeletonFeed: () => {
     const mockReact = require('react');
-    return mockReact.createElement(
-      require('react-native').View,
-      { testID: 'skeleton-feed' },
-    );
+    return mockReact.createElement(require('react-native').View, { testID: 'skeleton-feed' });
   },
 }));
 
@@ -111,8 +108,6 @@ export function setupMocks(): void {
   });
 }
 
-export function renderHomeScreen(
-  props: Partial<typeof defaultProps> = {},
-) {
+export function renderHomeScreen(props: Partial<typeof defaultProps> = {}) {
   return render(<HomeScreen {...defaultProps} {...props} />);
 }

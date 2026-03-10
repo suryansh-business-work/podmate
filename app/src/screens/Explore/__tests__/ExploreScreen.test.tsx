@@ -40,10 +40,7 @@ const mockFetchMore = jest.fn();
 
 /** Helper: ExploreScreen calls useQuery twice per render (GET_ME, GET_PODS).
  *  We cycle: even index → GET_ME result, odd index → GET_PODS result. */
-function setupQueryMock(
-  meResult: Record<string, unknown>,
-  podsResult: Record<string, unknown>,
-) {
+function setupQueryMock(meResult: Record<string, unknown>, podsResult: Record<string, unknown>) {
   let qCall = 0;
   (useQuery as jest.Mock).mockReset().mockImplementation(() => {
     const idx = qCall++;

@@ -77,9 +77,7 @@ describe('useEffectiveFee', () => {
         error: null,
       });
 
-    const { result } = renderHook(() =>
-      useEffectiveFee({ entityType: 'USER' }),
-    );
+    const { result } = renderHook(() => useEffectiveFee({ entityType: 'USER' }));
     expect(result.current.feePercent).toBe(7);
   });
 
@@ -88,9 +86,7 @@ describe('useEffectiveFee', () => {
       .mockReturnValueOnce({ data: null, loading: false, error: null })
       .mockReturnValueOnce({ data: null, loading: false, error: null });
 
-    renderHook(() =>
-      useEffectiveFee({ entityType: 'USER', entityId: 'user-1' }),
-    );
+    renderHook(() => useEffectiveFee({ entityType: 'USER', entityId: 'user-1' }));
     // First call to useQuery (GET_ME) should have skip: true
     expect((useQuery as jest.Mock).mock.calls[0][1]).toEqual(
       expect.objectContaining({ skip: true }),
@@ -102,9 +98,7 @@ describe('useEffectiveFee', () => {
       .mockReturnValueOnce({ data: null, loading: false, error: null })
       .mockReturnValueOnce({ data: null, loading: false, error: null });
 
-    renderHook(() =>
-      useEffectiveFee({ entityType: 'POD', entityId: 'pod-1' }),
-    );
+    renderHook(() => useEffectiveFee({ entityType: 'POD', entityId: 'pod-1' }));
     // GET_ME should be skipped for non-USER entity types
     expect((useQuery as jest.Mock).mock.calls[0][1]).toEqual(
       expect.objectContaining({ skip: true }),
@@ -120,9 +114,7 @@ describe('useEffectiveFee', () => {
         error: null,
       });
 
-    const { result } = renderHook(() =>
-      useEffectiveFee({ entityType: 'POD', entityId: 'pod-1' }),
-    );
+    const { result } = renderHook(() => useEffectiveFee({ entityType: 'POD', entityId: 'pod-1' }));
     expect(result.current.source).toBe('GLOBAL');
   });
 

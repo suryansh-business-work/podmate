@@ -9,7 +9,9 @@ jest.mock('@react-native-community/datetimepicker', () => {
   return {
     __esModule: true,
     default: ({ mode }: { mode: string }) => (
-      <View><Text>DateTimePicker-{mode}</Text></View>
+      <View>
+        <Text>DateTimePicker-{mode}</Text>
+      </View>
     ),
   };
 });
@@ -17,7 +19,15 @@ jest.mock('@react-native-community/datetimepicker', () => {
 jest.mock('../../../components/GradientButton', () => {
   const { TouchableOpacity, Text } = require('react-native');
   return {
-    GradientButton: ({ title, onPress, disabled }: { title: string; onPress: () => void; disabled?: boolean }) => (
+    GradientButton: ({
+      title,
+      onPress,
+      disabled,
+    }: {
+      title: string;
+      onPress: () => void;
+      disabled?: boolean;
+    }) => (
       <TouchableOpacity onPress={onPress} disabled={disabled} testID="gradient-btn">
         <Text>{title}</Text>
       </TouchableOpacity>
@@ -29,7 +39,11 @@ jest.mock('../../../components/MediaUploader', () => {
   const { View, Text } = require('react-native');
   return {
     __esModule: true,
-    default: () => <View><Text>MediaUploader</Text></View>,
+    default: () => (
+      <View>
+        <Text>MediaUploader</Text>
+      </View>
+    ),
   };
 });
 
@@ -51,9 +65,16 @@ jest.mock('../../../hooks/useEffectiveFee', () => ({
 
 const makeFormik = (overrides: Partial<PodFormValues> = {}) => {
   const values: PodFormValues = {
-    title: '', description: '', fee: '0', maxSeats: 2,
-    placeId: '', location: '', locationDetail: '',
-    latitude: 0, longitude: 0, category: '',
+    title: '',
+    description: '',
+    fee: '0',
+    maxSeats: 2,
+    placeId: '',
+    location: '',
+    locationDetail: '',
+    latitude: 0,
+    longitude: 0,
+    category: '',
     ...overrides,
   };
   return {
@@ -91,39 +112,29 @@ describe('PodFormBody', () => {
 
   it('renders page title and subtitle', () => {
     const formik = makeFormik();
-    const { getByText } = render(
-      <PodFormBody formik={formik as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={formik as never} {...baseProps} />);
     expect(getByText(/set up your Pod/)).toBeTruthy();
     expect(getByText(/micro-community event/)).toBeTruthy();
   });
 
   it('renders MEDIA label', () => {
-    const { getByText } = render(
-      <PodFormBody formik={makeFormik() as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={makeFormik() as never} {...baseProps} />);
     expect(getByText('MEDIA')).toBeTruthy();
     expect(getByText('MediaUploader')).toBeTruthy();
   });
 
   it('renders POD TITLE input label', () => {
-    const { getByText } = render(
-      <PodFormBody formik={makeFormik() as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={makeFormik() as never} {...baseProps} />);
     expect(getByText('POD TITLE')).toBeTruthy();
   });
 
   it('renders THE PLAN textarea label', () => {
-    const { getByText } = render(
-      <PodFormBody formik={makeFormik() as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={makeFormik() as never} {...baseProps} />);
     expect(getByText('THE PLAN')).toBeTruthy();
   });
 
   it('renders CATEGORY label and chips', () => {
-    const { getByText } = render(
-      <PodFormBody formik={makeFormik() as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={makeFormik() as never} {...baseProps} />);
     expect(getByText('CATEGORY')).toBeTruthy();
     expect(getByText('Social')).toBeTruthy();
     expect(getByText('Learning')).toBeTruthy();
@@ -131,24 +142,18 @@ describe('PodFormBody', () => {
   });
 
   it('renders VENUE picker label', () => {
-    const { getByText } = render(
-      <PodFormBody formik={makeFormik() as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={makeFormik() as never} {...baseProps} />);
     expect(getByText('VENUE')).toBeTruthy();
     expect(getByText('Select a registered venue')).toBeTruthy();
   });
 
   it('renders Use My Location button', () => {
-    const { getByText } = render(
-      <PodFormBody formik={makeFormik() as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={makeFormik() as never} {...baseProps} />);
     expect(getByText('Use My Location')).toBeTruthy();
   });
 
   it('renders Create Pod button', () => {
-    const { getByText } = render(
-      <PodFormBody formik={makeFormik() as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={makeFormik() as never} {...baseProps} />);
     expect(getByText('Create Pod →')).toBeTruthy();
   });
 
@@ -160,17 +165,13 @@ describe('PodFormBody', () => {
   });
 
   it('renders verified host status text', () => {
-    const { getByText } = render(
-      <PodFormBody formik={makeFormik() as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={makeFormik() as never} {...baseProps} />);
     expect(getByText('Verified Host Status Required')).toBeTruthy();
   });
 
   it('shows location detail when set', () => {
     const formik = makeFormik({ locationDetail: 'Bandra, Mumbai' });
-    const { getByText } = render(
-      <PodFormBody formik={formik as never} {...baseProps} />,
-    );
+    const { getByText } = render(<PodFormBody formik={formik as never} {...baseProps} />);
     expect(getByText('Bandra, Mumbai')).toBeTruthy();
   });
 

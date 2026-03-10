@@ -51,10 +51,9 @@ describe('useDebounce', () => {
   });
 
   it('uses default delay of 400ms', () => {
-    const { result, rerender } = renderHook(
-      ({ value }: { value: string }) => useDebounce(value),
-      { initialProps: { value: 'init' } },
-    );
+    const { result, rerender } = renderHook(({ value }: { value: string }) => useDebounce(value), {
+      initialProps: { value: 'init' },
+    });
 
     rerender({ value: 'updated' });
     jest.advanceTimersByTime(399);

@@ -19,7 +19,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import type { EntityFeeOverride, EntityFeeOverrideFormValues, EntityOverrideType } from './Finance.types';
+import type {
+  EntityFeeOverride,
+  EntityFeeOverrideFormValues,
+  EntityOverrideType,
+} from './Finance.types';
 
 interface EntityOverrideDialogProps {
   open: boolean;

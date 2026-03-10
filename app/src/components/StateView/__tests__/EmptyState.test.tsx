@@ -16,9 +16,7 @@ describe('EmptyState', () => {
   });
 
   it('renders subtitle when provided', () => {
-    const { getByText } = render(
-      <EmptyState title="No items" subtitle="Try adding some" />,
-    );
+    const { getByText } = render(<EmptyState title="No items" subtitle="Try adding some" />);
     expect(getByText('Try adding some')).toBeTruthy();
   });
 
@@ -50,9 +48,7 @@ describe('EmptyState', () => {
   });
 
   it('has correct accessibility label combining title and subtitle', () => {
-    const { getByLabelText } = render(
-      <EmptyState title="No data" subtitle="Check back later" />,
-    );
+    const { getByLabelText } = render(<EmptyState title="No data" subtitle="Check back later" />);
     expect(getByLabelText('No data. Check back later')).toBeTruthy();
   });
 

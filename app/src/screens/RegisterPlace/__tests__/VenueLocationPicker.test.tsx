@@ -41,9 +41,7 @@ describe('VenueLocationPicker', () => {
   });
 
   it('switches to GPS mode on toggle', async () => {
-    const { getByText, queryByPlaceholderText } = render(
-      <VenueLocationPicker {...baseProps} />,
-    );
+    const { getByText, queryByPlaceholderText } = render(<VenueLocationPicker {...baseProps} />);
     await act(async () => {
       fireEvent.press(getByText("I'm at the venue"));
     });
@@ -52,9 +50,7 @@ describe('VenueLocationPicker', () => {
   });
 
   it('switches back to search mode', async () => {
-    const { getByText, getByPlaceholderText } = render(
-      <VenueLocationPicker {...baseProps} />,
-    );
+    const { getByText, getByPlaceholderText } = render(<VenueLocationPicker {...baseProps} />);
     await act(async () => {
       fireEvent.press(getByText("I'm at the venue"));
     });
@@ -87,18 +83,14 @@ describe('VenueLocationPicker', () => {
   });
 
   it('updates search query on type', () => {
-    const { getByPlaceholderText } = render(
-      <VenueLocationPicker {...baseProps} />,
-    );
+    const { getByPlaceholderText } = render(<VenueLocationPicker {...baseProps} />);
     const input = getByPlaceholderText('Search venue address…');
     fireEvent.changeText(input, 'Bandra');
     expect(input.props.value).toBe('Bandra');
   });
 
   it('clears search on close button press', async () => {
-    const { getByPlaceholderText, getByText } = render(
-      <VenueLocationPicker {...baseProps} />,
-    );
+    const { getByPlaceholderText, getByText } = render(<VenueLocationPicker {...baseProps} />);
     fireEvent.changeText(getByPlaceholderText('Search venue address…'), 'test');
     // Close button appears when text is non-empty
     await waitFor(() => {

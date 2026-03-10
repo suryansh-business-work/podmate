@@ -20,9 +20,7 @@ describe('HomeScreen — rendering', () => {
 
   it('renders search input', () => {
     const { getByPlaceholderText } = renderHomeScreen();
-    expect(
-      getByPlaceholderText(/find hiking|dining|tech/i),
-    ).toBeTruthy();
+    expect(getByPlaceholderText(/find hiking|dining|tech/i)).toBeTruthy();
   });
 
   it('renders Popular near you section', () => {
@@ -37,10 +35,7 @@ describe('HomeScreen — rendering', () => {
 
   /** HomeScreen calls useQuery 2 times (GET_ME, GET_PODS).
    *  Cycle: even → GET_ME, odd → GET_PODS. */
-  function overrideQuery(
-    meResult: Record<string, unknown>,
-    podsResult: Record<string, unknown>,
-  ) {
+  function overrideQuery(meResult: Record<string, unknown>, podsResult: Record<string, unknown>) {
     let qCall = 0;
     (useQuery as jest.Mock).mockReset().mockImplementation(() => {
       const idx = qCall++;
@@ -61,9 +56,11 @@ describe('HomeScreen — rendering', () => {
     overrideQuery(
       { data: null },
       {
-        data: null, loading: false,
+        data: null,
+        loading: false,
         error: new Error('Network error'),
-        refetch: mockRefetch, fetchMore: mockFetchMore,
+        refetch: mockRefetch,
+        fetchMore: mockFetchMore,
       },
     );
     const { getByText } = renderHomeScreen();
@@ -75,8 +72,10 @@ describe('HomeScreen — rendering', () => {
       { data: null },
       {
         data: { pods: { items: [], total: 0, page: 1, totalPages: 1 } },
-        loading: false, error: null,
-        refetch: mockRefetch, fetchMore: mockFetchMore,
+        loading: false,
+        error: null,
+        refetch: mockRefetch,
+        fetchMore: mockFetchMore,
       },
     );
     const { getByText } = renderHomeScreen();

@@ -29,7 +29,13 @@ function setupMocks(): void {
     return {
       data: {
         mySupportTickets: [
-          { id: 't1', subject: 'Help', message: 'Need help', status: 'OPEN', createdAt: new Date().toISOString() },
+          {
+            id: 't1',
+            subject: 'Help',
+            message: 'Need help',
+            status: 'OPEN',
+            createdAt: new Date().toISOString(),
+          },
         ],
         myCallbackRequests: [],
       },
@@ -78,9 +84,7 @@ describe('FaqScreen — behavior', () => {
   });
 
   it('shows new ticket form in support tab', () => {
-    const { getByText } = render(
-      <FaqScreen {...defaultProps} initialTab="support" />,
-    );
+    const { getByText } = render(<FaqScreen {...defaultProps} initialTab="support" />);
     fireEvent.press(getByText('New Ticket'));
     expect(getByText('Submit Ticket')).toBeTruthy();
   });

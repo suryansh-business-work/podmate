@@ -34,20 +34,14 @@ describe('MediaPreview', () => {
 
   it('renders video view when type is VIDEO', () => {
     const { getByTestId } = render(
-      <MediaPreview
-        {...defaultProps}
-        type="VIDEO"
-        uri="https://cdn.example.com/video.mp4"
-      />,
+      <MediaPreview {...defaultProps} type="VIDEO" uri="https://cdn.example.com/video.mp4" />,
     );
     expect(getByTestId('video-view')).toBeTruthy();
   });
 
   it('calls onClose when close button pressed', () => {
     const onClose = jest.fn();
-    const { getByText } = render(
-      <MediaPreview {...defaultProps} onClose={onClose} />,
-    );
+    const { getByText } = render(<MediaPreview {...defaultProps} onClose={onClose} />);
 
     fireEvent.press(getByText('close'));
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -62,9 +56,7 @@ describe('MediaPreview', () => {
   });
 
   it('does not render content when not visible', () => {
-    const { UNSAFE_getByType } = render(
-      <MediaPreview {...defaultProps} visible={false} />,
-    );
+    const { UNSAFE_getByType } = render(<MediaPreview {...defaultProps} visible={false} />);
     const { Modal } = require('react-native');
     const modal = UNSAFE_getByType(Modal);
     expect(modal.props.visible).toBe(false);

@@ -54,10 +54,14 @@ describe('PodIdeasScreen — rendering', () => {
     (useMutation as jest.Mock).mockImplementation(() => {
       mutCall++;
       switch ((mutCall - 1) % 3) {
-        case 0: return [mockSubmitIdea, { loading: false }];
-        case 1: return [mockUpvote];
-        case 2: return [mockRemoveUpvote];
-        default: return [jest.fn(), { loading: false }];
+        case 0:
+          return [mockSubmitIdea, { loading: false }];
+        case 1:
+          return [mockUpvote];
+        case 2:
+          return [mockRemoveUpvote];
+        default:
+          return [jest.fn(), { loading: false }];
       }
     });
   });
@@ -95,15 +99,17 @@ describe('PodIdeasScreen — rendering', () => {
     (useMutation as jest.Mock).mockReset().mockImplementation(() => {
       mutCall++;
       switch ((mutCall - 1) % 3) {
-        case 0: return [mockSubmitIdea, { loading: false }];
-        case 1: return [mockUpvote];
-        case 2: return [mockRemoveUpvote];
-        default: return [jest.fn(), { loading: false }];
+        case 0:
+          return [mockSubmitIdea, { loading: false }];
+        case 1:
+          return [mockUpvote];
+        case 2:
+          return [mockRemoveUpvote];
+        default:
+          return [jest.fn(), { loading: false }];
       }
     });
-    const { UNSAFE_getByType } = render(
-      <PodIdeasScreen {...defaultProps} />,
-    );
+    const { UNSAFE_getByType } = render(<PodIdeasScreen {...defaultProps} />);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
     expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
@@ -118,10 +124,14 @@ describe('PodIdeasScreen — rendering', () => {
     (useMutation as jest.Mock).mockReset().mockImplementation(() => {
       mutCall++;
       switch ((mutCall - 1) % 3) {
-        case 0: return [mockSubmitIdea, { loading: false }];
-        case 1: return [mockUpvote];
-        case 2: return [mockRemoveUpvote];
-        default: return [jest.fn(), { loading: false }];
+        case 0:
+          return [mockSubmitIdea, { loading: false }];
+        case 1:
+          return [mockUpvote];
+        case 2:
+          return [mockRemoveUpvote];
+        default:
+          return [jest.fn(), { loading: false }];
       }
     });
     const { getByText } = render(<PodIdeasScreen {...defaultProps} />);

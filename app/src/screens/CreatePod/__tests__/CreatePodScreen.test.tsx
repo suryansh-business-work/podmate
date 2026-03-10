@@ -18,7 +18,9 @@ jest.mock('../PodFormBody', () => {
   return {
     __esModule: true,
     default: () =>
-      mockReact.createElement(View, { testID: 'pod-form-body' },
+      mockReact.createElement(
+        View,
+        { testID: 'pod-form-body' },
         mockReact.createElement(Text, null, 'Pod Form Body'),
       ),
   };
@@ -46,10 +48,7 @@ describe('CreatePodScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useMutation as jest.Mock).mockReturnValue([
-      mockCreatePod,
-      { loading: false },
-    ]);
+    (useMutation as jest.Mock).mockReturnValue([mockCreatePod, { loading: false }]);
   });
 
   it('renders header with Host a Pod', () => {
@@ -69,9 +68,7 @@ describe('CreatePodScreen', () => {
   });
 
   it('does not show contact picker initially', () => {
-    const { queryByTestId } = render(
-      <CreatePodScreen {...defaultProps} />,
-    );
+    const { queryByTestId } = render(<CreatePodScreen {...defaultProps} />);
     expect(queryByTestId('contact-picker')).toBeNull();
   });
 });

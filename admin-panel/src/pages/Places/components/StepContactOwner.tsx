@@ -42,8 +42,7 @@ const StepContactOwner: React.FC<StepContactOwnerProps> = ({ formik }) => (
       onBlur={formik.handleBlur}
       error={formik.touched.ownerId && Boolean(formik.errors.ownerId)}
       helperText={
-        (formik.touched.ownerId && formik.errors.ownerId) ||
-        'Enter the user ID of the venue owner'
+        (formik.touched.ownerId && formik.errors.ownerId) || 'Enter the user ID of the venue owner'
       }
       fullWidth
     />

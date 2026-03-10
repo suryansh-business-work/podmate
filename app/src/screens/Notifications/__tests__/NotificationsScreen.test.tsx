@@ -48,23 +48,17 @@ describe('NotificationsScreen', () => {
     let mutCall = 0;
     (useMutation as jest.Mock).mockImplementation(() => {
       mutCall++;
-      return (mutCall - 1) % 2 === 0
-        ? [mockMarkRead]
-        : [mockMarkAllRead];
+      return (mutCall - 1) % 2 === 0 ? [mockMarkRead] : [mockMarkAllRead];
     });
   });
 
   it('renders header title', () => {
-    const { getByText } = render(
-      <NotificationsScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<NotificationsScreen {...defaultProps} />);
     expect(getByText('Notifications')).toBeTruthy();
   });
 
   it('calls onBack when back pressed', () => {
-    const { getByText } = render(
-      <NotificationsScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<NotificationsScreen {...defaultProps} />);
     fireEvent.press(getByText('arrow-back'));
     expect(defaultProps.onBack).toHaveBeenCalled();
   });
@@ -81,9 +75,7 @@ describe('NotificationsScreen', () => {
       mutCall++;
       return (mutCall - 1) % 2 === 0 ? [mockMarkRead] : [mockMarkAllRead];
     });
-    const { UNSAFE_getByType } = render(
-      <NotificationsScreen {...defaultProps} />,
-    );
+    const { UNSAFE_getByType } = render(<NotificationsScreen {...defaultProps} />);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
     expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
@@ -100,9 +92,7 @@ describe('NotificationsScreen', () => {
       mutCall++;
       return (mutCall - 1) % 2 === 0 ? [mockMarkRead] : [mockMarkAllRead];
     });
-    const { getByText } = render(
-      <NotificationsScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<NotificationsScreen {...defaultProps} />);
     expect(getByText(/Failed to load/i)).toBeTruthy();
   });
 
@@ -118,31 +108,23 @@ describe('NotificationsScreen', () => {
       mutCall2++;
       return (mutCall2 - 1) % 2 === 0 ? [mockMarkRead] : [mockMarkAllRead];
     });
-    const { getByText } = render(
-      <NotificationsScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<NotificationsScreen {...defaultProps} />);
     expect(getByText('No notifications')).toBeTruthy();
   });
 
   it('renders notification items', () => {
-    const { getByText } = render(
-      <NotificationsScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<NotificationsScreen {...defaultProps} />);
     expect(getByText('New message')).toBeTruthy();
     expect(getByText('Pod joined')).toBeTruthy();
   });
 
   it('shows unread count banner', () => {
-    const { getByText } = render(
-      <NotificationsScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<NotificationsScreen {...defaultProps} />);
     expect(getByText(/1 unread notification/i)).toBeTruthy();
   });
 
   it('shows mark all read button when unread exist', () => {
-    const { getByText } = render(
-      <NotificationsScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<NotificationsScreen {...defaultProps} />);
     expect(getByText(/Mark all read/i)).toBeTruthy();
   });
 });

@@ -52,9 +52,7 @@ describe('FollowListScreen', () => {
     let mutCall = 0;
     (useMutation as jest.Mock).mockImplementation(() => {
       mutCall++;
-      return (mutCall - 1) % 2 === 0
-        ? [mockFollowUser]
-        : [mockUnfollowUser];
+      return (mutCall - 1) % 2 === 0 ? [mockFollowUser] : [mockUnfollowUser];
     });
   });
 

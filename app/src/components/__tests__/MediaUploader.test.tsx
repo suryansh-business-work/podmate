@@ -44,9 +44,7 @@ describe('MediaUploader', () => {
       { url: 'https://cdn.example.com/1.jpg', type: 'image' },
       { url: 'https://cdn.example.com/2.mp4', type: 'video' },
     ];
-    const { getByText } = render(
-      <MediaUploader {...defaultProps} mediaItems={items} />,
-    );
+    const { getByText } = render(<MediaUploader {...defaultProps} mediaItems={items} />);
     expect(getByText('2/10 media')).toBeTruthy();
   });
 
@@ -57,9 +55,7 @@ describe('MediaUploader', () => {
     });
 
     const onMediaChange = jest.fn();
-    const { getByText } = render(
-      <MediaUploader {...defaultProps} onMediaChange={onMediaChange} />,
-    );
+    const { getByText } = render(<MediaUploader {...defaultProps} onMediaChange={onMediaChange} />);
 
     await fireEvent.press(getByText('Photo'));
 
@@ -73,9 +69,7 @@ describe('MediaUploader', () => {
     });
 
     const onMediaChange = jest.fn();
-    const { getByText } = render(
-      <MediaUploader {...defaultProps} onMediaChange={onMediaChange} />,
-    );
+    const { getByText } = render(<MediaUploader {...defaultProps} onMediaChange={onMediaChange} />);
 
     await fireEvent.press(getByText('Video'));
 
@@ -115,9 +109,7 @@ describe('MediaUploader', () => {
   });
 
   it('updates count text correctly with custom maxItems', () => {
-    const items: MediaItem[] = [
-      { url: 'https://cdn.example.com/1.jpg', type: 'image' },
-    ];
+    const items: MediaItem[] = [{ url: 'https://cdn.example.com/1.jpg', type: 'image' }];
     const { getByText } = render(
       <MediaUploader {...defaultProps} mediaItems={items} maxItems={5} />,
     );

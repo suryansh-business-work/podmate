@@ -63,29 +63,20 @@ describe('ChatbotScreen', () => {
   });
 
   it('renders text input with placeholder', () => {
-    const { getByPlaceholderText } = render(
-      <ChatbotScreen {...defaultProps} />,
-    );
+    const { getByPlaceholderText } = render(<ChatbotScreen {...defaultProps} />);
     expect(getByPlaceholderText('Ask something...')).toBeTruthy();
   });
 
   it('allows typing a message', () => {
-    const { getByPlaceholderText } = render(
-      <ChatbotScreen {...defaultProps} />,
-    );
+    const { getByPlaceholderText } = render(<ChatbotScreen {...defaultProps} />);
     const input = getByPlaceholderText('Ask something...');
     fireEvent.changeText(input, 'Test question');
     expect(input.props.value).toBe('Test question');
   });
 
   it('sends message on send button press', async () => {
-    const { getByPlaceholderText, getByText } = render(
-      <ChatbotScreen {...defaultProps} />,
-    );
-    fireEvent.changeText(
-      getByPlaceholderText('Ask something...'),
-      'What is a pod?',
-    );
+    const { getByPlaceholderText, getByText } = render(<ChatbotScreen {...defaultProps} />);
+    fireEvent.changeText(getByPlaceholderText('Ask something...'), 'What is a pod?');
     fireEvent.press(getByText('send'));
     await waitFor(() => {
       expect(mockAskChatbot).toHaveBeenCalled();

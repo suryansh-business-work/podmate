@@ -7,10 +7,7 @@ import { ApolloProvider } from '@apollo/client';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, ActivityIndicator, LogBox } from 'react-native';
 
-LogBox.ignoreLogs([
-  'expo-notifications',
-  'Push notifications are not supported in Expo Go',
-]);
+LogBox.ignoreLogs(['expo-notifications', 'Push notifications are not supported in Expo Go']);
 import { client } from './src/graphql/client';
 import RootNavigator from './src/navigation/RootNavigator';
 import { ThemeProvider, useThemeMode } from './src/contexts/ThemeContext';

@@ -19,7 +19,12 @@ import * as Yup from 'yup';
 
 import { GET_MY_FEEDBACK } from '../../graphql/queries';
 import { SUBMIT_FEEDBACK } from '../../graphql/mutations';
-import type { FeedbackScreenProps, Feedback, FeedbackFormValues, FeedbackType } from './Feedback.types';
+import type {
+  FeedbackScreenProps,
+  Feedback,
+  FeedbackFormValues,
+  FeedbackType,
+} from './Feedback.types';
 import { createStyles } from './Feedback.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -244,9 +249,7 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ onBack }) => {
                         style={[
                           styles.input,
                           styles.textArea,
-                          touched.description && errors.description
-                            ? styles.inputError
-                            : undefined,
+                          touched.description && errors.description ? styles.inputError : undefined,
                         ]}
                         placeholder="Describe your feedback…"
                         placeholderTextColor={colors.textTertiary}

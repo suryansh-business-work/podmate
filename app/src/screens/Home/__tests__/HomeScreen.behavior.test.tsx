@@ -1,9 +1,5 @@
 import { fireEvent } from '@testing-library/react-native';
-import {
-  setupMocks,
-  renderHomeScreen,
-  defaultProps,
-} from './HomeScreen.setup';
+import { setupMocks, renderHomeScreen, defaultProps } from './HomeScreen.setup';
 
 describe('HomeScreen — behavior', () => {
   beforeEach(() => {

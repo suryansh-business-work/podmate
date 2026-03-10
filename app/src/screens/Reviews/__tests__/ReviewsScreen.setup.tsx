@@ -93,10 +93,14 @@ export function setupMocks(): void {
   (useMutation as jest.Mock).mockImplementation(() => {
     mutCall++;
     switch ((mutCall - 1) % 3) {
-      case 0: return [mockCreateReview, { loading: false }];
-      case 1: return [mockReplyToReview, { loading: false }];
-      case 2: return [mockReportReview, { loading: false }];
-      default: return [jest.fn(), { loading: false }];
+      case 0:
+        return [mockCreateReview, { loading: false }];
+      case 1:
+        return [mockReplyToReview, { loading: false }];
+      case 2:
+        return [mockReportReview, { loading: false }];
+      default:
+        return [jest.fn(), { loading: false }];
     }
   });
 }

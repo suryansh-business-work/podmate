@@ -44,11 +44,16 @@ describe('GoLiveScreen — rendering', () => {
     (useMutation as jest.Mock).mockImplementation(() => {
       mutCall++;
       switch ((mutCall - 1) % 4) {
-        case 0: return [mockStartLive, { loading: false }];
-        case 1: return [mockEndLive, { loading: false }];
-        case 2: return [mockJoinLive, { loading: false }];
-        case 3: return [mockLeaveLive, { loading: false }];
-        default: return [jest.fn(), { loading: false }];
+        case 0:
+          return [mockStartLive, { loading: false }];
+        case 1:
+          return [mockEndLive, { loading: false }];
+        case 2:
+          return [mockJoinLive, { loading: false }];
+        case 3:
+          return [mockLeaveLive, { loading: false }];
+        default:
+          return [jest.fn(), { loading: false }];
       }
     });
   });
@@ -84,11 +89,16 @@ describe('GoLiveScreen — rendering', () => {
     (useMutation as jest.Mock).mockReset().mockImplementation(() => {
       mutCall++;
       switch ((mutCall - 1) % 4) {
-        case 0: return [mockStartLive, { loading: false }];
-        case 1: return [mockEndLive, { loading: false }];
-        case 2: return [mockJoinLive, { loading: false }];
-        case 3: return [mockLeaveLive, { loading: false }];
-        default: return [jest.fn(), { loading: false }];
+        case 0:
+          return [mockStartLive, { loading: false }];
+        case 1:
+          return [mockEndLive, { loading: false }];
+        case 2:
+          return [mockJoinLive, { loading: false }];
+        case 3:
+          return [mockLeaveLive, { loading: false }];
+        default:
+          return [jest.fn(), { loading: false }];
       }
     });
     const { getByText } = render(<GoLiveScreen {...defaultProps} />);
@@ -105,11 +115,16 @@ describe('GoLiveScreen — rendering', () => {
     (useMutation as jest.Mock).mockReset().mockImplementation(() => {
       mutCall++;
       switch ((mutCall - 1) % 4) {
-        case 0: return [mockStartLive, { loading: false }];
-        case 1: return [mockEndLive, { loading: false }];
-        case 2: return [mockJoinLive, { loading: false }];
-        case 3: return [mockLeaveLive, { loading: false }];
-        default: return [jest.fn(), { loading: false }];
+        case 0:
+          return [mockStartLive, { loading: false }];
+        case 1:
+          return [mockEndLive, { loading: false }];
+        case 2:
+          return [mockJoinLive, { loading: false }];
+        case 3:
+          return [mockLeaveLive, { loading: false }];
+        default:
+          return [jest.fn(), { loading: false }];
       }
     });
     const { UNSAFE_getByType } = render(<GoLiveScreen {...defaultProps} />);

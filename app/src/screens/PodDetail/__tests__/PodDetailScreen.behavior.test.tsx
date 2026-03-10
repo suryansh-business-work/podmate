@@ -1,9 +1,5 @@
 import { fireEvent } from '@testing-library/react-native';
-import {
-  setupMocks,
-  renderPodDetail,
-  defaultProps,
-} from './PodDetailScreen.setup';
+import { setupMocks, renderPodDetail, defaultProps } from './PodDetailScreen.setup';
 
 describe('PodDetailScreen — behavior', () => {
   beforeEach(() => {

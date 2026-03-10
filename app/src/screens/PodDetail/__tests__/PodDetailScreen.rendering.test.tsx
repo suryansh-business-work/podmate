@@ -1,10 +1,5 @@
 import { useQuery, useMutation } from '@apollo/client';
-import {
-  setupMocks,
-  renderPodDetail,
-  defaultProps,
-  mockRefetch,
-} from './PodDetailScreen.setup';
+import { setupMocks, renderPodDetail, defaultProps, mockRefetch } from './PodDetailScreen.setup';
 
 describe('PodDetailScreen — rendering', () => {
   beforeEach(() => {

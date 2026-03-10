@@ -47,10 +47,7 @@ describe('CheckoutScreen', () => {
       loading: false,
       error: null,
     });
-    (useMutation as jest.Mock).mockReturnValue([
-      mockCheckoutPod,
-      { loading: false },
-    ]);
+    (useMutation as jest.Mock).mockReturnValue([mockCheckoutPod, { loading: false }]);
   });
 
   it('renders header title', () => {
@@ -70,10 +67,7 @@ describe('CheckoutScreen', () => {
       loading: true,
       error: null,
     });
-    (useMutation as jest.Mock).mockReturnValue([
-      mockCheckoutPod,
-      { loading: false },
-    ]);
+    (useMutation as jest.Mock).mockReturnValue([mockCheckoutPod, { loading: false }]);
     const { UNSAFE_getByType } = render(<CheckoutScreen {...defaultProps} />);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
     expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();

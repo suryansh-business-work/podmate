@@ -7,8 +7,7 @@ jest.mock('../../../components/Skeleton', () => {
   const mockReact = require('react');
   const { View } = require('react-native');
   return {
-    SkeletonProfile: () =>
-      mockReact.createElement(View, { testID: 'skeleton-profile' }),
+    SkeletonProfile: () => mockReact.createElement(View, { testID: 'skeleton-profile' }),
   };
 });
 
@@ -33,10 +32,7 @@ describe('ProfileScreen', () => {
 
   /** ProfileScreen calls useQuery 2 times (GET_ME, GET_MY_PODS) per render.
    *  Cycle: even → GET_ME result, odd → GET_MY_PODS result. */
-  function setupQueryMock(
-    meResult: Record<string, unknown>,
-    podsResult: Record<string, unknown>,
-  ) {
+  function setupQueryMock(meResult: Record<string, unknown>, podsResult: Record<string, unknown>) {
     let qCall = 0;
     (useQuery as jest.Mock).mockReset().mockImplementation(() => {
       const idx = qCall++;
@@ -82,8 +78,10 @@ describe('ProfileScreen', () => {
   it('shows error state', () => {
     setupQueryMock(
       {
-        data: null, loading: false,
-        error: new Error('Network error'), refetch: mockRefetchMe,
+        data: null,
+        loading: false,
+        error: new Error('Network error'),
+        refetch: mockRefetchMe,
       },
       { data: null, refetch: mockRefetchPods },
     );

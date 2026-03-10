@@ -64,9 +64,7 @@ const StepLogistics: React.FC<StepLogisticsProps> = ({ formik }) => (
       onChange={formik.handleChange}
       onBlur={formik.handleBlur}
       error={formik.touched.location && Boolean(formik.errors.location)}
-      helperText={
-        (formik.touched.location && formik.errors.location) || 'City or area name'
-      }
+      helperText={(formik.touched.location && formik.errors.location) || 'City or area name'}
       fullWidth
     />
     <TextField

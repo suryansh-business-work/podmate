@@ -96,16 +96,12 @@ describe('LogisticsSection', () => {
   });
 
   it('shows DateTimePicker in date mode when showDatePicker is true', () => {
-    const { getByText } = render(
-      <LogisticsSection {...baseProps} showDatePicker={true} />,
-    );
+    const { getByText } = render(<LogisticsSection {...baseProps} showDatePicker={true} />);
     expect(getByText('DateTimePicker-date')).toBeTruthy();
   });
 
   it('shows DateTimePicker in time mode when showTimePicker is true', () => {
-    const { getByText } = render(
-      <LogisticsSection {...baseProps} showTimePicker={true} />,
-    );
+    const { getByText } = render(<LogisticsSection {...baseProps} showTimePicker={true} />);
     expect(getByText('DateTimePicker-time')).toBeTruthy();
   });
 

@@ -39,10 +39,7 @@ describe('FeedbackScreen', () => {
       loading: false,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReturnValue([
-      mockSubmitFeedback,
-      { loading: false },
-    ]);
+    (useMutation as jest.Mock).mockReturnValue([mockSubmitFeedback, { loading: false }]);
   });
 
   it('renders header title', () => {
@@ -62,10 +59,9 @@ describe('FeedbackScreen', () => {
       loading: false,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReset().mockReturnValue([
-      mockSubmitFeedback,
-      { loading: false },
-    ]);
+    (useMutation as jest.Mock)
+      .mockReset()
+      .mockReturnValue([mockSubmitFeedback, { loading: false }]);
     const { getByText } = render(<FeedbackScreen {...defaultProps} />);
     expect(getByText('No feedback yet')).toBeTruthy();
   });

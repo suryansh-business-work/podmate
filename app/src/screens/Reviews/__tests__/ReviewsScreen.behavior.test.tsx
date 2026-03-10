@@ -1,9 +1,5 @@
 import { fireEvent, waitFor } from '@testing-library/react-native';
-import {
-  setupMocks,
-  renderReviewsScreen,
-  mockCreateReview,
-} from './ReviewsScreen.setup';
+import { setupMocks, renderReviewsScreen, mockCreateReview } from './ReviewsScreen.setup';
 
 describe('ReviewsScreen — behavior', () => {
   beforeEach(() => {

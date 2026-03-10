@@ -107,14 +107,14 @@ const CreatePlaceDialog: React.FC<CreatePlaceDialogProps> = ({ open, onClose, on
     if (activeStep === 0) {
       return Boolean(
         formik.values.name.trim() &&
-          formik.values.description.trim() &&
-          formik.values.address.trim() &&
-          formik.values.city.trim() &&
-          formik.values.category &&
-          !formik.errors.name &&
-          !formik.errors.description &&
-          !formik.errors.address &&
-          !formik.errors.city,
+        formik.values.description.trim() &&
+        formik.values.address.trim() &&
+        formik.values.city.trim() &&
+        formik.values.category &&
+        !formik.errors.name &&
+        !formik.errors.description &&
+        !formik.errors.address &&
+        !formik.errors.city,
       );
     }
     if (activeStep === 1) {

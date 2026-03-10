@@ -1,12 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  Platform,
-  KeyboardAvoidingView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -137,19 +130,15 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess })
           ],
         );
       } else {
-        Alert.alert(
-          '🎉 Pod Created!',
-          'Your pod has been created successfully.',
-          [
-            {
-              text: 'Go Home',
-              onPress: () => {
-                if (onSuccess) onSuccess();
-                else onClose();
-              },
+        Alert.alert('🎉 Pod Created!', 'Your pod has been created successfully.', [
+          {
+            text: 'Go Home',
+            onPress: () => {
+              if (onSuccess) onSuccess();
+              else onClose();
             },
-          ],
-        );
+          },
+        ]);
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create pod';

@@ -40,39 +40,27 @@ describe('CompleteProfileScreen', () => {
   });
 
   it('renders title', () => {
-    const { getByText } = render(
-      <CompleteProfileScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<CompleteProfileScreen {...defaultProps} />);
     expect(getByText('Complete Your Profile')).toBeTruthy();
   });
 
   it('renders subtitle', () => {
-    const { getByText } = render(
-      <CompleteProfileScreen {...defaultProps} />,
-    );
-    expect(
-      getByText(/Tell us a bit about yourself/i),
-    ).toBeTruthy();
+    const { getByText } = render(<CompleteProfileScreen {...defaultProps} />);
+    expect(getByText(/Tell us a bit about yourself/i)).toBeTruthy();
   });
 
   it('renders username input', () => {
-    const { getByPlaceholderText } = render(
-      <CompleteProfileScreen {...defaultProps} />,
-    );
+    const { getByPlaceholderText } = render(<CompleteProfileScreen {...defaultProps} />);
     expect(getByPlaceholderText('Choose a unique username')).toBeTruthy();
   });
 
   it('renders name input', () => {
-    const { getByPlaceholderText } = render(
-      <CompleteProfileScreen {...defaultProps} />,
-    );
+    const { getByPlaceholderText } = render(<CompleteProfileScreen {...defaultProps} />);
     expect(getByPlaceholderText('Enter your full name')).toBeTruthy();
   });
 
   it('renders Get Started button', () => {
-    const { getByText } = render(
-      <CompleteProfileScreen {...defaultProps} />,
-    );
+    const { getByText } = render(<CompleteProfileScreen {...defaultProps} />);
     expect(getByText('Get Started')).toBeTruthy();
   });
 
@@ -90,21 +78,11 @@ describe('CompleteProfileScreen', () => {
   });
 
   it('accepts valid form input', async () => {
-    const { getByPlaceholderText } = render(
-      <CompleteProfileScreen {...defaultProps} />,
-    );
-    fireEvent.changeText(
-      getByPlaceholderText('Choose a unique username'),
-      'testuser',
-    );
-    fireEvent.changeText(
-      getByPlaceholderText('Enter your full name'),
-      'Test User',
-    );
+    const { getByPlaceholderText } = render(<CompleteProfileScreen {...defaultProps} />);
+    fireEvent.changeText(getByPlaceholderText('Choose a unique username'), 'testuser');
+    fireEvent.changeText(getByPlaceholderText('Enter your full name'), 'Test User');
     await waitFor(() => {
-      expect(
-        getByPlaceholderText('Choose a unique username').props.value,
-      ).toBe('testuser');
+      expect(getByPlaceholderText('Choose a unique username').props.value).toBe('testuser');
     });
   });
 });

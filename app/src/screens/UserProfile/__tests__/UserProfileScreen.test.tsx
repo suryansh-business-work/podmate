@@ -61,9 +61,7 @@ describe('UserProfileScreen', () => {
     let mCall = 0;
     (useMutation as jest.Mock).mockReset().mockImplementation(() => {
       mCall++;
-      return (mCall - 1) % 2 === 0
-        ? [mockFollowUser]
-        : [mockUnfollowUser];
+      return (mCall - 1) % 2 === 0 ? [mockFollowUser] : [mockUnfollowUser];
     });
   }
 
@@ -95,9 +93,7 @@ describe('UserProfileScreen', () => {
       { data: null, refetch: jest.fn() },
     );
     setupMutationMock();
-    const { UNSAFE_getByType } = render(
-      <UserProfileScreen {...defaultProps} />,
-    );
+    const { UNSAFE_getByType } = render(<UserProfileScreen {...defaultProps} />);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
     expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });

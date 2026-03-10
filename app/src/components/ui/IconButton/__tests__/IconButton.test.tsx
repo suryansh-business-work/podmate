@@ -58,9 +58,7 @@ describe('IconButton', () => {
   });
 
   it('renders with custom icon', () => {
-    const { getByText } = render(
-      <IconButton {...defaultProps} icon={'search' as const} />,
-    );
+    const { getByText } = render(<IconButton {...defaultProps} icon={'search' as const} />);
     expect(getByText('search')).toBeTruthy();
   });
 });

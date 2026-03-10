@@ -114,10 +114,7 @@ describe('useImageKitUpload — upload behavior', () => {
       await result.current.pickAndUploadImage();
     });
 
-    expect(alertSpy).toHaveBeenCalledWith(
-      'Upload Error',
-      'Please log in to upload files',
-    );
+    expect(alertSpy).toHaveBeenCalledWith('Upload Error', 'Please log in to upload files');
     alertSpy.mockRestore();
   });
 

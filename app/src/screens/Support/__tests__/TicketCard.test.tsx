@@ -40,9 +40,7 @@ describe('TicketCard', () => {
   });
 
   it('renders IN_PROGRESS status with space', () => {
-    const { getByText } = render(
-      <TicketCard ticket={makeTicket({ status: 'IN_PROGRESS' })} />,
-    );
+    const { getByText } = render(<TicketCard ticket={makeTicket({ status: 'IN_PROGRESS' })} />);
     expect(getByText('IN PROGRESS')).toBeTruthy();
   });
 
@@ -56,7 +54,12 @@ describe('TicketCard', () => {
   it('shows reply count when collapsed and has replies', () => {
     const ticket = makeTicket({
       replies: [
-        { id: 'rp1', senderRole: 'ADMIN', content: 'We are looking into it', createdAt: '2025-01-16T10:00:00Z' },
+        {
+          id: 'rp1',
+          senderRole: 'ADMIN',
+          content: 'We are looking into it',
+          createdAt: '2025-01-16T10:00:00Z',
+        },
       ],
     });
     const { getByText } = render(<TicketCard ticket={ticket} />);
@@ -77,7 +80,12 @@ describe('TicketCard', () => {
   it('expands on press and shows replies', () => {
     const ticket = makeTicket({
       replies: [
-        { id: 'rp1', senderRole: 'ADMIN', content: 'We are on it', createdAt: '2025-01-16T10:00:00Z' },
+        {
+          id: 'rp1',
+          senderRole: 'ADMIN',
+          content: 'We are on it',
+          createdAt: '2025-01-16T10:00:00Z',
+        },
       ],
     });
     const { getByText, queryByText } = render(<TicketCard ticket={ticket} />);
@@ -90,9 +98,7 @@ describe('TicketCard', () => {
   });
 
   it('shows reply input when expanded and ticket not closed', () => {
-    const { getByText, getByPlaceholderText } = render(
-      <TicketCard ticket={makeTicket()} />,
-    );
+    const { getByText, getByPlaceholderText } = render(<TicketCard ticket={makeTicket()} />);
     fireEvent.press(getByText('Payment not processed'));
     expect(getByPlaceholderText('Type your reply...')).toBeTruthy();
   });
@@ -114,9 +120,7 @@ describe('TicketCard', () => {
   });
 
   it('calls reply mutation with text', async () => {
-    const { getByText, getByPlaceholderText } = render(
-      <TicketCard ticket={makeTicket()} />,
-    );
+    const { getByText, getByPlaceholderText } = render(<TicketCard ticket={makeTicket()} />);
     fireEvent.press(getByText('Payment not processed'));
     fireEvent.changeText(getByPlaceholderText('Type your reply...'), 'Hello');
     fireEvent.press(getByText('send'));
@@ -128,9 +132,7 @@ describe('TicketCard', () => {
   });
 
   it('does not send empty reply', () => {
-    const { getByText, getByPlaceholderText } = render(
-      <TicketCard ticket={makeTicket()} />,
-    );
+    const { getByText, getByPlaceholderText } = render(<TicketCard ticket={makeTicket()} />);
     fireEvent.press(getByText('Payment not processed'));
     fireEvent.changeText(getByPlaceholderText('Type your reply...'), '   ');
     fireEvent.press(getByText('send'));

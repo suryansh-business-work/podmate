@@ -19,9 +19,7 @@ describe('TicketForm', () => {
   });
 
   it('renders placeholder texts', () => {
-    const { getByPlaceholderText } = render(
-      <TicketForm creating={false} onSubmit={onSubmit} />,
-    );
+    const { getByPlaceholderText } = render(<TicketForm creating={false} onSubmit={onSubmit} />);
     expect(getByPlaceholderText('Brief description of your issue')).toBeTruthy();
     expect(getByPlaceholderText('Describe your issue in detail...')).toBeTruthy();
   });
@@ -75,10 +73,7 @@ describe('TicketForm', () => {
       <TicketForm creating={false} onSubmit={onSubmit} />,
     );
 
-    fireEvent.changeText(
-      getByPlaceholderText('Brief description of your issue'),
-      'Login issue',
-    );
+    fireEvent.changeText(getByPlaceholderText('Brief description of your issue'), 'Login issue');
     fireEvent.changeText(
       getByPlaceholderText('Describe your issue in detail...'),
       'I cannot login to my account since yesterday',

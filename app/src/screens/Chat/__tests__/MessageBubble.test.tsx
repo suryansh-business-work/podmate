@@ -46,39 +46,27 @@ describe('MessageBubble', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('renders text message content', () => {
-    const { getByText } = render(
-      <MessageBubble item={createMessage()} {...defaultProps} />,
-    );
+    const { getByText } = render(<MessageBubble item={createMessage()} {...defaultProps} />);
     expect(getByText('Hello World')).toBeTruthy();
   });
 
   it('renders sender name when showSenderName is true', () => {
-    const { getByText } = render(
-      <MessageBubble item={createMessage()} {...defaultProps} />,
-    );
+    const { getByText } = render(<MessageBubble item={createMessage()} {...defaultProps} />);
     expect(getByText('Alice')).toBeTruthy();
   });
 
   it('does not render sender name when showSenderName is false', () => {
     const { queryByText } = render(
-      <MessageBubble
-        item={createMessage()}
-        {...defaultProps}
-        showSenderName={false}
-      />,
+      <MessageBubble item={createMessage()} {...defaultProps} showSenderName={false} />,
     );
     expect(queryByText('Alice')).toBeNull();
   });
 
   it('renders formatted timestamp', () => {
-    const { getByText } = render(
-      <MessageBubble item={createMessage()} {...defaultProps} />,
-    );
+    const { getByText } = render(<MessageBubble item={createMessage()} {...defaultProps} />);
     // Time format varies by locale, just check something is rendered
     const timeRegex = /\d{1,2}:\d{2}/;
-    const allTexts = render(
-      <MessageBubble item={createMessage()} {...defaultProps} />,
-    ).toJSON();
+    const allTexts = render(<MessageBubble item={createMessage()} {...defaultProps} />).toJSON();
     expect(allTexts).toBeTruthy();
   });
 
@@ -88,9 +76,7 @@ describe('MessageBubble', () => {
     const msgNoName = createMessage({
       sender: undefined as unknown as ChatMessage['sender'],
     });
-    const { getByText } = render(
-      <MessageBubble item={msgNoName} {...defaultProps} />,
-    );
+    const { getByText } = render(<MessageBubble item={msgNoName} {...defaultProps} />);
     expect(getByText('Unknown')).toBeTruthy();
   });
 
@@ -103,11 +89,7 @@ describe('MessageBubble', () => {
     });
 
     const { UNSAFE_getByType } = render(
-      <MessageBubble
-        item={msg}
-        {...defaultProps}
-        onPreviewMedia={onPreviewMedia}
-      />,
+      <MessageBubble item={msg} {...defaultProps} onPreviewMedia={onPreviewMedia} />,
     );
 
     const { Image } = require('react-native');
@@ -122,28 +104,20 @@ describe('MessageBubble', () => {
       content: '',
     });
 
-    const { queryByText } = render(
-      <MessageBubble item={msg} {...defaultProps} />,
-    );
+    const { queryByText } = render(<MessageBubble item={msg} {...defaultProps} />);
     // Should not render empty text
     expect(queryByText('Hello World')).toBeNull();
   });
 
   it('hides avatar when showAvatar is false', () => {
     const { queryByTestId } = render(
-      <MessageBubble
-        item={createMessage()}
-        {...defaultProps}
-        showAvatar={false}
-      />,
+      <MessageBubble item={createMessage()} {...defaultProps} showAvatar={false} />,
     );
     expect(queryByTestId('safe-image')).toBeNull();
   });
 
   it('applies different styles for own messages', () => {
-    const { getByText } = render(
-      <MessageBubble item={createMessage()} {...defaultProps} isMe />,
-    );
+    const { getByText } = render(<MessageBubble item={createMessage()} {...defaultProps} isMe />);
     expect(getByText('Hello World')).toBeTruthy();
   });
 });

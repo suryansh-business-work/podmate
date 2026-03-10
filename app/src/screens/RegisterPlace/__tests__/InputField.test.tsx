@@ -25,9 +25,7 @@ describe('InputField', () => {
   });
 
   it('displays the current value', () => {
-    const { getByDisplayValue } = render(
-      <InputField {...defaultProps} value="Sky Lounge" />,
-    );
+    const { getByDisplayValue } = render(<InputField {...defaultProps} value="Sky Lounge" />);
     expect(getByDisplayValue('Sky Lounge')).toBeTruthy();
   });
 
@@ -51,9 +49,7 @@ describe('InputField', () => {
   });
 
   it('shows error text when error prop is provided', () => {
-    const { getByText } = render(
-      <InputField {...defaultProps} error="This field is required" />,
-    );
+    const { getByText } = render(<InputField {...defaultProps} error="This field is required" />);
     expect(getByText('This field is required')).toBeTruthy();
   });
 

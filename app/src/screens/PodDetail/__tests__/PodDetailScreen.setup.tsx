@@ -21,10 +21,7 @@ jest.mock('expo-video', () => {
 jest.mock('../../../components/Skeleton', () => ({
   SkeletonDetail: () => {
     const mockReact = require('react');
-    return mockReact.createElement(
-      require('react-native').View,
-      { testID: 'skeleton-detail' },
-    );
+    return mockReact.createElement(require('react-native').View, { testID: 'skeleton-detail' });
   },
 }));
 
@@ -33,10 +30,10 @@ jest.mock('../../../components/SafeImage', () => {
   return {
     __esModule: true,
     default: (props: Record<string, unknown>) => {
-      return mockReact.createElement(
-        require('react-native').View,
-        { testID: 'safe-image', ...props },
-      );
+      return mockReact.createElement(require('react-native').View, {
+        testID: 'safe-image',
+        ...props,
+      });
     },
   };
 });
@@ -96,14 +93,9 @@ export function setupMocks(opts?: { isHost?: boolean }): void {
     error: null,
     refetch: mockRefetch,
   });
-  (useMutation as jest.Mock).mockReturnValue([
-    mockDeletePod,
-    { loading: false },
-  ]);
+  (useMutation as jest.Mock).mockReturnValue([mockDeletePod, { loading: false }]);
 }
 
-export function renderPodDetail(
-  props: Partial<typeof defaultProps> = {},
-) {
+export function renderPodDetail(props: Partial<typeof defaultProps> = {}) {
   return render(<PodDetailScreen {...defaultProps} {...props} />);
 }

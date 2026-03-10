@@ -41,6 +41,14 @@ jest.mock('../../../hooks/useLocation', () => ({
   }),
 }));
 
+jest.mock('../../../hooks/useEffectiveFee', () => ({
+  useEffectiveFee: jest.fn(() => ({
+    feePercent: 5,
+    source: 'GLOBAL',
+    loading: false,
+  })),
+}));
+
 const makeFormik = (overrides: Partial<PodFormValues> = {}) => {
   const values: PodFormValues = {
     title: '', description: '', fee: '0', maxSeats: 2,

@@ -5,7 +5,12 @@ import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { PaperProvider } from 'react-native-paper';
 import { ApolloProvider } from '@apollo/client';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, LogBox } from 'react-native';
+
+LogBox.ignoreLogs([
+  'expo-notifications',
+  'Push notifications are not supported in Expo Go',
+]);
 import { client } from './src/graphql/client';
 import RootNavigator from './src/navigation/RootNavigator';
 import { ThemeProvider, useThemeMode } from './src/contexts/ThemeContext';

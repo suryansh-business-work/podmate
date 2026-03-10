@@ -7,15 +7,28 @@ import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import Grid from '@mui/material/Grid2';
-import { GET_PLATFORM_FEES, GET_PLATFORM_FEE_OVERRIDES } from '../../graphql/queries';
+import {
+  GET_PLATFORM_FEES,
+  GET_PLATFORM_FEE_OVERRIDES,
+  GET_ENTITY_FEE_OVERRIDES,
+} from '../../graphql/queries';
 import {
   UPSERT_PLATFORM_FEE,
   UPSERT_PLATFORM_FEE_OVERRIDE,
   DELETE_PLATFORM_FEE_OVERRIDE,
+  UPSERT_ENTITY_FEE_OVERRIDE,
+  DELETE_ENTITY_FEE_OVERRIDE,
 } from '../../graphql/mutations';
-import type { PlatformFeeConfigData, PaginatedPlatformFeeOverridesData } from './Finance.types';
+import type {
+  PlatformFeeConfigData,
+  PaginatedPlatformFeeOverridesData,
+  PaginatedEntityFeeOverridesData,
+  EntityFeeOverrideFormValues,
+  EntityOverrideType,
+} from './Finance.types';
 import GlobalFeeCard from './GlobalFeeCard';
 import OverridesSection from './OverridesSection';
+import EntityOverridesSection from './EntityOverridesSection';
 
 const FinancePage: React.FC = () => {
   const [snackbar, setSnackbar] = useState<{
@@ -28,11 +41,17 @@ const FinancePage: React.FC = () => {
     severity: 'success',
   });
 
+  const [entityTypeFilter, setEntityTypeFilter] = useState<EntityOverrideType | undefined>(
+    undefined,
+  );
+
   const {
     data: feeData,
     loading: feeLoading,
     refetch: refetchFee,
-  } = useQuery<PlatformFeeConfigData>(GET_PLATFORM_FEES, { fetchPolicy: 'cache-and-network' });
+  } = useQuery<PlatformFeeConfigData>(GET_PLATFORM_FEES, {
+    fetchPolicy: 'network-only',
+  });
 
   const {
     data: overridesData,
@@ -43,23 +62,38 @@ const FinancePage: React.FC = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const {
+    data: entityOverridesData,
+    loading: entityOverridesLoading,
+    refetch: refetchEntityOverrides,
+  } = useQuery<PaginatedEntityFeeOverridesData>(GET_ENTITY_FEE_OVERRIDES, {
+    variables: { entityType: entityTypeFilter, page: 1, limit: 100 },
+    fetchPolicy: 'cache-and-network',
+  });
+
   const [upsertFee, { loading: savingFee }] = useMutation(UPSERT_PLATFORM_FEE);
   const [upsertOverride, { loading: savingOverride }] = useMutation(UPSERT_PLATFORM_FEE_OVERRIDE);
   const [deleteOverride] = useMutation(DELETE_PLATFORM_FEE_OVERRIDE);
+  const [upsertEntityOverride, { loading: savingEntity }] = useMutation(
+    UPSERT_ENTITY_FEE_OVERRIDE,
+  );
+  const [deleteEntityOverride] = useMutation(DELETE_ENTITY_FEE_OVERRIDE);
 
   const globalFee = feeData?.platformFees?.globalFeePercent ?? 5;
   const overrides = overridesData?.platformFeeOverrides?.items ?? [];
+  const entityOverrides = entityOverridesData?.entityFeeOverrides?.items ?? [];
 
   const handleSaveGlobalFee = useCallback(
     async (value: number) => {
       try {
-        await upsertFee({ variables: { globalFeePercent: value } });
+        const result = await upsertFee({ variables: { globalFeePercent: value } });
+        const updatedFee = result.data?.upsertPlatformFee?.globalFeePercent ?? value;
         setSnackbar({
           open: true,
-          message: `Global fee updated to ${value}%`,
+          message: `Global fee updated to ${updatedFee}%`,
           severity: 'success',
         });
-        refetchFee();
+        await refetchFee();
       } catch (err) {
         setSnackbar({ open: true, message: (err as Error).message, severity: 'error' });
       }
@@ -76,7 +110,7 @@ const FinancePage: React.FC = () => {
           message: `Override for ${input.pincode} saved`,
           severity: 'success',
         });
-        refetchOverrides();
+        await refetchOverrides();
       } catch (err) {
         setSnackbar({ open: true, message: (err as Error).message, severity: 'error' });
       }
@@ -89,12 +123,50 @@ const FinancePage: React.FC = () => {
       try {
         await deleteOverride({ variables: { id } });
         setSnackbar({ open: true, message: 'Override deleted', severity: 'success' });
-        refetchOverrides();
+        await refetchOverrides();
       } catch (err) {
         setSnackbar({ open: true, message: (err as Error).message, severity: 'error' });
       }
     },
     [deleteOverride, refetchOverrides],
+  );
+
+  const handleSaveEntityOverride = useCallback(
+    async (input: EntityFeeOverrideFormValues) => {
+      try {
+        await upsertEntityOverride({ variables: { input } });
+        setSnackbar({
+          open: true,
+          message: `${input.entityType} fee override ${input.enabled ? 'enabled' : 'disabled'} at ${input.feePercent}%`,
+          severity: 'success',
+        });
+        await refetchEntityOverrides();
+      } catch (err) {
+        setSnackbar({ open: true, message: (err as Error).message, severity: 'error' });
+      }
+    },
+    [upsertEntityOverride, refetchEntityOverrides],
+  );
+
+  const handleDeleteEntityOverride = useCallback(
+    async (entityType: EntityOverrideType, entityId: string) => {
+      try {
+        await deleteEntityOverride({ variables: { entityType, entityId } });
+        setSnackbar({ open: true, message: 'Entity override deleted', severity: 'success' });
+        await refetchEntityOverrides();
+      } catch (err) {
+        setSnackbar({ open: true, message: (err as Error).message, severity: 'error' });
+      }
+    },
+    [deleteEntityOverride, refetchEntityOverrides],
+  );
+
+  const handleEntityTabChange = useCallback(
+    (type: EntityOverrideType | undefined) => {
+      setEntityTypeFilter(type);
+      refetchEntityOverrides({ entityType: type, page: 1, limit: 100 });
+    },
+    [refetchEntityOverrides],
   );
 
   return (
@@ -127,6 +199,17 @@ const FinancePage: React.FC = () => {
             saving={savingOverride}
             onSave={handleSaveOverride}
             onDelete={handleDeleteOverride}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12 }}>
+          <EntityOverridesSection
+            overrides={entityOverrides}
+            loading={entityOverridesLoading}
+            saving={savingEntity}
+            onSave={handleSaveEntityOverride}
+            onDelete={handleDeleteEntityOverride}
+            onTabChange={handleEntityTabChange}
           />
         </Grid>
       </Grid>

@@ -26,15 +26,19 @@ jest.mock('../StepVenueDetails', () => {
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
     __esModule: true,
-    default: ({ onNext }: { onNext: () => void }) =>
-      mockReact.createElement(View, { testID: 'step-venue' },
+    default: ({ onSubmit, onMediaChange }: { onSubmit: (values: Record<string, string>) => void; onMediaChange: (media: Array<{ type: string; url: string }>) => void }) => {
+      mockReact.useEffect(() => {
+        onMediaChange([{ type: 'image', url: 'https://img.jpg' }]);
+      }, [onMediaChange]);
+      return mockReact.createElement(View, { testID: 'step-venue' },
         mockReact.createElement(Text, null, 'Venue Details'),
         mockReact.createElement(
           TouchableOpacity,
-          { onPress: onNext, testID: 'next-step' },
+          { onPress: () => onSubmit({ name: 'Test Venue', category: 'Bar', description: 'desc', address: '123 Main', city: 'Delhi', capacity: '100' }), testID: 'next-step' },
           mockReact.createElement(Text, null, 'Next'),
         ),
-      ),
+      );
+    },
   };
 });
 
@@ -43,12 +47,12 @@ jest.mock('../StepDocuments', () => {
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
     __esModule: true,
-    default: ({ onNext }: { onNext: () => void }) =>
+    default: ({ onContinue }: { onContinue: () => void }) =>
       mockReact.createElement(View, { testID: 'step-documents' },
         mockReact.createElement(Text, null, 'Documents'),
         mockReact.createElement(
           TouchableOpacity,
-          { onPress: onNext, testID: 'next-doc' },
+          { onPress: onContinue, testID: 'next-doc' },
           mockReact.createElement(Text, null, 'Next'),
         ),
       ),

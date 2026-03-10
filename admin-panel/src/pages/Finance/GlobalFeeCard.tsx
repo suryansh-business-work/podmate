@@ -52,7 +52,7 @@ const GlobalFeeCard: React.FC<GlobalFeeCardProps> = ({ currentFee, loading, savi
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           This fee applies to all transactions platform-wide unless overridden by a pincode-specific
-          fee.
+          or entity-level (user/pod/venue) fee override.
         </Typography>
 
         <Box sx={{ px: 1 }}>

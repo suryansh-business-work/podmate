@@ -18,6 +18,7 @@ import { GradientButton } from '../../components/GradientButton';
 import MediaUploader, { MediaItem } from '../../components/MediaUploader';
 import { GET_APPROVED_PLACES, GET_APP_CONFIG } from '../../graphql/queries';
 import { useLocation } from '../../hooks/useLocation';
+import { useEffectiveFee } from '../../hooks/useEffectiveFee';
 import { PodFormValues, ApprovedPlace, CATEGORIES } from './CreatePod.types';
 import PayoutCard from './PayoutCard';
 import LogisticsSection from './LogisticsSection';
@@ -75,6 +76,10 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
   }>(GET_APPROVED_PLACES, {
     variables: { search: placeSearch || undefined },
     fetchPolicy: 'cache-and-network',
+  });
+
+  const { feePercent: effectiveFeePercent, source: feeSource } = useEffectiveFee({
+    entityType: 'USER',
   });
 
   const { data: configData } = useQuery(GET_APP_CONFIG, {
@@ -381,7 +386,12 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
           onDismissTimePicker={onDismissTimePicker}
         />
 
-        <PayoutCard feePerPerson={feeNum} maxSeats={values.maxSeats} />
+        <PayoutCard
+          feePerPerson={feeNum}
+          maxSeats={values.maxSeats}
+          platformFeePercent={effectiveFeePercent}
+          feeSource={feeSource}
+        />
       </ScrollView>
 
       <View style={styles.bottom}>

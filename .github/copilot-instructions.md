@@ -218,9 +218,20 @@ A task is considered complete only if:
 Testing Standards
 No test file should exceed 200 lines. If it does, please segregate it into multiple files within the same module by creating a __tests__ folder. Also, please provide testing standards for the same.
 
-Additionally
+#Additionally
 1. Do not user any depreacated things in codebase in any of the projects
 2. Do not use any dummy data anywhere in the codebase only server data sources are allowed
 3. Production level code quality is expected in all projects and repositories no compromises on code quality is allowed in any of the projects and repositories
 4. For any new feature added to the codebase make sure to add all the necessary tests for that feature and maintain 100% code coverage for that feature
 5. For any new feature added to the codebase make sure to add all the necessary documentation for that feature and maintain the documentation up to date for that feature
+6. Any changes in code update the test cases and documentation accordingly and maintain the code quality and standards for that feature
+
+# Regarding Test cases
+1. Ensure that no test file exceeds 200 lines. If needed, split them into multiple files within the same module (for example, inside a __tests__ folder).
+2. Do not use any shortcuts, tricks, or mocked false-positive tests. Only write real and meaningful test cases that cover all micro-level scenarios.
+3. If any issue arises while writing the tests, you may modify the application code where necessary, but do not tweak or weaken the test cases just to make them pass. The goal is to achieve production-ready code with reliable tests.
+4. While fixing issues or improving the code, ensure there are no breaking changes and the existing functionality remains intact.
+5. Please think deeply about edge cases and ensure the final implementation is stable, clean, and production-ready.
+6. Many test cases are causing long waits or breaking during execution. Please investigate and ensure that no test case blocks the command line execution.
+7. Identify which test cases are causing the UI or test runner to hang or block, and fix the underlying issue. Tests should run smoothly without long blocking waits or freezes.
+8. If necessary, update the implementation to ensure that the tests execute reliably and efficiently, while maintaining production-ready behavior and no breaking changes.

@@ -13,3 +13,12 @@ export const upsertOverrideSchema = z.object({
   feePercent: z.number().min(2, 'Min 2%').max(15, 'Max 15%'),
   label: z.string().max(100).optional(),
 });
+
+export const entityOverrideTypeSchema = z.enum(['USER', 'POD', 'PLACE']);
+
+export const upsertEntityFeeOverrideSchema = z.object({
+  entityType: entityOverrideTypeSchema,
+  entityId: z.string().min(1, 'Entity ID is required'),
+  feePercent: z.number().min(2, 'Min 2%').max(15, 'Max 15%'),
+  enabled: z.boolean(),
+});

@@ -113,6 +113,9 @@ const rootSchema = `#graphql
     adminNotifications(page: Int, limit: Int): PaginatedAdminNotifications!
     platformFees: PlatformFeeConfig!
     platformFeeOverrides(page: Int, limit: Int): PaginatedPlatformFeeOverrides!
+    entityFeeOverrides(entityType: EntityOverrideType, page: Int, limit: Int): PaginatedEntityFeeOverrides!
+    entityFeeOverride(entityType: EntityOverrideType!, entityId: ID!): EntityFeeOverride
+    effectiveFee(entityType: EntityOverrideType!, entityId: ID!): EffectiveFee!
     openAiModels: [String!]!
     reviews(targetType: ReviewTargetType!, targetId: ID!, page: Int, limit: Int): PaginatedReviews!
     reviewStats(targetType: ReviewTargetType!, targetId: ID!): ReviewStats!
@@ -197,6 +200,8 @@ const rootSchema = `#graphql
     upsertPlatformFee(globalFeePercent: Float!): PlatformFeeConfig!
     upsertPlatformFeeOverride(input: UpsertPlatformFeeOverrideInput!): PlatformFeeOverride!
     deletePlatformFeeOverride(id: ID!): Boolean!
+    upsertEntityFeeOverride(input: UpsertEntityFeeOverrideInput!): EntityFeeOverride!
+    deleteEntityFeeOverride(entityType: EntityOverrideType!, entityId: ID!): Boolean!
     createReview(input: CreateReviewInput!): Review!
     replyToReview(input: ReplyReviewInput!): Review!
     reportReview(input: ReportReviewInput!): Review!

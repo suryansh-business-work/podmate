@@ -1,5 +1,5 @@
-import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { Alert, Platform } from 'react-native';
+import { renderHook, act } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 import { useImageKitUpload } from '../useImageKitUpload';
 
 // --- Mocks ---
@@ -19,70 +19,12 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 const mockFetch = jest.fn();
 global.fetch = mockFetch as unknown as typeof fetch;
 
-describe('useImageKitUpload', () => {
+describe('useImageKitUpload — upload behavior', () => {
   beforeEach(() => {
     jest.useRealTimers();
     mockFetch.mockReset();
     mockLaunchImageLibraryAsync.mockReset();
     mockGetItem.mockResolvedValue('mock-jwt-token');
-  });
-
-  it('initializes with uploading=false and progress=0', () => {
-    const { result } = renderHook(() => useImageKitUpload());
-
-    expect(result.current.uploading).toBe(false);
-    expect(result.current.progress).toBe(0);
-  });
-
-  it('exposes pickAndUploadImage and pickAndUploadVideo functions', () => {
-    const { result } = renderHook(() => useImageKitUpload());
-
-    expect(typeof result.current.pickAndUploadImage).toBe('function');
-    expect(typeof result.current.pickAndUploadVideo).toBe('function');
-  });
-
-  it('returns null when image picker is cancelled', async () => {
-    mockLaunchImageLibraryAsync.mockResolvedValue({ canceled: true, assets: [] });
-
-    const { result } = renderHook(() => useImageKitUpload());
-
-    let uploaded: unknown;
-    await act(async () => {
-      uploaded = await result.current.pickAndUploadImage();
-    });
-
-    expect(uploaded).toBeNull();
-    expect(result.current.uploading).toBe(false);
-  });
-
-  it('returns null when video picker is cancelled', async () => {
-    mockLaunchImageLibraryAsync.mockResolvedValue({ canceled: true, assets: [] });
-
-    const { result } = renderHook(() => useImageKitUpload());
-
-    let uploaded: unknown;
-    await act(async () => {
-      uploaded = await result.current.pickAndUploadVideo();
-    });
-
-    expect(uploaded).toBeNull();
-    expect(result.current.uploading).toBe(false);
-  });
-
-  it('returns null when permissions are denied', async () => {
-    mockRequestMediaPerms.mockResolvedValueOnce({ status: 'denied' });
-    const alertSpy = jest.spyOn(Alert, 'alert');
-
-    const { result } = renderHook(() => useImageKitUpload());
-
-    let uploaded: unknown;
-    await act(async () => {
-      uploaded = await result.current.pickAndUploadImage();
-    });
-
-    expect(uploaded).toBeNull();
-    expect(alertSpy).toHaveBeenCalledWith('Permission Required', expect.any(String));
-    alertSpy.mockRestore();
   });
 
   it('uploads image successfully and returns file info', async () => {

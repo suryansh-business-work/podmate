@@ -12,12 +12,13 @@ describe('ReviewsScreen — behavior', () => {
   });
 
   it('submits a review via modal', async () => {
-    const { getByText, getByPlaceholderText } = renderReviewsScreen();
+    const { getByText, getAllByText, getByPlaceholderText } = renderReviewsScreen();
     fireEvent.press(getByText('rate-review'));
 
-    // Select 5 stars
-    const starButtons = getByText('★');
-    if (starButtons) fireEvent.press(starButtons);
+    // Select a star — the mocked MaterialIcons renders icon names as text.
+    // With rating=0, all 5 icons render as "star-border". Press the first one.
+    const starBorderIcons = getAllByText('star-border');
+    fireEvent.press(starBorderIcons[0]);
 
     const commentInput = getByPlaceholderText(/share your experience/i);
     fireEvent.changeText(commentInput, 'Great event!');

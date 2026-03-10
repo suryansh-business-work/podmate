@@ -32,3 +32,32 @@ export interface OverrideFormValues {
   feePercent: number;
   label: string;
 }
+
+export type EntityOverrideType = 'USER' | 'POD' | 'PLACE';
+
+export interface EntityFeeOverride {
+  id: string;
+  entityType: EntityOverrideType;
+  entityId: string;
+  feePercent: number;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaginatedEntityFeeOverridesData {
+  entityFeeOverrides: {
+    items: EntityFeeOverride[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface EntityFeeOverrideFormValues {
+  entityType: EntityOverrideType;
+  entityId: string;
+  feePercent: number;
+  enabled: boolean;
+}

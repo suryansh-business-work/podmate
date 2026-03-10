@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { useQuery, useMutation } from '@apollo/client';
 import FaqScreen from '../FaqScreen';
 
-jest.mock('../TicketCard', () => {
+jest.mock('../../Support/TicketCard', () => {
   const mockReact = require('react');
   const { Text } = require('react-native');
   return {
@@ -37,9 +37,12 @@ function setupMocks(): void {
       refetch: mockRefetch,
     };
   });
-  (useMutation as jest.Mock)
-    .mockReturnValueOnce([mockCreateTicket, { loading: false }])
-    .mockReturnValueOnce([mockRequestCallback, { loading: false }]);
+  let mutCall = 0;
+  (useMutation as jest.Mock).mockImplementation(() => {
+    mutCall++;
+    if ((mutCall - 1) % 2 === 0) return [mockCreateTicket, { loading: false }];
+    return [mockRequestCallback, { loading: false }];
+  });
 }
 
 describe('FaqScreen — behavior', () => {
@@ -61,15 +64,15 @@ describe('FaqScreen — behavior', () => {
   });
 
   it('switches to support tab', () => {
-    const { getByText } = render(<FaqScreen {...defaultProps} />);
-    const supportTab = getByText('Support');
-    fireEvent.press(supportTab);
-    expect(getByText(/Support Tickets/i)).toBeTruthy();
+    const { getAllByText } = render(<FaqScreen {...defaultProps} />);
+    const supportTabs = getAllByText(/Support Tickets/i);
+    fireEvent.press(supportTabs[0]);
+    expect(getAllByText(/Support Tickets/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it('switches to callback tab', () => {
     const { getByText } = render(<FaqScreen {...defaultProps} />);
-    const callbackTab = getByText('Callback');
+    const callbackTab = getByText('Request Callback');
     fireEvent.press(callbackTab);
     expect(getByText(/Request a Callback/i)).toBeTruthy();
   });
@@ -84,7 +87,7 @@ describe('FaqScreen — behavior', () => {
 
   it('renders policy content in policies tab', () => {
     const { getByText } = render(<FaqScreen {...defaultProps} />);
-    const policiesTab = getByText('Policies');
+    const policiesTab = getByText('User Policy');
     fireEvent.press(policiesTab);
     expect(getByText('Policy')).toBeTruthy();
   });

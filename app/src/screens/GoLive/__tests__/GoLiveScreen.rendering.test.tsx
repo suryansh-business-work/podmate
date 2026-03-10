@@ -9,10 +9,11 @@ const mockSessions = [
     id: 's1',
     title: 'Gaming Night',
     description: 'Playing games together',
-    podId: 'pod1',
-    podTitle: 'Fun Pod',
+    status: 'LIVE' as const,
+    viewerCount: 1,
+    isViewing: false,
     host: { id: 'h1', name: 'HostUser', avatar: null },
-    viewers: [{ id: 'v1' }],
+    pod: { id: 'pod1', title: 'Fun Pod' },
     startedAt: new Date(Date.now() - 3600000).toISOString(),
   },
 ];
@@ -39,11 +40,17 @@ describe('GoLiveScreen — rendering', () => {
       loading: false,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockStartLive, { loading: false }])
-      .mockReturnValueOnce([mockEndLive])
-      .mockReturnValueOnce([mockJoinLive])
-      .mockReturnValueOnce([mockLeaveLive]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockImplementation(() => {
+      mutCall++;
+      switch ((mutCall - 1) % 4) {
+        case 0: return [mockStartLive, { loading: false }];
+        case 1: return [mockEndLive, { loading: false }];
+        case 2: return [mockJoinLive, { loading: false }];
+        case 3: return [mockLeaveLive, { loading: false }];
+        default: return [jest.fn(), { loading: false }];
+      }
+    });
   });
 
   it('renders header title', () => {
@@ -73,11 +80,17 @@ describe('GoLiveScreen — rendering', () => {
       loading: false,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReset()
-      .mockReturnValueOnce([mockStartLive, { loading: false }])
-      .mockReturnValueOnce([mockEndLive])
-      .mockReturnValueOnce([mockJoinLive])
-      .mockReturnValueOnce([mockLeaveLive]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall++;
+      switch ((mutCall - 1) % 4) {
+        case 0: return [mockStartLive, { loading: false }];
+        case 1: return [mockEndLive, { loading: false }];
+        case 2: return [mockJoinLive, { loading: false }];
+        case 3: return [mockLeaveLive, { loading: false }];
+        default: return [jest.fn(), { loading: false }];
+      }
+    });
     const { getByText } = render(<GoLiveScreen {...defaultProps} />);
     expect(getByText('No live sessions')).toBeTruthy();
   });
@@ -88,13 +101,20 @@ describe('GoLiveScreen — rendering', () => {
       loading: true,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReset()
-      .mockReturnValueOnce([mockStartLive, { loading: false }])
-      .mockReturnValueOnce([mockEndLive])
-      .mockReturnValueOnce([mockJoinLive])
-      .mockReturnValueOnce([mockLeaveLive]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall++;
+      switch ((mutCall - 1) % 4) {
+        case 0: return [mockStartLive, { loading: false }];
+        case 1: return [mockEndLive, { loading: false }];
+        case 2: return [mockJoinLive, { loading: false }];
+        case 3: return [mockLeaveLive, { loading: false }];
+        default: return [jest.fn(), { loading: false }];
+      }
+    });
     const { UNSAFE_getByType } = render(<GoLiveScreen {...defaultProps} />);
-    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
 
   it('renders Join Live button on sessions', () => {

@@ -1,6 +1,7 @@
 import type { GraphQLContext } from '../auth/auth.models';
-import { requireRole } from '../auth/auth.services';
+import { requireAuth, requireRole } from '../auth/auth.services';
 import { UserRole } from '../user/user.models';
+import type { EntityOverrideType } from './platformFee.models';
 import * as platformFeeService from './platformFee.services';
 
 const platformFeeResolvers = {
@@ -17,6 +18,37 @@ const platformFeeResolvers = {
     ) => {
       requireRole(context, UserRole.ADMIN);
       return platformFeeService.getOverrides(args.page ?? 1, args.limit ?? 50);
+    },
+
+    entityFeeOverrides: (
+      _: unknown,
+      args: { entityType?: EntityOverrideType; page?: number; limit?: number },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return platformFeeService.getEntityFeeOverrides(
+        args.entityType,
+        args.page ?? 1,
+        args.limit ?? 50,
+      );
+    },
+
+    entityFeeOverride: (
+      _: unknown,
+      args: { entityType: EntityOverrideType; entityId: string },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return platformFeeService.getEntityFeeOverride(args.entityType, args.entityId);
+    },
+
+    effectiveFee: (
+      _: unknown,
+      args: { entityType: EntityOverrideType; entityId: string },
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      return platformFeeService.getEffectiveFee(args.entityType, args.entityId);
     },
   },
 
@@ -42,6 +74,31 @@ const platformFeeResolvers = {
     deletePlatformFeeOverride: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return platformFeeService.deleteOverride(args.id);
+    },
+
+    upsertEntityFeeOverride: (
+      _: unknown,
+      args: {
+        input: {
+          entityType: EntityOverrideType;
+          entityId: string;
+          feePercent: number;
+          enabled: boolean;
+        };
+      },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return platformFeeService.upsertEntityFeeOverride(args.input);
+    },
+
+    deleteEntityFeeOverride: (
+      _: unknown,
+      args: { entityType: EntityOverrideType; entityId: string },
+      context: GraphQLContext,
+    ) => {
+      requireRole(context, UserRole.ADMIN);
+      return platformFeeService.deleteEntityFeeOverride(args.entityType, args.entityId);
     },
   },
 };

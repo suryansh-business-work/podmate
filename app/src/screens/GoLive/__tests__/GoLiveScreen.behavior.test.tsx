@@ -17,11 +17,17 @@ function setupMocks(sessions: unknown[] = []): void {
     loading: false,
     refetch: mockRefetch,
   });
-  (useMutation as jest.Mock)
-    .mockReturnValueOnce([mockStartLive, { loading: false }])
-    .mockReturnValueOnce([mockEndLive])
-    .mockReturnValueOnce([mockJoinLive])
-    .mockReturnValueOnce([mockLeaveLive]);
+  let mutCall = 0;
+  (useMutation as jest.Mock).mockImplementation(() => {
+    mutCall++;
+    switch ((mutCall - 1) % 4) {
+      case 0: return [mockStartLive, { loading: false }];
+      case 1: return [mockEndLive, { loading: false }];
+      case 2: return [mockJoinLive, { loading: false }];
+      case 3: return [mockLeaveLive, { loading: false }];
+      default: return [jest.fn(), { loading: false }];
+    }
+  });
 }
 
 describe('GoLiveScreen — behavior', () => {
@@ -33,17 +39,17 @@ describe('GoLiveScreen — behavior', () => {
 
   it('opens go live modal on FAB press', () => {
     setupMocks([]);
-    const { getByText } = render(<GoLiveScreen {...defaultProps} />);
-    fireEvent.press(getByText('videocam'));
-    expect(getByText('Go Live')).toBeTruthy();
+    const { getAllByText } = render(<GoLiveScreen {...defaultProps} />);
+    fireEvent.press(getAllByText('videocam')[0]);
+    expect(getAllByText('Go Live').length).toBeGreaterThanOrEqual(1);
   });
 
   it('submits go live form', async () => {
     setupMocks([]);
-    const { getByText, getByPlaceholderText } = render(
+    const { getAllByText, getByPlaceholderText } = render(
       <GoLiveScreen {...defaultProps} />,
     );
-    fireEvent.press(getByText('videocam'));
+    fireEvent.press(getAllByText('videocam')[0]);
 
     const podIdInput = getByPlaceholderText(/Pod ID/i);
     fireEvent.changeText(podIdInput, 'pod1');
@@ -51,7 +57,9 @@ describe('GoLiveScreen — behavior', () => {
     const titleInput = getByPlaceholderText(/Session Title/i);
     fireEvent.changeText(titleInput, 'My Live');
 
-    fireEvent.press(getByText('Go Live'));
+    // "Go Live" appears as modal title + submit button; pick the submit button (last)
+    const goLiveElements = getAllByText('Go Live');
+    fireEvent.press(goLiveElements[goLiveElements.length - 1]);
     await waitFor(() => {
       expect(mockStartLive).toHaveBeenCalled();
     });
@@ -62,10 +70,11 @@ describe('GoLiveScreen — behavior', () => {
       id: 's1',
       title: 'Test',
       description: '',
-      podId: 'p1',
-      podTitle: 'Pod',
+      status: 'LIVE' as const,
+      viewerCount: 0,
+      isViewing: false,
       host: { id: 'h1', name: 'Host', avatar: null },
-      viewers: [],
+      pod: { id: 'p1', title: 'Pod' },
       startedAt: new Date().toISOString(),
     };
     setupMocks([session]);

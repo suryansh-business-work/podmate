@@ -17,6 +17,7 @@ import { CHECKOUT_POD } from '../../graphql/mutations';
 import { CheckoutScreenProps, CheckoutPodData, CheckoutResultData } from './Checkout.types';
 import { createStyles } from './Checkout.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
+import { useEffectiveFee } from '../../hooks/useEffectiveFee';
 
 const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSuccess }) => {
   const styles = useThemedStyles(createStyles);
@@ -31,6 +32,15 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
   const [checkoutPod, { loading: checking }] = useMutation<CheckoutResultData>(CHECKOUT_POD);
 
   const pod = data?.pod;
+
+  const { feePercent: podFeePercent, source: podFeeSource } = useEffectiveFee({
+    entityType: 'POD',
+    entityId: podId,
+    skip: !podId,
+  });
+
+  const platformFeeAmount = pod ? Math.round(pod.feePerPerson * (podFeePercent / 100)) : 0;
+  const totalAmount = pod ? pod.feePerPerson + platformFeeAmount : 0;
 
   const handleCheckout = async () => {
     try {
@@ -142,13 +152,16 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
             <Text style={styles.rowValue}>₹{pod.feePerPerson.toLocaleString()}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>Platform Fee</Text>
-            <Text style={styles.rowValue}>₹0</Text>
+            <Text style={styles.rowLabel}>
+              Platform Fee ({podFeePercent}%)
+              {podFeeSource !== 'GLOBAL' ? ' ✦' : ''}
+            </Text>
+            <Text style={styles.rowValue}>₹{platformFeeAmount.toLocaleString()}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>₹{pod.feePerPerson.toLocaleString()}</Text>
+            <Text style={styles.totalValue}>₹{totalAmount.toLocaleString()}</Text>
           </View>
         </View>
 

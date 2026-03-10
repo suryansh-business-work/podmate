@@ -46,9 +46,13 @@ describe('usePushNotifications', () => {
   const mockUnregister = jest.fn().mockResolvedValue({});
 
   beforeEach(() => {
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockRegister, { loading: false }])
-      .mockReturnValueOnce([mockUnregister, { loading: false }]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockImplementation(() => {
+      mutCall++;
+      return (mutCall - 1) % 2 === 0
+        ? [mockRegister, { loading: false }]
+        : [mockUnregister, { loading: false }];
+    });
   });
 
   it('registers push token when user is authenticated', async () => {

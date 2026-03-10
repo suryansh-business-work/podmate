@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Alert,
-  CircularProgress,
-  Box,
-} from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import Box from '@mui/material/Box';
 import { useMutation } from '@apollo/client';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { ADMIN_CREATE_PLACE } from '../../graphql/mutations';
+import type { MediaItem } from '../../components/AdminMediaUploader';
+import type { CreatePlaceFormValues } from './CreatePlace.types';
+import { CREATE_PLACE_STEPS } from './CreatePlace.types';
+import StepVenueDetails from './components/StepVenueDetails';
+import StepVenueMedia from './components/StepVenueMedia';
+import StepContactOwner from './components/StepContactOwner';
 
 interface CreatePlaceDialogProps {
   open: boolean;
@@ -23,128 +27,165 @@ interface CreatePlaceDialogProps {
   onCreated: () => void;
 }
 
-const INITIAL = {
+const validationSchema = Yup.object({
+  name: Yup.string().min(2, 'At least 2 characters').required('Name is required'),
+  description: Yup.string().min(10, 'At least 10 characters').required('Description is required'),
+  category: Yup.string().required('Category is required'),
+  address: Yup.string().required('Address is required'),
+  city: Yup.string().required('City is required'),
+  phone: Yup.string(),
+  email: Yup.string().email('Enter a valid email'),
+  ownerId: Yup.string().required('Owner ID is required'),
+});
+
+const INITIAL_VALUES: CreatePlaceFormValues = {
   name: '',
   description: '',
+  category: 'Restaurant',
   address: '',
   city: '',
-  category: 'Restaurant',
   phone: '',
   email: '',
   ownerId: '',
+  imageUrl: '',
+  mediaUrls: [],
 };
 
 const CreatePlaceDialog: React.FC<CreatePlaceDialogProps> = ({ open, onClose, onCreated }) => {
-  const [form, setForm] = useState(INITIAL);
+  const [activeStep, setActiveStep] = useState(0);
   const [error, setError] = useState('');
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [adminCreatePlace, { loading }] = useMutation(ADMIN_CREATE_PLACE);
 
-  const handleCreate = async () => {
-    setError('');
-    if (!form.name.trim() || !form.address.trim() || !form.city.trim()) {
-      setError('Name, address, and city are required');
-      return;
-    }
-    try {
-      await adminCreatePlace({
-        variables: {
-          input: {
-            name: form.name.trim(),
-            description: form.description.trim() || 'No description provided',
-            address: form.address.trim(),
-            city: form.city.trim(),
-            category: form.category,
-            phone: form.phone.trim(),
-            email: form.email.trim(),
+  const formik = useFormik<CreatePlaceFormValues>({
+    initialValues: INITIAL_VALUES,
+    validationSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
+    onSubmit: async (values) => {
+      setError('');
+      try {
+        const imageUrls = mediaItems.map((m) => m.url);
+        await adminCreatePlace({
+          variables: {
+            input: {
+              name: values.name.trim(),
+              description: values.description.trim(),
+              address: values.address.trim(),
+              city: values.city.trim(),
+              category: values.category,
+              phone: values.phone.trim() || undefined,
+              email: values.email.trim() || undefined,
+              imageUrl: imageUrls[0] || undefined,
+              mediaUrls: imageUrls,
+            },
+            ownerId: values.ownerId.trim(),
           },
-          ownerId: form.ownerId.trim() || 'admin-1',
-        },
-      });
-      setForm(INITIAL);
-      onClose();
-      onCreated();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create place');
+        });
+        handleReset();
+        onClose();
+        onCreated();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to create place');
+      }
+    },
+  });
+
+  const handleReset = () => {
+    setActiveStep(0);
+    setError('');
+    setMediaItems([]);
+    formik.resetForm();
+  };
+
+  const handleClose = () => {
+    handleReset();
+    onClose();
+  };
+
+  const canProceed = (): boolean => {
+    if (activeStep === 0) {
+      return Boolean(
+        formik.values.name.trim() &&
+          formik.values.description.trim() &&
+          formik.values.address.trim() &&
+          formik.values.city.trim() &&
+          formik.values.category &&
+          !formik.errors.name &&
+          !formik.errors.description &&
+          !formik.errors.address &&
+          !formik.errors.city,
+      );
+    }
+    if (activeStep === 1) {
+      return mediaItems.length > 0;
+    }
+    if (activeStep === 2) {
+      return Boolean(formik.values.ownerId.trim() && !formik.errors.ownerId);
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (activeStep < CREATE_PLACE_STEPS.length - 1) {
+      setActiveStep((prev) => prev + 1);
+    } else {
+      formik.handleSubmit();
     }
   };
 
-  const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
+  const handleBack = () => {
+    setActiveStep((prev) => prev - 1);
+  };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create Place</DialogTitle>
-      <DialogContent
-        sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}
-      >
-        {error && <Alert severity="error">{error}</Alert>}
-        <TextField
-          label="Name"
-          value={form.name}
-          onChange={(e) => update('name', e.target.value)}
-          fullWidth
-        />
-        <TextField
-          label="Description"
-          value={form.description}
-          onChange={(e) => update('description', e.target.value)}
-          multiline
-          rows={3}
-          fullWidth
-        />
-        <Box display="flex" gap={2}>
-          <TextField
-            label="Address"
-            value={form.address}
-            onChange={(e) => update('address', e.target.value)}
-            fullWidth
-          />
-          <TextField
-            label="City"
-            value={form.city}
-            onChange={(e) => update('city', e.target.value)}
-            fullWidth
-          />
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Create Venue</DialogTitle>
+      <DialogContent>
+        <Box sx={{ mb: 3, mt: 1 }}>
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {CREATE_PLACE_STEPS.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
         </Box>
-        <FormControl fullWidth>
-          <InputLabel>Category</InputLabel>
-          <Select
-            value={form.category}
-            label="Category"
-            onChange={(e) => update('category', e.target.value)}
-          >
-            <MenuItem value="Restaurant">Restaurant</MenuItem>
-            <MenuItem value="Cafe">Cafe</MenuItem>
-            <MenuItem value="Bar">Bar</MenuItem>
-            <MenuItem value="Park">Park</MenuItem>
-            <MenuItem value="Event Space">Event Space</MenuItem>
-            <MenuItem value="Other">Other</MenuItem>
-          </Select>
-        </FormControl>
-        <Box display="flex" gap={2}>
-          <TextField
-            label="Phone"
-            value={form.phone}
-            onChange={(e) => update('phone', e.target.value)}
-            fullWidth
-          />
-          <TextField
-            label="Email"
-            value={form.email}
-            onChange={(e) => update('email', e.target.value)}
-            fullWidth
-          />
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Box sx={{ minHeight: 200 }}>
+          {activeStep === 0 && <StepVenueDetails formik={formik} />}
+          {activeStep === 1 && (
+            <StepVenueMedia mediaItems={mediaItems} onMediaChange={setMediaItems} />
+          )}
+          {activeStep === 2 && <StepContactOwner formik={formik} />}
         </Box>
-        <TextField
-          label="Owner ID (optional, defaults to admin)"
-          value={form.ownerId}
-          onChange={(e) => update('ownerId', e.target.value)}
-          fullWidth
-        />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleCreate} disabled={loading}>
-          {loading ? <CircularProgress size={20} /> : 'Create'}
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={handleClose} disabled={loading}>
+          Cancel
+        </Button>
+        {activeStep > 0 && (
+          <Button onClick={handleBack} disabled={loading}>
+            Back
+          </Button>
+        )}
+        <Button
+          variant="contained"
+          onClick={handleNext}
+          disabled={loading || !canProceed()}
+          startIcon={loading ? <CircularProgress size={16} /> : undefined}
+        >
+          {activeStep === CREATE_PLACE_STEPS.length - 1
+            ? loading
+              ? 'Creating…'
+              : 'Create Venue'
+            : 'Next'}
         </Button>
       </DialogActions>
     </Dialog>

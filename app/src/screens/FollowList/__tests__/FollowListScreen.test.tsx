@@ -49,9 +49,13 @@ describe('FollowListScreen', () => {
         refetch: mockRefetch,
       };
     });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockFollowUser])
-      .mockReturnValueOnce([mockUnfollowUser]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockImplementation(() => {
+      mutCall++;
+      return (mutCall - 1) % 2 === 0
+        ? [mockFollowUser]
+        : [mockUnfollowUser];
+    });
   });
 
   it('renders user name in header', () => {
@@ -76,11 +80,14 @@ describe('FollowListScreen', () => {
       loading: true,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockFollowUser])
-      .mockReturnValueOnce([mockUnfollowUser]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall++;
+      return (mutCall - 1) % 2 === 0 ? [mockFollowUser] : [mockUnfollowUser];
+    });
     const { UNSAFE_getByType } = render(<FollowListScreen {...defaultProps} />);
-    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
 
   it('shows empty state for followers', () => {
@@ -90,9 +97,11 @@ describe('FollowListScreen', () => {
       }
       return { data: { followers: { items: [], total: 0 } }, loading: false, refetch: mockRefetch };
     });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockFollowUser])
-      .mockReturnValueOnce([mockUnfollowUser]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall++;
+      return (mutCall - 1) % 2 === 0 ? [mockFollowUser] : [mockUnfollowUser];
+    });
     const { getByText } = render(<FollowListScreen {...defaultProps} />);
     expect(getByText(/No followers yet/i)).toBeTruthy();
   });

@@ -11,14 +11,13 @@ jest.mock('@react-navigation/bottom-tabs', () => ({
 jest.mock('../PodCard', () => {
   const mockReact = require('react');
   const { Text, TouchableOpacity } = require('react-native');
-  return {
-    PodCard: ({ item, onPress }: { item: { title: string }; onPress: () => void }) =>
-      mockReact.createElement(
-        TouchableOpacity,
-        { onPress, testID: `pod-card-${item.title}` },
-        mockReact.createElement(Text, null, item.title),
-      ),
-  };
+  const MockPodCard = ({ item, onPress }: { item: { title: string }; onPress: () => void }) =>
+    mockReact.createElement(
+      TouchableOpacity,
+      { onPress, testID: `pod-card-${item.title}` },
+      mockReact.createElement(Text, null, item.title),
+    );
+  return { __esModule: true, default: MockPodCard };
 });
 
 const mockPods = [
@@ -39,6 +38,19 @@ const mockPods = [
 const mockRefetch = jest.fn();
 const mockFetchMore = jest.fn();
 
+/** Helper: ExploreScreen calls useQuery twice per render (GET_ME, GET_PODS).
+ *  We cycle: even index → GET_ME result, odd index → GET_PODS result. */
+function setupQueryMock(
+  meResult: Record<string, unknown>,
+  podsResult: Record<string, unknown>,
+) {
+  let qCall = 0;
+  (useQuery as jest.Mock).mockReset().mockImplementation(() => {
+    const idx = qCall++;
+    return idx % 2 === 0 ? meResult : podsResult;
+  });
+}
+
 describe('ExploreScreen', () => {
   const defaultProps = {
     onPodPress: jest.fn(),
@@ -46,57 +58,62 @@ describe('ExploreScreen', () => {
   };
 
   beforeEach(() => {
+    jest.useRealTimers();
     jest.clearAllMocks();
-    (useQuery as jest.Mock).mockReturnValue({
-      data: {
-        me: { id: 'u1' },
-        pods: { items: mockPods, total: 1, page: 1, totalPages: 1 },
+    setupQueryMock(
+      { data: { me: { id: 'u1' } } },
+      {
+        data: { pods: { items: mockPods, total: 1, page: 1, totalPages: 1 } },
+        loading: false,
+        error: null,
+        refetch: mockRefetch,
+        fetchMore: mockFetchMore,
       },
-      loading: false,
-      error: null,
-      refetch: mockRefetch,
-      fetchMore: mockFetchMore,
-    });
+    );
   });
 
   it('shows loading indicator', () => {
-    (useQuery as jest.Mock).mockReset()
-      .mockReturnValueOnce({ data: null })
-      .mockReturnValueOnce({
+    setupQueryMock(
+      { data: null },
+      {
         data: null,
         loading: true,
         error: null,
         refetch: mockRefetch,
         fetchMore: mockFetchMore,
-      });
+      },
+    );
     const { UNSAFE_getByType } = render(<ExploreScreen {...defaultProps} />);
-    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
 
   it('shows error state', () => {
-    (useQuery as jest.Mock).mockReset()
-      .mockReturnValueOnce({ data: null })
-      .mockReturnValueOnce({
+    setupQueryMock(
+      { data: null },
+      {
         data: null,
         loading: false,
         error: new Error('Network error'),
         refetch: mockRefetch,
         fetchMore: mockFetchMore,
-      });
+      },
+    );
     const { getByText } = render(<ExploreScreen {...defaultProps} />);
     expect(getByText(/Failed to load/i)).toBeTruthy();
   });
 
   it('shows empty state when no pods', () => {
-    (useQuery as jest.Mock).mockReset()
-      .mockReturnValueOnce({ data: null })
-      .mockReturnValueOnce({
+    setupQueryMock(
+      { data: null },
+      {
         data: { pods: { items: [], total: 0, page: 1, totalPages: 1 } },
         loading: false,
         error: null,
         refetch: mockRefetch,
         fetchMore: mockFetchMore,
-      });
+      },
+    );
     const { getByText } = render(<ExploreScreen {...defaultProps} />);
     expect(getByText('No pods found')).toBeTruthy();
   });

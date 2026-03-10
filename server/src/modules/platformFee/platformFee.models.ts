@@ -60,3 +60,51 @@ const PlatformFeeOverrideSchema = new Schema<PlatformFeeOverrideDoc>(
 export const PlatformFeeOverrideModel =
   (mongoose.models['PlatformFeeOverride'] as mongoose.Model<PlatformFeeOverrideDoc> | undefined) ??
   model<PlatformFeeOverrideDoc>('PlatformFeeOverride', PlatformFeeOverrideSchema);
+
+/* ── Entity-level fee overrides (user / pod / place) ── */
+
+export type EntityOverrideType = 'USER' | 'POD' | 'PLACE';
+
+export interface EntityFeeOverride {
+  id: string;
+  entityType: EntityOverrideType;
+  entityId: string;
+  feePercent: number;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaginatedEntityFeeOverrides {
+  items: EntityFeeOverride[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export type EntityFeeOverrideDoc = Omit<EntityFeeOverride, 'id'> & { _id: string };
+
+const EntityFeeOverrideSchema = new Schema<EntityFeeOverrideDoc>(
+  {
+    _id: { type: String, default: () => uuidv4() },
+    entityType: {
+      type: String,
+      required: true,
+      enum: ['USER', 'POD', 'PLACE'],
+      index: true,
+    },
+    entityId: { type: String, required: true, index: true },
+    feePercent: { type: Number, required: true, min: 2, max: 15 },
+    enabled: { type: Boolean, default: true },
+    createdAt: { type: String, default: () => new Date().toISOString() },
+    updatedAt: { type: String, default: () => new Date().toISOString() },
+  },
+  { toJSON: { virtuals: true }, toObject: { virtuals: true } },
+);
+
+EntityFeeOverrideSchema.index({ entityType: 1, entityId: 1 }, { unique: true });
+
+export const EntityFeeOverrideModel =
+  (mongoose.models['EntityFeeOverride'] as mongoose.Model<EntityFeeOverrideDoc> | undefined) ??
+  model<EntityFeeOverrideDoc>('EntityFeeOverride', EntityFeeOverrideSchema);

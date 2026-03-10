@@ -188,3 +188,12 @@ export const GET_LIVE_SESSION_FOR_POD = gql`
     }
   }
 `;
+
+export const GET_EFFECTIVE_FEE = gql`
+  query GetEffectiveFee($entityType: EntityOverrideType!, $entityId: ID!) {
+    effectiveFee(entityType: $entityType, entityId: $entityId) {
+      feePercent
+      source
+    }
+  }
+`;

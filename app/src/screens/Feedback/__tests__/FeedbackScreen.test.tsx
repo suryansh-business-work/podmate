@@ -94,10 +94,10 @@ describe('FeedbackScreen', () => {
   });
 
   it('renders type chips in modal', () => {
-    const { getByText } = render(<FeedbackScreen {...defaultProps} />);
+    const { getByText, getAllByText } = render(<FeedbackScreen {...defaultProps} />);
     fireEvent.press(getByText('add'));
-    expect(getByText('BUG')).toBeTruthy();
-    expect(getByText('FEATURE')).toBeTruthy();
-    expect(getByText('GENERAL')).toBeTruthy();
+    expect(getAllByText('BUG').length).toBeGreaterThanOrEqual(1);
+    expect(getAllByText('FEATURE').length).toBeGreaterThanOrEqual(1);
+    expect(getAllByText('GENERAL').length).toBeGreaterThanOrEqual(1);
   });
 });

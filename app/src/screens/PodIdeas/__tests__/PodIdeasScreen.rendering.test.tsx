@@ -50,10 +50,16 @@ describe('PodIdeasScreen — rendering', () => {
       loading: false,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockSubmitIdea, { loading: false }])
-      .mockReturnValueOnce([mockUpvote])
-      .mockReturnValueOnce([mockRemoveUpvote]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockImplementation(() => {
+      mutCall++;
+      switch ((mutCall - 1) % 3) {
+        case 0: return [mockSubmitIdea, { loading: false }];
+        case 1: return [mockUpvote];
+        case 2: return [mockRemoveUpvote];
+        default: return [jest.fn(), { loading: false }];
+      }
+    });
   });
 
   it('renders header title', () => {
@@ -85,14 +91,21 @@ describe('PodIdeasScreen — rendering', () => {
       loading: true,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockSubmitIdea, { loading: false }])
-      .mockReturnValueOnce([mockUpvote])
-      .mockReturnValueOnce([mockRemoveUpvote]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall++;
+      switch ((mutCall - 1) % 3) {
+        case 0: return [mockSubmitIdea, { loading: false }];
+        case 1: return [mockUpvote];
+        case 2: return [mockRemoveUpvote];
+        default: return [jest.fn(), { loading: false }];
+      }
+    });
     const { UNSAFE_getByType } = render(
       <PodIdeasScreen {...defaultProps} />,
     );
-    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
 
   it('shows empty state when no ideas', () => {
@@ -101,10 +114,16 @@ describe('PodIdeasScreen — rendering', () => {
       loading: false,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockSubmitIdea, { loading: false }])
-      .mockReturnValueOnce([mockUpvote])
-      .mockReturnValueOnce([mockRemoveUpvote]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall++;
+      switch ((mutCall - 1) % 3) {
+        case 0: return [mockSubmitIdea, { loading: false }];
+        case 1: return [mockUpvote];
+        case 2: return [mockRemoveUpvote];
+        default: return [jest.fn(), { loading: false }];
+      }
+    });
     const { getByText } = render(<PodIdeasScreen {...defaultProps} />);
     expect(getByText('No ideas yet')).toBeTruthy();
   });

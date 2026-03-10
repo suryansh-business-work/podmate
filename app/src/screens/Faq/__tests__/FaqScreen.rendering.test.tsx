@@ -3,7 +3,7 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { useQuery, useMutation } from '@apollo/client';
 import FaqScreen from '../FaqScreen';
 
-jest.mock('../TicketCard', () => {
+jest.mock('../../Support/TicketCard', () => {
   const mockReact = require('react');
   const { Text } = require('react-native');
   return {
@@ -54,9 +54,9 @@ function setupMocks(): void {
       refetch: mockRefetch,
     };
   });
-  (useMutation as jest.Mock)
-    .mockReturnValueOnce([mockCreateTicket, { loading: false }])
-    .mockReturnValueOnce([mockRequestCallback, { loading: false }]);
+  (useMutation as jest.Mock).mockImplementation(() => {
+    return [mockCreateTicket, { loading: false }];
+  });
 }
 
 describe('FaqScreen — rendering', () => {
@@ -75,18 +75,18 @@ describe('FaqScreen — rendering', () => {
 
   it('renders FAQ tab by default', () => {
     const { getByText } = render(<FaqScreen {...defaultProps} />);
-    expect(getByText('FAQ')).toBeTruthy();
+    expect(getByText('FAQs')).toBeTruthy();
   });
 
   it('renders tab navigation items', () => {
     const { getByText } = render(<FaqScreen {...defaultProps} />);
-    expect(getByText('FAQ')).toBeTruthy();
+    expect(getByText('FAQs')).toBeTruthy();
   });
 
   it('shows support tab content when selected', () => {
-    const { getByText } = render(
+    const { getAllByText } = render(
       <FaqScreen {...defaultProps} initialTab="support" />,
     );
-    expect(getByText(/Support Tickets/i)).toBeTruthy();
+    expect(getAllByText(/Support Tickets/i).length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -41,20 +41,40 @@ describe('UserProfileScreen', () => {
     onFollowing: jest.fn(),
   };
 
+  /** UserProfileScreen calls useQuery 3 times (GET_USER_PROFILE, GET_USER_PODS,
+   *  GET_FOLLOW_STATS) and useMutation 2 times (FOLLOW, UNFOLLOW) per render.
+   *  We use cycling mockImplementation to survive React 19 re-renders. */
+  function setupQueryMock(
+    result0: Record<string, unknown>,
+    result1: Record<string, unknown>,
+    result2: Record<string, unknown>,
+  ) {
+    let qCall = 0;
+    const results = [result0, result1, result2];
+    (useQuery as jest.Mock).mockReset().mockImplementation(() => {
+      const idx = qCall++;
+      return results[idx % 3];
+    });
+  }
+
+  function setupMutationMock() {
+    let mCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mCall++;
+      return (mCall - 1) % 2 === 0
+        ? [mockFollowUser]
+        : [mockUnfollowUser];
+    });
+  }
+
   beforeEach(() => {
     jest.clearAllMocks();
-    (useQuery as jest.Mock).mockReturnValue({
-      data: {
-        userProfile: mockUser,
-        userPods: mockPods,
-        followStats: mockFollowStats,
-      },
-      loading: false,
-      refetch: mockRefetchFollow,
-    });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockFollowUser])
-      .mockReturnValueOnce([mockUnfollowUser]);
+    setupQueryMock(
+      { data: { userProfile: mockUser }, loading: false, refetch: mockRefetchFollow },
+      { data: { userPods: mockPods } },
+      { data: { followStats: mockFollowStats }, refetch: mockRefetchFollow },
+    );
+    setupMutationMock();
   });
 
   it('renders user name', () => {
@@ -69,17 +89,17 @@ describe('UserProfileScreen', () => {
   });
 
   it('shows loading indicator when loading', () => {
-    (useQuery as jest.Mock).mockReset()
-      .mockReturnValueOnce({ data: null, loading: true })
-      .mockReturnValueOnce({ data: null })
-      .mockReturnValueOnce({ data: null, refetch: jest.fn() });
-    (useMutation as jest.Mock).mockReset()
-      .mockReturnValueOnce([jest.fn()])
-      .mockReturnValueOnce([jest.fn()]);
+    setupQueryMock(
+      { data: null, loading: true },
+      { data: null },
+      { data: null, refetch: jest.fn() },
+    );
+    setupMutationMock();
     const { UNSAFE_getByType } = render(
       <UserProfileScreen {...defaultProps} />,
     );
-    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
 
   it('renders followers count', () => {

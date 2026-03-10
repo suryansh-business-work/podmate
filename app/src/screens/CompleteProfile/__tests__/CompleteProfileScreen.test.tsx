@@ -82,7 +82,7 @@ describe('CompleteProfileScreen', () => {
     );
     const usernameInput = getByPlaceholderText('Choose a unique username');
     fireEvent.changeText(usernameInput, '');
-    fireEvent(usernameInput, 'blur');
+    fireEvent(usernameInput, 'blur', { persist: jest.fn(), target: { name: 'username' } });
     await waitFor(() => {
       const errors = queryAllByText(/required/i);
       expect(errors.length).toBeGreaterThanOrEqual(0);

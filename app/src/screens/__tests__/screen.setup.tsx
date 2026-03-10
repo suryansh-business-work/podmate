@@ -107,5 +107,6 @@ export function renderScreen<P extends Record<string, unknown>>(
   Component: React.ComponentType<P>,
   props: P,
 ) {
-  return render(React.createElement(Component, props));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return render(React.createElement(Component, props) as any);
 }

@@ -716,3 +716,48 @@ export const GET_POD_IDEAS = gql`
     }
   }
 `;
+
+/* ── Entity Fee Overrides ── */
+
+export const GET_ENTITY_FEE_OVERRIDES = gql`
+  query GetEntityFeeOverrides($entityType: EntityOverrideType, $page: Int, $limit: Int) {
+    entityFeeOverrides(entityType: $entityType, page: $page, limit: $limit) {
+      items {
+        id
+        entityType
+        entityId
+        feePercent
+        enabled
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;
+
+export const GET_ENTITY_FEE_OVERRIDE = gql`
+  query GetEntityFeeOverride($entityType: EntityOverrideType!, $entityId: ID!) {
+    entityFeeOverride(entityType: $entityType, entityId: $entityId) {
+      id
+      entityType
+      entityId
+      feePercent
+      enabled
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const GET_EFFECTIVE_FEE = gql`
+  query GetEffectiveFee($entityType: EntityOverrideType!, $entityId: ID!) {
+    effectiveFee(entityType: $entityType, entityId: $entityId) {
+      feePercent
+      source
+    }
+  }
+`;

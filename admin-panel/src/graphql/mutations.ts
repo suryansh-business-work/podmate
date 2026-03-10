@@ -592,3 +592,25 @@ export const ADMIN_UPDATE_POD = gql`
     }
   }
 `;
+
+/* ── Entity Fee Overrides ── */
+
+export const UPSERT_ENTITY_FEE_OVERRIDE = gql`
+  mutation UpsertEntityFeeOverride($input: UpsertEntityFeeOverrideInput!) {
+    upsertEntityFeeOverride(input: $input) {
+      id
+      entityType
+      entityId
+      feePercent
+      enabled
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_ENTITY_FEE_OVERRIDE = gql`
+  mutation DeleteEntityFeeOverride($entityType: EntityOverrideType!, $entityId: ID!) {
+    deleteEntityFeeOverride(entityType: $entityType, entityId: $entityId)
+  }
+`;

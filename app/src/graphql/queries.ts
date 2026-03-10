@@ -27,4 +27,5 @@ export {
   GET_MY_POD_IDEAS,
   GET_ACTIVE_LIVE_SESSIONS,
   GET_LIVE_SESSION_FOR_POD,
+  GET_EFFECTIVE_FEE,
 } from './queries/misc.queries';

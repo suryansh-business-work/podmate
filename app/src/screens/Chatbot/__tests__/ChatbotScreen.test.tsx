@@ -22,9 +22,12 @@ describe('ChatbotScreen', () => {
       data: { chatbotHistory: mockMessages },
       loading: false,
     });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockAskChatbot])
-      .mockReturnValueOnce([mockClearHistory]);
+    let mutationCall = 0;
+    (useMutation as jest.Mock).mockImplementation(() => {
+      mutationCall++;
+      if (mutationCall % 2 === 1) return [mockAskChatbot, { loading: false }];
+      return [mockClearHistory, { loading: false }];
+    });
   });
 
   it('renders header title', () => {
@@ -49,9 +52,12 @@ describe('ChatbotScreen', () => {
       data: { chatbotHistory: [] },
       loading: false,
     });
-    (useMutation as jest.Mock).mockReset()
-      .mockReturnValueOnce([mockAskChatbot])
-      .mockReturnValueOnce([mockClearHistory]);
+    let mutationCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutationCall++;
+      if (mutationCall % 2 === 1) return [mockAskChatbot, { loading: false }];
+      return [mockClearHistory, { loading: false }];
+    });
     const { getByText } = render(<ChatbotScreen {...defaultProps} />);
     expect(getByText('Ask PartyWings AI')).toBeTruthy();
   });

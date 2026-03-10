@@ -53,7 +53,7 @@ describe('useDeviceContacts', () => {
     expect(result.current.contacts).toHaveLength(2);
     expect(result.current.contacts[0].name).toBe('Alice');
     expect(result.current.contacts[0].phone).toBe('+919876543210');
-    expect(result.current.contacts[1].phone).toBe('(098)76543211');
+    expect(result.current.contacts[1].phone).toBe('09876543211');
   });
 
   it('sets permissionDenied when permission is not granted', async () => {
@@ -107,7 +107,7 @@ describe('useDeviceContacts', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.contacts[0].phone).toBe('(+91)9876543210');
+    expect(result.current.contacts[0].phone).toBe('+919876543210');
   });
 
   it('handles contacts API error gracefully', async () => {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { useQuery } from '@apollo/client';
-import DrawerMenu from '../DrawerMenu/DrawerMenu';
+import DrawerMenu from '../DrawerMenu';
 
-jest.mock('../../contexts/ThemeContext', () => ({
+jest.mock('../../../contexts/ThemeContext', () => ({
   useThemeMode: () => ({
     isDark: false,
     toggleTheme: jest.fn(),

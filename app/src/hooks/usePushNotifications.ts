@@ -36,7 +36,6 @@ function getDeviceId(): string {
 async function getExpoPushToken(): Promise<string | null> {
   // Skip push notifications in Expo Go (SDK 53+ removed remote notifications support)
   if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) {
-    console.log('Push notifications are not supported in Expo Go. Use a development build.');
     return null;
   }
 

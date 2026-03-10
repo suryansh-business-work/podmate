@@ -63,7 +63,8 @@ describe('PaymentsScreen', () => {
       refetch: mockRefetch,
     });
     const { UNSAFE_getByType } = render(<PaymentsScreen {...defaultProps} />);
-    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
 
   it('shows error state', () => {

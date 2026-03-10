@@ -31,17 +31,33 @@ describe('ProfileScreen', () => {
     onNavigate: jest.fn(),
   };
 
+  /** ProfileScreen calls useQuery 2 times (GET_ME, GET_MY_PODS) per render.
+   *  Cycle: even → GET_ME result, odd → GET_MY_PODS result. */
+  function setupQueryMock(
+    meResult: Record<string, unknown>,
+    podsResult: Record<string, unknown>,
+  ) {
+    let qCall = 0;
+    (useQuery as jest.Mock).mockReset().mockImplementation(() => {
+      const idx = qCall++;
+      return idx % 2 === 0 ? meResult : podsResult;
+    });
+  }
+
   beforeEach(() => {
     jest.clearAllMocks();
-    (useQuery as jest.Mock).mockReturnValue({
-      data: {
-        me: mockUser,
-        myPods: [{ id: '1' }, { id: '2' }],
+    setupQueryMock(
+      {
+        data: { me: mockUser },
+        loading: false,
+        error: null,
+        refetch: mockRefetchMe,
       },
-      loading: false,
-      error: null,
-      refetch: mockRefetchMe,
-    });
+      {
+        data: { myPods: [{ id: '1' }, { id: '2' }] },
+        refetch: mockRefetchPods,
+      },
+    );
   });
 
   it('renders user name', () => {
@@ -55,33 +71,22 @@ describe('ProfileScreen', () => {
   });
 
   it('shows skeleton when loading', () => {
-    (useQuery as jest.Mock).mockReset()
-      .mockReturnValueOnce({
-        data: null,
-        loading: true,
-        error: null,
-        refetch: mockRefetchMe,
-      })
-      .mockReturnValueOnce({
-        data: null,
-        refetch: mockRefetchPods,
-      });
+    setupQueryMock(
+      { data: null, loading: true, error: null, refetch: mockRefetchMe },
+      { data: null, refetch: mockRefetchPods },
+    );
     const { getByTestId } = render(<ProfileScreen {...defaultProps} />);
     expect(getByTestId('skeleton-profile')).toBeTruthy();
   });
 
   it('shows error state', () => {
-    (useQuery as jest.Mock).mockReset()
-      .mockReturnValueOnce({
-        data: null,
-        loading: false,
-        error: new Error('Network error'),
-        refetch: mockRefetchMe,
-      })
-      .mockReturnValueOnce({
-        data: null,
-        refetch: mockRefetchPods,
-      });
+    setupQueryMock(
+      {
+        data: null, loading: false,
+        error: new Error('Network error'), refetch: mockRefetchMe,
+      },
+      { data: null, refetch: mockRefetchPods },
+    );
     const { getByText } = render(<ProfileScreen {...defaultProps} />);
     expect(getByText(/Failed to load profile/i)).toBeTruthy();
   });

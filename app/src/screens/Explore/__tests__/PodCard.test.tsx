@@ -48,9 +48,11 @@ describe('PodCard', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([saveFn, {}])
-      .mockReturnValueOnce([unsaveFn, {}]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockImplementation(() => {
+      mutCall++;
+      return (mutCall - 1) % 2 === 0 ? [saveFn, {}] : [unsaveFn, {}];
+    });
   });
 
   const baseProps = {

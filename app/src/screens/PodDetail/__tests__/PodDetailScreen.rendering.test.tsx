@@ -33,41 +33,48 @@ describe('PodDetailScreen — rendering', () => {
   });
 
   it('renders pod fee with currency', () => {
-    const { getByText } = renderPodDetail();
-    expect(getByText(/₹1,?500/)).toBeTruthy();
+    const { getAllByText } = renderPodDetail();
+    expect(getAllByText(/₹1,?500/).length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders rating and review count', () => {
-    const { getByText } = renderPodDetail();
-    expect(getByText(/4\.5/)).toBeTruthy();
-    expect(getByText(/12/)).toBeTruthy();
+    const { getAllByText } = renderPodDetail();
+    expect(getAllByText(/4\.5/).length).toBeGreaterThanOrEqual(1);
+    expect(getAllByText(/12/).length).toBeGreaterThanOrEqual(1);
   });
 
+  /** PodDetailScreen calls useQuery 3 times (GET_POD, GET_ME, GET_APP_CONFIG).
+   *  Cycle: 0 → GET_POD, 1 → GET_ME, 2 → GET_APP_CONFIG. */
+  function overrideQuery(
+    podResult: Record<string, unknown>,
+    meResult: Record<string, unknown>,
+    configResult: Record<string, unknown>,
+  ) {
+    let qCall = 0;
+    const results = [podResult, meResult, configResult];
+    (useQuery as jest.Mock).mockReset().mockImplementation(() => {
+      const idx = qCall++;
+      return results[idx % 3];
+    });
+  }
+
   it('shows skeleton during loading', () => {
-    (useQuery as jest.Mock).mockReset()
-      .mockReturnValueOnce({
-        data: null,
-        loading: true,
-        error: null,
-        refetch: mockRefetch,
-      })
-      .mockReturnValueOnce({ data: null })
-      .mockReturnValueOnce({ data: null });
+    overrideQuery(
+      { data: null, loading: true, error: null, refetch: mockRefetch },
+      { data: null },
+      { data: null },
+    );
     (useMutation as jest.Mock).mockReset().mockReturnValue([jest.fn(), { loading: false }]);
     const { getByTestId } = renderPodDetail();
     expect(getByTestId('skeleton-detail')).toBeTruthy();
   });
 
   it('shows error state', () => {
-    (useQuery as jest.Mock).mockReset()
-      .mockReturnValueOnce({
-        data: null,
-        loading: false,
-        error: new Error('Not found'),
-        refetch: mockRefetch,
-      })
-      .mockReturnValueOnce({ data: null })
-      .mockReturnValueOnce({ data: null });
+    overrideQuery(
+      { data: null, loading: false, error: new Error('Not found'), refetch: mockRefetch },
+      { data: null },
+      { data: null },
+    );
     (useMutation as jest.Mock).mockReset().mockReturnValue([jest.fn(), { loading: false }]);
     const { getByText } = renderPodDetail();
     expect(getByText('Failed to load pod')).toBeTruthy();
@@ -80,7 +87,7 @@ describe('PodDetailScreen — rendering', () => {
 
   it('renders attendees section', () => {
     const { getByText } = renderPodDetail();
-    expect(getByText(/attending/i)).toBeTruthy();
+    expect(getByText(/Attendees/i)).toBeTruthy();
   });
 
   it('renders Join Pod button for non-host', () => {

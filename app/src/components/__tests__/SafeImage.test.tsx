@@ -10,7 +10,8 @@ describe('SafeImage', () => {
     const { UNSAFE_getByType } = render(
       <SafeImage uri="https://example.com/photo.jpg" style={{ width: 100, height: 100 }} />,
     );
-    const img = UNSAFE_getByType(Image);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    const img = UNSAFE_getByType(Image as any);
     expect(img.props.source).toEqual({ uri: 'https://example.com/photo.jpg' });
   });
 
@@ -60,13 +61,15 @@ describe('SafeImage', () => {
     const { UNSAFE_getByType } = render(
       <SafeImage uri="https://example.com/a.jpg" resizeMode="contain" style={{ width: 50, height: 50 }} />,
     );
-    expect(UNSAFE_getByType(Image).props.resizeMode).toBe('contain');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    expect(UNSAFE_getByType(Image as any).props.resizeMode).toBe('contain');
   });
 
   it('defaults resizeMode to cover', () => {
     const { UNSAFE_getByType } = render(
       <SafeImage uri="https://example.com/a.jpg" style={{ width: 50, height: 50 }} />,
     );
-    expect(UNSAFE_getByType(Image).props.resizeMode).toBe('cover');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    expect(UNSAFE_getByType(Image as any).props.resizeMode).toBe('cover');
   });
 });

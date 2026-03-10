@@ -45,9 +45,13 @@ describe('NotificationsScreen', () => {
       error: null,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock)
-      .mockReturnValueOnce([mockMarkRead])
-      .mockReturnValueOnce([mockMarkAllRead]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockImplementation(() => {
+      mutCall++;
+      return (mutCall - 1) % 2 === 0
+        ? [mockMarkRead]
+        : [mockMarkAllRead];
+    });
   });
 
   it('renders header title', () => {
@@ -72,13 +76,16 @@ describe('NotificationsScreen', () => {
       error: null,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReset()
-      .mockReturnValueOnce([mockMarkRead])
-      .mockReturnValueOnce([mockMarkAllRead]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall++;
+      return (mutCall - 1) % 2 === 0 ? [mockMarkRead] : [mockMarkAllRead];
+    });
     const { UNSAFE_getByType } = render(
       <NotificationsScreen {...defaultProps} />,
     );
-    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    expect(UNSAFE_getByType(ActivityIndicator as any)).toBeTruthy();
   });
 
   it('shows error state', () => {
@@ -88,9 +95,11 @@ describe('NotificationsScreen', () => {
       error: new Error('Fail'),
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReset()
-      .mockReturnValueOnce([mockMarkRead])
-      .mockReturnValueOnce([mockMarkAllRead]);
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall++;
+      return (mutCall - 1) % 2 === 0 ? [mockMarkRead] : [mockMarkAllRead];
+    });
     const { getByText } = render(
       <NotificationsScreen {...defaultProps} />,
     );
@@ -104,9 +113,11 @@ describe('NotificationsScreen', () => {
       error: null,
       refetch: mockRefetch,
     });
-    (useMutation as jest.Mock).mockReset()
-      .mockReturnValueOnce([mockMarkRead])
-      .mockReturnValueOnce([mockMarkAllRead]);
+    let mutCall2 = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall2++;
+      return (mutCall2 - 1) % 2 === 0 ? [mockMarkRead] : [mockMarkAllRead];
+    });
     const { getByText } = render(
       <NotificationsScreen {...defaultProps} />,
     );

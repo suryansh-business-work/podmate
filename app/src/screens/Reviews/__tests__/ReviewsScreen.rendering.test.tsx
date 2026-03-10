@@ -16,7 +16,7 @@ describe('ReviewsScreen — rendering', () => {
 
   it('renders header with target title', () => {
     const { getByText } = renderReviewsScreen();
-    expect(getByText('Test Pod')).toBeTruthy();
+    expect(getByText(/Test Pod/)).toBeTruthy();
   });
 
   it('calls onBack when back pressed', () => {
@@ -37,20 +37,19 @@ describe('ReviewsScreen — rendering', () => {
   });
 
   it('shows empty state when no reviews', () => {
-    (useQuery as jest.Mock).mockReset()
-      .mockReturnValueOnce({
-        data: { reviews: { items: [], total: 0 } },
-        loading: false,
-        refetch: mockRefetch,
-      })
-      .mockReturnValueOnce({
-        data: { reviewStats: { average: 0, total: 0, distribution: {} } },
-        refetch: mockRefetchStats,
-      });
-    (useMutation as jest.Mock).mockReset()
-      .mockReturnValueOnce([jest.fn(), { loading: false }])
-      .mockReturnValueOnce([jest.fn(), { loading: false }])
-      .mockReturnValueOnce([jest.fn()]);
+    (useQuery as jest.Mock).mockReset().mockReturnValue({
+      data: {
+        reviews: { items: [], total: 0 },
+        reviewStats: { averageRating: 0, totalReviews: 0, distribution: [0, 0, 0, 0, 0] },
+      },
+      loading: false,
+      refetch: mockRefetch,
+    });
+    let mutCall = 0;
+    (useMutation as jest.Mock).mockReset().mockImplementation(() => {
+      mutCall++;
+      return [jest.fn(), { loading: false }];
+    });
     const { getByText } = renderReviewsScreen();
     expect(getByText('No reviews yet')).toBeTruthy();
   });

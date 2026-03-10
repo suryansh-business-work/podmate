@@ -3,8 +3,15 @@ import type {
   PlatformFeeConfig,
   PlatformFeeOverride,
   PaginatedPlatformFeeOverrides,
+  EntityFeeOverride,
+  PaginatedEntityFeeOverrides,
+  EntityOverrideType,
 } from './platformFee.models';
-import { PlatformFeeConfigModel, PlatformFeeOverrideModel } from './platformFee.models';
+import {
+  PlatformFeeConfigModel,
+  PlatformFeeOverrideModel,
+  EntityFeeOverrideModel,
+} from './platformFee.models';
 import logger from '../../lib/logger';
 
 const DEFAULT_FEE_PERCENT = 5;
@@ -128,4 +135,131 @@ export async function upsertOverride(input: {
 export async function deleteOverride(id: string): Promise<boolean> {
   const result = await PlatformFeeOverrideModel.deleteOne({ _id: id });
   return result.deletedCount > 0;
+}
+
+/* ── Entity-level fee overrides ── */
+
+function toEntityOverride(doc: Record<string, unknown>): EntityFeeOverride {
+  return {
+    id: (doc.id as string) ?? (doc._id as string),
+    entityType: doc.entityType as EntityOverrideType,
+    entityId: doc.entityId as string,
+    feePercent: doc.feePercent as number,
+    enabled: doc.enabled as boolean,
+    createdAt: doc.createdAt as string,
+    updatedAt: doc.updatedAt as string,
+  };
+}
+
+export async function getEntityFeeOverrides(
+  entityType: EntityOverrideType | undefined,
+  page: number,
+  limit: number,
+): Promise<PaginatedEntityFeeOverrides> {
+  const filter: Record<string, unknown> = {};
+  if (entityType) filter.entityType = entityType;
+
+  const total = await EntityFeeOverrideModel.countDocuments(filter);
+  const totalPages = Math.ceil(total / limit);
+  const skip = (page - 1) * limit;
+
+  const docs = await EntityFeeOverrideModel.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean({ virtuals: true });
+
+  return {
+    items: docs.map((d) => toEntityOverride(d as unknown as Record<string, unknown>)),
+    total,
+    page,
+    limit,
+    totalPages,
+  };
+}
+
+export async function getEntityFeeOverride(
+  entityType: EntityOverrideType,
+  entityId: string,
+): Promise<EntityFeeOverride | null> {
+  const doc = await EntityFeeOverrideModel.findOne({ entityType, entityId }).lean({
+    virtuals: true,
+  });
+  if (!doc) return null;
+  return toEntityOverride(doc as unknown as Record<string, unknown>);
+}
+
+export async function upsertEntityFeeOverride(input: {
+  entityType: EntityOverrideType;
+  entityId: string;
+  feePercent: number;
+  enabled: boolean;
+}): Promise<EntityFeeOverride> {
+  if (input.feePercent < 2 || input.feePercent > 15) {
+    throw new Error('Platform fee must be between 2% and 15%');
+  }
+  const now = new Date().toISOString();
+
+  const doc = await EntityFeeOverrideModel.findOneAndUpdate(
+    { entityType: input.entityType, entityId: input.entityId },
+    {
+      $set: {
+        feePercent: input.feePercent,
+        enabled: input.enabled,
+        updatedAt: now,
+      },
+      $setOnInsert: {
+        _id: uuidv4(),
+        entityType: input.entityType,
+        entityId: input.entityId,
+        createdAt: now,
+      },
+    },
+    { upsert: true, returnDocument: 'after', lean: true },
+  );
+
+  if (!doc) throw new Error('Failed to upsert entity fee override');
+  logger.info(
+    `Entity fee override ${input.enabled ? 'enabled' : 'disabled'} for ${input.entityType}:${input.entityId} at ${input.feePercent}%`,
+  );
+  return toEntityOverride(doc as unknown as Record<string, unknown>);
+}
+
+export async function deleteEntityFeeOverride(
+  entityType: EntityOverrideType,
+  entityId: string,
+): Promise<boolean> {
+  const result = await EntityFeeOverrideModel.deleteOne({ entityType, entityId });
+  return result.deletedCount > 0;
+}
+
+export interface EffectiveFee {
+  feePercent: number;
+  source: string;
+}
+
+export async function getEffectiveFee(
+  entityType: EntityOverrideType,
+  entityId: string,
+): Promise<EffectiveFee> {
+  /* Check entity-level override first */
+  const entityOverride = await EntityFeeOverrideModel.findOne({
+    entityType,
+    entityId,
+    enabled: true,
+  }).lean();
+
+  if (entityOverride) {
+    return {
+      feePercent: entityOverride.feePercent,
+      source: `${entityType}_OVERRIDE`,
+    };
+  }
+
+  /* Fall back to global config */
+  const globalConfig = await getGlobalConfig();
+  return {
+    feePercent: globalConfig.globalFeePercent,
+    source: 'GLOBAL',
+  };
 }

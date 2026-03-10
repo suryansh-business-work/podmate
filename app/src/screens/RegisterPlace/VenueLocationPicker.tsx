@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
   Image,
   ActivityIndicator,
   StyleSheet,
@@ -296,32 +295,28 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
 
           {predictions.length > 0 && (
             <View style={pickerStyles.predictionsContainer}>
-              <FlatList
-                data={predictions}
-                keyExtractor={(item) => item.place_id}
-                keyboardShouldPersistTaps="handled"
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={pickerStyles.predictionItem}
-                    onPress={() => handleSelectPrediction(item)}
-                  >
-                    <MaterialIcons
-                      name="place"
-                      size={16}
-                      color={colors.primary}
-                      style={{ marginRight: spacing.sm }}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <Text style={pickerStyles.predictionMain} numberOfLines={1}>
-                        {item.structured_formatting.main_text}
-                      </Text>
-                      <Text style={pickerStyles.predictionSecondary} numberOfLines={1}>
-                        {item.structured_formatting.secondary_text}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              />
+              {predictions.map((item) => (
+                <TouchableOpacity
+                  key={item.place_id}
+                  style={pickerStyles.predictionItem}
+                  onPress={() => handleSelectPrediction(item)}
+                >
+                  <MaterialIcons
+                    name="place"
+                    size={16}
+                    color={colors.primary}
+                    style={{ marginRight: spacing.sm }}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Text style={pickerStyles.predictionMain} numberOfLines={1}>
+                      {item.structured_formatting.main_text}
+                    </Text>
+                    <Text style={pickerStyles.predictionSecondary} numberOfLines={1}>
+                      {item.structured_formatting.secondary_text}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
             </View>
           )}
 

@@ -60,9 +60,9 @@ export const mockReviews = [
 ];
 
 export const mockStats = {
-  average: 4.0,
-  total: 2,
-  distribution: { 1: 0, 2: 0, 3: 1, 4: 0, 5: 1 },
+  averageRating: 4.0,
+  totalReviews: 2,
+  distribution: [0, 0, 1, 0, 1],
 };
 
 export const mockRefetch = jest.fn();
@@ -89,10 +89,16 @@ export function setupMocks(): void {
     loading: false,
     refetch: mockRefetch,
   });
-  (useMutation as jest.Mock)
-    .mockReturnValueOnce([mockCreateReview, { loading: false }])
-    .mockReturnValueOnce([mockReplyToReview, { loading: false }])
-    .mockReturnValueOnce([mockReportReview]);
+  let mutCall = 0;
+  (useMutation as jest.Mock).mockImplementation(() => {
+    mutCall++;
+    switch ((mutCall - 1) % 3) {
+      case 0: return [mockCreateReview, { loading: false }];
+      case 1: return [mockReplyToReview, { loading: false }];
+      case 2: return [mockReportReview, { loading: false }];
+      default: return [jest.fn(), { loading: false }];
+    }
+  });
 }
 
 export function renderReviewsScreen(props: Partial<typeof defaultProps> = {}) {

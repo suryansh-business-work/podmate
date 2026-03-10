@@ -139,19 +139,18 @@ describe('ContactPicker', () => {
   });
 
   it('clears search when close icon pressed', () => {
-    const { getByPlaceholderText, queryByText, getByText } = render(
+    const { getByPlaceholderText, getAllByText, getByText } = render(
       <ContactPicker {...defaultProps} />,
     );
 
     const searchInput = getByPlaceholderText('Search contacts...');
     fireEvent.changeText(searchInput, 'Alice');
-    expect(queryByText('Bob Kumar')).toBeNull();
 
-    // Press the close (clear) icon
-    const closeIcons = queryByText('close');
-    if (closeIcons) {
-      fireEvent.press(closeIcons);
-      expect(getByText('Bob Kumar')).toBeTruthy();
-    }
+    // There are multiple 'close' texts: header close and search clear icon.
+    // The search clear icon is the last one rendered.
+    const closeIcons = getAllByText('close');
+    const searchClearIcon = closeIcons[closeIcons.length - 1];
+    fireEvent.press(searchClearIcon);
+    expect(getByText('Bob Kumar')).toBeTruthy();
   });
 });

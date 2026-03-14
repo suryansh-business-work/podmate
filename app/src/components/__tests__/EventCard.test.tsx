@@ -36,14 +36,14 @@ describe('EventCard - Rendering', () => {
     expect(getByText('Hiking at Sunrise')).toBeTruthy();
   });
 
-  it('renders the formatted fee', () => {
+  it('renders the formatted fee as spots', () => {
     const { getByText } = render(<EventCard {...baseProps} />);
-    expect(getByText('₹500')).toBeTruthy();
+    expect(getByText('7 spots')).toBeTruthy();
   });
 
   it('renders spots left count', () => {
-    const { getByText } = render(<EventCard {...baseProps} />);
-    expect(getByText(' · 7 spots')).toBeTruthy();
+    const { getByText } = render(<EventCard {...baseProps} maxSeats={10} currentSeats={10} />);
+    expect(getByText('Full')).toBeTruthy();
   });
 
   it('renders the host name', () => {
@@ -51,9 +51,10 @@ describe('EventCard - Rendering', () => {
     expect(getByText('John Doe')).toBeTruthy();
   });
 
-  it('renders the status badge text', () => {
+  it('renders the date block with status color', () => {
     const { getByText } = render(<EventCard {...baseProps} />);
-    expect(getByText('CONFIRMED')).toBeTruthy();
+    expect(getByText('JUL')).toBeTruthy();
+    expect(getByText('15')).toBeTruthy();
   });
 
   it('renders rating as number when > 0', () => {
@@ -61,9 +62,9 @@ describe('EventCard - Rendering', () => {
     expect(getByText('4.5')).toBeTruthy();
   });
 
-  it('renders rating as "New" when 0', () => {
-    const { getByText } = render(<EventCard {...baseProps} rating={0} />);
-    expect(getByText('New')).toBeTruthy();
+  it('hides rating when 0', () => {
+    const { queryByText } = render(<EventCard {...baseProps} rating={0} />);
+    expect(queryByText('★')).toBeNull();
   });
 
   it('does not show Joined badge when isJoined is false', () => {

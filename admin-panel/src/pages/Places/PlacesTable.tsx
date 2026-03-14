@@ -103,7 +103,7 @@ const PlacesTable: React.FC<PlacesTableProps> = ({
           ) : !places.length ? (
             <TableRow>
               <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
-                <Typography color="text.secondary">No places found</Typography>
+                <Typography color="text.secondary">No venues found</Typography>
               </TableCell>
             </TableRow>
           ) : (
@@ -113,7 +113,7 @@ const PlacesTable: React.FC<PlacesTableProps> = ({
                 hover
                 selected={selectedIds.includes(place.id)}
                 sx={{ cursor: 'pointer', '&:last-child td': { border: 0 } }}
-                onClick={() => navigate(`/places/${place.id}`)}
+                onClick={() => navigate(`/venues/${place.id}`)}
               >
                 <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
                   <Checkbox

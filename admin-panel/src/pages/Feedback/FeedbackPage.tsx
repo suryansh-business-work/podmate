@@ -35,6 +35,7 @@ import { UPDATE_FEEDBACK_STATUS, DELETE_FEEDBACK } from '../../graphql/mutations
 import { useDebounce } from '../../hooks/useDebounce';
 import type { FeedbackItem, PaginatedFeedback } from './Feedback.types';
 import { FEEDBACK_STATUS_COLORS, FEEDBACK_TYPE_COLORS } from './Feedback.types';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
 
 const FeedbackPage: React.FC = () => {
   const [page, setPage] = useState(0);
@@ -42,6 +43,7 @@ const FeedbackPage: React.FC = () => {
   const [searchInput, setSearchInput] = useState('');
   const debouncedSearch = useDebounce(searchInput, 400);
   const [statusFilter, setStatusFilter] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<FeedbackItem | null>(null);
 
   const [editItem, setEditItem] = useState<FeedbackItem | null>(null);
   const [editStatus, setEditStatus] = useState('');
@@ -88,11 +90,12 @@ const FeedbackPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this feedback?')) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteFeedback({ variables: { id } });
+      await deleteFeedback({ variables: { id: deleteTarget.id } });
       await refetch();
+      setDeleteTarget(null);
     } catch {
       /* handled */
     }
@@ -225,7 +228,7 @@ const FeedbackPage: React.FC = () => {
                       <IconButton size="small" onClick={() => handleEdit(item)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" color="error" onClick={() => handleDelete(item.id)}>
+                      <IconButton size="small" color="error" onClick={() => setDeleteTarget(item)}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -288,6 +291,15 @@ const FeedbackPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        title="Delete Feedback"
+        entityName={deleteTarget?.title ?? ''}
+        entityType="feedback"
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+      />
     </Box>
   );
 };

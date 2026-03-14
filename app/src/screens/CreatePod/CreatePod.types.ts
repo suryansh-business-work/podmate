@@ -1,6 +1,13 @@
 export type PodTypeOption = 'ONE_TIME' | 'OCCURRENCE';
 export type RecurrenceOption = 'DAILY' | 'WEEKLY' | 'MONTHLY';
 
+export interface ActiveCategory {
+  id: string;
+  name: string;
+  iconUrl: string;
+  subcategories: { id: string; name: string }[];
+}
+
 export interface PodFormValues {
   title: string;
   description: string;
@@ -22,5 +29,3 @@ export interface ApprovedPlace {
   address: string;
   city: string;
 }
-
-export const CATEGORIES = ['Social', 'Learning', 'Outdoor'];

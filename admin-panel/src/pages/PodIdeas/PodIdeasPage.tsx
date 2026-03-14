@@ -18,7 +18,6 @@ import {
   Link,
   CircularProgress,
   Alert,
-  InputAdornment,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -26,15 +25,20 @@ import {
   Button,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_POD_IDEAS } from '../../graphql/queries';
+import { GET_POD_IDEAS, GET_ACTIVE_CATEGORIES } from '../../graphql/queries';
 import { UPDATE_POD_IDEA, DELETE_POD_IDEA } from '../../graphql/mutations';
 import type { PodIdeaItem, PaginatedPodIdeas } from './PodIdeas.types';
 import { POD_IDEA_STATUS_COLORS } from './PodIdeas.types';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
+
+interface CategoryOption {
+  id: string;
+  name: string;
+}
 
 const PodIdeasPage: React.FC = () => {
   const [page, setPage] = useState(0);
@@ -44,6 +48,7 @@ const PodIdeasPage: React.FC = () => {
   const [editItem, setEditItem] = useState<PodIdeaItem | null>(null);
   const [editStatus, setEditStatus] = useState('');
   const [editNotes, setEditNotes] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<PodIdeaItem | null>(null);
 
   const { data, loading, refetch } = useQuery<PaginatedPodIdeas>(GET_POD_IDEAS, {
     variables: {
@@ -54,8 +59,11 @@ const PodIdeasPage: React.FC = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const { data: catData } = useQuery(GET_ACTIVE_CATEGORIES);
+  const categories: CategoryOption[] = catData?.activeCategories ?? [];
+
   const [updatePodIdea, { loading: updating }] = useMutation(UPDATE_POD_IDEA);
-  const [deletePodIdea] = useMutation(DELETE_POD_IDEA);
+  const [deletePodIdea, { loading: deleting }] = useMutation(DELETE_POD_IDEA);
 
   const items = data?.podIdeas?.items ?? [];
   const total = data?.podIdeas?.total ?? 0;
@@ -85,11 +93,12 @@ const PodIdeasPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this pod idea?')) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     try {
-      await deletePodIdea({ variables: { id } });
+      await deletePodIdea({ variables: { id: deleteTarget.id } });
       await refetch();
+      setDeleteTarget(null);
     } catch {
       /* handled */
     }
@@ -111,30 +120,36 @@ const PodIdeasPage: React.FC = () => {
         </Typography>
       </Breadcrumbs>
 
-      <Typography variant="h5" fontWeight={700} mb={3}>
-        Pod Ideas
-      </Typography>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" fontWeight={700}>
+          Pod Ideas
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Suggestions from non-host users about pods they would like to see. Review and approve to
+          guide hosts.
+        </Typography>
+      </Box>
 
       <Box display="flex" gap={2} mb={3} flexWrap="wrap">
         <TextField
           size="small"
-          placeholder="Filter by category..."
+          select
+          label="Category"
           value={categoryFilter}
           onChange={(e) => {
             setCategoryFilter(e.target.value);
             setPage(0);
           }}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            },
-          }}
-          sx={{ minWidth: 250 }}
-        />
+          sx={{ minWidth: 200 }}
+          helperText="Filter ideas by category"
+        >
+          <MenuItem value="">All Categories</MenuItem>
+          {categories.map((c) => (
+            <MenuItem key={c.id} value={c.name}>
+              {c.name}
+            </MenuItem>
+          ))}
+        </TextField>
       </Box>
 
       {loading && !data && (
@@ -153,9 +168,7 @@ const PodIdeasPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 600 }}>User</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Title</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Location</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Budget</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Upvotes</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Votes</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }} align="right">
@@ -191,12 +204,6 @@ const PodIdeasPage: React.FC = () => {
                       <Chip label={item.category} size="small" variant="outlined" />
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2">{item.location || '—'}</Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">{item.estimatedBudget || '—'}</Typography>
-                    </TableCell>
-                    <TableCell>
                       <Box display="flex" alignItems="center" gap={0.5}>
                         <ThumbUpIcon fontSize="small" color="primary" />
                         <Typography variant="body2" fontWeight={600}>
@@ -220,7 +227,11 @@ const PodIdeasPage: React.FC = () => {
                       <IconButton size="small" onClick={() => handleEdit(item)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" color="error" onClick={() => handleDelete(item.id)}>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => setDeleteTarget(item)}
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -260,6 +271,7 @@ const PodIdeasPage: React.FC = () => {
               onChange={(e) => setEditStatus(e.target.value)}
               fullWidth
               size="small"
+              helperText="Set the review status for this idea"
             >
               <MenuItem value="PENDING">Pending</MenuItem>
               <MenuItem value="APPROVED">Approved</MenuItem>
@@ -273,6 +285,7 @@ const PodIdeasPage: React.FC = () => {
               rows={3}
               fullWidth
               size="small"
+              helperText="Internal notes visible only to admins"
             />
           </DialogContent>
         )}
@@ -283,6 +296,17 @@ const PodIdeasPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        title="Delete Pod Idea"
+        entityName={deleteTarget?.title ?? ''}
+        entityType="pod idea"
+        loading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+      />
     </Box>
   );
 };

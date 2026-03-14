@@ -90,6 +90,7 @@ export function toSupportTicket(
   return {
     ...doc,
     id: doc.id ?? doc._id,
+    adminReply: doc.adminReply ?? '',
     replies: doc.replies ?? [],
   } as SupportTicket;
 }

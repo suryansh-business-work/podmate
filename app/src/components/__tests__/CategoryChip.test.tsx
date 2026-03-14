@@ -54,4 +54,19 @@ describe('CategoryChip', () => {
     rerender(<CategoryChip {...defaultProps} label="Learning" />);
     expect(getByText('Learning')).toBeTruthy();
   });
+
+  it('renders icon image when iconUrl is provided', () => {
+    const { UNSAFE_getByType } = render(
+      <CategoryChip {...defaultProps} iconUrl="https://example.com/icon.png" />,
+    );
+    const { Image } = require('react-native');
+    const image = UNSAFE_getByType(Image);
+    expect(image.props.source).toEqual({ uri: 'https://example.com/icon.png' });
+  });
+
+  it('does not render icon image when iconUrl is omitted', () => {
+    const { UNSAFE_queryByType } = render(<CategoryChip {...defaultProps} />);
+    const { Image } = require('react-native');
+    expect(UNSAFE_queryByType(Image)).toBeNull();
+  });
 });

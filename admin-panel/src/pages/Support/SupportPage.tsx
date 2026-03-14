@@ -34,6 +34,7 @@ import ViewTicketDialog from './ViewTicketDialog';
 import EditTicketDialog from './EditTicketDialog';
 import CreateTicketDialog from './CreateTicketDialog';
 import CallbackRequestsTab from './CallbackRequestsTab';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
 
 interface TabPanelProps {
   children: React.ReactNode;
@@ -63,6 +64,7 @@ const SupportPage: React.FC = () => {
   const [newStatus, setNewStatus] = useState('');
   const [newPriority, setNewPriority] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<SupportTicket | null>(null);
 
   const { data: countsData } = useQuery<SupportTicketCounts>(GET_SUPPORT_TICKET_COUNTS, {
     fetchPolicy: 'cache-and-network',
@@ -124,11 +126,12 @@ const SupportPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this ticket?')) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteTicketMutation({ variables: { id } });
+      await deleteTicketMutation({ variables: { id: deleteTarget.id } });
       await refetch();
+      setDeleteTarget(null);
     } catch {
       /* handled */
     }
@@ -266,7 +269,7 @@ const SupportPage: React.FC = () => {
             }}
             onView={setViewTicket}
             onEdit={handleEdit}
-            onDelete={handleDelete}
+            onDelete={setDeleteTarget}
           />
         )}
 
@@ -298,6 +301,15 @@ const SupportPage: React.FC = () => {
       <TabPanel value={activeTab} index={1}>
         <CallbackRequestsTab />
       </TabPanel>
+
+      <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        title="Delete Ticket"
+        entityName={deleteTarget?.subject ?? ''}
+        entityType="support ticket"
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+      />
     </Box>
   );
 };

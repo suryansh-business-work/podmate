@@ -1,3 +1,16 @@
+export interface SubCategoryItem {
+  id: string;
+  name: string;
+}
+
+export interface CategoryItem {
+  id: string;
+  name: string;
+  iconUrl: string;
+  imageUrl: string;
+  subcategories: SubCategoryItem[];
+}
+
 export interface PodItem {
   id: string;
   title: string;
@@ -36,5 +49,3 @@ export interface HomeScreenProps {
   onNotificationPress?: () => void;
   onChatbotPress?: () => void;
 }
-
-export const CATEGORIES = ['All', 'Social', 'Learning', 'Outdoor'];

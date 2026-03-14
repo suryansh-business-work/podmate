@@ -614,3 +614,55 @@ export const DELETE_ENTITY_FEE_OVERRIDE = gql`
     deleteEntityFeeOverride(entityType: $entityType, entityId: $entityId)
   }
 `;
+
+/* ── Categories ── */
+
+export const CREATE_CATEGORY = gql`
+  mutation CreateCategory($input: CreateCategoryInput!) {
+    createCategory(input: $input) {
+      id
+      name
+    }
+  }
+`;
+
+export const UPDATE_CATEGORY = gql`
+  mutation UpdateCategory($id: ID!, $input: UpdateCategoryInput!) {
+    updateCategory(id: $id, input: $input) {
+      id
+      name
+    }
+  }
+`;
+
+export const DELETE_CATEGORY = gql`
+  mutation DeleteCategory($id: ID!) {
+    deleteCategory(id: $id)
+  }
+`;
+
+/* ── SubCategories ── */
+
+export const CREATE_SUBCATEGORY = gql`
+  mutation CreateSubCategory($input: CreateSubCategoryInput!) {
+    createSubCategory(input: $input) {
+      id
+      name
+    }
+  }
+`;
+
+export const UPDATE_SUBCATEGORY = gql`
+  mutation UpdateSubCategory($id: ID!, $input: UpdateSubCategoryInput!) {
+    updateSubCategory(id: $id, input: $input) {
+      id
+      name
+    }
+  }
+`;
+
+export const DELETE_SUBCATEGORY = gql`
+  mutation DeleteSubCategory($id: ID!) {
+    deleteSubCategory(id: $id)
+  }
+`;

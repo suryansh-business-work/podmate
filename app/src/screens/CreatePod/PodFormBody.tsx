@@ -19,10 +19,10 @@ import type { DateTimePickerEvent } from '@react-native-community/datetimepicker
 
 import { GradientButton } from '../../components/GradientButton';
 import MediaUploader, { MediaItem } from '../../components/MediaUploader';
-import { GET_APPROVED_PLACES, GET_APP_CONFIG } from '../../graphql/queries';
+import { GET_APPROVED_PLACES, GET_APP_CONFIG, GET_ACTIVE_CATEGORIES } from '../../graphql/queries';
 import { useLocation } from '../../hooks/useLocation';
 import { useEffectiveFee } from '../../hooks/useEffectiveFee';
-import { PodFormValues, ApprovedPlace, CATEGORIES } from './CreatePod.types';
+import { PodFormValues, ApprovedPlace, ActiveCategory } from './CreatePod.types';
 import type { RecurrenceOption } from './CreatePod.types';
 import PayoutCard from './PayoutCard';
 import LogisticsSection from './LogisticsSection';
@@ -128,6 +128,12 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
     fetchPolicy: 'cache-and-network',
   });
 
+  const { data: categoriesData } = useQuery<{ activeCategories: ActiveCategory[] }>(
+    GET_ACTIVE_CATEGORIES,
+    { fetchPolicy: 'cache-and-network' },
+  );
+  const dynamicCategories = categoriesData?.activeCategories ?? [];
+
   const { feePercent: effectiveFeePercent, source: feeSource } = useEffectiveFee({
     entityType: 'USER',
   });
@@ -222,19 +228,26 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
         <Text style={styles.inputLabel}>CATEGORY</Text>
         <View style={styles.categoryRow}>
-          {CATEGORIES.map((cat) => (
+          {dynamicCategories.map((cat) => (
             <TouchableOpacity
-              key={cat}
-              style={[styles.categoryChip, values.category === cat && styles.categoryChipActive]}
-              onPress={() => setFieldValue('category', cat)}
+              key={cat.id}
+              style={[styles.categoryChip, values.category === cat.name && styles.categoryChipActive]}
+              onPress={() => setFieldValue('category', cat.name)}
             >
+              {cat.iconUrl ? (
+                <Image
+                  source={{ uri: cat.iconUrl }}
+                  style={{ width: 16, height: 16, borderRadius: 8, marginRight: 6 }}
+                  resizeMode="contain"
+                />
+              ) : null}
               <Text
                 style={[
                   styles.categoryChipText,
-                  values.category === cat && styles.categoryChipTextActive,
+                  values.category === cat.name && styles.categoryChipTextActive,
                 ]}
               >
-                {cat}
+                {cat.name}
               </Text>
             </TouchableOpacity>
           ))}

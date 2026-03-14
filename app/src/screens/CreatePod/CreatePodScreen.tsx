@@ -10,7 +10,7 @@ import ContactPicker from '../../components/ContactPicker';
 import { MediaItem } from '../../components/MediaUploader';
 import { CREATE_POD } from '../../graphql/mutations';
 import { GET_PODS } from '../../graphql/queries';
-import { PodFormValues, CATEGORIES } from './CreatePod.types';
+import { PodFormValues } from './CreatePod.types';
 import PodFormBody from './PodFormBody';
 import TemplateSelector from './TemplateSelector';
 import type { PodTemplateItem } from './TemplateSelector';
@@ -33,7 +33,7 @@ const podSchema = Yup.object().shape({
     .required('Fee is required'),
   location: Yup.string().required('Location is required'),
   locationDetail: Yup.string(),
-  category: Yup.string().oneOf(CATEGORIES).required('Category is required'),
+  category: Yup.string().min(1, 'Category is required').required('Category is required'),
 });
 
 const initialValues: PodFormValues = {
@@ -46,7 +46,7 @@ const initialValues: PodFormValues = {
   locationDetail: '',
   latitude: 0,
   longitude: 0,
-  category: 'Social',
+  category: '',
   podType: 'ONE_TIME',
   recurrence: 'WEEKLY',
 };

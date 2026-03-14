@@ -761,3 +761,61 @@ export const GET_EFFECTIVE_FEE = gql`
     }
   }
 `;
+
+/* ── Categories ── */
+
+export const GET_CATEGORIES = gql`
+  query GetCategories($page: Int, $limit: Int, $search: String) {
+    categories(page: $page, limit: $limit, search: $search) {
+      items {
+        id
+        name
+        description
+        iconUrl
+        imageUrl
+        isActive
+        sortOrder
+        subcategories {
+          id
+          name
+          description
+          imageUrl
+          categoryId
+          isActive
+          sortOrder
+          createdAt
+          updatedAt
+        }
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;
+
+export const GET_ACTIVE_CATEGORIES = gql`
+  query GetActiveCategories {
+    activeCategories {
+      id
+      name
+      description
+      iconUrl
+      imageUrl
+      isActive
+      sortOrder
+      subcategories {
+        id
+        name
+        description
+        imageUrl
+        categoryId
+        isActive
+        sortOrder
+      }
+    }
+  }
+`;

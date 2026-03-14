@@ -89,3 +89,14 @@ export async function deleteSlider(id: string): Promise<boolean> {
   const result = await SliderModel.findByIdAndDelete(id);
   return !!result;
 }
+
+export async function reorderSliders(orderedIds: string[]): Promise<boolean> {
+  const ops = orderedIds.map((id, index) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: { $set: { sortOrder: index, updatedAt: new Date().toISOString() } },
+    },
+  }));
+  await SliderModel.bulkWrite(ops);
+  return true;
+}

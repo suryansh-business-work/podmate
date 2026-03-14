@@ -41,7 +41,11 @@ const chatResolvers = {
   },
 
   ChatMessage: {
-    sender: (msg: { senderId: string }) => chatService.resolveSender(msg.senderId),
+    sender: async (msg: { senderId: string }) => {
+      const user = await chatService.resolveSender(msg.senderId);
+      if (!user) throw new Error('Sender user not found');
+      return user;
+    },
   },
 };
 

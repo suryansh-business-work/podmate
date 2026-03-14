@@ -132,7 +132,7 @@ const PlacesPage: React.FC = () => {
           <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" /> Dashboard
         </Link>
         <Typography color="text.primary" fontWeight={600}>
-          Places
+          Venues
         </Typography>
       </Breadcrumbs>
 
@@ -145,12 +145,12 @@ const PlacesPage: React.FC = () => {
         gap={2}
       >
         <Typography variant="h5" fontWeight={700}>
-          Places
+          Venues
         </Typography>
         <Box display="flex" gap={2} alignItems="center">
           <TextField
             size="small"
-            placeholder="Search places..."
+            placeholder="Search venues..."
             value={searchInput}
             onChange={(e) => {
               setSearchInput(e.target.value);
@@ -173,7 +173,7 @@ const PlacesPage: React.FC = () => {
             onClick={() => setCreateOpen(true)}
             style={{ whiteSpace: 'nowrap' }}
           >
-            Create Place
+            Create Venue
           </Button>
         </Box>
       </Box>
@@ -200,7 +200,7 @@ const PlacesPage: React.FC = () => {
       <Card>
         <BulkActionToolbar
           selectedCount={selectedIds.length}
-          entityType="place"
+          entityType="venue"
           loading={bulkDeleting}
           onDelete={() => setBulkDeleteOpen(true)}
           onClearSelection={() => setSelectedIds([])}
@@ -242,9 +242,9 @@ const PlacesPage: React.FC = () => {
 
       <ConfirmDeleteDialog
         open={!!deleteTarget}
-        title="Delete Place"
+        title="Delete Venue"
         entityName={deleteTarget?.name ?? ''}
-        entityType="place"
+        entityType="venue"
         loading={deleting}
         onClose={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
@@ -252,9 +252,9 @@ const PlacesPage: React.FC = () => {
 
       <ConfirmDeleteDialog
         open={bulkDeleteOpen}
-        title={`Delete ${selectedIds.length} Places`}
-        entityName={`${selectedIds.length} places`}
-        entityType="places"
+        title={`Delete ${selectedIds.length} Venues`}
+        entityName={`${selectedIds.length} venues`}
+        entityType="venues"
         loading={bulkDeleting}
         onClose={() => setBulkDeleteOpen(false)}
         onConfirm={confirmBulkDelete}

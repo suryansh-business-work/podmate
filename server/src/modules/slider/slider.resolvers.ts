@@ -1,7 +1,9 @@
 import type { GraphQLContext } from '../auth/auth.models';
-import { CreateSliderInput, UpdateSliderInput } from './slider.models';
+import { CreateSliderInput, UpdateSliderInput, SliderModel } from './slider.models';
 import * as sliderService from './slider.services';
 import { validateCreateSlider, validateUpdateSlider } from './slider.validators';
+
+const MAX_SLIDERS = 8;
 
 const sliderResolvers = {
   Query: {
@@ -22,6 +24,10 @@ const sliderResolvers = {
       if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
       const err = validateCreateSlider(input);
       if (err) throw new Error(err);
+      const count = await SliderModel.countDocuments();
+      if (count >= MAX_SLIDERS) {
+        throw new Error(`Maximum ${MAX_SLIDERS} sliders allowed. Please delete one before adding a new slider.`);
+      }
       return sliderService.createSlider(input);
     },
     updateSlider: async (
@@ -39,6 +45,15 @@ const sliderResolvers = {
     deleteSlider: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
       return sliderService.deleteSlider(id);
+    },
+    reorderSliders: async (
+      _: unknown,
+      { orderedIds }: { orderedIds: string[] },
+      ctx: GraphQLContext,
+    ) => {
+      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!orderedIds || orderedIds.length === 0) throw new Error('orderedIds is required');
+      return sliderService.reorderSliders(orderedIds);
     },
   },
 };

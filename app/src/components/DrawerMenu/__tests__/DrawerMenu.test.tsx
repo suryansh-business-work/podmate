@@ -53,7 +53,7 @@ describe('DrawerMenu', () => {
     const { getByText } = render(<DrawerMenu {...defaultProps} />);
     expect(getByText('Home')).toBeTruthy();
     expect(getByText('Explore')).toBeTruthy();
-    expect(getByText('Chat')).toBeTruthy();
+    expect(getByText('Moments')).toBeTruthy();
     expect(getByText('Notifications')).toBeTruthy();
   });
 

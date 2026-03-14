@@ -66,6 +66,8 @@ import podTemplateTypeDefs from './modules/podTemplate/podTemplate.typeDefs';
 import podTemplateResolvers from './modules/podTemplate/podTemplate.resolvers';
 import subscriptionTypeDefs from './modules/subscription/subscription.typeDefs';
 import subscriptionResolvers from './modules/subscription/subscription.resolvers';
+import categoryTypeDefs from './modules/category/category.typeDefs';
+import categoryResolvers from './modules/category/category.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -153,6 +155,9 @@ const rootSchema = `#graphql
     momentComments(momentId: ID!, page: Int, limit: Int): PaginatedMomentComments!
     podTemplates(page: Int, limit: Int, search: String): PaginatedPodTemplates!
     activePodTemplates: [PodTemplate!]!
+    categories(page: Int, limit: Int, search: String): PaginatedCategories!
+    activeCategories: [Category!]!
+    category(id: ID!): Category
     mySubscriptions(page: Int, limit: Int): PaginatedSubscriptions!
     subscriptionForPod(podId: ID!): PodSubscription
     subscriptions(page: Int, limit: Int, search: String, status: String, userId: ID, podId: ID, sortBy: String, order: String): PaginatedSubscriptions!
@@ -255,6 +260,7 @@ const rootSchema = `#graphql
     createSlider(input: CreateSliderInput!): Slider!
     updateSlider(id: ID!, input: UpdateSliderInput!): Slider!
     deleteSlider(id: ID!): Boolean!
+    reorderSliders(orderedIds: [ID!]!): Boolean!
     createCity(input: CreateCityInput!): City!
     updateCity(id: ID!, input: UpdateCityInput!): City!
     deleteCity(id: ID!): Boolean!
@@ -268,6 +274,12 @@ const rootSchema = `#graphql
     createPodTemplate(input: CreatePodTemplateInput!): PodTemplate!
     updatePodTemplate(id: ID!, input: UpdatePodTemplateInput!): PodTemplate!
     deletePodTemplate(id: ID!): Boolean!
+    createCategory(input: CreateCategoryInput!): Category!
+    updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+    deleteCategory(id: ID!): Boolean!
+    createSubCategory(input: CreateSubCategoryInput!): SubCategory!
+    updateSubCategory(id: ID!, input: UpdateSubCategoryInput!): SubCategory!
+    deleteSubCategory(id: ID!): Boolean!
     checkoutOccurrencePod(podId: ID!): CheckoutOccurrencePodResult!
     cancelSubscription(subscriptionId: ID!): PodSubscription!
     renewSubscription(subscriptionId: ID!): PodSubscription!
@@ -333,6 +345,7 @@ const typeDefs = [
   momentTypeDefs,
   podTemplateTypeDefs,
   subscriptionTypeDefs,
+  categoryTypeDefs,
 ];
 
 const resolvers = {
@@ -361,6 +374,7 @@ const resolvers = {
     ...momentResolvers.Query,
     ...podTemplateResolvers.Query,
     ...subscriptionResolvers.Query,
+    ...categoryResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -389,6 +403,7 @@ const resolvers = {
     ...momentResolvers.Mutation,
     ...podTemplateResolvers.Mutation,
     ...subscriptionResolvers.Mutation,
+    ...categoryResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   Review: reviewResolvers.Review,
@@ -406,6 +421,7 @@ const resolvers = {
   Moment: momentResolvers.Moment,
   MomentComment: momentResolvers.MomentComment,
   PodSubscription: subscriptionResolvers.PodSubscription,
+  Category: categoryResolvers.Category,
 };
 
 /* ── WebSocket connection registry ── */

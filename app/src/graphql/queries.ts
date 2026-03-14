@@ -39,3 +39,5 @@ export { GET_MOMENTS, GET_USER_MOMENTS } from './queries/moment.queries';
 export { GET_ACTIVE_POD_TEMPLATES } from './queries/podTemplate.queries';
 
 export { GET_MY_SUBSCRIPTIONS, GET_SUBSCRIPTION_FOR_POD } from './queries/subscription.queries';
+
+export { GET_ACTIVE_CATEGORIES } from './queries/category.queries';

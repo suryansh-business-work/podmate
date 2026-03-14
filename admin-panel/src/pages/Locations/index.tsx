@@ -1,38 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
-  Chip,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Switch,
-  FormControlLabel,
   CircularProgress,
   Alert,
   Breadcrumbs,
   Link,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  ToggleButtonGroup,
+  ToggleButton,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useQuery, useMutation, gql } from '@apollo/client';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
+import type { CityItem } from './Locations.types';
+import CityAccordion from './components/CityAccordion';
+import CityFormDialog from './components/CityFormDialog';
 
 const GET_CITIES = gql`
   query GetCities($page: Int, $limit: Int, $search: String) {
@@ -43,7 +28,6 @@ const GET_CITIES = gql`
         state
         country
         imageUrl
-        clubCount
         isTopCity
         isActive
         sortOrder
@@ -64,170 +48,95 @@ const GET_CITIES = gql`
 
 const CREATE_CITY = gql`
   mutation CreateCity($input: CreateCityInput!) {
-    createCity(input: $input) {
-      id
-      name
-    }
+    createCity(input: $input) { id name }
   }
 `;
-
 const UPDATE_CITY = gql`
   mutation UpdateCity($id: ID!, $input: UpdateCityInput!) {
-    updateCity(id: $id, input: $input) {
-      id
-      name
-    }
+    updateCity(id: $id, input: $input) { id name }
   }
 `;
-
 const DELETE_CITY = gql`
-  mutation DeleteCity($id: ID!) {
-    deleteCity(id: $id)
-  }
+  mutation DeleteCity($id: ID!) { deleteCity(id: $id) }
 `;
-
 const ADD_AREA = gql`
   mutation AddArea($input: CreateAreaInput!) {
-    addArea(input: $input) {
-      id
-      name
-      cityId
-    }
+    addArea(input: $input) { id name cityId }
   }
 `;
-
 const REMOVE_AREA = gql`
-  mutation RemoveArea($cityId: ID!, $areaId: ID!) {
-    removeArea(cityId: $cityId, areaId: $areaId)
-  }
+  mutation RemoveArea($cityId: ID!, $areaId: ID!) { removeArea(cityId: $cityId, areaId: $areaId) }
 `;
-
-interface CityFormData {
-  name: string;
-  state: string;
-  country: string;
-  imageUrl: string;
-  clubCount: number;
-  isTopCity: boolean;
-  isActive: boolean;
-  sortOrder: number;
-}
-
-interface AreaItem {
-  id: string;
-  name: string;
-  cityId: string;
-}
-
-interface CityItem {
-  id: string;
-  name: string;
-  state: string;
-  country: string;
-  imageUrl: string;
-  clubCount: number;
-  isTopCity: boolean;
-  isActive: boolean;
-  sortOrder: number;
-  areas: AreaItem[];
-}
-
-const defaultCityForm: CityFormData = {
-  name: '',
-  state: 'India',
-  country: 'India',
-  imageUrl: '',
-  clubCount: 0,
-  isTopCity: false,
-  isActive: true,
-  sortOrder: 0,
-};
 
 const LocationsPage: React.FC = () => {
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [selectedState, setSelectedState] = useState<string | null>(null);
   const [cityDialogOpen, setCityDialogOpen] = useState(false);
-  const [editingCityId, setEditingCityId] = useState<string | null>(null);
-  const [cityForm, setCityForm] = useState<CityFormData>(defaultCityForm);
-  const [areaName, setAreaName] = useState('');
-  const [addingAreaForCity, setAddingAreaForCity] = useState<string | null>(null);
+  const [editingCity, setEditingCity] = useState<CityItem | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CityItem | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_CITIES, {
-    variables: { page: 1, limit: 100 },
+    variables: { page: 1, limit: 200 },
   });
 
   const [createCity, { loading: creating }] = useMutation(CREATE_CITY, {
-    onCompleted: () => {
-      setCityDialogOpen(false);
-      setCityForm(defaultCityForm);
-      refetch();
-    },
+    onCompleted: () => { setCityDialogOpen(false); refetch(); },
   });
-
   const [updateCity, { loading: updating }] = useMutation(UPDATE_CITY, {
-    onCompleted: () => {
-      setCityDialogOpen(false);
-      setCityForm(defaultCityForm);
-      setEditingCityId(null);
-      refetch();
-    },
+    onCompleted: () => { setCityDialogOpen(false); setEditingCity(null); refetch(); },
   });
-
-  const [deleteCity] = useMutation(DELETE_CITY, { onCompleted: () => refetch() });
-  const [addArea, { loading: addingArea }] = useMutation(ADD_AREA, {
-    onCompleted: () => {
-      setAreaName('');
-      setAddingAreaForCity(null);
-      refetch();
-    },
+  const [deleteCity, { loading: deleting }] = useMutation(DELETE_CITY, {
+    onCompleted: () => { setDeleteTarget(null); refetch(); },
   });
+  const [addArea, { loading: addingArea }] = useMutation(ADD_AREA, { onCompleted: () => refetch() });
   const [removeArea] = useMutation(REMOVE_AREA, { onCompleted: () => refetch() });
 
-  const cities: CityItem[] = data?.cities?.items ?? [];
+  const allCities: CityItem[] = useMemo(() => data?.cities?.items ?? [], [data]);
+
+  const countries = useMemo(
+    () => [...new Set(allCities.map((c) => c.country).filter(Boolean))].sort(),
+    [allCities],
+  );
+
+  const statesForCountry = useMemo(() => {
+    if (!selectedCountry) return [];
+    return [
+      ...new Set(
+        allCities.filter((c) => c.country === selectedCountry).map((c) => c.state).filter(Boolean),
+      ),
+    ].sort();
+  }, [allCities, selectedCountry]);
+
+  const filteredCities = useMemo(() => {
+    let result = allCities;
+    if (selectedCountry) result = result.filter((c) => c.country === selectedCountry);
+    if (selectedState) result = result.filter((c) => c.state === selectedState);
+    return result;
+  }, [allCities, selectedCountry, selectedState]);
 
   const handleOpenCreate = () => {
-    setEditingCityId(null);
-    setCityForm(defaultCityForm);
+    setEditingCity(null);
     setCityDialogOpen(true);
   };
 
-  const handleOpenEdit = (city: CityItem) => {
-    setEditingCityId(city.id);
-    setCityForm({
-      name: city.name,
-      state: city.state,
-      country: city.country,
-      imageUrl: city.imageUrl,
-      clubCount: city.clubCount,
-      isTopCity: city.isTopCity,
-      isActive: city.isActive,
-      sortOrder: city.sortOrder,
-    });
-    setCityDialogOpen(true);
-  };
-
-  const handleSaveCity = () => {
-    if (editingCityId) {
-      updateCity({ variables: { id: editingCityId, input: cityForm } });
+  const handleSaveCity = (form: { name: string; state: string; country: string; isTopCity: boolean; isActive: boolean }, imageUrl: string) => {
+    const input = { ...form, imageUrl };
+    if (editingCity) {
+      updateCity({ variables: { id: editingCity.id, input } });
     } else {
-      createCity({ variables: { input: cityForm } });
+      createCity({ variables: { input } });
     }
   };
 
-  const handleDeleteCity = (id: string) => {
-    if (window.confirm('Delete this city and all its areas?')) {
-      deleteCity({ variables: { id } });
-    }
-  };
-
-  const handleAddArea = (cityId: string) => {
-    if (areaName.trim()) {
-      addArea({ variables: { input: { name: areaName.trim(), cityId } } });
-    }
-  };
-
-  const handleRemoveArea = (cityId: string, areaId: string) => {
-    if (window.confirm('Remove this area?')) {
-      removeArea({ variables: { cityId, areaId } });
-    }
+  const handleMoveCity = (cityId: string, direction: 'up' | 'down') => {
+    const idx = filteredCities.findIndex((c) => c.id === cityId);
+    if (idx < 0) return;
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= filteredCities.length) return;
+    const currentOrder = filteredCities[idx].sortOrder;
+    const swapOrder = filteredCities[swapIdx].sortOrder;
+    updateCity({ variables: { id: filteredCities[idx].id, input: { sortOrder: swapOrder } } });
+    updateCity({ variables: { id: filteredCities[swapIdx].id, input: { sortOrder: currentOrder } } });
   };
 
   return (
@@ -240,175 +149,152 @@ const LocationsPage: React.FC = () => {
       </Breadcrumbs>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" fontWeight={700}>
-          Location Management
-        </Typography>
+        <Box>
+          <Typography variant="h5" fontWeight={700}>
+            Location Management
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Country → State → City → Area hierarchy
+          </Typography>
+        </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
           Add City
         </Button>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error.message}
+        </Alert>
+      )}
+
+      {/* Country filter */}
+      {countries.length > 0 && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+            Country
+          </Typography>
+          <ToggleButtonGroup
+            value={selectedCountry}
+            exclusive
+            onChange={(_, val) => {
+              setSelectedCountry(val);
+              setSelectedState(null);
+            }}
+            size="small"
+          >
+            <ToggleButton value={null as unknown as string}>All</ToggleButton>
+            {countries.map((c) => (
+              <ToggleButton key={c} value={c}>
+                {c}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Box>
+      )}
+
+      {/* State filter */}
+      {statesForCountry.length > 0 && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+            State
+          </Typography>
+          <ToggleButtonGroup
+            value={selectedState}
+            exclusive
+            onChange={(_, val) => setSelectedState(val)}
+            size="small"
+          >
+            <ToggleButton value={null as unknown as string}>All</ToggleButton>
+            {statesForCountry.map((s) => (
+              <ToggleButton key={s} value={s}>
+                {s}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Box>
+      )}
+
+      {/* Breadcrumb trail */}
+      {(selectedCountry || selectedState) && (
+        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', mb: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            Showing:
+          </Typography>
+          {selectedCountry && (
+            <Typography variant="body2" fontWeight={600}>
+              {selectedCountry}
+            </Typography>
+          )}
+          {selectedState && (
+            <>
+              <NavigateNextIcon fontSize="small" color="disabled" />
+              <Typography variant="body2" fontWeight={600}>
+                {selectedState}
+              </Typography>
+            </>
+          )}
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+            ({filteredCities.length} cities)
+          </Typography>
+        </Box>
+      )}
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
           <CircularProgress />
         </Box>
+      ) : filteredCities.length === 0 ? (
+        <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
+          <Typography color="text.secondary">
+            {allCities.length === 0
+              ? 'No cities yet. Add one to get started.'
+              : 'No cities match the selected filters.'}
+          </Typography>
+        </Paper>
       ) : (
-        cities.map((city) => (
-          <Accordion key={city.id} defaultExpanded={city.isTopCity}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1, mr: 2 }}>
-                {city.imageUrl && (
-                  <Box
-                    component="img"
-                    src={city.imageUrl}
-                    sx={{ width: 50, height: 35, borderRadius: 1, objectFit: 'cover' }}
-                  />
-                )}
-                <Box sx={{ flex: 1 }}>
-                  <Typography fontWeight={600}>{city.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {city.clubCount} clubs · {city.areas.length} areas
-                  </Typography>
-                </Box>
-                {city.isTopCity && <Chip label="Top City" size="small" color="primary" />}
-                <Chip
-                  label={city.isActive ? 'Active' : 'Inactive'}
-                  size="small"
-                  color={city.isActive ? 'success' : 'default'}
-                />
-                <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenEdit(city); }}>
-                  <EditIcon fontSize="small" />
-                </IconButton>
-                <IconButton size="small" color="error" onClick={(e) => { e.stopPropagation(); handleDeleteCity(city.id); }}>
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </Box>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>Areas</Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                {city.areas.map((area) => (
-                  <Chip
-                    key={area.id}
-                    label={area.name}
-                    onDelete={() => handleRemoveArea(city.id, area.id)}
-                    variant="outlined"
-                    size="small"
-                  />
-                ))}
-                {city.areas.length === 0 && (
-                  <Typography variant="body2" color="text.secondary">
-                    No areas added yet
-                  </Typography>
-                )}
-              </Box>
-              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <TextField
-                  size="small"
-                  placeholder="Area name (e.g. South City)"
-                  value={addingAreaForCity === city.id ? areaName : ''}
-                  onChange={(e) => {
-                    setAddingAreaForCity(city.id);
-                    setAreaName(e.target.value);
-                  }}
-                  onFocus={() => setAddingAreaForCity(city.id)}
-                />
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => handleAddArea(city.id)}
-                  disabled={addingArea || !areaName.trim() || addingAreaForCity !== city.id}
-                >
-                  Add Area
-                </Button>
-              </Box>
-            </AccordionDetails>
-          </Accordion>
+        filteredCities.map((city, idx) => (
+          <CityAccordion
+            key={city.id}
+            city={city}
+            index={idx}
+            total={filteredCities.length}
+            onEdit={(c) => {
+              setEditingCity(c);
+              setCityDialogOpen(true);
+            }}
+            onDelete={(c) => setDeleteTarget(c)}
+            onMove={handleMoveCity}
+            onAddArea={(cityId, name) => addArea({ variables: { input: { name, cityId } } })}
+            onRemoveArea={(cityId, areaId) => removeArea({ variables: { cityId, areaId } })}
+            addingArea={addingArea}
+          />
         ))
       )}
 
-      {!loading && cities.length === 0 && (
-        <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
-          <Typography color="text.secondary">No cities yet. Add one to get started.</Typography>
-        </Paper>
-      )}
+      <CityFormDialog
+        open={cityDialogOpen}
+        editingCity={editingCity}
+        allCities={allCities}
+        saving={creating || updating}
+        onClose={() => {
+          setCityDialogOpen(false);
+          setEditingCity(null);
+        }}
+        onSave={handleSaveCity}
+      />
 
-      <Dialog open={cityDialogOpen} onClose={() => setCityDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{editingCityId ? 'Edit City' : 'Add City'}</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField
-              label="City Name"
-              value={cityForm.name}
-              onChange={(e) => setCityForm({ ...cityForm, name: e.target.value })}
-              required
-              fullWidth
-            />
-            <TextField
-              label="State"
-              value={cityForm.state}
-              onChange={(e) => setCityForm({ ...cityForm, state: e.target.value })}
-              fullWidth
-            />
-            <TextField
-              label="Country"
-              value={cityForm.country}
-              onChange={(e) => setCityForm({ ...cityForm, country: e.target.value })}
-              fullWidth
-            />
-            <TextField
-              label="Image URL"
-              value={cityForm.imageUrl}
-              onChange={(e) => setCityForm({ ...cityForm, imageUrl: e.target.value })}
-              fullWidth
-            />
-            <TextField
-              label="Club Count"
-              type="number"
-              value={cityForm.clubCount}
-              onChange={(e) => setCityForm({ ...cityForm, clubCount: parseInt(e.target.value, 10) || 0 })}
-              fullWidth
-            />
-            <TextField
-              label="Sort Order"
-              type="number"
-              value={cityForm.sortOrder}
-              onChange={(e) => setCityForm({ ...cityForm, sortOrder: parseInt(e.target.value, 10) || 0 })}
-              fullWidth
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={cityForm.isTopCity}
-                  onChange={(e) => setCityForm({ ...cityForm, isTopCity: e.target.checked })}
-                />
-              }
-              label="Top City"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={cityForm.isActive}
-                  onChange={(e) => setCityForm({ ...cityForm, isActive: e.target.checked })}
-                />
-              }
-              label="Active"
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCityDialogOpen(false)}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleSaveCity}
-            disabled={creating || updating || !cityForm.name}
-          >
-            {creating || updating ? <CircularProgress size={20} /> : editingCityId ? 'Update' : 'Create'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        title="Delete City"
+        entityName={deleteTarget?.name ?? ''}
+        entityType="city"
+        loading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) deleteCity({ variables: { id: deleteTarget.id } });
+        }}
+      />
     </Box>
   );
 };

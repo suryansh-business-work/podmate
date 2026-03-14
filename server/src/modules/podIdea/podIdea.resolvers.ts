@@ -51,7 +51,9 @@ const podIdeaResolvers = {
     user: async (parent: { userId: string }) => {
       const { UserModel, toUser } = await import('../user/user.models');
       const doc = await UserModel.findById(parent.userId).lean({ virtuals: true });
-      return toUser(doc as never);
+      const user = toUser(doc as never);
+      if (!user) throw new Error('User not found');
+      return user;
     },
     hasUpvoted: (parent: { upvoterIds: string[] }, _: unknown, context: GraphQLContext) => {
       const userId = context.user?.userId;

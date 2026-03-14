@@ -28,3 +28,4 @@ export { GET_ACTIVE_CITIES, GET_TOP_CITIES } from './location.queries';
 export { GET_MOMENTS, GET_USER_MOMENTS } from './moment.queries';
 export { GET_ACTIVE_POD_TEMPLATES } from './podTemplate.queries';
 export { GET_MY_SUBSCRIPTIONS, GET_SUBSCRIPTION_FOR_POD } from './subscription.queries';
+export { GET_ACTIVE_CATEGORIES } from './category.queries';

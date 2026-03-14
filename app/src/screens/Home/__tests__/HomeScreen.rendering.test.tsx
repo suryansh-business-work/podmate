@@ -1,11 +1,10 @@
-import { useQuery } from '@apollo/client';
 import {
   setupMocks,
   renderHomeScreen,
-  defaultProps,
   mockRefetch,
   mockFetchMore,
 } from './HomeScreen.setup';
+import { GET_ME, GET_PODS } from '../../../graphql/queries';
 
 describe('HomeScreen — rendering', () => {
   beforeEach(() => {
@@ -13,71 +12,61 @@ describe('HomeScreen — rendering', () => {
     setupMocks();
   });
 
-  it('renders PartyWings brand title', () => {
+  it('renders city name from location', () => {
     const { getByText } = renderHomeScreen();
-    expect(getByText('PartyWings')).toBeTruthy();
+    expect(getByText('Delhi')).toBeTruthy();
   });
 
-  it('renders search input', () => {
-    const { getByPlaceholderText } = renderHomeScreen();
-    expect(getByPlaceholderText(/find hiking|dining|tech/i)).toBeTruthy();
+  it('renders category chips from server data', () => {
+    const { getByTestId } = renderHomeScreen();
+    expect(getByTestId('chip-All')).toBeTruthy();
+    expect(getByTestId('chip-Social')).toBeTruthy();
+    expect(getByTestId('chip-Learning')).toBeTruthy();
   });
 
-  it('renders Popular near you section', () => {
+  it('renders All Pods section', () => {
     const { getByText } = renderHomeScreen();
-    expect(getByText(/Popular near you/i)).toBeTruthy();
+    expect(getByText('All Pods')).toBeTruthy();
   });
 
   it('renders pod cards', () => {
-    const { getByText } = renderHomeScreen();
-    expect(getByText('Hiking Day')).toBeTruthy();
+    const { getAllByText } = renderHomeScreen();
+    expect(getAllByText('Hiking Day').length).toBeGreaterThanOrEqual(1);
   });
 
-  /** HomeScreen calls useQuery 2 times (GET_ME, GET_PODS).
-   *  Cycle: even → GET_ME, odd → GET_PODS. */
-  function overrideQuery(meResult: Record<string, unknown>, podsResult: Record<string, unknown>) {
-    let qCall = 0;
-    (useQuery as jest.Mock).mockReset().mockImplementation(() => {
-      const idx = qCall++;
-      return idx % 2 === 0 ? meResult : podsResult;
+  it('shows skeleton loading state when pods loading', () => {
+    setupMocks({
+      GET_ME: { data: { me: { id: 'u1', name: 'User', avatar: null } }, loading: false, error: null },
+      GET_PODS: { data: null, loading: true, error: null, refetch: mockRefetch, fetchMore: mockFetchMore },
     });
-  }
-
-  it('shows skeleton loading state', () => {
-    overrideQuery(
-      { data: null },
-      { data: null, loading: true, error: null, refetch: mockRefetch, fetchMore: mockFetchMore },
-    );
     const { getByTestId } = renderHomeScreen();
     expect(getByTestId('skeleton-feed')).toBeTruthy();
   });
 
   it('shows error state', () => {
-    overrideQuery(
-      { data: null },
-      {
+    setupMocks({
+      GET_PODS: {
         data: null,
         loading: false,
         error: new Error('Network error'),
         refetch: mockRefetch,
         fetchMore: mockFetchMore,
       },
-    );
+    });
     const { getByText } = renderHomeScreen();
     expect(getByText('Something went wrong')).toBeTruthy();
   });
 
   it('shows empty state when no pods', () => {
-    overrideQuery(
-      { data: null },
-      {
+    setupMocks({
+      GET_PODS: {
         data: { pods: { items: [], total: 0, page: 1, totalPages: 1 } },
         loading: false,
         error: null,
         refetch: mockRefetch,
         fetchMore: mockFetchMore,
       },
-    );
+    });
     const { getByText } = renderHomeScreen();
     expect(getByText('No pods found')).toBeTruthy();
   });
@@ -87,8 +76,8 @@ describe('HomeScreen — rendering', () => {
     expect(getByText('notifications-none')).toBeTruthy();
   });
 
-  it('renders chatbot icon', () => {
-    const { getByText } = renderHomeScreen();
-    expect(getByText('FontAwesomeIcon')).toBeTruthy();
+  it('renders search icon in header', () => {
+    const { getAllByText } = renderHomeScreen();
+    expect(getAllByText('search').length).toBeGreaterThanOrEqual(1);
   });
 });

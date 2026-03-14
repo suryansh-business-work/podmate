@@ -18,6 +18,7 @@ import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CategoryIcon from '@mui/icons-material/Category';
 
 export const DRAWER_WIDTH = 240;
 
@@ -47,7 +48,8 @@ export const navGroups: NavGroupConfig[] = [
     items: [
       { icon: <PeopleIcon />, label: 'Users', path: '/users' },
       { icon: <EventIcon />, label: 'Pods', path: '/pods' },
-      { icon: <PlaceIcon />, label: 'Places', path: '/places' },
+      { icon: <PlaceIcon />, label: 'Venues', path: '/venues' },
+      { icon: <CategoryIcon />, label: 'Categories', path: '/categories' },
       { icon: <ViewCarouselIcon />, label: 'Sliders', path: '/sliders' },
       { icon: <LocationCityIcon />, label: 'Locations', path: '/locations' },
       { icon: <ContentCopyIcon />, label: 'Pod Templates', path: '/pod-templates' },

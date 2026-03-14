@@ -3,6 +3,7 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { useQuery } from '@apollo/client';
 import PodFormBody from '../PodFormBody';
 import type { PodFormValues } from '../CreatePod.types';
+import { GET_APPROVED_PLACES, GET_ACTIVE_CATEGORIES, GET_APP_CONFIG } from '../../../graphql/queries';
 
 jest.mock('@react-native-community/datetimepicker', () => {
   const { View, Text } = require('react-native');
@@ -63,6 +64,27 @@ jest.mock('../../../hooks/useEffectiveFee', () => ({
   })),
 }));
 
+const mockCategories = [
+  { id: 'c1', name: 'Social', iconUrl: null, subcategories: [] },
+  { id: 'c2', name: 'Learning', iconUrl: null, subcategories: [] },
+  { id: 'c3', name: 'Outdoor', iconUrl: null, subcategories: [] },
+];
+
+function setupQueryMock(): void {
+  (useQuery as jest.Mock).mockImplementation((doc: unknown) => {
+    if (doc === GET_ACTIVE_CATEGORIES) {
+      return { data: { activeCategories: mockCategories }, loading: false };
+    }
+    if (doc === GET_APPROVED_PLACES) {
+      return { data: { approvedPlaces: [] }, loading: false };
+    }
+    if (doc === GET_APP_CONFIG) {
+      return { data: { appConfig: [] }, loading: false };
+    }
+    return { data: null, loading: false };
+  });
+}
+
 const makeFormik = (overrides: Partial<PodFormValues> = {}) => {
   const values: PodFormValues = {
     title: '',
@@ -95,7 +117,7 @@ const makeFormik = (overrides: Partial<PodFormValues> = {}) => {
 describe('PodFormBody', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useQuery as jest.Mock).mockReturnValue({ data: null, loading: false });
+    setupQueryMock();
   });
 
   const baseProps = {

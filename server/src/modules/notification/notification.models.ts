@@ -67,7 +67,12 @@ export function toNotification(
   doc: (NotificationMongoDoc & { id?: string }) | null,
 ): Notification | null {
   if (!doc) return null;
-  return { ...doc, id: doc.id ?? doc._id } as Notification;
+  return {
+    ...doc,
+    id: doc.id ?? doc._id,
+    message: doc.message ?? '',
+    data: doc.data ?? '',
+  } as Notification;
 }
 
 /* ── Admin notification log (tracks broadcast history) ── */

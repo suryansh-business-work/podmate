@@ -54,16 +54,4 @@ export const POD_STATUS_OPTIONS = [
   'CLOSED',
 ] as const;
 
-export const POD_CATEGORIES = [
-  'Music',
-  'Sports',
-  'Gaming',
-  'Food & Drink',
-  'Arts & Crafts',
-  'Outdoor',
-  'Fitness',
-  'Learning',
-  'Networking',
-  'Party',
-  'Other',
-] as const;
+

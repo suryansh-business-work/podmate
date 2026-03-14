@@ -104,9 +104,9 @@ const PlaceDetailPage: React.FC = () => {
           underline="hover"
           color="inherit"
           sx={{ cursor: 'pointer' }}
-          onClick={() => navigate('/places')}
+          onClick={() => navigate('/venues')}
         >
-          Places
+          Venues
         </Link>
         <Typography color="text.primary" fontWeight={600}>
           {place.name}
@@ -114,11 +114,11 @@ const PlaceDetailPage: React.FC = () => {
       </Breadcrumbs>
 
       <Box display="flex" alignItems="center" gap={2} mb={3}>
-        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/places')}>
+        <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/venues')}>
           Back
         </Button>
         <Typography variant="h5" fontWeight={700}>
-          Place Detail
+          Venue Detail
         </Typography>
       </Box>
 

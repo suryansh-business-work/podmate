@@ -50,6 +50,8 @@ pnpm format         # Format with Prettier
 
 For features that don't work in Expo Go (like push notifications), use a development build:
 
+> **Note (SDK 53+):** Push notifications are **not available** in Expo Go on Android starting from SDK 53. You must use a development build (`npx expo run:android`) or an EAS build to test push notifications on Android.
+
 ```bash
 # Install on device via EAS
 pnpm build:apk:dev     # Android development build

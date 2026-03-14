@@ -12,7 +12,14 @@ import SaveIcon from '@mui/icons-material/Save';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import type { PodDetailData, AdminUpdatePodInput } from './PodDetail.types';
-import { POD_STATUS_OPTIONS, POD_CATEGORIES } from './PodDetail.types';
+import { POD_STATUS_OPTIONS } from './PodDetail.types';
+import { useQuery } from '@apollo/client';
+import { GET_ACTIVE_CATEGORIES } from '../../graphql/queries';
+
+interface CategoryOption {
+  id: string;
+  name: string;
+}
 
 interface PodEditFormProps {
   pod: PodDetailData;
@@ -42,6 +49,9 @@ const validationSchema = Yup.object({
 });
 
 const PodEditForm: React.FC<PodEditFormProps> = ({ pod, saving, onSave }) => {
+  const { data: catData } = useQuery(GET_ACTIVE_CATEGORIES);
+  const categories: CategoryOption[] = catData?.activeCategories ?? [];
+
   const formik = useFormik({
     initialValues: {
       title: pod.title,
@@ -110,9 +120,9 @@ const PodEditForm: React.FC<PodEditFormProps> = ({ pod, saving, onSave }) => {
                 value={formik.values.category}
                 onChange={formik.handleChange}
               >
-                {POD_CATEGORIES.map((c) => (
-                  <MenuItem key={c} value={c}>
-                    {c}
+                {categories.map((c) => (
+                  <MenuItem key={c.id} value={c.name}>
+                    {c.name}
                   </MenuItem>
                 ))}
               </TextField>

@@ -3,12 +3,6 @@ import {
   Box,
   Typography,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   Chip,
   IconButton,
@@ -23,12 +17,27 @@ import {
   Alert,
   Breadcrumbs,
   Link,
+  MenuItem,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Avatar,
+  Divider,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useQuery, useMutation, gql } from '@apollo/client';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import type { DropResult } from '@hello-pangea/dnd';
+import AdminMediaUploader from '../../components/AdminMediaUploader';
+import type { MediaItem } from '../../components/AdminMediaUploader';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
+
+const MAX_SLIDERS = 8;
 
 const GET_SLIDERS = gql`
   query GetSliders($page: Int, $limit: Int, $search: String) {
@@ -55,19 +64,19 @@ const GET_SLIDERS = gql`
   }
 `;
 
+const GET_ACTIVE_CITIES = gql`
+  query GetActiveCities {
+    activeCities {
+      id
+      name
+    }
+  }
+`;
+
 const CREATE_SLIDER = gql`
   mutation CreateSlider($input: CreateSliderInput!) {
     createSlider(input: $input) {
       id
-      title
-      subtitle
-      imageUrl
-      ctaText
-      ctaLink
-      category
-      locationCity
-      sortOrder
-      isActive
     }
   }
 `;
@@ -76,15 +85,6 @@ const UPDATE_SLIDER = gql`
   mutation UpdateSlider($id: ID!, $input: UpdateSliderInput!) {
     updateSlider(id: $id, input: $input) {
       id
-      title
-      subtitle
-      imageUrl
-      ctaText
-      ctaLink
-      category
-      locationCity
-      sortOrder
-      isActive
     }
   }
 `;
@@ -92,6 +92,12 @@ const UPDATE_SLIDER = gql`
 const DELETE_SLIDER = gql`
   mutation DeleteSlider($id: ID!) {
     deleteSlider(id: $id)
+  }
+`;
+
+const REORDER_SLIDERS = gql`
+  mutation ReorderSliders($orderedIds: [ID!]!) {
+    reorderSliders(orderedIds: $orderedIds)
   }
 `;
 
@@ -121,6 +127,11 @@ interface SliderItem {
   createdAt: string;
 }
 
+interface CityOption {
+  id: string;
+  name: string;
+}
+
 const defaultForm: SliderFormData = {
   title: '',
   subtitle: '',
@@ -137,15 +148,21 @@ const SlidersPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<SliderFormData>(defaultForm);
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<SliderItem | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_SLIDERS, {
     variables: { page: 1, limit: 50 },
   });
 
+  const { data: citiesData } = useQuery<{ activeCities: CityOption[] }>(GET_ACTIVE_CITIES);
+  const cityOptions: CityOption[] = citiesData?.activeCities ?? [];
+
   const [createSlider, { loading: creating }] = useMutation(CREATE_SLIDER, {
     onCompleted: () => {
       setDialogOpen(false);
       setForm(defaultForm);
+      setMediaItems([]);
       refetch();
     },
   });
@@ -154,20 +171,30 @@ const SlidersPage: React.FC = () => {
     onCompleted: () => {
       setDialogOpen(false);
       setForm(defaultForm);
+      setMediaItems([]);
       setEditingId(null);
       refetch();
     },
   });
 
-  const [deleteSlider] = useMutation(DELETE_SLIDER, {
+  const [deleteSlider, { loading: deleting }] = useMutation(DELETE_SLIDER, {
+    onCompleted: () => {
+      setDeleteTarget(null);
+      refetch();
+    },
+  });
+
+  const [reorderSliders] = useMutation(REORDER_SLIDERS, {
     onCompleted: () => refetch(),
   });
 
   const sliders: SliderItem[] = data?.sliders?.items ?? [];
+  const canAdd = sliders.length < MAX_SLIDERS;
 
   const handleOpenCreate = () => {
     setEditingId(null);
     setForm(defaultForm);
+    setMediaItems([]);
     setDialogOpen(true);
   };
 
@@ -184,21 +211,33 @@ const SlidersPage: React.FC = () => {
       sortOrder: slider.sortOrder,
       isActive: slider.isActive,
     });
+    setMediaItems(slider.imageUrl ? [{ url: slider.imageUrl, type: 'image' }] : []);
     setDialogOpen(true);
   };
 
+  const handleMediaChange = (items: MediaItem[]) => {
+    setMediaItems(items);
+    setForm({ ...form, imageUrl: items[0]?.url ?? '' });
+  };
+
   const handleSave = () => {
+    const input = { ...form, imageUrl: mediaItems[0]?.url ?? '' };
     if (editingId) {
-      updateSlider({ variables: { id: editingId, input: form } });
+      updateSlider({ variables: { id: editingId, input } });
     } else {
-      createSlider({ variables: { input: form } });
+      createSlider({ variables: { input } });
     }
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this slider?')) {
-      deleteSlider({ variables: { id } });
-    }
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination || result.source.index === result.destination.index) return;
+    const reordered = Array.from(sliders);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+    reorderSliders({
+      variables: { orderedIds: reordered.map((s) => s.id) },
+      optimisticResponse: { reorderSliders: true },
+    });
   };
 
   return (
@@ -211,78 +250,129 @@ const SlidersPage: React.FC = () => {
       </Breadcrumbs>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5" fontWeight={700}>
-          Home Sliders
-        </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenCreate}>
+        <Box>
+          <Typography variant="h5" fontWeight={700}>
+            Home Sliders
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Manage promotional banners (max {MAX_SLIDERS}) — {sliders.length}/{MAX_SLIDERS} used.
+            Drag to reorder.
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpenCreate}
+          disabled={!canAdd}
+        >
           Add Slider
         </Button>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
+      {!canAdd && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Maximum {MAX_SLIDERS} sliders reached. Delete an existing slider to add a new one.
+        </Alert>
+      )}
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error.message}
+        </Alert>
+      )}
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
           <CircularProgress />
         </Box>
+      ) : sliders.length === 0 ? (
+        <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
+          <Typography color="text.secondary">
+            No sliders yet. Create one to get started.
+          </Typography>
+        </Paper>
       ) : (
-        <TableContainer component={Paper} variant="outlined">
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Image</TableCell>
-                <TableCell>Title</TableCell>
-                <TableCell>Subtitle</TableCell>
-                <TableCell>CTA</TableCell>
-                <TableCell>City</TableCell>
-                <TableCell>Order</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sliders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                    <Typography color="text.secondary">No sliders yet. Create one to get started.</Typography>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                sliders.map((slider) => (
-                  <TableRow key={slider.id}>
-                    <TableCell>
-                      <Box
-                        component="img"
-                        src={slider.imageUrl}
-                        sx={{ width: 80, height: 45, borderRadius: 1, objectFit: 'cover' }}
-                      />
-                    </TableCell>
-                    <TableCell>{slider.title}</TableCell>
-                    <TableCell>{slider.subtitle || '—'}</TableCell>
-                    <TableCell>{slider.ctaText || '—'}</TableCell>
-                    <TableCell>{slider.locationCity || 'All'}</TableCell>
-                    <TableCell>{slider.sortOrder}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={slider.isActive ? 'Active' : 'Inactive'}
-                        color={slider.isActive ? 'success' : 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell align="right">
-                      <IconButton size="small" onClick={() => handleOpenEdit(slider)}>
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" color="error" onClick={() => handleDelete(slider.id)}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
+        <Paper variant="outlined">
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="sliders-list">
+              {(provided) => (
+                <List ref={provided.innerRef} {...provided.droppableProps} disablePadding>
+                  {sliders.map((slider, idx) => (
+                    <Draggable key={slider.id} draggableId={slider.id} index={idx}>
+                      {(dragProvided, snapshot) => (
+                        <>
+                          <ListItem
+                            ref={dragProvided.innerRef}
+                            {...dragProvided.draggableProps}
+                            sx={{
+                              bgcolor: snapshot.isDragging ? 'action.hover' : 'background.paper',
+                              borderLeft: snapshot.isDragging ? 4 : 0,
+                              borderColor: 'primary.main',
+                            }}
+                            secondaryAction={
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <Chip
+                                  label={slider.locationCity || 'All'}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                                <Chip
+                                  label={slider.isActive ? 'Active' : 'Inactive'}
+                                  color={slider.isActive ? 'success' : 'default'}
+                                  size="small"
+                                />
+                                <IconButton size="small" onClick={() => handleOpenEdit(slider)}>
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => setDeleteTarget(slider)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
+                            }
+                          >
+                            <Box
+                              {...dragProvided.dragHandleProps}
+                              sx={{ display: 'flex', alignItems: 'center', mr: 1, cursor: 'grab' }}
+                            >
+                              <DragIndicatorIcon color="action" />
+                            </Box>
+                            <ListItemAvatar>
+                              <Avatar
+                                variant="rounded"
+                                src={slider.imageUrl}
+                                sx={{ width: 80, height: 45 }}
+                              />
+                            </ListItemAvatar>
+                            <ListItemText
+                              primary={
+                                <Typography variant="body1" fontWeight={600}>
+                                  {slider.title}
+                                </Typography>
+                              }
+                              secondary={
+                                <Typography variant="body2" color="text.secondary" noWrap>
+                                  {slider.subtitle || 'No subtitle'}{' '}
+                                  {slider.ctaText ? `· ${slider.ctaText}` : ''}
+                                </Typography>
+                              }
+                              sx={{ ml: 1 }}
+                            />
+                          </ListItem>
+                          {idx < sliders.length - 1 && <Divider />}
+                        </>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </List>
               )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </Droppable>
+          </DragDropContext>
+        </Paper>
       )}
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
@@ -295,55 +385,58 @@ const SlidersPage: React.FC = () => {
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               required
               fullWidth
+              helperText="Main heading displayed on the banner"
             />
             <TextField
               label="Subtitle"
               value={form.subtitle}
               onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
               fullWidth
+              helperText="Secondary text below the title"
             />
-            <TextField
-              label="Image URL"
-              value={form.imageUrl}
-              onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-              required
-              fullWidth
+            <AdminMediaUploader
+              mediaItems={mediaItems}
+              onMediaChange={handleMediaChange}
+              folder="/sliders"
+              maxItems={1}
+              label="Slider Image"
             />
             <TextField
               label="CTA Text"
               value={form.ctaText}
               onChange={(e) => setForm({ ...form, ctaText: e.target.value })}
               fullWidth
-              placeholder="e.g. Explore Now"
+              helperText="Button text (e.g. Explore Now, Book Now)"
             />
             <TextField
               label="CTA Link"
               value={form.ctaLink}
               onChange={(e) => setForm({ ...form, ctaLink: e.target.value })}
               fullWidth
-              placeholder="e.g. partywings://explore"
+              helperText="Deep link target (e.g. partywings://explore)"
             />
             <TextField
               label="Category"
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
               fullWidth
-              placeholder="e.g. Social, Learning"
+              helperText="Optional category tag for this slider"
             />
             <TextField
-              label="Location City (empty = all cities)"
+              select
+              label="Location City"
               value={form.locationCity}
               onChange={(e) => setForm({ ...form, locationCity: e.target.value })}
               fullWidth
-              placeholder="e.g. Gurgaon, Delhi"
-            />
-            <TextField
-              label="Sort Order"
-              type="number"
-              value={form.sortOrder}
-              onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value, 10) || 0 })}
-              fullWidth
-            />
+              helperText="Select a city or 'All Locations' to show everywhere"
+            >
+              <MenuItem value="">All Locations</MenuItem>
+              {cityOptions.map((city) => (
+                <MenuItem key={city.id} value={city.name}>
+                  {city.name}
+                </MenuItem>
+              ))}
+            </TextField>
             <FormControlLabel
               control={
                 <Switch
@@ -351,7 +444,7 @@ const SlidersPage: React.FC = () => {
                   onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
                 />
               }
-              label="Active"
+              label="Active (visible to users)"
             />
           </Box>
         </DialogContent>
@@ -360,12 +453,30 @@ const SlidersPage: React.FC = () => {
           <Button
             variant="contained"
             onClick={handleSave}
-            disabled={creating || updating || !form.title || !form.imageUrl}
+            disabled={creating || updating || !form.title}
           >
-            {creating || updating ? <CircularProgress size={20} /> : editingId ? 'Update' : 'Create'}
+            {creating || updating ? (
+              <CircularProgress size={20} />
+            ) : editingId ? (
+              'Update'
+            ) : (
+              'Create'
+            )}
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        title="Delete Slider"
+        entityName={deleteTarget?.title ?? ''}
+        entityType="slider"
+        loading={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) deleteSlider({ variables: { id: deleteTarget.id } });
+        }}
+      />
     </Box>
   );
 };

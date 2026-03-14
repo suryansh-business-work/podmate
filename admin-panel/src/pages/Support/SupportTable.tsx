@@ -30,7 +30,7 @@ interface SupportTableProps {
   onRowsPerPageChange: (size: number) => void;
   onView: (ticket: SupportTicket) => void;
   onEdit: (ticket: SupportTicket) => void;
-  onDelete: (id: string) => void;
+  onDelete: (ticket: SupportTicket) => void;
 }
 
 const COLUMNS = [
@@ -125,7 +125,7 @@ const SupportTable: React.FC<SupportTableProps> = ({
                 <IconButton size="small" onClick={() => onEdit(ticket)}>
                   <EditIcon fontSize="small" />
                 </IconButton>
-                <IconButton size="small" color="error" onClick={() => onDelete(ticket.id)}>
+                <IconButton size="small" color="error" onClick={() => onDelete(ticket)}>
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </TableCell>

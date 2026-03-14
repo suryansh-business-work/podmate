@@ -11,6 +11,4 @@ export interface CreatePodFormValues {
   locationDetail: string;
 }
 
-export const POD_CATEGORIES = ['Social', 'Learning', 'Outdoor'];
-
 export const CREATE_POD_STEPS = ['Basic Info', 'Media', 'Logistics'];

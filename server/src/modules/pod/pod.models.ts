@@ -156,6 +156,10 @@ export function toPod(doc: (PodMongoDoc & { id?: string }) | null): Pod | null {
   return {
     ...doc,
     id: doc.id ?? doc._id,
+    description: doc.description ?? '',
+    category: doc.category ?? '',
+    location: doc.location ?? '',
+    locationDetail: doc.locationDetail ?? '',
     mediaUrls: doc.mediaUrls ?? [],
     attendeeIds: doc.attendeeIds ?? [],
     imageUrl: doc.imageUrl ?? '',

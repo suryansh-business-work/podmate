@@ -105,5 +105,13 @@ export const PlaceModel =
 
 export function toPlace(doc: (PlaceMongoDoc & { id?: string }) | null): Place | null {
   if (!doc) return null;
-  return { ...doc, id: doc.id ?? doc._id } as Place;
+  return {
+    ...doc,
+    id: doc.id ?? doc._id,
+    description: doc.description ?? '',
+    imageUrl: doc.imageUrl ?? '',
+    phone: doc.phone ?? '',
+    email: doc.email ?? '',
+    mediaUrls: doc.mediaUrls ?? [],
+  } as Place;
 }

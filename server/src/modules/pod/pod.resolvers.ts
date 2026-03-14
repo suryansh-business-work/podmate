@@ -150,8 +150,12 @@ const podResolvers = {
   },
 
   Pod: {
-    host: (pod: { hostId: string }) => podService.resolveHost(pod.hostId),
-    attendees: (pod: { attendeeIds: string[] }) => podService.resolveAttendees(pod.attendeeIds),
+    host: async (pod: { hostId: string }) => {
+      const user = await podService.resolveHost(pod.hostId);
+      if (!user) throw new Error('Host user not found');
+      return user;
+    },
+    attendees: (pod: { attendeeIds: string[] }) => podService.resolveAttendees(pod.attendeeIds ?? []),
     place: (pod: { placeId: string }) => (pod.placeId ? getPlaceById(pod.placeId) : null),
   },
 };

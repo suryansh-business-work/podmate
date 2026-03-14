@@ -1,15 +1,17 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, Image, View } from 'react-native';
 import { useThemedStyles, ThemeUtils } from '../hooks/useThemedStyles';
 
 interface CategoryChipProps {
   label: string;
+  iconUrl?: string;
   selected: boolean;
   onPress: () => void;
 }
 
 export const CategoryChip: React.FC<CategoryChipProps> = memo(function CategoryChip({
   label,
+  iconUrl,
   selected,
   onPress,
 }) {
@@ -23,7 +25,14 @@ export const CategoryChip: React.FC<CategoryChipProps> = memo(function CategoryC
       accessibilityLabel={`${label} category${selected ? ', selected' : ''}`}
       accessibilityState={{ selected }}
     >
-      <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
+      {iconUrl ? (
+        <View style={styles.chipInner}>
+          <Image source={{ uri: iconUrl }} style={styles.chipIcon} resizeMode="contain" />
+          <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
+        </View>
+      ) : (
+        <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
+      )}
     </TouchableOpacity>
   );
 });
@@ -42,6 +51,16 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     chipSelected: {
       backgroundColor: colors.primary,
       borderColor: colors.primary,
+    },
+    chipInner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    chipIcon: {
+      width: 18,
+      height: 18,
+      borderRadius: 9,
     },
     label: {
       fontSize: 14,

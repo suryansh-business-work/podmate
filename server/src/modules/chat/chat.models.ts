@@ -43,5 +43,10 @@ export function toChatMessage(
   doc: (ChatMessageMongoDoc & { id?: string }) | null,
 ): ChatMessage | null {
   if (!doc) return null;
-  return { ...doc, id: doc.id ?? doc._id } as ChatMessage;
+  return {
+    ...doc,
+    id: doc.id ?? doc._id,
+    content: doc.content ?? '',
+    mediaUrl: doc.mediaUrl ?? '',
+  } as ChatMessage;
 }

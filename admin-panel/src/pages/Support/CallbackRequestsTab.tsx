@@ -40,6 +40,7 @@ import {
   CallbackOrder,
   CALLBACK_STATUS_COLORS,
 } from './Callback.types';
+import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
 
 const COLUMNS = [
   { id: 'phone', label: 'Phone', sortable: false },
@@ -62,6 +63,7 @@ const CallbackRequestsTab: React.FC = () => {
   const [editStatus, setEditStatus] = useState('');
   const [editNote, setEditNote] = useState('');
   const [editScheduled, setEditScheduled] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<CallbackRequest | null>(null);
 
   const { data: countsData } = useQuery<CallbackRequestCounts>(GET_CALLBACK_REQUEST_COUNTS, {
     fetchPolicy: 'cache-and-network',
@@ -122,11 +124,12 @@ const CallbackRequestsTab: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this callback request?')) return;
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteReq({ variables: { id } });
+      await deleteReq({ variables: { id: deleteTarget.id } });
       await refetch();
+      setDeleteTarget(null);
     } catch {
       /* handled */
     }
@@ -272,7 +275,7 @@ const CallbackRequestsTab: React.FC = () => {
                       <IconButton size="small" onClick={() => handleEdit(req)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" color="error" onClick={() => handleDelete(req.id)}>
+                      <IconButton size="small" color="error" onClick={() => setDeleteTarget(req)}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -411,6 +414,15 @@ const CallbackRequestsTab: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        open={Boolean(deleteTarget)}
+        title="Delete Callback Request"
+        entityName={deleteTarget?.phone ?? ''}
+        entityType="callback request"
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+      />
     </Box>
   );
 };

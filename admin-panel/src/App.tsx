@@ -23,6 +23,7 @@ import PodIdeasPage from './pages/PodIdeas';
 import SlidersPage from './pages/Sliders';
 import LocationsPage from './pages/Locations';
 import PodTemplatesPage from './pages/PodTemplates';
+import CategoriesPage from './pages/Categories';
 import AdminLayout from './layouts/AdminLayout';
 
 const App: React.FC = () => {
@@ -61,8 +62,11 @@ const App: React.FC = () => {
           <Route path="/users/:id" element={<UserDetailPage />} />
           <Route path="/pods" element={<PodsPage />} />
           <Route path="/pods/:id" element={<PodDetailPage />} />
-          <Route path="/places" element={<PlacesPage />} />
-          <Route path="/places/:id" element={<PlaceDetailPage />} />
+          <Route path="/venues" element={<PlacesPage />} />
+          <Route path="/venues/:id" element={<PlaceDetailPage />} />
+          <Route path="/places" element={<Navigate to="/venues" replace />} />
+          <Route path="/places/:id" element={<Navigate to="/venues" replace />} />
+          <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/policies" element={<PoliciesPage />} />
           <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/finance" element={<FinancePage />} />

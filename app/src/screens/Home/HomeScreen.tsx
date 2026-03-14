@@ -15,14 +15,15 @@ import { useQuery } from '@apollo/client';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { CategoryChip } from '../../components/CategoryChip';
+import { SubCategoryBar } from '../../components/SubCategoryBar';
 import { EventCard } from '../../components/EventCard';
 import { SkeletonFeed } from '../../components/Skeleton';
 import HomeSlider from '../../components/HomeSlider';
 import LocationSelector from './LocationSelector';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useLocation } from '../../hooks/useLocation';
-import { GET_PODS, GET_ME, GET_ACTIVE_SLIDERS } from '../../graphql/queries';
-import { PodItem, PodsQueryData, HomeScreenProps, CATEGORIES } from './Home.types';
+import { GET_PODS, GET_ME, GET_ACTIVE_SLIDERS, GET_ACTIVE_CATEGORIES } from '../../graphql/queries';
+import { PodItem, PodsQueryData, HomeScreenProps, CategoryItem } from './Home.types';
 import { createStyles } from './Home.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -37,6 +38,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 400);
   const isFetchingMore = useRef(false);
@@ -49,6 +51,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const currentUserId: string = (meData?.me?.id as string) ?? '';
   const userAvatar: string = (meData?.me?.avatar as string) ?? '';
+
+  const { data: categoriesData } = useQuery<{ activeCategories: CategoryItem[] }>(
+    GET_ACTIVE_CATEGORIES,
+    { fetchPolicy: 'cache-and-network' },
+  );
+  const categories: CategoryItem[] = categoriesData?.activeCategories ?? [];
+
+  const activeSubcategories = useMemo(() => {
+    if (selectedCategory === 'All') return [];
+    const cat = categories.find((c) => c.name === selectedCategory);
+    return cat?.subcategories ?? [];
+  }, [categories, selectedCategory]);
+
+  const handleCategorySelect = useCallback((catName: string) => {
+    setSelectedCategory(catName);
+    setSelectedSubCategoryId(null);
+  }, []);
 
   const displayCity = selectedCity || location?.city || 'Select Location';
 
@@ -189,15 +208,30 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         style={styles.categoriesContainer}
         contentContainerStyle={styles.categoriesContent}
       >
-        {CATEGORIES.map((cat) => (
+        <CategoryChip
+          key="all"
+          label="All"
+          selected={selectedCategory === 'All'}
+          onPress={() => handleCategorySelect('All')}
+        />
+        {categories.map((cat) => (
           <CategoryChip
-            key={cat}
-            label={cat}
-            selected={selectedCategory === cat}
-            onPress={() => setSelectedCategory(cat)}
+            key={cat.id}
+            label={cat.name}
+            iconUrl={cat.iconUrl || undefined}
+            selected={selectedCategory === cat.name}
+            onPress={() => handleCategorySelect(cat.name)}
           />
         ))}
       </ScrollView>
+
+      {activeSubcategories.length > 0 && (
+        <SubCategoryBar
+          items={activeSubcategories}
+          selectedId={selectedSubCategoryId}
+          onSelect={setSelectedSubCategoryId}
+        />
+      )}
 
       {happeningSoon.length > 0 && (
         <>

@@ -1,3 +1,6 @@
+export type PodTypeOption = 'ONE_TIME' | 'OCCURRENCE';
+export type RecurrenceOption = 'DAILY' | 'WEEKLY' | 'MONTHLY';
+
 export interface PodFormValues {
   title: string;
   description: string;
@@ -9,6 +12,8 @@ export interface PodFormValues {
   latitude: number;
   longitude: number;
   category: string;
+  podType: PodTypeOption;
+  recurrence: RecurrenceOption;
 }
 
 export interface ApprovedPlace {

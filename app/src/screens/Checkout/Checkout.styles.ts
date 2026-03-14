@@ -63,6 +63,16 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       marginBottom: spacing.lg,
     },
     dummyText: { flex: 1, fontSize: 13, color: colors.warningText, lineHeight: 18 },
+    subscriptionBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: `${colors.primary}15`,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      marginBottom: spacing.lg,
+    },
+    subscriptionText: { flex: 1, fontSize: 13, color: colors.primary, lineHeight: 18 },
     bottomBar: {
       position: 'absolute',
       bottom: 0,

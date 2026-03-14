@@ -20,7 +20,7 @@ export interface NavItem {
 export const MAIN_NAV: NavItem[] = [
   { id: 'Home', icon: 'home', label: 'Home', color: '#F50247' },
   { id: 'Explore', icon: 'explore', label: 'Explore', color: '#9333EA' },
-  { id: 'Chat', icon: 'chat-bubble', label: 'Chat', color: '#2563EB' },
+  { id: 'Moments', icon: 'auto-awesome', label: 'Moments', color: '#2563EB' },
   { id: 'Notifications', icon: 'notifications', label: 'Notifications', color: '#F59E0B' },
 ];
 

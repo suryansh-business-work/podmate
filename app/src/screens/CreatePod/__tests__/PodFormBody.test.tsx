@@ -75,6 +75,8 @@ const makeFormik = (overrides: Partial<PodFormValues> = {}) => {
     latitude: 0,
     longitude: 0,
     category: '',
+    podType: 'ONE_TIME',
+    recurrence: 'WEEKLY',
     ...overrides,
   };
   return {
@@ -108,6 +110,16 @@ describe('PodFormBody', () => {
     onTimeChange: jest.fn(),
     onDismissDatePicker: jest.fn(),
     onDismissTimePicker: jest.fn(),
+    startDate: new Date('2025-06-15T18:00:00'),
+    endDate: new Date('2025-07-15T18:00:00'),
+    showStartDatePicker: false,
+    showEndDatePicker: false,
+    onStartDateChange: jest.fn(),
+    onEndDateChange: jest.fn(),
+    onShowStartDatePicker: jest.fn(),
+    onDismissStartDatePicker: jest.fn(),
+    onShowEndDatePicker: jest.fn(),
+    onDismissEndDatePicker: jest.fn(),
   };
 
   it('renders page title and subtitle', () => {

@@ -102,6 +102,11 @@ const podResolvers = {
       return podService.openPod(args.id);
     },
 
+    reopenPod: (_: unknown, args: { id: string }, context: GraphQLContext) => {
+      const auth = requireAuth(context);
+      return podService.reopenPod(args.id, auth.userId);
+    },
+
     trackPodView: (_: unknown, args: { podId: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return podService.trackPodView(args.podId, auth.userId);

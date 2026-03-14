@@ -56,6 +56,16 @@ import callbackTypeDefs from './modules/callback/callback.typeDefs';
 import callbackResolvers from './modules/callback/callback.resolvers';
 import pushNotificationTypeDefs from './modules/pushNotification/pushNotification.typeDefs';
 import pushNotificationResolvers from './modules/pushNotification/pushNotification.resolvers';
+import sliderTypeDefs from './modules/slider/slider.typeDefs';
+import sliderResolvers from './modules/slider/slider.resolvers';
+import locationTypeDefs from './modules/location/location.typeDefs';
+import locationResolvers from './modules/location/location.resolvers';
+import momentTypeDefs from './modules/moment/moment.typeDefs';
+import momentResolvers from './modules/moment/moment.resolvers';
+import podTemplateTypeDefs from './modules/podTemplate/podTemplate.typeDefs';
+import podTemplateResolvers from './modules/podTemplate/podTemplate.resolvers';
+import subscriptionTypeDefs from './modules/subscription/subscription.typeDefs';
+import subscriptionResolvers from './modules/subscription/subscription.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -132,6 +142,20 @@ const rootSchema = `#graphql
     callbackRequest(id: ID!): CallbackRequest
     callbackRequests(page: Int, limit: Int, search: String, status: String, sortBy: String, order: String): PaginatedCallbackRequests!
     callbackRequestCounts: CallbackRequestCounts!
+    sliders(page: Int, limit: Int, search: String): PaginatedSliders!
+    activeSliders(city: String): [Slider!]!
+    cities(page: Int, limit: Int, search: String): PaginatedCities!
+    activeCities: [City!]!
+    topCities: [City!]!
+    city(id: ID!): City
+    moments(page: Int, limit: Int): PaginatedMoments!
+    userMoments(userId: ID!, page: Int, limit: Int): PaginatedMoments!
+    momentComments(momentId: ID!, page: Int, limit: Int): PaginatedMomentComments!
+    podTemplates(page: Int, limit: Int, search: String): PaginatedPodTemplates!
+    activePodTemplates: [PodTemplate!]!
+    mySubscriptions(page: Int, limit: Int): PaginatedSubscriptions!
+    subscriptionForPod(podId: ID!): PodSubscription
+    subscriptions(page: Int, limit: Int, search: String, status: String, userId: ID, podId: ID, sortBy: String, order: String): PaginatedSubscriptions!
   }
 
   type Mutation {
@@ -148,6 +172,7 @@ const rootSchema = `#graphql
     leavePod(podId: ID!): Pod!
     closePod(id: ID!, reason: String!): Pod!
     openPod(id: ID!): Pod!
+    reopenPod(id: ID!): Pod!
     trackPodView(podId: ID!): Pod!
     removeAttendee(podId: ID!, userId: ID!, issueRefund: Boolean!): RemoveAttendeeResult!
     forceDeletePod(id: ID!, issueRefunds: Boolean!): ForceDeletePodResult!
@@ -227,6 +252,25 @@ const rootSchema = `#graphql
     unregisterPushToken(deviceId: String!): Boolean!
     adminUpdateUser(userId: ID!, input: AdminUpdateUserInput!): User!
     adminUpdatePod(id: ID!, input: AdminUpdatePodInput!): Pod!
+    createSlider(input: CreateSliderInput!): Slider!
+    updateSlider(id: ID!, input: UpdateSliderInput!): Slider!
+    deleteSlider(id: ID!): Boolean!
+    createCity(input: CreateCityInput!): City!
+    updateCity(id: ID!, input: UpdateCityInput!): City!
+    deleteCity(id: ID!): Boolean!
+    addArea(input: CreateAreaInput!): Area!
+    removeArea(cityId: ID!, areaId: ID!): Boolean!
+    createMoment(input: CreateMomentInput!): Moment!
+    deleteMoment(id: ID!): Boolean!
+    likeMoment(momentId: ID!): Moment!
+    unlikeMoment(momentId: ID!): Moment!
+    addMomentComment(momentId: ID!, content: String!): MomentComment!
+    createPodTemplate(input: CreatePodTemplateInput!): PodTemplate!
+    updatePodTemplate(id: ID!, input: UpdatePodTemplateInput!): PodTemplate!
+    deletePodTemplate(id: ID!): Boolean!
+    checkoutOccurrencePod(podId: ID!): CheckoutOccurrencePodResult!
+    cancelSubscription(subscriptionId: ID!): PodSubscription!
+    renewSubscription(subscriptionId: ID!): PodSubscription!
   }
 
   input AdminUpdateUserInput {
@@ -284,6 +328,11 @@ const typeDefs = [
   goLiveTypeDefs,
   callbackTypeDefs,
   pushNotificationTypeDefs,
+  sliderTypeDefs,
+  locationTypeDefs,
+  momentTypeDefs,
+  podTemplateTypeDefs,
+  subscriptionTypeDefs,
 ];
 
 const resolvers = {
@@ -307,6 +356,11 @@ const resolvers = {
     ...podIdeaResolvers.Query,
     ...goLiveResolvers.Query,
     ...callbackResolvers.Query,
+    ...sliderResolvers.Query,
+    ...locationResolvers.Query,
+    ...momentResolvers.Query,
+    ...podTemplateResolvers.Query,
+    ...subscriptionResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -330,6 +384,11 @@ const resolvers = {
     ...goLiveResolvers.Mutation,
     ...callbackResolvers.Mutation,
     ...pushNotificationResolvers.Mutation,
+    ...sliderResolvers.Mutation,
+    ...locationResolvers.Mutation,
+    ...momentResolvers.Mutation,
+    ...podTemplateResolvers.Mutation,
+    ...subscriptionResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   Review: reviewResolvers.Review,
@@ -344,6 +403,9 @@ const resolvers = {
   CallbackRequest: callbackResolvers.CallbackRequest,
   User: userResolvers.User,
   Payment: paymentResolvers.Payment,
+  Moment: momentResolvers.Moment,
+  MomentComment: momentResolvers.MomentComment,
+  PodSubscription: subscriptionResolvers.PodSubscription,
 };
 
 /* ── WebSocket connection registry ── */

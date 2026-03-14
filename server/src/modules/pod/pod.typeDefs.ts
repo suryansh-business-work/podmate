@@ -24,6 +24,11 @@ const podTypeDefs = `#graphql
     viewCount: Int!
     refundPolicy: String!
     attendees: [User!]!
+    podType: PodType!
+    startDate: String!
+    endDate: String!
+    recurrence: String!
+    occurrenceCount: Int!
     createdAt: String!
   }
 
@@ -35,6 +40,17 @@ const podTypeDefs = `#graphql
     CANCELLED
     OPEN
     CLOSED
+  }
+
+  enum PodType {
+    ONE_TIME
+    OCCURRENCE
+  }
+
+  enum RecurrenceFrequency {
+    DAILY
+    WEEKLY
+    MONTHLY
   }
 
   type PaginatedPods {
@@ -60,6 +76,10 @@ const podTypeDefs = `#graphql
     latitude: Float
     longitude: Float
     refundPolicy: String
+    podType: PodType
+    startDate: String
+    endDate: String
+    recurrence: RecurrenceFrequency
   }
 
   input UpdatePodInput {
@@ -68,6 +88,10 @@ const podTypeDefs = `#graphql
     mediaUrls: [String!]
     latitude: Float
     longitude: Float
+    podType: PodType
+    startDate: String
+    endDate: String
+    recurrence: RecurrenceFrequency
   }
 
   type CheckoutResult {

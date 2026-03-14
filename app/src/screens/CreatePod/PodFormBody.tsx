@@ -9,10 +9,13 @@ import {
   FlatList,
   ActivityIndicator,
   Image,
+  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FormikProps } from 'formik';
 import { useQuery } from '@apollo/client';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 import { GradientButton } from '../../components/GradientButton';
 import MediaUploader, { MediaItem } from '../../components/MediaUploader';
@@ -20,6 +23,7 @@ import { GET_APPROVED_PLACES, GET_APP_CONFIG } from '../../graphql/queries';
 import { useLocation } from '../../hooks/useLocation';
 import { useEffectiveFee } from '../../hooks/useEffectiveFee';
 import { PodFormValues, ApprovedPlace, CATEGORIES } from './CreatePod.types';
+import type { RecurrenceOption } from './CreatePod.types';
 import PayoutCard from './PayoutCard';
 import LogisticsSection from './LogisticsSection';
 import { createStyles } from './CreatePod.styles';
@@ -32,12 +36,48 @@ interface PodFormBodyProps {
   showTimePicker: boolean;
   mediaItems: MediaItem[];
   loading: boolean;
+  startDate: Date;
+  endDate: Date;
+  showStartDatePicker: boolean;
+  showEndDatePicker: boolean;
   onMediaChange: (items: MediaItem[]) => void;
   onShowDatePicker: () => void;
   onDateChange: (date: Date | undefined) => void;
   onTimeChange: (time: Date | undefined) => void;
   onDismissDatePicker: () => void;
   onDismissTimePicker: () => void;
+  onStartDateChange: (date: Date | undefined) => void;
+  onEndDateChange: (date: Date | undefined) => void;
+  onShowStartDatePicker: () => void;
+  onShowEndDatePicker: () => void;
+  onDismissStartDatePicker: () => void;
+  onDismissEndDatePicker: () => void;
+}
+
+const RECURRENCE_OPTIONS: { label: string; value: RecurrenceOption }[] = [
+  { label: 'Daily', value: 'DAILY' },
+  { label: 'Weekly', value: 'WEEKLY' },
+  { label: 'Monthly', value: 'MONTHLY' },
+];
+
+function calculateOccurrenceCount(start: Date, end: Date, freq: RecurrenceOption): number {
+  if (end <= start) return 0;
+  const diffMs = end.getTime() - start.getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  switch (freq) {
+    case 'DAILY':
+      return Math.floor(diffDays) + 1;
+    case 'WEEKLY':
+      return Math.floor(diffDays / 7) + 1;
+    case 'MONTHLY': {
+      const months =
+        (end.getFullYear() - start.getFullYear()) * 12 +
+        (end.getMonth() - start.getMonth());
+      return Math.max(months, 1) + 1;
+    }
+    default:
+      return 0;
+  }
 }
 
 const PodFormBody: React.FC<PodFormBodyProps> = ({
@@ -47,12 +87,22 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
   showTimePicker,
   mediaItems,
   loading,
+  startDate,
+  endDate,
+  showStartDatePicker,
+  showEndDatePicker,
   onMediaChange,
   onShowDatePicker,
   onDateChange,
   onTimeChange,
   onDismissDatePicker,
   onDismissTimePicker,
+  onStartDateChange,
+  onEndDateChange,
+  onShowStartDatePicker,
+  onShowEndDatePicker,
+  onDismissStartDatePicker,
+  onDismissEndDatePicker,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
@@ -189,6 +239,115 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* Pod Type Toggle */}
+        <Text style={styles.inputLabel}>POD TYPE</Text>
+        <View style={styles.categoryRow}>
+          {(['ONE_TIME', 'OCCURRENCE'] as const).map((pt) => (
+            <TouchableOpacity
+              key={pt}
+              style={[styles.categoryChip, values.podType === pt && styles.categoryChipActive]}
+              onPress={() => setFieldValue('podType', pt)}
+            >
+              <Text
+                style={[
+                  styles.categoryChipText,
+                  values.podType === pt && styles.categoryChipTextActive,
+                ]}
+              >
+                {pt === 'ONE_TIME' ? 'One Time' : 'Occurrence'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {values.podType === 'OCCURRENCE' && (
+          <View style={{ marginBottom: 12, gap: 10, marginTop: 4 }}>
+            <Text style={styles.inputLabel}>RECURRENCE</Text>
+            <View style={styles.categoryRow}>
+              {RECURRENCE_OPTIONS.map((opt) => (
+                <TouchableOpacity
+                  key={opt.value}
+                  style={[
+                    styles.categoryChip,
+                    values.recurrence === opt.value && styles.categoryChipActive,
+                  ]}
+                  onPress={() => setFieldValue('recurrence', opt.value)}
+                >
+                  <Text
+                    style={[
+                      styles.categoryChipText,
+                      values.recurrence === opt.value && styles.categoryChipTextActive,
+                    ]}
+                  >
+                    {opt.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <TouchableOpacity
+                style={[styles.textInput, { flex: 1 }]}
+                onPress={onShowStartDatePicker}
+              >
+                <Text style={{ color: colors.text, fontSize: 14 }}>
+                  Start: {startDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.textInput, { flex: 1 }]}
+                onPress={onShowEndDatePicker}
+              >
+                <Text style={{ color: colors.text, fontSize: 14 }}>
+                  End: {endDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {showStartDatePicker && (
+              <DateTimePicker
+                value={startDate}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                minimumDate={new Date()}
+                onChange={(_evt: DateTimePickerEvent, date?: Date) => {
+                  onDismissStartDatePicker();
+                  onStartDateChange(date);
+                }}
+              />
+            )}
+            {showEndDatePicker && (
+              <DateTimePicker
+                value={endDate}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                minimumDate={startDate}
+                onChange={(_evt: DateTimePickerEvent, date?: Date) => {
+                  onDismissEndDatePicker();
+                  onEndDateChange(date);
+                }}
+              />
+            )}
+
+            <View
+              style={{
+                backgroundColor: colors.primary + '12',
+                padding: 12,
+                borderRadius: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <MaterialIcons name="repeat" size={18} color={colors.primary} />
+              <Text style={{ color: colors.text, fontSize: 13 }}>
+                {calculateOccurrenceCount(startDate, endDate, values.recurrence)} occurrences (
+                {values.recurrence.toLowerCase()})
+              </Text>
+            </View>
+          </View>
+        )}
 
         <Text style={styles.inputLabel}>VENUE</Text>
         <TouchableOpacity

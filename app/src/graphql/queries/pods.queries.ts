@@ -21,6 +21,9 @@ export const GET_PODS = gql`
         rating
         reviewCount
         status
+        podType
+        recurrence
+        occurrenceCount
         host {
           id
           name
@@ -60,6 +63,11 @@ export const GET_POD = gql`
       reviewCount
       status
       refundPolicy
+      podType
+      startDate
+      endDate
+      recurrence
+      occurrenceCount
       host {
         id
         name

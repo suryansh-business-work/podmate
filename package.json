@@ -32,5 +32,15 @@
     "husky": "^9.1.7",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "react-native-worklets": "0.5.1"
+    },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "react-native-worklets": "0.5.1"
+      }
+    }
   }
 }

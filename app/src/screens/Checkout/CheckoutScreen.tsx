@@ -13,11 +13,17 @@ import { useQuery, useMutation } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { GET_POD } from '../../graphql/queries';
-import { CHECKOUT_POD } from '../../graphql/mutations';
-import { CheckoutScreenProps, CheckoutPodData, CheckoutResultData } from './Checkout.types';
+import { CHECKOUT_POD, CHECKOUT_OCCURRENCE_POD } from '../../graphql/mutations';
+import {
+  CheckoutScreenProps,
+  CheckoutPodData,
+  CheckoutResultData,
+  CheckoutOccurrenceResultData,
+} from './Checkout.types';
 import { createStyles } from './Checkout.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 import { useEffectiveFee } from '../../hooks/useEffectiveFee';
+import OrderSummary from './OrderSummary';
 
 const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSuccess }) => {
   const styles = useThemedStyles(createStyles);
@@ -30,8 +36,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
   });
 
   const [checkoutPod, { loading: checking }] = useMutation<CheckoutResultData>(CHECKOUT_POD);
+  const [checkoutOccurrence, { loading: checkingOccurrence }] =
+    useMutation<CheckoutOccurrenceResultData>(CHECKOUT_OCCURRENCE_POD);
 
   const pod = data?.pod;
+  const isOccurrence = pod?.podType === 'OCCURRENCE';
 
   const { feePercent: podFeePercent, source: podFeeSource } = useEffectiveFee({
     entityType: 'POD',
@@ -41,12 +50,27 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
 
   const platformFeeAmount = pod ? Math.round(pod.feePerPerson * (podFeePercent / 100)) : 0;
   const totalAmount = pod ? pod.feePerPerson + platformFeeAmount : 0;
+  const totalSubscriptionCost = pod && isOccurrence
+    ? totalAmount * (pod.occurrenceCount || 1)
+    : totalAmount;
+
+  const billingLabel = pod?.recurrence
+    ? ({ DAILY: 'day', WEEKLY: 'week', MONTHLY: 'month' }[pod.recurrence] ?? pod.recurrence) : '';
+
+  const processingPayment = checking || checkingOccurrence;
 
   const handleCheckout = async () => {
     try {
-      const result = await checkoutPod({ variables: { podId } });
-      if (result.data?.checkoutPod.success) {
-        setCheckoutDone(true);
+      if (isOccurrence) {
+        const result = await checkoutOccurrence({ variables: { podId } });
+        if (result.data?.checkoutOccurrencePod.success) {
+          setCheckoutDone(true);
+        }
+      } else {
+        const result = await checkoutPod({ variables: { podId } });
+        if (result.data?.checkoutPod.success) {
+          setCheckoutDone(true);
+        }
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Checkout failed';
@@ -61,8 +85,9 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
           <MaterialIcons name="check-circle" size={80} color={colors.success} />
           <Text style={styles.successTitle}>You&apos;re In!</Text>
           <Text style={styles.successSubtitle}>
-            Payment successful. You have joined the pod. Check your chat to connect with other
-            members.
+            {isOccurrence
+              ? `Subscription started! You'll be billed ₹${totalAmount.toLocaleString()} per ${billingLabel} for ${pod?.occurrenceCount || 1} cycles.`
+              : 'Payment successful. You have joined the pod.'}
           </Text>
           <TouchableOpacity style={styles.successBtn} onPress={onSuccess}>
             <Text style={styles.successBtnText}>Go Back</Text>
@@ -89,17 +114,10 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
   }
 
   const date = new Date(pod.dateTime);
-  const formattedDate = date.toLocaleDateString('en-IN', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-  const formattedTime = date.toLocaleTimeString('en-IN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
+  const dateOpts: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+  const timeOpts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+  const formattedDate = date.toLocaleDateString('en-IN', dateOpts);
+  const formattedTime = date.toLocaleTimeString('en-IN', timeOpts);
   const spotsLeft = pod.maxSeats - pod.currentSeats;
 
   return (
@@ -116,7 +134,6 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Pod Info */}
         <View style={styles.podCard}>
           {pod.imageUrl ? (
             <Image source={{ uri: pod.imageUrl }} style={styles.podImage} />
@@ -126,17 +143,12 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
             </View>
           )}
           <View style={styles.podInfo}>
-            <Text style={styles.podTitle} numberOfLines={2}>
-              {pod.title}
-            </Text>
-            <Text style={styles.podMeta}>
-              {pod.category} · {formattedDate}
-            </Text>
+            <Text style={styles.podTitle} numberOfLines={2}>{pod.title}</Text>
+            <Text style={styles.podMeta}>{pod.category} · {formattedDate}</Text>
             <Text style={styles.podMeta}>{pod.location}</Text>
           </View>
         </View>
 
-        {/* Dummy badge */}
         <View style={styles.dummyBadge}>
           <MaterialIcons name="info" size={20} color="#856404" />
           <Text style={styles.dummyText}>
@@ -144,62 +156,38 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
           </Text>
         </View>
 
-        {/* Order Summary */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Order Summary</Text>
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>Pod Fee (1 person)</Text>
-            <Text style={styles.rowValue}>₹{pod.feePerPerson.toLocaleString()}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>
-              Platform Fee ({podFeePercent}%)
-              {podFeeSource !== 'GLOBAL' ? ' ✦' : ''}
-            </Text>
-            <Text style={styles.rowValue}>₹{platformFeeAmount.toLocaleString()}</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>₹{totalAmount.toLocaleString()}</Text>
-          </View>
-        </View>
-
-        {/* Details */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Event Details</Text>
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>Date & Time</Text>
-            <Text style={styles.rowValue}>
-              {formattedDate}, {formattedTime}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>Host</Text>
-            <Text style={styles.rowValue}>{pod.host.name}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>Spots Left</Text>
-            <Text style={styles.rowValue}>
-              {spotsLeft} / {pod.maxSeats}
-            </Text>
-          </View>
-        </View>
+        <OrderSummary
+          pod={pod}
+          podFeePercent={podFeePercent}
+          podFeeSource={podFeeSource}
+          platformFeeAmount={platformFeeAmount}
+          totalAmount={totalAmount}
+          totalSubscriptionCost={totalSubscriptionCost}
+          billingLabel={billingLabel}
+          isOccurrence={isOccurrence}
+          formattedDate={formattedDate}
+          formattedTime={formattedTime}
+          spotsLeft={spotsLeft}
+        />
       </ScrollView>
 
       <View style={styles.bottomBar}>
         <TouchableOpacity
-          style={[styles.payBtn, checking && styles.payBtnDisabled]}
+          style={[styles.payBtn, processingPayment && styles.payBtnDisabled]}
           onPress={handleCheckout}
-          disabled={checking}
+          disabled={processingPayment}
           activeOpacity={0.8}
         >
-          {checking ? (
+          {processingPayment ? (
             <ActivityIndicator size="small" color={colors.white} />
           ) : (
             <>
               <MaterialIcons name="lock" size={18} color={colors.white} />
-              <Text style={styles.payBtnText}>Pay ₹{pod.feePerPerson.toLocaleString()}</Text>
+              <Text style={styles.payBtnText}>
+                {isOccurrence
+                  ? `Subscribe ₹${totalAmount.toLocaleString()}/${billingLabel}`
+                  : `Pay ₹${totalAmount.toLocaleString()}`}
+              </Text>
             </>
           )}
         </TouchableOpacity>

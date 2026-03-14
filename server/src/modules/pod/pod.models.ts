@@ -1,6 +1,9 @@
 import mongoose, { Schema, model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
+export type PodType = 'ONE_TIME' | 'OCCURRENCE';
+export type RecurrenceFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY';
+
 export interface Pod {
   id: string;
   title: string;
@@ -25,6 +28,11 @@ export interface Pod {
   viewCount: number;
   refundPolicy: string;
   attendeeIds: string[];
+  podType: PodType;
+  startDate: string;
+  endDate: string;
+  recurrence: RecurrenceFrequency | '';
+  occurrenceCount: number;
   createdAt: string;
 }
 
@@ -52,6 +60,10 @@ export interface CreatePodInput {
   latitude?: number;
   longitude?: number;
   refundPolicy?: string;
+  podType?: PodType;
+  startDate?: string;
+  endDate?: string;
+  recurrence?: RecurrenceFrequency;
 }
 
 export interface UpdatePodInput {
@@ -69,6 +81,10 @@ export interface UpdatePodInput {
   longitude?: number;
   status?: PodStatus;
   closeReason?: string;
+  podType?: PodType;
+  startDate?: string;
+  endDate?: string;
+  recurrence?: RecurrenceFrequency;
 }
 
 export interface PodPaginationInput {
@@ -121,6 +137,11 @@ const PodSchema = new Schema<PodMongoDoc>(
     viewCount: { type: Number, default: 0 },
     refundPolicy: { type: String, default: '24h Refund' },
     attendeeIds: { type: [String], default: [] },
+    podType: { type: String, enum: ['ONE_TIME', 'OCCURRENCE'], default: 'ONE_TIME' },
+    startDate: { type: String, default: '' },
+    endDate: { type: String, default: '' },
+    recurrence: { type: String, enum: ['', 'DAILY', 'WEEKLY', 'MONTHLY'], default: '' },
+    occurrenceCount: { type: Number, default: 0 },
     createdAt: { type: String, default: () => new Date().toISOString() },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } },
@@ -145,5 +166,10 @@ export function toPod(doc: (PodMongoDoc & { id?: string }) | null): Pod | null {
     closeReason: doc.closeReason ?? '',
     viewCount: doc.viewCount ?? 0,
     refundPolicy: doc.refundPolicy ?? '24h Refund',
+    podType: doc.podType ?? 'ONE_TIME',
+    startDate: doc.startDate ?? '',
+    endDate: doc.endDate ?? '',
+    recurrence: doc.recurrence ?? '',
+    occurrenceCount: doc.occurrenceCount ?? 0,
   } as Pod;
 }

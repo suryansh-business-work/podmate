@@ -15,6 +15,9 @@ import PhoneCallbackIcon from '@mui/icons-material/PhoneCallback';
 import CodeIcon from '@mui/icons-material/Code';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
+import LocationCityIcon from '@mui/icons-material/LocationCity';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 export const DRAWER_WIDTH = 240;
 
@@ -45,6 +48,9 @@ export const navGroups: NavGroupConfig[] = [
       { icon: <PeopleIcon />, label: 'Users', path: '/users' },
       { icon: <EventIcon />, label: 'Pods', path: '/pods' },
       { icon: <PlaceIcon />, label: 'Places', path: '/places' },
+      { icon: <ViewCarouselIcon />, label: 'Sliders', path: '/sliders' },
+      { icon: <LocationCityIcon />, label: 'Locations', path: '/locations' },
+      { icon: <ContentCopyIcon />, label: 'Pod Templates', path: '/pod-templates' },
     ],
   },
   {

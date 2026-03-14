@@ -30,6 +30,7 @@ import PodIdeasScreen from '../screens/PodIdeas/PodIdeasScreen';
 import GoLiveScreen from '../screens/GoLive/GoLiveScreen';
 import FollowListScreen from '../screens/FollowList/FollowListScreen';
 import UserProfileScreen from '../screens/UserProfile/UserProfileScreen';
+import { CreateMomentScreen } from '../screens/Moments';
 // ChatbotFab removed — chatbot trigger moved to HomeScreen header
 import NetworkBanner from '../components/NetworkBanner';
 import MainTabs from './MainTabs';
@@ -64,12 +65,13 @@ const linking: LinkingOptions<RootStackParamList> = {
           Explore: 'explore',
           Create: 'create-tab',
           Chat: 'chat',
-          Profile: 'profile',
+          Moments: 'moments',
         },
       },
       PodDetail: 'pod/:podId',
       Checkout: 'checkout/:podId',
       CreatePod: 'create-pod',
+      CreateMoment: 'create-moment',
       Notifications: 'notifications',
       RegisterPlace: 'register-place',
       Faq: 'faq',
@@ -160,7 +162,7 @@ const RootNavigator: React.FC = () => {
       Home: () => nav.navigate('Main', { screen: 'Home' } as never),
       Explore: () => nav.navigate('Main', { screen: 'Explore' } as never),
       Chat: () => nav.navigate('Main', { screen: 'Chat' } as never),
-      Profile: () => nav.navigate('Main', { screen: 'Profile' } as never),
+      Moments: () => nav.navigate('Main', { screen: 'Moments' } as never),
       CreatePod: () => nav.navigate('CreatePod'),
       Notifications: () => nav.navigate('Notifications'),
       RegisterPlace: () => nav.navigate('RegisterPlace'),
@@ -241,7 +243,7 @@ const RootNavigator: React.FC = () => {
                   <MainTabs
                     onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
                     onCreatePress={() => navigation.navigate('CreatePod')}
-                    onLogout={auth.handleLogout}
+                    onCreateMoment={() => navigation.navigate('CreateMoment')}
                     onMenuPress={drawer.openDrawer}
                     onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
                     onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
@@ -280,6 +282,14 @@ const RootNavigator: React.FC = () => {
                   <CreatePodScreen
                     onClose={() => navigation.goBack()}
                     onSuccess={() => navigation.navigate('Main')}
+                  />
+                )}
+              </Stack.Screen>
+              <Stack.Screen name="CreateMoment" options={{ presentation: 'modal' }}>
+                {({ navigation }) => (
+                  <CreateMomentScreen
+                    onClose={() => navigation.goBack()}
+                    onSuccess={() => navigation.goBack()}
                   />
                 )}
               </Stack.Screen>

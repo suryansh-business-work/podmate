@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,24 +8,20 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
-  Modal,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@apollo/client';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faWandMagicSparkles } from '@fortawesome/free-solid-svg-icons';
 
 import { CategoryChip } from '../../components/CategoryChip';
 import { EventCard } from '../../components/EventCard';
 import { SkeletonFeed } from '../../components/Skeleton';
+import HomeSlider from '../../components/HomeSlider';
+import LocationSelector from './LocationSelector';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useLocation } from '../../hooks/useLocation';
-import { GET_PODS, GET_ME } from '../../graphql/queries';
+import { GET_PODS, GET_ME, GET_ACTIVE_SLIDERS } from '../../graphql/queries';
 import { PodItem, PodsQueryData, HomeScreenProps, CATEGORIES } from './Home.types';
 import { createStyles } from './Home.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
@@ -44,35 +40,28 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 400);
   const isFetchingMore = useRef(false);
-  const [showLocationModal, setShowLocationModal] = useState(false);
-  const [pincodeInput, setPincodeInput] = useState('');
-  const { location, loading: locationLoading, requestLocation, searchByPincode } = useLocation();
+  const [showLocationSelector, setShowLocationSelector] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedArea, setSelectedArea] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const { location, loading: locationLoading } = useLocation();
 
   const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const currentUserId: string = (meData?.me?.id as string) ?? '';
+  const userAvatar: string = (meData?.me?.avatar as string) ?? '';
 
-  const handleGpsPress = useCallback(async () => {
-    setShowLocationModal(false);
-    const result = await requestLocation();
-    if (result?.address) {
-      setSearchQuery(result.address);
-    }
-  }, [requestLocation]);
+  const displayCity = selectedCity || location?.city || 'Select Location';
 
-  const handlePincodeSearch = useCallback(async () => {
-    if (!pincodeInput.trim() || pincodeInput.trim().length < 6) {
-      Alert.alert('Invalid Pincode', 'Please enter a valid 6-digit pincode.');
-      return;
-    }
-    setShowLocationModal(false);
-    const result = await searchByPincode(pincodeInput.trim());
-    if (result?.address) {
-      setSearchQuery(result.address);
-      setPincodeInput('');
-    } else {
-      Alert.alert('Not Found', 'Could not find location for this pincode. Please try another.');
-    }
-  }, [pincodeInput, searchByPincode]);
+  const { data: sliderData } = useQuery(GET_ACTIVE_SLIDERS, {
+    variables: { city: selectedCity || location?.address || undefined },
+    fetchPolicy: 'cache-and-network',
+  });
+  const sliders = (sliderData?.activeSliders as Array<{ id: string; title: string; subtitle: string; imageUrl: string; ctaText: string; ctaLink: string; category: string }>) ?? [];
+
+  const handleSelectCity = useCallback((city: string, area?: string) => {
+    setSelectedCity(city);
+    setSelectedArea(area ?? '');
+  }, []);
 
   const { data, loading, error, refetch, fetchMore } = useQuery<PodsQueryData>(GET_PODS, {
     variables: {
@@ -88,6 +77,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   const currentPage = data?.pods?.page ?? 1;
   const totalPages = data?.pods?.totalPages ?? 1;
   const hasMore = currentPage < totalPages;
+
+  const happeningSoon = useMemo(() => {
+    const now = Date.now();
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    return pods.filter((p) => {
+      const podTime = new Date(p.dateTime).getTime();
+      return podTime > now && podTime - now <= oneWeek;
+    });
+  }, [pods]);
 
   const [refreshing, setRefreshing] = useState(false);
   const handleRefresh = useCallback(async () => {
@@ -131,8 +129,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           rating={item.rating}
           status={item.status}
           category={item.category}
+          location={item.location}
           hostName={item.host.name}
           hostAvatar={item.host.avatar}
+          hostId={item.host.id}
           mediaUrls={item.mediaUrls}
           isJoined={isJoined}
           onPress={onPodPress}
@@ -142,30 +142,46 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     [currentUserId, onPodPress],
   );
 
+  const renderHappeningSoonCard = useCallback(
+    (item: PodItem) => {
+      const isJoined = item.attendees?.some((a) => a.id === currentUserId) ?? false;
+      const podDate = new Date(item.dateTime);
+      const month = podDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+      const day = podDate.getDate();
+      const spotsLeft = item.maxSeats - item.currentSeats;
+      return (
+        <TouchableOpacity
+          key={item.id}
+          style={styles.happeningSoonCard}
+          activeOpacity={0.88}
+          onPress={() => onPodPress(item.id)}
+        >
+          <Image
+            source={{ uri: item.imageUrl }}
+            style={styles.happeningSoonImage}
+            resizeMode="cover"
+          />
+          {isJoined && (
+            <View style={[styles.happeningSoonBadge, { backgroundColor: colors.success }]}>
+              <Text style={styles.happeningSoonBadgeText}>Joined</Text>
+            </View>
+          )}
+          <View style={styles.happeningSoonContent}>
+            <Text style={styles.happeningSoonDate}>{month} {day}</Text>
+            <Text style={styles.happeningSoonTitle} numberOfLines={2}>{item.title}</Text>
+            <Text style={styles.happeningSoonMeta}>
+              {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [currentUserId, onPodPress, styles, colors],
+  );
+
   const ListHeader = (
     <>
-      <View style={styles.searchContainer}>
-        <MaterialIcons name="search" size={18} color={colors.textTertiary} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Find hiking, dining, tech..."
-          placeholderTextColor={colors.textTertiary}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery('')}>
-            <MaterialIcons name="close" size={18} color={colors.textTertiary} />
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {location && (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 4 }}>
-          <MaterialIcons name="place" size={14} color={colors.primary} />
-          <Text style={{ fontSize: 12, color: colors.textSecondary }}>{location.address}</Text>
-        </View>
-      )}
+      {sliders.length > 0 && <HomeSlider items={sliders} />}
 
       <ScrollView
         horizontal
@@ -183,8 +199,24 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         ))}
       </ScrollView>
 
+      {happeningSoon.length > 0 && (
+        <>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Happening Soon 🔥</Text>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.happeningSoonScroll}
+            contentContainerStyle={styles.happeningSoonScrollContent}
+          >
+            {happeningSoon.map(renderHappeningSoonCard)}
+          </ScrollView>
+        </>
+      )}
+
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Popular near you</Text>
+        <Text style={styles.sectionTitle}>All Pods</Text>
         <TouchableOpacity>
           <Text style={styles.viewAll}>VIEW ALL</Text>
         </TouchableOpacity>
@@ -218,49 +250,57 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={onMenuPress} style={styles.menuBtn}>
-            <MaterialIcons name="menu" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <LinearGradient
-            colors={[colors.primaryLight, colors.primary]}
-            style={styles.headerLogo}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <MaterialCommunityIcons name="account-group" size={18} color={colors.white} />
-          </LinearGradient>
-          <Text style={styles.headerTitle}>PartyWings</Text>
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <TouchableOpacity
+          style={styles.headerLeft}
+          onPress={() => setShowLocationSelector(true)}
+        >
+          <MaterialIcons name="place" size={20} color={colors.primary} />
+          <View>
+            <Text style={styles.headerCity} numberOfLines={1}>{displayCity}</Text>
+            {selectedArea ? <Text style={styles.headerArea} numberOfLines={1}>{selectedArea}</Text> : null}
+          </View>
+          <MaterialIcons name="keyboard-arrow-down" size={20} color={colors.textSecondary} />
+        </TouchableOpacity>
+        <View style={styles.headerRight}>
           <TouchableOpacity
-            style={styles.notificationBtn}
-            onPress={() => setShowLocationModal(true)}
-            disabled={locationLoading}
+            style={styles.headerIconBtn}
+            onPress={() => setShowSearch((p) => !p)}
           >
-            {locationLoading ? (
-              <ActivityIndicator size="small" color={colors.primary} />
+            <MaterialIcons name="search" size={22} color={colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerIconBtn} onPress={onNotificationPress}>
+            <MaterialIcons name="notifications-none" size={22} color={colors.text} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.profileBtn} onPress={onMenuPress}>
+            {userAvatar ? (
+              <Image source={{ uri: userAvatar }} style={styles.profileAvatar} />
             ) : (
-              <MaterialIcons
-                name="my-location"
-                size={22}
-                color={location ? colors.primary : colors.text}
-              />
+              <MaterialIcons name="person" size={20} color={colors.white} />
             )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.notificationBtn}
-            onPress={onChatbotPress}
-            accessibilityLabel="Open AI chatbot"
-            accessibilityRole="button"
-          >
-            <FontAwesomeIcon icon={faWandMagicSparkles} size={20} color={colors.primary} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.notificationBtn} onPress={onNotificationPress}>
-            <MaterialIcons name="notifications-none" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
+
+      {showSearch && (
+        <View style={styles.searchBarRow}>
+          <View style={styles.searchContainer}>
+            <MaterialIcons name="search" size={18} color={colors.textTertiary} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Find hiking, dining, tech..."
+              placeholderTextColor={colors.textTertiary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoFocus
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <MaterialIcons name="close" size={18} color={colors.textTertiary} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      )}
 
       <FlatList
         data={pods}
@@ -286,136 +326,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         }
       />
 
-      <Modal
-        visible={showLocationModal}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowLocationModal(false)}
-      >
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: colors.overlay,
-            justifyContent: 'flex-end',
-          }}
-          activeOpacity={1}
-          onPress={() => setShowLocationModal(false)}
-        >
-          <KeyboardAvoidingView
-            behavior={
-              Platform.OS === 'web' ? undefined : Platform.OS === 'ios' ? 'padding' : 'height'
-            }
-          >
-            <TouchableOpacity activeOpacity={1} onPress={() => {}}>
-              <View
-                style={{
-                  backgroundColor: colors.surface,
-                  borderTopLeftRadius: 16,
-                  borderTopRightRadius: 16,
-                  padding: 20,
-                  paddingBottom: 32,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: '700',
-                    color: colors.text,
-                    marginBottom: 16,
-                  }}
-                >
-                  Set Your Location
-                </Text>
-
-                <TouchableOpacity
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    backgroundColor: colors.surfaceVariant,
-                    borderRadius: 12,
-                    padding: 14,
-                    gap: 10,
-                    marginBottom: 16,
-                  }}
-                  onPress={handleGpsPress}
-                  disabled={locationLoading}
-                >
-                  {locationLoading ? (
-                    <ActivityIndicator size="small" color={colors.primary} />
-                  ) : (
-                    <MaterialIcons name="my-location" size={22} color={colors.primary} />
-                  )}
-                  <Text style={{ fontSize: 15, fontWeight: '600', color: colors.text }}>
-                    Use GPS Location
-                  </Text>
-                </TouchableOpacity>
-
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginBottom: 12,
-                  }}
-                >
-                  <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
-                  <Text
-                    style={{
-                      marginHorizontal: 12,
-                      fontSize: 12,
-                      color: colors.textTertiary,
-                    }}
-                  >
-                    OR
-                  </Text>
-                  <View style={{ flex: 1, height: 1, backgroundColor: colors.border }} />
-                </View>
-
-                <Text
-                  style={{
-                    fontSize: 13,
-                    fontWeight: '600',
-                    color: colors.textSecondary,
-                    marginBottom: 8,
-                  }}
-                >
-                  Search by Pincode
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TextInput
-                    style={{
-                      flex: 1,
-                      backgroundColor: colors.surfaceVariant,
-                      borderRadius: 12,
-                      padding: 14,
-                      fontSize: 16,
-                      color: colors.text,
-                    }}
-                    placeholder="Enter 6-digit pincode"
-                    placeholderTextColor={colors.textTertiary}
-                    value={pincodeInput}
-                    onChangeText={setPincodeInput}
-                    keyboardType="number-pad"
-                    maxLength={6}
-                  />
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: colors.primary,
-                      borderRadius: 12,
-                      paddingHorizontal: 16,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                    onPress={handlePincodeSearch}
-                    disabled={locationLoading || pincodeInput.length < 6}
-                  >
-                    <MaterialIcons name="search" size={22} color={colors.white} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </KeyboardAvoidingView>
-        </TouchableOpacity>
-      </Modal>
+      <LocationSelector
+        visible={showLocationSelector}
+        onClose={() => setShowLocationSelector(false)}
+        onSelectCity={handleSelectCity}
+        currentCity={selectedCity || location?.city}
+        currentArea={selectedArea || location?.area}
+      />
     </SafeAreaView>
   );
 };

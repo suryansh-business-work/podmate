@@ -1,7 +1,9 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useMutation } from '@apollo/client';
 import SafeImage from './SafeImage';
+import { FOLLOW_USER, UNFOLLOW_USER } from '../graphql/mutations';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 
 const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v'];
@@ -23,9 +25,12 @@ interface EventCardProps {
   rating: number;
   status: string;
   category: string;
+  location?: string;
   hostName: string;
   hostAvatar: string;
+  hostId?: string;
   isJoined?: boolean;
+  isFollowing?: boolean;
   onPress: (id: string) => void;
 }
 
@@ -34,28 +39,43 @@ export const EventCard: React.FC<EventCardProps> = memo(function EventCard({
   title,
   imageUrl,
   mediaUrls,
-  feePerPerson,
   currentSeats,
   maxSeats,
   dateTime,
   rating,
   status,
+  location,
   hostName,
   hostAvatar,
+  hostId,
   isJoined = false,
+  isFollowing = false,
   onPress,
 }) {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const date = new Date(dateTime);
-  const formattedDate = date.toLocaleDateString('en-US', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  });
+  const month = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+  const day = date.getDate();
   const spotsLeft = maxSeats - currentSeats;
 
-  // Detect if the pod has at least one video
+  // Auto-follow if joined => show "Following"
+  const effectiveFollowing = isJoined || isFollowing;
+
+  const [followUser] = useMutation(FOLLOW_USER);
+  const [unfollowUser] = useMutation(UNFOLLOW_USER);
+
+  const handleFollowToggle = useCallback(() => {
+    if (!hostId) return;
+    if (effectiveFollowing) {
+      if (!isJoined) {
+        unfollowUser({ variables: { userId: hostId } });
+      }
+    } else {
+      followUser({ variables: { userId: hostId } });
+    }
+  }, [hostId, effectiveFollowing, isJoined, followUser, unfollowUser]);
+
   const hasVideo = useMemo(() => {
     const allUrls = [imageUrl, ...(mediaUrls ?? [])].filter(Boolean);
     return allUrls.some((u) => isVideoUrl(u));
@@ -78,9 +98,9 @@ export const EventCard: React.FC<EventCardProps> = memo(function EventCard({
     <TouchableOpacity
       style={styles.card}
       onPress={() => onPress(id)}
-      activeOpacity={0.85}
+      activeOpacity={0.88}
       accessibilityRole="button"
-      accessibilityLabel={`${title}, ${formattedDate}, ₹${feePerPerson}, ${spotsLeft} spots left, rated ${rating}`}
+      accessibilityLabel={`${title}, ${month} ${day}, ${spotsLeft} spots left, rated ${rating}`}
       accessibilityHint="Opens pod details"
     >
       <View>
@@ -97,46 +117,81 @@ export const EventCard: React.FC<EventCardProps> = memo(function EventCard({
         )}
       </View>
 
-      {/* Status Badge */}
-      <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
-        <Text style={styles.statusText}>{status}</Text>
-      </View>
-
-      {/* Joined Badge */}
       {isJoined && (
-        <View style={[styles.statusBadge, { backgroundColor: colors.success, top: 38 }]}>
+        <View style={[styles.statusBadge, { backgroundColor: colors.success }]}>
           <Text style={styles.statusText}>✓ Joined</Text>
         </View>
       )}
 
-      {/* Content */}
-      <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
-
-        <View style={styles.metaRow}>
-          <Text style={styles.dateText}>📅 {formattedDate}</Text>
-          <View style={styles.ratingRow}>
-            <Text style={styles.ratingStar}>★</Text>
-            <Text style={styles.ratingText}>{rating > 0 ? rating : 'New'}</Text>
-          </View>
+      <View style={styles.contentRow}>
+        {/* Date block on left */}
+        <View style={[styles.dateBlock, { backgroundColor: getStatusColor() + '15' }]}>
+          <Text style={[styles.dateMonth, { color: getStatusColor() }]}>{month}</Text>
+          <Text style={[styles.dateDay, { color: getStatusColor() }]}>{day}</Text>
         </View>
 
-        <View style={styles.bottomRow}>
-          <View style={styles.hostRow}>
-            <SafeImage
-              uri={hostAvatar}
-              style={styles.hostAvatar}
-              fallbackIcon="person"
-              fallbackIconSize={14}
-            />
-            <Text style={styles.hostName}>{hostName}</Text>
+        {/* Info on right */}
+        <View style={styles.infoBlock}>
+          {location ? (
+            <View style={styles.locationRow}>
+              <MaterialIcons name="place" size={12} color={colors.textTertiary} />
+              <Text style={styles.locationText} numberOfLines={1}>
+                {location}
+              </Text>
+            </View>
+          ) : null}
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+          <View style={styles.bottomRow}>
+            <View style={styles.hostRow}>
+              <SafeImage
+                uri={hostAvatar}
+                style={styles.hostAvatar}
+                fallbackIcon="person"
+                fallbackIconSize={12}
+              />
+              <Text style={styles.hostName} numberOfLines={1}>
+                {hostName}
+              </Text>
+            </View>
+            <View style={styles.metaRight}>
+              {rating > 0 && (
+                <View style={styles.ratingRow}>
+                  <Text style={styles.ratingStar}>★</Text>
+                  <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
+                </View>
+              )}
+              <Text style={styles.spotsLeft}>
+                {spotsLeft > 0 ? `${spotsLeft} spots` : 'Full'}
+              </Text>
+            </View>
           </View>
-          <View style={styles.priceRow}>
-            <Text style={styles.price}>₹{feePerPerson.toLocaleString()}</Text>
-            <Text style={styles.spotsLeft}> · {spotsLeft} spots</Text>
-          </View>
+          {hostId && (
+            <TouchableOpacity
+              style={[
+                styles.followBtn,
+                effectiveFollowing && styles.followBtnActive,
+              ]}
+              onPress={handleFollowToggle}
+              disabled={isJoined}
+              activeOpacity={0.7}
+            >
+              <MaterialIcons
+                name={effectiveFollowing ? 'check' : 'person-add'}
+                size={14}
+                color={effectiveFollowing ? colors.success : colors.primary}
+              />
+              <Text
+                style={[
+                  styles.followBtnText,
+                  effectiveFollowing && styles.followBtnTextActive,
+                ]}
+              >
+                {effectiveFollowing ? 'Following' : 'Follow'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -150,15 +205,17 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       backgroundColor: colors.surface,
       marginBottom: spacing.lg,
       shadowColor: colors.black,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.08,
-      shadowRadius: 12,
-      elevation: 4,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 3,
       overflow: 'hidden',
     },
     image: {
       width: '100%',
-      height: 180,
+      height: 170,
+      borderTopLeftRadius: borderRadius.lg,
+      borderTopRightRadius: borderRadius.lg,
     },
     playOverlay: {
       ...StyleSheet.absoluteFillObject,
@@ -180,24 +237,73 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       fontWeight: '700',
       letterSpacing: 0.5,
     },
-    content: {
-      padding: spacing.lg,
+    contentRow: {
+      flexDirection: 'row',
+      padding: spacing.md,
+      gap: spacing.md,
+    },
+    dateBlock: {
+      width: 52,
+      height: 56,
+      borderRadius: borderRadius.md,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    dateMonth: {
+      fontSize: 11,
+      fontWeight: '700',
+      letterSpacing: 0.5,
+    },
+    dateDay: {
+      fontSize: 22,
+      fontWeight: '800',
+      lineHeight: 26,
+    },
+    infoBlock: {
+      flex: 1,
+      justifyContent: 'center',
+      gap: 2,
+    },
+    locationRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 2,
+    },
+    locationText: {
+      fontSize: 11,
+      color: colors.textTertiary,
     },
     title: {
-      fontSize: 18,
+      fontSize: 16,
       fontWeight: '700',
       color: colors.text,
-      marginBottom: spacing.sm,
     },
-    metaRow: {
+    bottomRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: spacing.md,
+      marginTop: 2,
     },
-    dateText: {
-      fontSize: 13,
+    hostRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      flex: 1,
+    },
+    hostAvatar: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+    },
+    hostName: {
+      fontSize: 12,
       color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    metaRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
     },
     ratingRow: {
       flexDirection: 'row',
@@ -205,45 +311,41 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       gap: 2,
     },
     ratingStar: {
-      fontSize: 14,
+      fontSize: 12,
       color: colors.warning,
     },
     ratingText: {
-      fontSize: 13,
+      fontSize: 11,
       fontWeight: '600',
       color: colors.text,
     },
-    bottomRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    hostRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-    },
-    hostAvatar: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-    },
-    hostName: {
-      fontSize: 13,
+    spotsLeft: {
+      fontSize: 11,
       color: colors.textSecondary,
       fontWeight: '500',
     },
-    priceRow: {
+    followBtn: {
       flexDirection: 'row',
       alignItems: 'center',
+      alignSelf: 'flex-start',
+      gap: 4,
+      paddingHorizontal: spacing.md,
+      paddingVertical: 4,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.primary,
+      marginTop: spacing.sm,
     },
-    price: {
-      fontSize: 16,
-      fontWeight: '700',
+    followBtnActive: {
+      borderColor: colors.success,
+      backgroundColor: colors.success + '10',
+    },
+    followBtnText: {
+      fontSize: 11,
+      fontWeight: '600',
       color: colors.primary,
     },
-    spotsLeft: {
-      fontSize: 12,
-      color: colors.textSecondary,
+    followBtnTextActive: {
+      color: colors.success,
     },
   });

@@ -10,6 +10,7 @@ export interface PodItem {
   rating: number;
   status: string;
   category: string;
+  location?: string;
   host: {
     id: string;
     name: string;

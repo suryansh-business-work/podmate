@@ -22,8 +22,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 import { SkeletonDetail } from '../../components/Skeleton';
 import SafeImage from '../../components/SafeImage';
-import { GET_POD, GET_ME, GET_APP_CONFIG, GET_PODS } from '../../graphql/queries';
-import { DELETE_POD } from '../../graphql/mutations';
+import { GET_POD, GET_ME, GET_APP_CONFIG, GET_PODS, GET_FOLLOW_STATS } from '../../graphql/queries';
+import { DELETE_POD, FOLLOW_USER, UNFOLLOW_USER, REOPEN_POD } from '../../graphql/mutations';
 import { PodDetailScreenProps, PodAttendee } from './PodDetail.types';
 import { createStyles } from './PodDetail.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
@@ -67,6 +67,56 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({
 
   const pod = data?.pod;
   const currentUserId: string = (meData?.me?.id as string) ?? '';
+  const hostId: string = (pod?.host?.id as string) ?? '';
+  const isOwnPod = hostId === currentUserId;
+
+  const { data: followData, refetch: refetchFollow } = useQuery(GET_FOLLOW_STATS, {
+    variables: { userId: hostId },
+    skip: !hostId || isOwnPod,
+    fetchPolicy: 'cache-and-network',
+  });
+  const isFollowing: boolean = (followData?.followStats?.isFollowing as boolean) ?? false;
+  const followersCount: number = (followData?.followStats?.followersCount as number) ?? 0;
+
+  const [followUser, { loading: followLoading }] = useMutation(FOLLOW_USER, {
+    variables: { userId: hostId },
+    onCompleted: () => refetchFollow(),
+  });
+  const [unfollowUser, { loading: unfollowLoading }] = useMutation(UNFOLLOW_USER, {
+    variables: { userId: hostId },
+    onCompleted: () => refetchFollow(),
+  });
+
+  const handleFollowToggle = useCallback(() => {
+    if (isFollowing) {
+      unfollowUser();
+    } else {
+      followUser();
+    }
+  }, [isFollowing, followUser, unfollowUser]);
+
+  const canReopen =
+    isOwnPod && (pod?.status === 'COMPLETED' || pod?.status === 'CLOSED');
+  const [reopenPod, { loading: reopening }] = useMutation(REOPEN_POD, {
+    variables: { id: podId },
+    onCompleted: () => {
+      Alert.alert('Pod Reopened', 'Your pod has been reopened successfully.');
+      refetch();
+    },
+    onError: (err) => Alert.alert('Error', err.message),
+  });
+
+  const handleReopenPod = useCallback(() => {
+    Alert.alert(
+      'Reopen Pod',
+      'This will reset the pod to NEW status, clear attendees, and set a new date. Continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Reopen', onPress: () => reopenPod() },
+      ],
+    );
+  }, [reopenPod]);
+
   const googleMapsApiKey: string =
     (configData?.appConfig as Array<{ key: string; value: string }> | undefined)?.find(
       (c) => c.key === 'google_maps_api_key',
@@ -321,11 +371,50 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({
                   <MaterialIcons name="check-circle" size={16} color={colors.primary} />
                 )}
               </View>
+              {!isOwnPod && followersCount > 0 && (
+                <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 2 }}>
+                  {followersCount} follower{followersCount !== 1 ? 's' : ''}
+                </Text>
+              )}
             </View>
-            <View style={styles.ratingContainer}>
-              <MaterialIcons name="star" size={18} color={colors.warning} />
-              <Text style={styles.ratingScore}>{pod.rating}</Text>
-              <Text style={styles.reviewCount}>({pod.reviewCount})</Text>
+            <View style={{ alignItems: 'flex-end', gap: 6 }}>
+              <View style={styles.ratingContainer}>
+                <MaterialIcons name="star" size={18} color={colors.warning} />
+                <Text style={styles.ratingScore}>{pod.rating}</Text>
+                <Text style={styles.reviewCount}>({pod.reviewCount})</Text>
+              </View>
+              {!isOwnPod && hostId && (
+                <TouchableOpacity
+                  onPress={handleFollowToggle}
+                  disabled={followLoading || unfollowLoading}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 4,
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 16,
+                    backgroundColor: isFollowing ? colors.surface : colors.primary,
+                    borderWidth: isFollowing ? 1 : 0,
+                    borderColor: colors.border,
+                  }}
+                >
+                  <MaterialIcons
+                    name={isFollowing ? 'person-remove' : 'person-add'}
+                    size={14}
+                    color={isFollowing ? colors.textSecondary : colors.white}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '600',
+                      color: isFollowing ? colors.textSecondary : colors.white,
+                    }}
+                  >
+                    {isFollowing ? 'Following' : 'Follow'}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
 
@@ -529,6 +618,30 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({
                 <MaterialIcons name="delete" size={20} color={colors.error} />
                 <Text style={{ fontSize: 14, fontWeight: '600', color: colors.error }}>
                   {deleting ? 'Deleting...' : 'Delete Pod'}
+                </Text>
+              </TouchableOpacity>
+            )}
+            {canReopen && (
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  paddingVertical: 12,
+                  borderRadius: 12,
+                  backgroundColor: colors.success + '15',
+                  borderWidth: 1,
+                  borderColor: colors.success + '30',
+                }}
+                onPress={handleReopenPod}
+                disabled={reopening}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="refresh" size={20} color={colors.success} />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: colors.success }}>
+                  {reopening ? 'Reopening...' : 'Reopen Pod'}
                 </Text>
               </TouchableOpacity>
             )}

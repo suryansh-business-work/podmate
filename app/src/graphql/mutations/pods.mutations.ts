@@ -76,3 +76,14 @@ export const TRACK_POD_VIEW = gql`
     }
   }
 `;
+
+export const REOPEN_POD = gql`
+  mutation ReopenPod($id: ID!) {
+    reopenPod(id: $id) {
+      id
+      status
+      dateTime
+      currentSeats
+    }
+  }
+`;

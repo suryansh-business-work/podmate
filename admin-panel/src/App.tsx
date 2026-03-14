@@ -20,6 +20,9 @@ import FinancePage from './pages/Finance';
 import CallbacksPage from './pages/CallbacksPage';
 import FeedbackPage from './pages/Feedback';
 import PodIdeasPage from './pages/PodIdeas';
+import SlidersPage from './pages/Sliders';
+import LocationsPage from './pages/Locations';
+import PodTemplatesPage from './pages/PodTemplates';
 import AdminLayout from './layouts/AdminLayout';
 
 const App: React.FC = () => {
@@ -71,6 +74,9 @@ const App: React.FC = () => {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/feedback" element={<FeedbackPage />} />
           <Route path="/pod-ideas" element={<PodIdeasPage />} />
+          <Route path="/sliders" element={<SlidersPage />} />
+          <Route path="/locations" element={<LocationsPage />} />
+          <Route path="/pod-templates" element={<PodTemplatesPage />} />
           <Route path="/configuration" element={<ConfigurationPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

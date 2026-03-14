@@ -23,3 +23,8 @@ export {
   GET_LIVE_SESSION_FOR_POD,
   GET_EFFECTIVE_FEE,
 } from './misc.queries';
+export { GET_ACTIVE_SLIDERS } from './slider.queries';
+export { GET_ACTIVE_CITIES, GET_TOP_CITIES } from './location.queries';
+export { GET_MOMENTS, GET_USER_MOMENTS } from './moment.queries';
+export { GET_ACTIVE_POD_TEMPLATES } from './podTemplate.queries';
+export { GET_MY_SUBSCRIPTIONS, GET_SUBSCRIPTION_FOR_POD } from './subscription.queries';

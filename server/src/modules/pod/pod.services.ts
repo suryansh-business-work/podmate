@@ -6,6 +6,7 @@ import type {
   PodPaginationInput,
   PaginatedPods,
   PodStatus,
+  RecurrenceFrequency,
 } from './pod.models';
 import { PodModel, toPod } from './pod.models';
 import type { User } from '../user/user.models';
@@ -60,7 +61,49 @@ export async function getMyPods(hostId: string): Promise<Pod[]> {
   return docs.map(toPod).filter(Boolean) as Pod[];
 }
 
+function calculateOccurrenceCount(
+  startDate: string,
+  endDate: string,
+  frequency: RecurrenceFrequency,
+): number {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (end <= start) return 0;
+  const diffMs = end.getTime() - start.getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+  switch (frequency) {
+    case 'DAILY':
+      return Math.floor(diffDays) + 1;
+    case 'WEEKLY':
+      return Math.floor(diffDays / 7) + 1;
+    case 'MONTHLY': {
+      const months =
+        (end.getFullYear() - start.getFullYear()) * 12 +
+        (end.getMonth() - start.getMonth());
+      return Math.max(months, 1) + 1;
+    }
+    default:
+      return 0;
+  }
+}
+
 export async function createPod(input: CreatePodInput, hostId: string): Promise<Pod> {
+  const podType = input.podType ?? 'ONE_TIME';
+  let occurrenceCount = 0;
+  if (
+    podType === 'OCCURRENCE' &&
+    input.startDate &&
+    input.endDate &&
+    input.recurrence
+  ) {
+    occurrenceCount = calculateOccurrenceCount(
+      input.startDate,
+      input.endDate,
+      input.recurrence,
+    );
+  }
+
   const doc = await PodModel.create({
     _id: uuidv4(),
     title: input.title,
@@ -75,6 +118,11 @@ export async function createPod(input: CreatePodInput, hostId: string): Promise<
     location: input.location,
     locationDetail: input.locationDetail,
     refundPolicy: input.refundPolicy ?? '24h Refund',
+    podType,
+    startDate: input.startDate ?? '',
+    endDate: input.endDate ?? '',
+    recurrence: input.recurrence ?? '',
+    occurrenceCount,
     currentSeats: 0,
     attendeeIds: [],
     rating: 0,
@@ -379,6 +427,33 @@ export async function openPod(id: string): Promise<Pod> {
   const updated = await PodModel.findByIdAndUpdate(
     id,
     { $set: { status: 'OPEN', closeReason: '' } },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
+  const result = toPod(updated);
+  if (!result) throw new Error('Pod not found');
+  return result;
+}
+
+export async function reopenPod(id: string, hostId: string): Promise<Pod> {
+  const pod = await PodModel.findById(id);
+  if (!pod) throw new Error('Pod not found');
+  if (pod.hostId !== hostId) throw new Error('You can only reopen your own pods');
+  if (pod.status !== 'COMPLETED' && pod.status !== 'CLOSED') {
+    throw new Error('Only completed or closed pods can be reopened');
+  }
+
+  const newDateTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const updated = await PodModel.findByIdAndUpdate(
+    id,
+    {
+      $set: {
+        status: 'NEW',
+        closeReason: '',
+        currentSeats: 0,
+        attendeeIds: [],
+        dateTime: newDateTime,
+      },
+    },
     { returnDocument: 'after' },
   ).lean({ virtuals: true });
   const result = toPod(updated);

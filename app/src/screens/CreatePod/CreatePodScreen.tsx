@@ -12,6 +12,8 @@ import { CREATE_POD } from '../../graphql/mutations';
 import { GET_PODS } from '../../graphql/queries';
 import { PodFormValues, CATEGORIES } from './CreatePod.types';
 import PodFormBody from './PodFormBody';
+import TemplateSelector from './TemplateSelector';
+import type { PodTemplateItem } from './TemplateSelector';
 import { createStyles } from './CreatePod.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -45,6 +47,8 @@ const initialValues: PodFormValues = {
   latitude: 0,
   longitude: 0,
   category: 'Social',
+  podType: 'ONE_TIME',
+  recurrence: 'WEEKLY',
 };
 
 const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess }) => {
@@ -54,9 +58,14 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess })
   const [createdPodId, setCreatedPodId] = useState('');
   const [createdTitle, setCreatedTitle] = useState('');
   const [dateTime, setDateTime] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+  const [startDate, setStartDate] = useState(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+  const [endDate, setEndDate] = useState(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<PodTemplateItem | null>(null);
 
   const [createPod, { loading }] = useMutation(CREATE_POD, {
     refetchQueries: [{ query: GET_PODS, variables: { page: 1, limit: 20 } }],
@@ -83,6 +92,14 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess })
     }
   }, []);
 
+  const handleStartDateChange = useCallback((date: Date | undefined) => {
+    if (date) setStartDate(date);
+  }, []);
+
+  const handleEndDateChange = useCallback((date: Date | undefined) => {
+    if (date) setEndDate(date);
+  }, []);
+
   const handleCreate = async (values: PodFormValues) => {
     const hasImage = mediaItems.some((m) => m.type === 'image');
     if (!hasImage) {
@@ -92,6 +109,7 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess })
     const feeNum = parseInt(values.fee, 10) || 0;
     const mediaUrls = mediaItems.map((m) => m.url);
     try {
+      const isOccurrence = values.podType === 'OCCURRENCE';
       const result = await createPod({
         variables: {
           input: {
@@ -108,6 +126,12 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess })
             locationDetail: values.locationDetail.trim() || 'TBD',
             latitude: values.latitude || undefined,
             longitude: values.longitude || undefined,
+            podType: values.podType,
+            ...(isOccurrence && {
+              startDate: startDate.toISOString(),
+              endDate: endDate.toISOString(),
+              recurrence: values.recurrence,
+            }),
           },
         },
       });
@@ -146,6 +170,25 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess })
     }
   };
 
+  const formInitialValues: PodFormValues = selectedTemplate
+    ? {
+        ...initialValues,
+        title: selectedTemplate.defaultTitle || '',
+        description: selectedTemplate.defaultDescription || '',
+        fee: String(selectedTemplate.defaultFee || '1200'),
+        maxSeats: selectedTemplate.defaultMaxSeats || 10,
+        category: selectedTemplate.category || 'Social',
+      }
+    : initialValues;
+
+  const handleTemplateSelect = useCallback((template: PodTemplateItem) => {
+    setSelectedTemplate(template);
+  }, []);
+
+  const handleTemplateSkip = useCallback(() => {
+    setSelectedTemplate(null);
+  }, []);
+
   if (showInvite && createdPodId) {
     return (
       <ContactPicker
@@ -172,8 +215,11 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess })
             <View style={{ width: 24 }} />
           </View>
 
+          <TemplateSelector onSelect={handleTemplateSelect} onSkip={handleTemplateSkip} />
+
           <Formik
-            initialValues={initialValues}
+            initialValues={formInitialValues}
+            enableReinitialize
             validationSchema={podSchema}
             onSubmit={handleCreate}
           >
@@ -185,12 +231,22 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess })
                 showTimePicker={showTimePicker}
                 mediaItems={mediaItems}
                 loading={loading}
+                startDate={startDate}
+                endDate={endDate}
+                showStartDatePicker={showStartDatePicker}
+                showEndDatePicker={showEndDatePicker}
                 onMediaChange={setMediaItems}
                 onShowDatePicker={() => setShowDatePicker(true)}
                 onDateChange={handleDateChange}
                 onTimeChange={handleTimeChange}
                 onDismissDatePicker={() => setShowDatePicker(false)}
                 onDismissTimePicker={() => setShowTimePicker(false)}
+                onStartDateChange={handleStartDateChange}
+                onEndDateChange={handleEndDateChange}
+                onShowStartDatePicker={() => setShowStartDatePicker(true)}
+                onShowEndDatePicker={() => setShowEndDatePicker(true)}
+                onDismissStartDatePicker={() => setShowStartDatePicker(false)}
+                onDismissEndDatePicker={() => setShowEndDatePicker(false)}
               />
             )}
           </Formik>

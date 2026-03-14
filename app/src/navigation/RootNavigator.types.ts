@@ -7,6 +7,7 @@ export type RootStackParamList = {
   PodDetail: { podId: string };
   Checkout: { podId: string };
   CreatePod: undefined;
+  CreateMoment: undefined;
   Notifications: undefined;
   RegisterPlace: undefined;
   Faq: undefined;

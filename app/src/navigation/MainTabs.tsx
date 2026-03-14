@@ -6,8 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
-import ChatScreen from '../screens/ChatScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import { MomentsScreen } from '../screens/Moments';
+import ChatScreen from '../screens/Chat';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 
 const Tab = createBottomTabNavigator();
@@ -18,14 +18,14 @@ const TAB_ICONS: Record<string, MaterialIconName> = {
   Home: 'home',
   Explore: 'explore',
   Create: 'add',
-  Chat: 'chat-bubble-outline',
-  Profile: 'person',
+  Chat: 'chat',
+  Moments: 'auto-awesome',
 };
 
 interface MainTabsProps {
   onPodPress: (id: string) => void;
   onCreatePress: () => void;
-  onLogout: () => void;
+  onCreateMoment: () => void;
   onMenuPress: () => void;
   onNavigate?: (screen: string) => void;
   onCheckout?: (podId: string) => void;
@@ -36,7 +36,7 @@ interface MainTabsProps {
 const MainTabs: React.FC<MainTabsProps> = ({
   onPodPress,
   onCreatePress,
-  onLogout,
+  onCreateMoment,
   onMenuPress,
   onNavigate,
   onCheckout,
@@ -112,9 +112,11 @@ const MainTabs: React.FC<MainTabsProps> = ({
       >
         {() => <View />}
       </Tab.Screen>
-      <Tab.Screen name="Chat">{() => <ChatScreen />}</Tab.Screen>
-      <Tab.Screen name="Profile">
-        {() => <ProfileScreen onLogout={onLogout} onNavigate={onNavigate} />}
+      <Tab.Screen name="Chat">
+        {() => <ChatScreen />}
+      </Tab.Screen>
+      <Tab.Screen name="Moments">
+        {() => <MomentsScreen onCreateMoment={onCreateMoment} />}
       </Tab.Screen>
     </Tab.Navigator>
   );

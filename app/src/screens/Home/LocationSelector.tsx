@@ -103,9 +103,13 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   const handleUseLocation = useCallback(async () => {
     const result = await requestLocation();
-    if (result?.address) {
-      onSelectCity(result.address);
-      onClose();
+    if (result) {
+      const cityName = result.matchedCityName || result.city;
+      const areaName = result.matchedAreaName || result.area || undefined;
+      if (cityName) {
+        onSelectCity(cityName, areaName);
+        onClose();
+      }
     }
   }, [requestLocation, onSelectCity, onClose]);
 

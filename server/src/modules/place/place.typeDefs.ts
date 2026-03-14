@@ -11,6 +11,9 @@ const placeTypeDefs = `#graphql
     description: String!
     address: String!
     city: String!
+    state: String!
+    country: String!
+    pincode: String!
     imageUrl: String!
     mediaUrls: [String!]!
     owner: User
@@ -38,6 +41,9 @@ const placeTypeDefs = `#graphql
     description: String!
     address: String!
     city: String!
+    state: String
+    country: String
+    pincode: String
     imageUrl: String
     mediaUrls: [String!]
     category: String!
@@ -52,6 +58,9 @@ const placeTypeDefs = `#graphql
     description: String
     address: String
     city: String
+    state: String
+    country: String
+    pincode: String
     imageUrl: String
     mediaUrls: [String!]
     category: String

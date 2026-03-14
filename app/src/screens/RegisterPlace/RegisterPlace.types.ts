@@ -4,6 +4,9 @@ export interface VenueFormValues {
   description: string;
   address: string;
   city: string;
+  state: string;
+  country: string;
+  pincode: string;
   capacity: string;
   latitude?: number;
   longitude?: number;

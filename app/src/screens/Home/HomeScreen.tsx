@@ -69,7 +69,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     setSelectedSubCategoryId(null);
   }, []);
 
-  const displayCity = selectedCity || location?.city || 'Select Location';
+  const displayCity = selectedCity || location?.matchedCityName || location?.city || 'Select Location';
 
   const { data: sliderData } = useQuery(GET_ACTIVE_SLIDERS, {
     variables: { city: selectedCity || location?.address || undefined },

@@ -4,6 +4,9 @@ export interface CreatePlaceFormValues {
   category: string;
   address: string;
   city: string;
+  state: string;
+  country: string;
+  pincode: string;
   phone: string;
   email: string;
   ownerId: string;

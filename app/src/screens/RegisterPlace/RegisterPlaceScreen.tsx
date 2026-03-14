@@ -30,6 +30,9 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
     description: '',
     address: '',
     city: '',
+    state: '',
+    country: '',
+    pincode: '',
     capacity: '',
   });
   const [policiesAccepted, setPoliciesAccepted] = useState(false);
@@ -86,6 +89,9 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
             description: formValues.description,
             address: formValues.address,
             city: formValues.city,
+            state: formValues.state,
+            country: formValues.country,
+            pincode: formValues.pincode,
             category: formValues.category,
             imageUrl,
             mediaUrls,

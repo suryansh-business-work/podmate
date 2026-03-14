@@ -13,6 +13,9 @@ export interface Place {
   description: string;
   address: string;
   city: string;
+  state: string;
+  country: string;
+  pincode: string;
   imageUrl: string;
   mediaUrls: string[];
   ownerId: string;
@@ -32,6 +35,9 @@ export interface CreatePlaceInput {
   description: string;
   address: string;
   city: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
   imageUrl?: string;
   mediaUrls?: string[];
   category: string;
@@ -46,6 +52,9 @@ export interface UpdatePlaceInput {
   description?: string;
   address?: string;
   city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
   imageUrl?: string;
   mediaUrls?: string[];
   category?: string;
@@ -83,6 +92,9 @@ const PlaceSchema = new Schema<PlaceMongoDoc>(
     description: { type: String, default: '' },
     address: { type: String, required: true },
     city: { type: String, required: true },
+    state: { type: String, default: '' },
+    country: { type: String, default: '' },
+    pincode: { type: String, default: '' },
     imageUrl: { type: String, default: '' },
     mediaUrls: { type: [String], default: [] },
     ownerId: { type: String, required: true },
@@ -113,5 +125,8 @@ export function toPlace(doc: (PlaceMongoDoc & { id?: string }) | null): Place | 
     phone: doc.phone ?? '',
     email: doc.email ?? '',
     mediaUrls: doc.mediaUrls ?? [],
+    state: doc.state ?? '',
+    country: doc.country ?? '',
+    pincode: doc.pincode ?? '',
   } as Place;
 }

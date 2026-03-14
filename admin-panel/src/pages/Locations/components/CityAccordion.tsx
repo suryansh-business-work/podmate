@@ -9,6 +9,7 @@ import {
   IconButton,
   TextField,
   Button,
+  Divider,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
@@ -27,6 +28,10 @@ interface CityAccordionProps {
   onMove: (cityId: string, direction: 'up' | 'down') => void;
   onAddArea: (cityId: string, name: string) => void;
   onRemoveArea: (cityId: string, areaId: string) => void;
+  onAddPincodeToCity: (cityId: string, pincode: string) => void;
+  onRemovePincodeFromCity: (cityId: string, pincode: string) => void;
+  onAddPincodeToArea: (cityId: string, areaId: string, pincode: string) => void;
+  onRemovePincodeFromArea: (cityId: string, areaId: string, pincode: string) => void;
   addingArea: boolean;
 }
 
@@ -39,14 +44,35 @@ const CityAccordion: React.FC<CityAccordionProps> = ({
   onMove,
   onAddArea,
   onRemoveArea,
+  onAddPincodeToCity,
+  onRemovePincodeFromCity,
+  onAddPincodeToArea,
+  onRemovePincodeFromArea,
   addingArea,
 }) => {
   const [areaName, setAreaName] = useState('');
+  const [cityPincode, setCityPincode] = useState('');
+  const [areaPincodes, setAreaPincodes] = useState<Record<string, string>>({});
 
-  const handleAdd = () => {
+  const handleAddArea = () => {
     if (areaName.trim()) {
       onAddArea(city.id, areaName.trim());
       setAreaName('');
+    }
+  };
+
+  const handleAddCityPincode = () => {
+    if (cityPincode.trim()) {
+      onAddPincodeToCity(city.id, cityPincode.trim());
+      setCityPincode('');
+    }
+  };
+
+  const handleAddAreaPincode = (areaId: string) => {
+    const pin = areaPincodes[areaId]?.trim();
+    if (pin) {
+      onAddPincodeToArea(city.id, areaId, pin);
+      setAreaPincodes((prev) => ({ ...prev, [areaId]: '' }));
     }
   };
 
@@ -118,6 +144,48 @@ const CityAccordion: React.FC<CityAccordionProps> = ({
         </Box>
       </AccordionSummary>
       <AccordionDetails>
+        {/* ── City-level Pincodes ── */}
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+          City Pincodes
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+          {city.pincodes.map((pin) => (
+            <Chip
+              key={pin}
+              label={pin}
+              onDelete={() => onRemovePincodeFromCity(city.id, pin)}
+              color="primary"
+              variant="outlined"
+              size="small"
+            />
+          ))}
+          {city.pincodes.length === 0 && (
+            <Typography variant="body2" color="text.secondary">
+              No pincodes added
+            </Typography>
+          )}
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2 }}>
+          <TextField
+            size="small"
+            placeholder="e.g. 201017"
+            value={cityPincode}
+            onChange={(e) => setCityPincode(e.target.value)}
+            sx={{ width: 160 }}
+          />
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleAddCityPincode}
+            disabled={!cityPincode.trim()}
+          >
+            Add Pincode
+          </Button>
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* ── Closest Areas ── */}
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
           Closest Areas
         </Typography>
@@ -137,7 +205,7 @@ const CityAccordion: React.FC<CityAccordionProps> = ({
             </Typography>
           )}
         </Box>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2 }}>
           <TextField
             size="small"
             placeholder="Area name (e.g. South City)"
@@ -148,12 +216,65 @@ const CityAccordion: React.FC<CityAccordionProps> = ({
           <Button
             variant="outlined"
             size="small"
-            onClick={handleAdd}
+            onClick={handleAddArea}
             disabled={addingArea || !areaName.trim()}
           >
             Add Area
           </Button>
         </Box>
+
+        {/* ── Area-level Pincodes ── */}
+        {city.areas.length > 0 && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              Area Pincodes
+            </Typography>
+            {city.areas.map((area) => (
+              <Box key={area.id} sx={{ mb: 2 }}>
+                <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                  {area.name}
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 1 }}>
+                  {area.pincodes.map((pin) => (
+                    <Chip
+                      key={pin}
+                      label={pin}
+                      onDelete={() => onRemovePincodeFromArea(city.id, area.id, pin)}
+                      color="secondary"
+                      variant="outlined"
+                      size="small"
+                    />
+                  ))}
+                  {area.pincodes.length === 0 && (
+                    <Typography variant="caption" color="text.secondary">
+                      No pincodes
+                    </Typography>
+                  )}
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <TextField
+                    size="small"
+                    placeholder="e.g. 201017"
+                    value={areaPincodes[area.id] ?? ''}
+                    onChange={(e) =>
+                      setAreaPincodes((prev) => ({ ...prev, [area.id]: e.target.value }))
+                    }
+                    sx={{ width: 140 }}
+                  />
+                  <Button
+                    variant="text"
+                    size="small"
+                    onClick={() => handleAddAreaPincode(area.id)}
+                    disabled={!areaPincodes[area.id]?.trim()}
+                  >
+                    Add
+                  </Button>
+                </Box>
+              </Box>
+            ))}
+          </>
+        )}
       </AccordionDetails>
     </Accordion>
   );

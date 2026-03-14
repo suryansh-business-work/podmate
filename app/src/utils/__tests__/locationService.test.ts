@@ -1,145 +1,132 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  isServiceAvailable,
-  SERVICE_AVAILABLE_PINCODES,
   saveLocation,
   getSavedLocation,
   clearSavedLocation,
+  toLocationData,
 } from '../locationService';
-import type { LocationData } from '../locationService';
+import type { LocationData, ResolvedLocationResponse } from '../locationService';
 
-describe('isServiceAvailable', () => {
-  it('returns true for pincodes in the service list', () => {
-    SERVICE_AVAILABLE_PINCODES.forEach((pincode) => {
-      expect(isServiceAvailable(pincode)).toBe(true);
-    });
+const mockLocation: LocationData = {
+  city: 'Ghaziabad',
+  pincode: '201017',
+  state: 'Uttar Pradesh',
+  area: 'Raj Nagar Extension',
+  country: 'India',
+  latitude: 28.6,
+  longitude: 77.4,
+  address: 'Raj Nagar Extension, Ghaziabad, UP',
+  isServiceAvailable: true,
+};
+
+describe('toLocationData', () => {
+  it('converts ResolvedLocationResponse to LocationData', () => {
+    const response: ResolvedLocationResponse = {
+      city: 'Ghaziabad',
+      state: 'Uttar Pradesh',
+      country: 'India',
+      pincode: '201017',
+      area: 'Raj Nagar Extension',
+      address: 'Raj Nagar Extension, Ghaziabad, UP',
+      latitude: 28.6,
+      longitude: 77.4,
+      matchedCityId: 'city123',
+      matchedCityName: 'Ghaziabad',
+      matchedAreaId: 'area456',
+      matchedAreaName: 'Raj Nagar Extension',
+      isServiceAvailable: true,
+    };
+
+    const result = toLocationData(response);
+
+    expect(result.city).toBe('Ghaziabad');
+    expect(result.pincode).toBe('201017');
+    expect(result.state).toBe('Uttar Pradesh');
+    expect(result.country).toBe('India');
+    expect(result.matchedCityId).toBe('city123');
+    expect(result.matchedAreaName).toBe('Raj Nagar Extension');
+    expect(result.isServiceAvailable).toBe(true);
   });
 
-  it('returns false for pincodes NOT in the service list', () => {
-    expect(isServiceAvailable('999999')).toBe(false);
-    expect(isServiceAvailable('110001')).toBe(false);
-    expect(isServiceAvailable('')).toBe(false);
-  });
+  it('converts null matched fields to undefined', () => {
+    const response: ResolvedLocationResponse = {
+      city: 'Delhi',
+      state: 'Delhi',
+      country: 'India',
+      pincode: '110001',
+      area: 'CP',
+      address: 'CP, Delhi',
+      latitude: 28.6,
+      longitude: 77.2,
+      matchedCityId: null,
+      matchedCityName: null,
+      matchedAreaId: null,
+      matchedAreaName: null,
+      isServiceAvailable: false,
+    };
 
-  it('does exact match, not partial', () => {
-    const partial = SERVICE_AVAILABLE_PINCODES[0].slice(0, 3);
-    expect(isServiceAvailable(partial)).toBe(false);
+    const result = toLocationData(response);
+
+    expect(result.matchedCityId).toBeUndefined();
+    expect(result.matchedCityName).toBeUndefined();
+    expect(result.matchedAreaId).toBeUndefined();
+    expect(result.matchedAreaName).toBeUndefined();
+    expect(result.isServiceAvailable).toBe(false);
   });
 });
 
 describe('saveLocation', () => {
-  const mockLocation: LocationData = {
-    city: 'Ghaziabad',
-    pincode: '201017',
-    state: 'Uttar Pradesh',
-    area: 'Raj Nagar Extension',
-    latitude: 28.6,
-    longitude: 77.4,
-    address: 'Raj Nagar Extension, Ghaziabad, UP',
-  };
+  it('stores location in AsyncStorage', async () => {
+    await saveLocation(mockLocation);
 
-  it('stores location and serviceAvailable in AsyncStorage', async () => {
-    await saveLocation(mockLocation, true);
-
-    expect(AsyncStorage.multiSet).toHaveBeenCalledWith([
-      ['@partywings_location', JSON.stringify(mockLocation)],
-      ['@partywings_service_available', 'true'],
-    ]);
-  });
-
-  it('stores serviceAvailable=false correctly', async () => {
-    await saveLocation(mockLocation, false);
-
-    expect(AsyncStorage.multiSet).toHaveBeenCalledWith([
-      ['@partywings_location', JSON.stringify(mockLocation)],
-      ['@partywings_service_available', 'false'],
-    ]);
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      '@partywings_location',
+      JSON.stringify(mockLocation),
+    );
   });
 
   it('handles storage failure silently', async () => {
-    (AsyncStorage.multiSet as jest.Mock).mockRejectedValueOnce(new Error('Storage full'));
+    (AsyncStorage.setItem as jest.Mock).mockRejectedValueOnce(new Error('Storage full'));
 
-    await expect(saveLocation(mockLocation, true)).resolves.toBeUndefined();
+    await expect(saveLocation(mockLocation)).resolves.toBeUndefined();
   });
 });
 
 describe('getSavedLocation', () => {
-  it('returns stored location and isServiceAvailable=true', async () => {
-    const loc: LocationData = {
-      city: 'Ghaziabad',
-      pincode: '201017',
-      state: 'UP',
-      area: 'RNE',
-      latitude: 28.6,
-      longitude: 77.4,
-      address: 'Test Address',
-    };
-    (AsyncStorage.multiGet as jest.Mock).mockResolvedValue([
-      ['@partywings_location', JSON.stringify(loc)],
-      ['@partywings_service_available', 'true'],
-    ]);
+  it('returns stored location', async () => {
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify(mockLocation));
 
     const result = await getSavedLocation();
 
-    expect(result.location).toEqual(loc);
-    expect(result.isServiceAvailable).toBe(true);
+    expect(result).toEqual(mockLocation);
   });
 
-  it('returns isServiceAvailable=false when stored as false', async () => {
-    const loc: LocationData = {
-      city: 'Delhi',
-      pincode: '110001',
-      state: 'Delhi',
-      area: 'CP',
-      latitude: 28.6,
-      longitude: 77.2,
-      address: 'CP, Delhi',
-    };
-    (AsyncStorage.multiGet as jest.Mock).mockResolvedValue([
-      ['@partywings_location', JSON.stringify(loc)],
-      ['@partywings_service_available', 'false'],
-    ]);
+  it('returns null when nothing is stored', async () => {
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
 
     const result = await getSavedLocation();
 
-    expect(result.location).toEqual(loc);
-    expect(result.isServiceAvailable).toBe(false);
-  });
-
-  it('returns null location when nothing is stored', async () => {
-    (AsyncStorage.multiGet as jest.Mock).mockResolvedValue([
-      ['@partywings_location', null],
-      ['@partywings_service_available', null],
-    ]);
-
-    const result = await getSavedLocation();
-
-    expect(result.location).toBeNull();
-    expect(result.isServiceAvailable).toBe(false);
+    expect(result).toBeNull();
   });
 
   it('handles storage read failure gracefully', async () => {
-    (AsyncStorage.multiGet as jest.Mock).mockRejectedValue(new Error('Read error'));
+    (AsyncStorage.getItem as jest.Mock).mockRejectedValue(new Error('Read error'));
 
     const result = await getSavedLocation();
 
-    expect(result.location).toBeNull();
-    expect(result.isServiceAvailable).toBe(false);
+    expect(result).toBeNull();
   });
 });
 
 describe('clearSavedLocation', () => {
-  it('removes location keys from AsyncStorage', async () => {
+  it('removes location key from AsyncStorage', async () => {
     await clearSavedLocation();
 
-    expect(AsyncStorage.multiRemove).toHaveBeenCalledWith([
-      '@partywings_location',
-      '@partywings_service_available',
-    ]);
+    expect(AsyncStorage.removeItem).toHaveBeenCalledWith('@partywings_location');
   });
 
   it('handles removal failure silently', async () => {
-    (AsyncStorage.multiRemove as jest.Mock).mockRejectedValueOnce(new Error('fail'));
+    (AsyncStorage.removeItem as jest.Mock).mockRejectedValueOnce(new Error('fail'));
 
     await expect(clearSavedLocation()).resolves.toBeUndefined();
   });

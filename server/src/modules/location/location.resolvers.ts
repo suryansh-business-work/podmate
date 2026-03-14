@@ -22,6 +22,38 @@ const locationResolvers = {
     city: async (_: unknown, { id }: { id: string }) => {
       return locationService.getCityById(id);
     },
+    resolveLocation: async (
+      _: unknown,
+      { latitude, longitude }: { latitude: number; longitude: number },
+    ) => {
+      const result = await locationService.resolveLocationByCoords(latitude, longitude);
+      if (!result) throw new Error('Unable to resolve location');
+      return result;
+    },
+    resolveLocationByPincode: async (
+      _: unknown,
+      { pincode, country }: { pincode: string; country?: string },
+    ) => {
+      const result = await locationService.resolveLocationByPincode(pincode, country);
+      if (!result) throw new Error('Unable to resolve pincode');
+      return result;
+    },
+    searchGooglePlaces: async (
+      _: unknown,
+      { input, sessionToken }: { input: string; sessionToken?: string },
+      ctx: GraphQLContext,
+    ) => {
+      if (!ctx.user) throw new Error('Authentication required');
+      return locationService.searchGooglePlaces(input, sessionToken);
+    },
+    googlePlaceDetails: async (
+      _: unknown,
+      { placeId }: { placeId: string },
+      ctx: GraphQLContext,
+    ) => {
+      if (!ctx.user) throw new Error('Authentication required');
+      return locationService.resolveGooglePlaceDetails(placeId);
+    },
   },
   Mutation: {
     createCity: async (_: unknown, { input }: { input: CreateCityInput }, ctx: GraphQLContext) => {
@@ -59,6 +91,48 @@ const locationResolvers = {
     ) => {
       if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
       return locationService.removeArea(cityId, areaId);
+    },
+    addPincodeToCity: async (
+      _: unknown,
+      { cityId, pincode }: { cityId: string; pincode: string },
+      ctx: GraphQLContext,
+    ) => {
+      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!pincode.trim()) throw new Error('Pincode is required');
+      const result = await locationService.addPincodeToCity(cityId, pincode);
+      if (!result) throw new Error('City not found');
+      return result;
+    },
+    removePincodeFromCity: async (
+      _: unknown,
+      { cityId, pincode }: { cityId: string; pincode: string },
+      ctx: GraphQLContext,
+    ) => {
+      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      const result = await locationService.removePincodeFromCity(cityId, pincode);
+      if (!result) throw new Error('City not found');
+      return result;
+    },
+    addPincodeToArea: async (
+      _: unknown,
+      { cityId, areaId, pincode }: { cityId: string; areaId: string; pincode: string },
+      ctx: GraphQLContext,
+    ) => {
+      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!pincode.trim()) throw new Error('Pincode is required');
+      const result = await locationService.addPincodeToArea(cityId, areaId, pincode);
+      if (!result) throw new Error('City or area not found');
+      return result;
+    },
+    removePincodeFromArea: async (
+      _: unknown,
+      { cityId, areaId, pincode }: { cityId: string; areaId: string; pincode: string },
+      ctx: GraphQLContext,
+    ) => {
+      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      const result = await locationService.removePincodeFromArea(cityId, areaId, pincode);
+      if (!result) throw new Error('City or area not found');
+      return result;
     },
   },
 };

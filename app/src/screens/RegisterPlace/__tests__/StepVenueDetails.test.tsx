@@ -44,6 +44,9 @@ const defaultFormValues: VenueFormValues = {
   description: '',
   address: '',
   city: '',
+  state: '',
+  country: '',
+  pincode: '',
   capacity: '',
 };
 
@@ -136,6 +139,9 @@ describe('StepVenueDetails', () => {
       description: 'A nice bar',
       address: '123 St',
       city: 'Delhi',
+      state: 'Delhi',
+      country: 'India',
+      pincode: '110001',
       capacity: '100',
     };
     const { getByDisplayValue } = render(<StepVenueDetails {...baseProps} formValues={values} />);

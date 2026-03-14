@@ -9,6 +9,7 @@ const locationTypeDefs = `#graphql
     isTopCity: Boolean!
     isActive: Boolean!
     sortOrder: Int!
+    pincodes: [String!]!
     areas: [Area!]!
     createdAt: String!
     updatedAt: String!
@@ -18,6 +19,7 @@ const locationTypeDefs = `#graphql
     id: ID!
     name: String!
     cityId: ID!
+    pincodes: [String!]!
   }
 
   type PaginatedCities {
@@ -28,6 +30,29 @@ const locationTypeDefs = `#graphql
     totalPages: Int!
   }
 
+  type ResolvedLocation {
+    city: String!
+    state: String!
+    country: String!
+    pincode: String!
+    area: String!
+    address: String!
+    latitude: Float!
+    longitude: Float!
+    matchedCityId: ID
+    matchedCityName: String
+    matchedAreaId: ID
+    matchedAreaName: String
+    isServiceAvailable: Boolean!
+  }
+
+  type GooglePlacePrediction {
+    placeId: String!
+    description: String!
+    mainText: String!
+    secondaryText: String!
+  }
+
   input CreateCityInput {
     name: String!
     state: String
@@ -36,6 +61,7 @@ const locationTypeDefs = `#graphql
     isTopCity: Boolean
     isActive: Boolean
     sortOrder: Int
+    pincodes: [String!]
   }
 
   input UpdateCityInput {
@@ -47,11 +73,13 @@ const locationTypeDefs = `#graphql
     isTopCity: Boolean
     isActive: Boolean
     sortOrder: Int
+    pincodes: [String!]
   }
 
   input CreateAreaInput {
     name: String!
     cityId: ID!
+    pincodes: [String!]
   }
 `;
 

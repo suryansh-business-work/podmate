@@ -150,6 +150,10 @@ const rootSchema = `#graphql
     activeCities: [City!]!
     topCities: [City!]!
     city(id: ID!): City
+    resolveLocation(latitude: Float!, longitude: Float!): ResolvedLocation!
+    resolveLocationByPincode(pincode: String!, country: String): ResolvedLocation!
+    searchGooglePlaces(input: String!, sessionToken: String): [GooglePlacePrediction!]!
+    googlePlaceDetails(placeId: String!): ResolvedLocation
     moments(page: Int, limit: Int): PaginatedMoments!
     userMoments(userId: ID!, page: Int, limit: Int): PaginatedMoments!
     momentComments(momentId: ID!, page: Int, limit: Int): PaginatedMomentComments!
@@ -266,6 +270,10 @@ const rootSchema = `#graphql
     deleteCity(id: ID!): Boolean!
     addArea(input: CreateAreaInput!): Area!
     removeArea(cityId: ID!, areaId: ID!): Boolean!
+    addPincodeToCity(cityId: ID!, pincode: String!): City!
+    removePincodeFromCity(cityId: ID!, pincode: String!): City!
+    addPincodeToArea(cityId: ID!, areaId: ID!, pincode: String!): City!
+    removePincodeFromArea(cityId: ID!, areaId: ID!, pincode: String!): City!
     createMoment(input: CreateMomentInput!): Moment!
     deleteMoment(id: ID!): Boolean!
     likeMoment(momentId: ID!): Moment!

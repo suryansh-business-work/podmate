@@ -18,6 +18,9 @@ export async function createPlace(input: CreatePlaceInput, ownerId: string): Pro
     description: input.description,
     address: input.address,
     city: input.city,
+    state: input.state ?? '',
+    country: input.country ?? '',
+    pincode: input.pincode ?? '',
     imageUrl: input.imageUrl ?? '',
     mediaUrls: input.mediaUrls ?? [],
     ownerId,
@@ -42,6 +45,9 @@ export async function adminCreatePlace(input: CreatePlaceInput, ownerId: string)
     description: input.description,
     address: input.address,
     city: input.city,
+    state: input.state ?? '',
+    country: input.country ?? '',
+    pincode: input.pincode ?? '',
     imageUrl: input.imageUrl ?? '',
     ownerId,
     category: input.category,
@@ -63,6 +69,9 @@ export async function updatePlace(id: string, input: UpdatePlaceInput): Promise<
   if (input.description !== undefined) update.description = input.description;
   if (input.address !== undefined) update.address = input.address;
   if (input.city !== undefined) update.city = input.city;
+  if (input.state !== undefined) update.state = input.state;
+  if (input.country !== undefined) update.country = input.country;
+  if (input.pincode !== undefined) update.pincode = input.pincode;
   if (input.imageUrl !== undefined) update.imageUrl = input.imageUrl;
   if (input.category !== undefined) update.category = input.category;
   if (input.phone !== undefined) update.phone = input.phone;

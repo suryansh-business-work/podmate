@@ -2,6 +2,7 @@ export interface AreaItem {
   id: string;
   name: string;
   cityId: string;
+  pincodes: string[];
 }
 
 export interface CityItem {
@@ -13,6 +14,7 @@ export interface CityItem {
   isTopCity: boolean;
   isActive: boolean;
   sortOrder: number;
+  pincodes: string[];
   areas: AreaItem[];
 }
 

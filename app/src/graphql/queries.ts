@@ -32,7 +32,14 @@ export {
 
 export { GET_ACTIVE_SLIDERS } from './queries/slider.queries';
 
-export { GET_ACTIVE_CITIES, GET_TOP_CITIES } from './queries/location.queries';
+export {
+  GET_ACTIVE_CITIES,
+  GET_TOP_CITIES,
+  RESOLVE_LOCATION,
+  RESOLVE_LOCATION_BY_PINCODE,
+  SEARCH_GOOGLE_PLACES,
+  GOOGLE_PLACE_DETAILS,
+} from './queries/location.queries';
 
 export { GET_MOMENTS, GET_USER_MOMENTS } from './queries/moment.queries';
 

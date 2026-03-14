@@ -31,10 +31,12 @@ const GET_CITIES = gql`
         isTopCity
         isActive
         sortOrder
+        pincodes
         areas {
           id
           name
           cityId
+          pincodes
         }
         createdAt
       }
@@ -81,6 +83,44 @@ const REMOVE_AREA = gql`
     removeArea(cityId: $cityId, areaId: $areaId)
   }
 `;
+const ADD_PINCODE_TO_CITY = gql`
+  mutation AddPincodeToCity($cityId: ID!, $pincode: String!) {
+    addPincodeToCity(cityId: $cityId, pincode: $pincode) {
+      id
+      pincodes
+    }
+  }
+`;
+const REMOVE_PINCODE_FROM_CITY = gql`
+  mutation RemovePincodeFromCity($cityId: ID!, $pincode: String!) {
+    removePincodeFromCity(cityId: $cityId, pincode: $pincode) {
+      id
+      pincodes
+    }
+  }
+`;
+const ADD_PINCODE_TO_AREA = gql`
+  mutation AddPincodeToArea($cityId: ID!, $areaId: ID!, $pincode: String!) {
+    addPincodeToArea(cityId: $cityId, areaId: $areaId, pincode: $pincode) {
+      id
+      areas {
+        id
+        pincodes
+      }
+    }
+  }
+`;
+const REMOVE_PINCODE_FROM_AREA = gql`
+  mutation RemovePincodeFromArea($cityId: ID!, $areaId: ID!, $pincode: String!) {
+    removePincodeFromArea(cityId: $cityId, areaId: $areaId, pincode: $pincode) {
+      id
+      areas {
+        id
+        pincodes
+      }
+    }
+  }
+`;
 
 const LocationsPage: React.FC = () => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -116,6 +156,14 @@ const LocationsPage: React.FC = () => {
     onCompleted: () => refetch(),
   });
   const [removeArea] = useMutation(REMOVE_AREA, { onCompleted: () => refetch() });
+  const [addPincodeToCity] = useMutation(ADD_PINCODE_TO_CITY, { onCompleted: () => refetch() });
+  const [removePincodeFromCity] = useMutation(REMOVE_PINCODE_FROM_CITY, {
+    onCompleted: () => refetch(),
+  });
+  const [addPincodeToArea] = useMutation(ADD_PINCODE_TO_AREA, { onCompleted: () => refetch() });
+  const [removePincodeFromArea] = useMutation(REMOVE_PINCODE_FROM_AREA, {
+    onCompleted: () => refetch(),
+  });
 
   const allCities: CityItem[] = useMemo(() => data?.cities?.items ?? [], [data]);
 
@@ -301,6 +349,18 @@ const LocationsPage: React.FC = () => {
             onMove={handleMoveCity}
             onAddArea={(cityId, name) => addArea({ variables: { input: { name, cityId } } })}
             onRemoveArea={(cityId, areaId) => removeArea({ variables: { cityId, areaId } })}
+            onAddPincodeToCity={(cityId, pincode) =>
+              addPincodeToCity({ variables: { cityId, pincode } })
+            }
+            onRemovePincodeFromCity={(cityId, pincode) =>
+              removePincodeFromCity({ variables: { cityId, pincode } })
+            }
+            onAddPincodeToArea={(cityId, areaId, pincode) =>
+              addPincodeToArea({ variables: { cityId, areaId, pincode } })
+            }
+            onRemovePincodeFromArea={(cityId, areaId, pincode) =>
+              removePincodeFromArea({ variables: { cityId, areaId, pincode } })
+            }
             addingArea={addingArea}
           />
         ))

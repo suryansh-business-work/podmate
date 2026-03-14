@@ -11,6 +11,7 @@ export interface City {
   isTopCity: boolean;
   isActive: boolean;
   sortOrder: number;
+  pincodes: string[];
   areas: Area[];
   createdAt: string;
   updatedAt: string;
@@ -20,6 +21,7 @@ export interface Area {
   id: string;
   name: string;
   cityId: string;
+  pincodes: string[];
 }
 
 export interface CreateCityInput {
@@ -30,6 +32,7 @@ export interface CreateCityInput {
   isTopCity?: boolean;
   isActive?: boolean;
   sortOrder?: number;
+  pincodes?: string[];
 }
 
 export interface UpdateCityInput {
@@ -41,11 +44,13 @@ export interface UpdateCityInput {
   isTopCity?: boolean;
   isActive?: boolean;
   sortOrder?: number;
+  pincodes?: string[];
 }
 
 export interface CreateAreaInput {
   name: string;
   cityId: string;
+  pincodes?: string[];
 }
 
 export interface PaginatedCities {
@@ -62,6 +67,7 @@ const AreaSchema = new Schema<Area & { _id: string }>(
     _id: { type: String, default: () => uuidv4() },
     name: { type: String, required: true },
     cityId: { type: String, required: true },
+    pincodes: { type: [String], default: [] },
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } },
 );
@@ -83,6 +89,7 @@ const CitySchema = new Schema<CityMongoDoc>(
     isTopCity: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     sortOrder: { type: Number, default: 0 },
+    pincodes: { type: [String], default: [] },
     areas: { type: [AreaSchema], default: [] },
     createdAt: { type: String, default: () => new Date().toISOString() },
     updatedAt: { type: String, default: () => new Date().toISOString() },
@@ -99,10 +106,12 @@ export function toCity(doc: (CityMongoDoc & { id?: string }) | null): City | nul
   return {
     ...doc,
     id: doc.id ?? doc._id,
+    pincodes: doc.pincodes ?? [],
     areas: (doc.areas ?? []).map((a) => ({
       id: a._id ?? (a as Area & { id?: string }).id ?? '',
       name: a.name,
       cityId: a.cityId,
+      pincodes: a.pincodes ?? [],
     })),
   } as City;
 }

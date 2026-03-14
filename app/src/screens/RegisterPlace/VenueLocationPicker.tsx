@@ -9,13 +9,18 @@ import {
   StyleSheet,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useLazyQuery } from '@apollo/client';
 import { spacing, borderRadius } from '../../theme';
-import { getCurrentLocation } from '../../utils/locationService';
+import { getGpsCoordinates, type ResolvedLocationResponse } from '../../utils/locationService';
 import { useAppColors, useThemedStyles, ThemeUtils } from '../../hooks/useThemedStyles';
+import { RESOLVE_LOCATION } from '../../graphql/queries';
 
 export interface LocationResult {
   address: string;
   city: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
   latitude?: number;
   longitude?: number;
   placeId?: string;
@@ -58,6 +63,10 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
   const colors = useAppColors();
   const pickerStyles = useThemedStyles(createPickerStyles);
   const [mode, setMode] = useState<LocationMode>('search');
+
+  const [resolveByCoords] = useLazyQuery<{
+    resolveLocation: ResolvedLocationResponse;
+  }>(RESOLVE_LOCATION, { fetchPolicy: 'network-only' });
   const [searchQuery, setSearchQuery] = useState(address || '');
   const [predictions, setPredictions] = useState<PlacePrediction[]>([]);
   const [loadingGps, setLoadingGps] = useState(false);
@@ -131,9 +140,18 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
           const cityComp = address_components.find(
             (c) => c.types.includes('locality') || c.types.includes('administrative_area_level_2'),
           );
+          const stateComp = address_components.find((c) =>
+            c.types.includes('administrative_area_level_1'),
+          );
+          const countryComp = address_components.find((c) => c.types.includes('country'));
+          const pincodeComp = address_components.find((c) => c.types.includes('postal_code'));
+
           onLocationChange({
             address: formatted_address,
             city: cityComp?.long_name ?? '',
+            state: stateComp?.long_name ?? '',
+            country: countryComp?.long_name ?? '',
+            pincode: pincodeComp?.long_name ?? '',
             latitude: geometry.location.lat,
             longitude: geometry.location.lng,
             placeId: prediction.place_id,
@@ -150,24 +168,33 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
   const handleUseMyLocation = useCallback(async () => {
     setLoadingGps(true);
     try {
-      const locationData = await getCurrentLocation();
-      if (!locationData) {
+      const coords = await getGpsCoordinates();
+      if (!coords) {
         setLoadingGps(false);
         return;
       }
-      onLocationChange({
-        address: locationData.address,
-        city: locationData.city,
-        latitude: locationData.latitude,
-        longitude: locationData.longitude,
+
+      const { data: resolvedData } = await resolveByCoords({
+        variables: { latitude: coords.latitude, longitude: coords.longitude },
       });
-      setSearchQuery(locationData.address);
+
+      const resolved = resolvedData?.resolveLocation;
+      onLocationChange({
+        address: resolved?.address ?? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`,
+        city: resolved?.city ?? '',
+        state: resolved?.state ?? '',
+        country: resolved?.country ?? '',
+        pincode: resolved?.pincode ?? '',
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      });
+      setSearchQuery(resolved?.address ?? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
     } catch {
       // ignore
     } finally {
       setLoadingGps(false);
     }
-  }, [onLocationChange]);
+  }, [onLocationChange, resolveByCoords]);
 
   const hasCoords =
     latitude !== undefined && longitude !== undefined && latitude !== 0 && longitude !== 0;

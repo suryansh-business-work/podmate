@@ -75,7 +75,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     variables: { city: selectedCity || location?.address || undefined },
     fetchPolicy: 'cache-and-network',
   });
-  const sliders = (sliderData?.activeSliders as Array<{ id: string; title: string; subtitle: string; imageUrl: string; ctaText: string; ctaLink: string; category: string }>) ?? [];
+  const sliders =
+    (sliderData?.activeSliders as Array<{
+      id: string;
+      title: string;
+      subtitle: string;
+      imageUrl: string;
+      ctaText: string;
+      ctaLink: string;
+      category: string;
+    }>) ?? [];
 
   const handleSelectCity = useCallback((city: string, area?: string) => {
     setSelectedCity(city);
@@ -186,8 +195,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             </View>
           )}
           <View style={styles.happeningSoonContent}>
-            <Text style={styles.happeningSoonDate}>{month} {day}</Text>
-            <Text style={styles.happeningSoonTitle} numberOfLines={2}>{item.title}</Text>
+            <Text style={styles.happeningSoonDate}>
+              {month} {day}
+            </Text>
+            <Text style={styles.happeningSoonTitle} numberOfLines={2}>
+              {item.title}
+            </Text>
             <Text style={styles.happeningSoonMeta}>
               {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full'}
             </Text>
@@ -284,22 +297,22 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerLeft}
-          onPress={() => setShowLocationSelector(true)}
-        >
+        <TouchableOpacity style={styles.headerLeft} onPress={() => setShowLocationSelector(true)}>
           <MaterialIcons name="place" size={20} color={colors.primary} />
           <View>
-            <Text style={styles.headerCity} numberOfLines={1}>{displayCity}</Text>
-            {selectedArea ? <Text style={styles.headerArea} numberOfLines={1}>{selectedArea}</Text> : null}
+            <Text style={styles.headerCity} numberOfLines={1}>
+              {displayCity}
+            </Text>
+            {selectedArea ? (
+              <Text style={styles.headerArea} numberOfLines={1}>
+                {selectedArea}
+              </Text>
+            ) : null}
           </View>
           <MaterialIcons name="keyboard-arrow-down" size={20} color={colors.textSecondary} />
         </TouchableOpacity>
         <View style={styles.headerRight}>
-          <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => setShowSearch((p) => !p)}
-          >
+          <TouchableOpacity style={styles.headerIconBtn} onPress={() => setShowSearch((p) => !p)}>
             <MaterialIcons name="search" size={22} color={colors.text} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIconBtn} onPress={onNotificationPress}>

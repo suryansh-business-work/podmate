@@ -23,9 +23,7 @@ const citiesMock = {
   result: {
     data: {
       cities: {
-        items: [
-          { id: 'city-1', name: 'Test City', state: 'Test State', country: 'Test Country' },
-        ],
+        items: [{ id: 'city-1', name: 'Test City', state: 'Test State', country: 'Test Country' }],
       },
     },
   },

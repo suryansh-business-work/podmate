@@ -139,7 +139,11 @@ const CreateMomentScreen: React.FC<CreateMomentScreenProps> = ({ onClose, onSucc
                     />
                     {item.type === 'video' && (
                       <View style={styles.videoIndicator}>
-                        <MaterialIcons name="play-circle-filled" size={40} color="rgba(255,255,255,0.85)" />
+                        <MaterialIcons
+                          name="play-circle-filled"
+                          size={40}
+                          color="rgba(255,255,255,0.85)"
+                        />
                       </View>
                     )}
                     <TouchableOpacity

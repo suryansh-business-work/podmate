@@ -1,9 +1,4 @@
-import {
-  setupMocks,
-  renderHomeScreen,
-  mockRefetch,
-  mockFetchMore,
-} from './HomeScreen.setup';
+import { setupMocks, renderHomeScreen, mockRefetch, mockFetchMore } from './HomeScreen.setup';
 import { GET_ME, GET_PODS } from '../../../graphql/queries';
 
 describe('HomeScreen — rendering', () => {
@@ -36,8 +31,18 @@ describe('HomeScreen — rendering', () => {
 
   it('shows skeleton loading state when pods loading', () => {
     setupMocks({
-      GET_ME: { data: { me: { id: 'u1', name: 'User', avatar: null } }, loading: false, error: null },
-      GET_PODS: { data: null, loading: true, error: null, refetch: mockRefetch, fetchMore: mockFetchMore },
+      GET_ME: {
+        data: { me: { id: 'u1', name: 'User', avatar: null } },
+        loading: false,
+        error: null,
+      },
+      GET_PODS: {
+        data: null,
+        loading: true,
+        error: null,
+        refetch: mockRefetch,
+        fetchMore: mockFetchMore,
+      },
     });
     const { getByTestId } = renderHomeScreen();
     expect(getByTestId('skeleton-feed')).toBeTruthy();

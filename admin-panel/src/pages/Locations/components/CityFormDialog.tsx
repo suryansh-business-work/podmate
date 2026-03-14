@@ -76,7 +76,14 @@ const CityFormDialog: React.FC<CityFormDialogProps> = ({
         });
         setMediaItems(editingCity.imageUrl ? [{ url: editingCity.imageUrl, type: 'image' }] : []);
       } else {
-        setForm({ name: '', state: '', country: '', imageUrl: '', isTopCity: false, isActive: true });
+        setForm({
+          name: '',
+          state: '',
+          country: '',
+          imageUrl: '',
+          isTopCity: false,
+          isActive: true,
+        });
         setMediaItems([]);
       }
     }
@@ -100,12 +107,7 @@ const CityFormDialog: React.FC<CityFormDialogProps> = ({
             value={form.country || null}
             onChange={(_, val) => setForm({ ...form, country: val ?? '', state: '' })}
             renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Country"
-                required
-                helperText="Select a country"
-              />
+              <TextField {...params} label="Country" required helperText="Select a country" />
             )}
           />
           <Autocomplete
@@ -136,9 +138,7 @@ const CityFormDialog: React.FC<CityFormDialogProps> = ({
                 required
                 fullWidth
                 helperText={
-                  form.state
-                    ? `Cities in ${form.state} — type to add new`
-                    : 'Select a state first'
+                  form.state ? `Cities in ${form.state} — type to add new` : 'Select a state first'
                 }
               />
             )}

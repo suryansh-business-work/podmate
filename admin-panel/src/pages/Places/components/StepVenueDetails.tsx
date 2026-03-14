@@ -102,7 +102,11 @@ const StepVenueDetails: React.FC<StepVenueDetailsProps> = ({ formik }) => {
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
         error={formik.touched.city && Boolean(formik.errors.city)}
-        helperText={formik.touched.city && formik.errors.city ? formik.errors.city : 'Select the city from locations'}
+        helperText={
+          formik.touched.city && formik.errors.city
+            ? formik.errors.city
+            : 'Select the city from locations'
+        }
         fullWidth
       >
         <MenuItem value="">

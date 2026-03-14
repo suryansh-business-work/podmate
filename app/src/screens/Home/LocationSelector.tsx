@@ -112,10 +112,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const renderCityCard = (city: CityItem) => (
     <TouchableOpacity
       key={city.id}
-      style={[
-        styles.cityCard,
-        currentCity === city.name && styles.cityCardSelected,
-      ]}
+      style={[styles.cityCard, currentCity === city.name && styles.cityCardSelected]}
       onPress={() => handleCityPress(city)}
     >
       <SafeImage uri={city.imageUrl} style={styles.cityImage} fallbackIcon="location-city" />
@@ -171,11 +168,10 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         {selectedCityObj ? (
           <View style={styles.areaSheet}>
             <View style={styles.areaSheetHandle} />
-            <Text style={styles.areaSheetTitle}>
-              Which area is closest to you?
-            </Text>
+            <Text style={styles.areaSheetTitle}>Which area is closest to you?</Text>
             <Text style={styles.areaSheetSubtitle}>
-              You'll still see all meet-ups in {selectedCityObj.name}, this just helps us show nearby ones first.
+              You'll still see all meet-ups in {selectedCityObj.name}, this just helps us show
+              nearby ones first.
             </Text>
 
             <TouchableOpacity style={styles.areaItem} onPress={handleUseLocation}>
@@ -193,16 +189,17 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                   style={styles.areaItem}
                   onPress={() => handleAreaPress(item.name)}
                 >
-                  <MaterialCommunityIcons name="office-building" size={20} color={colors.textSecondary} />
+                  <MaterialCommunityIcons
+                    name="office-building"
+                    size={20}
+                    color={colors.textSecondary}
+                  />
                   <Text style={styles.areaItemText}>{item.name}</Text>
                 </TouchableOpacity>
               )}
             />
 
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={() => setSelectedCityObj(null)}
-            >
+            <TouchableOpacity style={styles.backBtn} onPress={() => setSelectedCityObj(null)}>
               <Text style={styles.backBtnText}>← Back to cities</Text>
             </TouchableOpacity>
           </View>
@@ -215,7 +212,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             {searchQuery ? (
               <View style={{ padding: 20 }}>
                 {placesLoading && (
-                  <ActivityIndicator size="small" color={colors.primary} style={{ marginBottom: 12 }} />
+                  <ActivityIndicator
+                    size="small"
+                    color={colors.primary}
+                    style={{ marginBottom: 12 }}
+                  />
                 )}
                 {searchedPlaces.length > 0 && (
                   <View style={{ marginBottom: 16 }}>
@@ -231,7 +232,9 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                         </View>
                         <View>
                           <Text style={styles.listCityName}>{place.name}</Text>
-                          <Text style={styles.listCityCount}>{place.address}, {place.city}</Text>
+                          <Text style={styles.listCityCount}>
+                            {place.address}, {place.city}
+                          </Text>
                         </View>
                       </TouchableOpacity>
                     ))}
@@ -253,9 +256,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 {topCities.length > 0 && (
                   <View style={styles.section}>
                     <Text style={styles.sectionTitle}>TOP CITIES</Text>
-                    <View style={styles.cityGrid}>
-                      {topCities.map(renderCityCard)}
-                    </View>
+                    <View style={styles.cityGrid}>{topCities.map(renderCityCard)}</View>
                   </View>
                 )}
 

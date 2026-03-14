@@ -14,8 +14,6 @@ export const addMomentCommentSchema = z.object({
   content: z.string().min(1, 'Comment is required').max(500, 'Comment too long'),
 });
 
-export function validateAddMomentComment(
-  input: unknown,
-): z.infer<typeof addMomentCommentSchema> {
+export function validateAddMomentComment(input: unknown): z.infer<typeof addMomentCommentSchema> {
   return addMomentCommentSchema.parse(input);
 }

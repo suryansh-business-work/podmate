@@ -3,7 +3,11 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { useQuery } from '@apollo/client';
 import PodFormBody from '../PodFormBody';
 import type { PodFormValues } from '../CreatePod.types';
-import { GET_APPROVED_PLACES, GET_ACTIVE_CATEGORIES, GET_APP_CONFIG } from '../../../graphql/queries';
+import {
+  GET_APPROVED_PLACES,
+  GET_ACTIVE_CATEGORIES,
+  GET_APP_CONFIG,
+} from '../../../graphql/queries';
 
 jest.mock('@react-native-community/datetimepicker', () => {
   const { View, Text } = require('react-native');

@@ -1,9 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type {
-  Subscription,
-  PaginatedSubscriptions,
-  BillingCycle,
-} from './subscription.models';
+import type { Subscription, PaginatedSubscriptions, BillingCycle } from './subscription.models';
 import { SubscriptionModel, toSubscription } from './subscription.models';
 import { PodModel, toPod } from '../pod/pod.models';
 import type { Pod } from '../pod/pod.models';

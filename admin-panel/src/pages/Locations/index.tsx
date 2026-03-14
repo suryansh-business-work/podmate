@@ -48,24 +48,38 @@ const GET_CITIES = gql`
 
 const CREATE_CITY = gql`
   mutation CreateCity($input: CreateCityInput!) {
-    createCity(input: $input) { id name }
+    createCity(input: $input) {
+      id
+      name
+    }
   }
 `;
 const UPDATE_CITY = gql`
   mutation UpdateCity($id: ID!, $input: UpdateCityInput!) {
-    updateCity(id: $id, input: $input) { id name }
+    updateCity(id: $id, input: $input) {
+      id
+      name
+    }
   }
 `;
 const DELETE_CITY = gql`
-  mutation DeleteCity($id: ID!) { deleteCity(id: $id) }
+  mutation DeleteCity($id: ID!) {
+    deleteCity(id: $id)
+  }
 `;
 const ADD_AREA = gql`
   mutation AddArea($input: CreateAreaInput!) {
-    addArea(input: $input) { id name cityId }
+    addArea(input: $input) {
+      id
+      name
+      cityId
+    }
   }
 `;
 const REMOVE_AREA = gql`
-  mutation RemoveArea($cityId: ID!, $areaId: ID!) { removeArea(cityId: $cityId, areaId: $areaId) }
+  mutation RemoveArea($cityId: ID!, $areaId: ID!) {
+    removeArea(cityId: $cityId, areaId: $areaId)
+  }
 `;
 
 const LocationsPage: React.FC = () => {
@@ -80,15 +94,27 @@ const LocationsPage: React.FC = () => {
   });
 
   const [createCity, { loading: creating }] = useMutation(CREATE_CITY, {
-    onCompleted: () => { setCityDialogOpen(false); refetch(); },
+    onCompleted: () => {
+      setCityDialogOpen(false);
+      refetch();
+    },
   });
   const [updateCity, { loading: updating }] = useMutation(UPDATE_CITY, {
-    onCompleted: () => { setCityDialogOpen(false); setEditingCity(null); refetch(); },
+    onCompleted: () => {
+      setCityDialogOpen(false);
+      setEditingCity(null);
+      refetch();
+    },
   });
   const [deleteCity, { loading: deleting }] = useMutation(DELETE_CITY, {
-    onCompleted: () => { setDeleteTarget(null); refetch(); },
+    onCompleted: () => {
+      setDeleteTarget(null);
+      refetch();
+    },
   });
-  const [addArea, { loading: addingArea }] = useMutation(ADD_AREA, { onCompleted: () => refetch() });
+  const [addArea, { loading: addingArea }] = useMutation(ADD_AREA, {
+    onCompleted: () => refetch(),
+  });
   const [removeArea] = useMutation(REMOVE_AREA, { onCompleted: () => refetch() });
 
   const allCities: CityItem[] = useMemo(() => data?.cities?.items ?? [], [data]);
@@ -102,7 +128,10 @@ const LocationsPage: React.FC = () => {
     if (!selectedCountry) return [];
     return [
       ...new Set(
-        allCities.filter((c) => c.country === selectedCountry).map((c) => c.state).filter(Boolean),
+        allCities
+          .filter((c) => c.country === selectedCountry)
+          .map((c) => c.state)
+          .filter(Boolean),
       ),
     ].sort();
   }, [allCities, selectedCountry]);
@@ -119,7 +148,10 @@ const LocationsPage: React.FC = () => {
     setCityDialogOpen(true);
   };
 
-  const handleSaveCity = (form: { name: string; state: string; country: string; isTopCity: boolean; isActive: boolean }, imageUrl: string) => {
+  const handleSaveCity = (
+    form: { name: string; state: string; country: string; isTopCity: boolean; isActive: boolean },
+    imageUrl: string,
+  ) => {
     const input = { ...form, imageUrl };
     if (editingCity) {
       updateCity({ variables: { id: editingCity.id, input } });
@@ -136,7 +168,9 @@ const LocationsPage: React.FC = () => {
     const currentOrder = filteredCities[idx].sortOrder;
     const swapOrder = filteredCities[swapIdx].sortOrder;
     updateCity({ variables: { id: filteredCities[idx].id, input: { sortOrder: swapOrder } } });
-    updateCity({ variables: { id: filteredCities[swapIdx].id, input: { sortOrder: currentOrder } } });
+    updateCity({
+      variables: { id: filteredCities[swapIdx].id, input: { sortOrder: currentOrder } },
+    });
   };
 
   return (

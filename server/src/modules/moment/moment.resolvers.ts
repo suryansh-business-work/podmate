@@ -5,11 +5,7 @@ import { findUserById } from '../user/user.services';
 
 const momentResolvers = {
   Query: {
-    moments: async (
-      _: unknown,
-      args: { page?: number; limit?: number },
-      ctx: GraphQLContext,
-    ) => {
+    moments: async (_: unknown, args: { page?: number; limit?: number }, ctx: GraphQLContext) => {
       if (!ctx.user) throw new Error('Authentication required');
       return momentService.getMomentsFeed(args.page ?? 1, args.limit ?? 20);
     },
@@ -40,27 +36,15 @@ const momentResolvers = {
       const validated = validateCreateMoment(input);
       return momentService.createMoment(validated, ctx.user.userId);
     },
-    deleteMoment: async (
-      _: unknown,
-      { id }: { id: string },
-      ctx: GraphQLContext,
-    ) => {
+    deleteMoment: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       if (!ctx.user) throw new Error('Authentication required');
       return momentService.deleteMoment(id, ctx.user.userId);
     },
-    likeMoment: async (
-      _: unknown,
-      { momentId }: { momentId: string },
-      ctx: GraphQLContext,
-    ) => {
+    likeMoment: async (_: unknown, { momentId }: { momentId: string }, ctx: GraphQLContext) => {
       if (!ctx.user) throw new Error('Authentication required');
       return momentService.likeMoment(momentId, ctx.user.userId);
     },
-    unlikeMoment: async (
-      _: unknown,
-      { momentId }: { momentId: string },
-      ctx: GraphQLContext,
-    ) => {
+    unlikeMoment: async (_: unknown, { momentId }: { momentId: string }, ctx: GraphQLContext) => {
       if (!ctx.user) throw new Error('Authentication required');
       return momentService.unlikeMoment(momentId, ctx.user.userId);
     },

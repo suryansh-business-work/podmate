@@ -3,7 +3,12 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 import { useQuery } from '@apollo/client';
 import HomeScreen from '../HomeScreen';
-import { GET_ME, GET_ACTIVE_CATEGORIES, GET_ACTIVE_SLIDERS, GET_PODS } from '../../../graphql/queries';
+import {
+  GET_ME,
+  GET_ACTIVE_CATEGORIES,
+  GET_ACTIVE_SLIDERS,
+  GET_PODS,
+} from '../../../graphql/queries';
 
 jest.mock('../../../components/CategoryChip', () => ({
   CategoryChip: ({
@@ -188,7 +193,8 @@ export function setupMocks(overrides?: Partial<typeof queryResults>): void {
   (useQuery as jest.Mock).mockImplementation((doc: unknown) => {
     const name = getQueryName(doc);
     if (doc === GET_ME || name === 'GetMe') return merged.GET_ME;
-    if (doc === GET_ACTIVE_CATEGORIES || name === 'GetActiveCategories') return merged.GET_ACTIVE_CATEGORIES;
+    if (doc === GET_ACTIVE_CATEGORIES || name === 'GetActiveCategories')
+      return merged.GET_ACTIVE_CATEGORIES;
     if (doc === GET_ACTIVE_SLIDERS || name === 'GetActiveSliders') return merged.GET_ACTIVE_SLIDERS;
     if (doc === GET_PODS || name === 'GetPods') return merged.GET_PODS;
     return { data: null, loading: false, error: null };

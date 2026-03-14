@@ -34,10 +34,10 @@ const MomentsScreen: React.FC<MomentsScreenProps> = ({ onCreateMoment }) => {
     fetchPolicy: 'cache-first',
   });
 
-  const { data, loading, error, refetch, fetchMore } = useQuery<PaginatedMomentsData>(
-    GET_MOMENTS,
-    { variables: { page: 1, limit: 20 }, fetchPolicy: 'cache-and-network' },
-  );
+  const { data, loading, error, refetch, fetchMore } = useQuery<PaginatedMomentsData>(GET_MOMENTS, {
+    variables: { page: 1, limit: 20 },
+    fetchPolicy: 'cache-and-network',
+  });
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -56,11 +56,7 @@ const MomentsScreen: React.FC<MomentsScreenProps> = ({ onCreateMoment }) => {
 
   const renderItem = useCallback(
     ({ item }: { item: MomentItem }) => (
-      <MomentCard
-        item={item}
-        currentUserId={currentUserId}
-        onCommentPress={setCommentMomentId}
-      />
+      <MomentCard item={item} currentUserId={currentUserId} onCommentPress={setCommentMomentId} />
     ),
     [currentUserId],
   );
@@ -87,9 +83,7 @@ const MomentsScreen: React.FC<MomentsScreenProps> = ({ onCreateMoment }) => {
         <View style={styles.centered}>
           <MaterialIcons name="auto-awesome" size={48} color={colors.textTertiary} />
           <Text style={styles.emptyTitle}>No moments yet</Text>
-          <Text style={styles.emptySubtitle}>
-            Share your first moment with the community!
-          </Text>
+          <Text style={styles.emptySubtitle}>Share your first moment with the community!</Text>
         </View>
       )}
 
@@ -123,10 +117,7 @@ const MomentsScreen: React.FC<MomentsScreenProps> = ({ onCreateMoment }) => {
       )}
 
       {commentMomentId && (
-        <CommentSheet
-          momentId={commentMomentId}
-          onClose={() => setCommentMomentId(null)}
-        />
+        <CommentSheet momentId={commentMomentId} onClose={() => setCommentMomentId(null)} />
       )}
     </SafeAreaView>
   );

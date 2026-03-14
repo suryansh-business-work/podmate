@@ -55,7 +55,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         {isOccurrence && (
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Billing Cycles</Text>
-            <Text style={styles.rowValue}>{pod.occurrenceCount || 1} × {billingLabel}ly</Text>
+            <Text style={styles.rowValue}>
+              {pod.occurrenceCount || 1} × {billingLabel}ly
+            </Text>
           </View>
         )}
         <View style={styles.divider} />

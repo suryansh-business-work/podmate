@@ -56,8 +56,11 @@ export async function updatePodTemplate(
   id: string,
   input: UpdatePodTemplateInput,
 ): Promise<PodTemplate | null> {
-  const doc = await PodTemplateModel.findByIdAndUpdate(id, { $set: input }, { returnDocument: 'after' })
-    .lean({ virtuals: true });
+  const doc = await PodTemplateModel.findByIdAndUpdate(
+    id,
+    { $set: input },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
   return toPodTemplate(doc);
 }
 

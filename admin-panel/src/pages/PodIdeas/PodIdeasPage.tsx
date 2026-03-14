@@ -227,11 +227,7 @@ const PodIdeasPage: React.FC = () => {
                       <IconButton size="small" onClick={() => handleEdit(item)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => setDeleteTarget(item)}
-                      >
+                      <IconButton size="small" color="error" onClick={() => setDeleteTarget(item)}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>

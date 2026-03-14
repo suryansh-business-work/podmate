@@ -258,11 +258,7 @@ const PodTemplatesPage: React.FC = () => {
       {loading && !data && <CircularProgress />}
       {error && <Alert severity="error">{error.message}</Alert>}
 
-      <PodTemplateTable
-        items={items}
-        onEdit={handleOpen}
-        onDelete={(t) => setDeleteTarget(t)}
-      />
+      <PodTemplateTable items={items} onEdit={handleOpen} onDelete={(t) => setDeleteTarget(t)} />
 
       {/* Stepper Dialog */}
       <Dialog open={dialogOpen} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -404,9 +400,7 @@ const PodTemplatesPage: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          {activeStep > 0 && (
-            <Button onClick={() => setActiveStep((s) => s - 1)}>Back</Button>
-          )}
+          {activeStep > 0 && <Button onClick={() => setActiveStep((s) => s - 1)}>Back</Button>}
           {activeStep < STEPPER_LABELS.length - 1 ? (
             <Button
               variant="contained"

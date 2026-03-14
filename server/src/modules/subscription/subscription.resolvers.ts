@@ -2,7 +2,11 @@ import type { GraphQLContext } from '../auth/auth.models';
 import { UserRole } from '../user/user.models';
 import { requireAuth, requireRole } from '../auth/auth.services';
 import * as subscriptionService from './subscription.services';
-import { createSubscriptionSchema, cancelSubscriptionSchema, renewSubscriptionSchema } from './subscription.validators';
+import {
+  createSubscriptionSchema,
+  cancelSubscriptionSchema,
+  renewSubscriptionSchema,
+} from './subscription.validators';
 
 const subscriptionResolvers = {
   Query: {
@@ -15,11 +19,7 @@ const subscriptionResolvers = {
       return subscriptionService.getMySubscriptions(user.userId, args.page ?? 1, args.limit ?? 20);
     },
 
-    subscriptionForPod: (
-      _: unknown,
-      args: { podId: string },
-      context: GraphQLContext,
-    ) => {
+    subscriptionForPod: (_: unknown, args: { podId: string }, context: GraphQLContext) => {
       const user = requireAuth(context);
       return subscriptionService.getSubscriptionForPod(args.podId, user.userId);
     },
@@ -53,31 +53,19 @@ const subscriptionResolvers = {
   },
 
   Mutation: {
-    checkoutOccurrencePod: (
-      _: unknown,
-      args: { podId: string },
-      context: GraphQLContext,
-    ) => {
+    checkoutOccurrencePod: (_: unknown, args: { podId: string }, context: GraphQLContext) => {
       const user = requireAuth(context);
       createSubscriptionSchema.parse({ podId: args.podId });
       return subscriptionService.checkoutOccurrencePod(args.podId, user.userId);
     },
 
-    cancelSubscription: (
-      _: unknown,
-      args: { subscriptionId: string },
-      context: GraphQLContext,
-    ) => {
+    cancelSubscription: (_: unknown, args: { subscriptionId: string }, context: GraphQLContext) => {
       const user = requireAuth(context);
       cancelSubscriptionSchema.parse({ subscriptionId: args.subscriptionId });
       return subscriptionService.cancelSubscription(args.subscriptionId, user.userId);
     },
 
-    renewSubscription: (
-      _: unknown,
-      args: { subscriptionId: string },
-      context: GraphQLContext,
-    ) => {
+    renewSubscription: (_: unknown, args: { subscriptionId: string }, context: GraphQLContext) => {
       requireAuth(context);
       renewSubscriptionSchema.parse({ subscriptionId: args.subscriptionId });
       return subscriptionService.renewSubscription(args.subscriptionId);

@@ -110,7 +110,11 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                   No subcategories. Click Edit to add.
                 </Typography>
               ) : (
-                <List dense disablePadding sx={{ border: 1, borderColor: 'divider', borderRadius: 1 }}>
+                <List
+                  dense
+                  disablePadding
+                  sx={{ border: 1, borderColor: 'divider', borderRadius: 1 }}
+                >
                   {subs.map((sub, idx) => (
                     <React.Fragment key={sub.id}>
                       <ListItem
@@ -125,10 +129,7 @@ const CategoryRow: React.FC<CategoryRowProps> = ({
                           </IconButton>
                         }
                       >
-                        <ListItemText
-                          primary={sub.name}
-                          secondary={sub.description || undefined}
-                        />
+                        <ListItemText primary={sub.name} secondary={sub.description || undefined} />
                       </ListItem>
                       {idx < subs.length - 1 && <Divider />}
                     </React.Fragment>

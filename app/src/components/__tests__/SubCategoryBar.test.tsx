@@ -12,9 +12,7 @@ describe('SubCategoryBar', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('returns null when items array is empty', () => {
-    const { toJSON } = render(
-      <SubCategoryBar items={[]} selectedId={null} onSelect={onSelect} />,
-    );
+    const { toJSON } = render(<SubCategoryBar items={[]} selectedId={null} onSelect={onSelect} />);
     expect(toJSON()).toBeNull();
   });
 

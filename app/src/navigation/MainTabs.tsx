@@ -112,9 +112,7 @@ const MainTabs: React.FC<MainTabsProps> = ({
       >
         {() => <View />}
       </Tab.Screen>
-      <Tab.Screen name="Chat">
-        {() => <ChatScreen />}
-      </Tab.Screen>
+      <Tab.Screen name="Chat">{() => <ChatScreen />}</Tab.Screen>
       <Tab.Screen name="Moments">
         {() => <MomentsScreen onCreateMoment={onCreateMoment} />}
       </Tab.Screen>

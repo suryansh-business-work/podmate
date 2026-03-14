@@ -95,8 +95,7 @@ const PodDetailScreen: React.FC<PodDetailScreenProps> = ({
     }
   }, [isFollowing, followUser, unfollowUser]);
 
-  const canReopen =
-    isOwnPod && (pod?.status === 'COMPLETED' || pod?.status === 'CLOSED');
+  const canReopen = isOwnPod && (pod?.status === 'COMPLETED' || pod?.status === 'CLOSED');
   const [reopenPod, { loading: reopening }] = useMutation(REOPEN_POD, {
     variables: { id: podId },
     onCompleted: () => {

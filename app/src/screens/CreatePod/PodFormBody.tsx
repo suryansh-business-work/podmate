@@ -71,8 +71,7 @@ function calculateOccurrenceCount(start: Date, end: Date, freq: RecurrenceOption
       return Math.floor(diffDays / 7) + 1;
     case 'MONTHLY': {
       const months =
-        (end.getFullYear() - start.getFullYear()) * 12 +
-        (end.getMonth() - start.getMonth());
+        (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
       return Math.max(months, 1) + 1;
     }
     default:
@@ -231,7 +230,10 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
           {dynamicCategories.map((cat) => (
             <TouchableOpacity
               key={cat.id}
-              style={[styles.categoryChip, values.category === cat.name && styles.categoryChipActive]}
+              style={[
+                styles.categoryChip,
+                values.category === cat.name && styles.categoryChipActive,
+              ]}
               onPress={() => setFieldValue('category', cat.name)}
             >
               {cat.iconUrl ? (
@@ -305,7 +307,12 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
                 onPress={onShowStartDatePicker}
               >
                 <Text style={{ color: colors.text, fontSize: 14 }}>
-                  Start: {startDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  Start:{' '}
+                  {startDate.toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -313,7 +320,12 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
                 onPress={onShowEndDatePicker}
               >
                 <Text style={{ color: colors.text, fontSize: 14 }}>
-                  End: {endDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  End:{' '}
+                  {endDate.toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
                 </Text>
               </TouchableOpacity>
             </View>

@@ -151,9 +151,7 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
             label="Category Icon (Required)"
           />
           <FormControlLabel
-            control={
-              <Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
-            }
+            control={<Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />}
             label="Active"
           />
 
@@ -169,7 +167,11 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
               </Alert>
             )}
             {subcategories.length > 0 && (
-              <List dense disablePadding sx={{ mb: 1, border: 1, borderColor: 'divider', borderRadius: 1 }}>
+              <List
+                dense
+                disablePadding
+                sx={{ mb: 1, border: 1, borderColor: 'divider', borderRadius: 1 }}
+              >
                 {subcategories.map((sub, idx) => (
                   <React.Fragment key={sub.id ?? `new-${idx}`}>
                     <ListItem
@@ -179,10 +181,7 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
                         </IconButton>
                       }
                     >
-                      <ListItemText
-                        primary={sub.name}
-                        secondary={sub.description || undefined}
-                      />
+                      <ListItemText primary={sub.name} secondary={sub.description || undefined} />
                     </ListItem>
                     {idx < subcategories.length - 1 && <Divider />}
                   </React.Fragment>

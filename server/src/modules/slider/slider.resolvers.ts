@@ -20,13 +20,19 @@ const sliderResolvers = {
     },
   },
   Mutation: {
-    createSlider: async (_: unknown, { input }: { input: CreateSliderInput }, ctx: GraphQLContext) => {
+    createSlider: async (
+      _: unknown,
+      { input }: { input: CreateSliderInput },
+      ctx: GraphQLContext,
+    ) => {
       if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
       const err = validateCreateSlider(input);
       if (err) throw new Error(err);
       const count = await SliderModel.countDocuments();
       if (count >= MAX_SLIDERS) {
-        throw new Error(`Maximum ${MAX_SLIDERS} sliders allowed. Please delete one before adding a new slider.`);
+        throw new Error(
+          `Maximum ${MAX_SLIDERS} sliders allowed. Please delete one before adding a new slider.`,
+        );
       }
       return sliderService.createSlider(input);
     },

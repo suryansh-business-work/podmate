@@ -53,5 +53,3 @@ export const POD_STATUS_OPTIONS = [
   'OPEN',
   'CLOSED',
 ] as const;
-
-

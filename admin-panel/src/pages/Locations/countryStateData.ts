@@ -166,8 +166,6 @@ export function getCountryNames(): string[] {
 
 /** Get sorted states for a given country. */
 export function getStatesForCountry(country: string): string[] {
-  const entry = COUNTRIES_AND_STATES.find(
-    (c) => c.name.toLowerCase() === country.toLowerCase(),
-  );
+  const entry = COUNTRIES_AND_STATES.find((c) => c.name.toLowerCase() === country.toLowerCase());
   return entry ? [...entry.states].sort() : [];
 }

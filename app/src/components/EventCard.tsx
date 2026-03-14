@@ -162,17 +162,12 @@ export const EventCard: React.FC<EventCardProps> = memo(function EventCard({
                   <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
                 </View>
               )}
-              <Text style={styles.spotsLeft}>
-                {spotsLeft > 0 ? `${spotsLeft} spots` : 'Full'}
-              </Text>
+              <Text style={styles.spotsLeft}>{spotsLeft > 0 ? `${spotsLeft} spots` : 'Full'}</Text>
             </View>
           </View>
           {hostId && (
             <TouchableOpacity
-              style={[
-                styles.followBtn,
-                effectiveFollowing && styles.followBtnActive,
-              ]}
+              style={[styles.followBtn, effectiveFollowing && styles.followBtnActive]}
               onPress={handleFollowToggle}
               disabled={isJoined}
               activeOpacity={0.7}
@@ -183,10 +178,7 @@ export const EventCard: React.FC<EventCardProps> = memo(function EventCard({
                 color={effectiveFollowing ? colors.success : colors.primary}
               />
               <Text
-                style={[
-                  styles.followBtnText,
-                  effectiveFollowing && styles.followBtnTextActive,
-                ]}
+                style={[styles.followBtnText, effectiveFollowing && styles.followBtnTextActive]}
               >
                 {effectiveFollowing ? 'Following' : 'Follow'}
               </Text>

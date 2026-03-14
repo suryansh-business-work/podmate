@@ -40,11 +40,7 @@ const podTemplateResolvers = {
       if (!updated) throw new Error('Template not found');
       return updated;
     },
-    deletePodTemplate: async (
-      _: unknown,
-      { id }: { id: string },
-      ctx: GraphQLContext,
-    ) => {
+    deletePodTemplate: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
       return podTemplateService.deletePodTemplate(id);
     },

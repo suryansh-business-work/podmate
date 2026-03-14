@@ -79,8 +79,7 @@ function calculateOccurrenceCount(
       return Math.floor(diffDays / 7) + 1;
     case 'MONTHLY': {
       const months =
-        (end.getFullYear() - start.getFullYear()) * 12 +
-        (end.getMonth() - start.getMonth());
+        (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
       return Math.max(months, 1) + 1;
     }
     default:
@@ -91,17 +90,8 @@ function calculateOccurrenceCount(
 export async function createPod(input: CreatePodInput, hostId: string): Promise<Pod> {
   const podType = input.podType ?? 'ONE_TIME';
   let occurrenceCount = 0;
-  if (
-    podType === 'OCCURRENCE' &&
-    input.startDate &&
-    input.endDate &&
-    input.recurrence
-  ) {
-    occurrenceCount = calculateOccurrenceCount(
-      input.startDate,
-      input.endDate,
-      input.recurrence,
-    );
+  if (podType === 'OCCURRENCE' && input.startDate && input.endDate && input.recurrence) {
+    occurrenceCount = calculateOccurrenceCount(input.startDate, input.endDate, input.recurrence);
   }
 
   const doc = await PodModel.create({

@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { useQuery } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -35,10 +29,9 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onSelect, onSkip })
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
 
-  const { data } = useQuery<{ activePodTemplates: PodTemplateItem[] }>(
-    GET_ACTIVE_POD_TEMPLATES,
-    { fetchPolicy: 'cache-and-network' },
-  );
+  const { data } = useQuery<{ activePodTemplates: PodTemplateItem[] }>(GET_ACTIVE_POD_TEMPLATES, {
+    fetchPolicy: 'cache-and-network',
+  });
 
   const templates = data?.activePodTemplates ?? [];
 
@@ -58,11 +51,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onSelect, onSkip })
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            activeOpacity={0.8}
-            onPress={() => onSelect(item)}
-          >
+          <TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => onSelect(item)}>
             {item.imageUrl ? (
               <SafeImage uri={item.imageUrl} style={styles.cardImage} />
             ) : (

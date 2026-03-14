@@ -40,9 +40,7 @@ export async function getCategories(
 }
 
 export async function getActiveCategories(): Promise<Category[]> {
-  const docs = await CategoryModel.find({ isActive: true })
-    .sort({ sortOrder: 1, name: 1 })
-    .lean();
+  const docs = await CategoryModel.find({ isActive: true }).sort({ sortOrder: 1, name: 1 }).lean();
   return docs.map((d) => toCategory(d)!);
 }
 
@@ -88,9 +86,7 @@ export async function deleteCategory(id: string): Promise<boolean> {
 /* ── SubCategory services ── */
 
 export async function getSubCategoriesByCategoryId(categoryId: string): Promise<SubCategory[]> {
-  const docs = await SubCategoryModel.find({ categoryId })
-    .sort({ sortOrder: 1, name: 1 })
-    .lean();
+  const docs = await SubCategoryModel.find({ categoryId }).sort({ sortOrder: 1, name: 1 }).lean();
   return docs.map((d) => toSubCategory(d)!);
 }
 

@@ -8,10 +8,7 @@ import {
   toMomentComment,
 } from './moment.models';
 
-export async function getMomentsFeed(
-  page: number,
-  limit: number,
-): Promise<PaginatedMoments> {
+export async function getMomentsFeed(page: number, limit: number): Promise<PaginatedMoments> {
   const filter = { isActive: true };
   const total = await MomentModel.countDocuments(filter);
   const totalPages = Math.ceil(total / limit);
@@ -57,10 +54,7 @@ export async function getUserMoments(
   };
 }
 
-export async function createMoment(
-  input: CreateMomentInput,
-  userId: string,
-): Promise<Moment> {
+export async function createMoment(input: CreateMomentInput, userId: string): Promise<Moment> {
   const doc = await MomentModel.create({
     _id: uuidv4(),
     userId,

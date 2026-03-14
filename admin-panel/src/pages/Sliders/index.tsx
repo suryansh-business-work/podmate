@@ -287,9 +287,7 @@ const SlidersPage: React.FC = () => {
         </Box>
       ) : sliders.length === 0 ? (
         <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
-          <Typography color="text.secondary">
-            No sliders yet. Create one to get started.
-          </Typography>
+          <Typography color="text.secondary">No sliders yet. Create one to get started.</Typography>
         </Paper>
       ) : (
         <Paper variant="outlined">

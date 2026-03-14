@@ -50,12 +50,12 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
 
   const platformFeeAmount = pod ? Math.round(pod.feePerPerson * (podFeePercent / 100)) : 0;
   const totalAmount = pod ? pod.feePerPerson + platformFeeAmount : 0;
-  const totalSubscriptionCost = pod && isOccurrence
-    ? totalAmount * (pod.occurrenceCount || 1)
-    : totalAmount;
+  const totalSubscriptionCost =
+    pod && isOccurrence ? totalAmount * (pod.occurrenceCount || 1) : totalAmount;
 
   const billingLabel = pod?.recurrence
-    ? ({ DAILY: 'day', WEEKLY: 'week', MONTHLY: 'month' }[pod.recurrence] ?? pod.recurrence) : '';
+    ? ({ DAILY: 'day', WEEKLY: 'week', MONTHLY: 'month' }[pod.recurrence] ?? pod.recurrence)
+    : '';
 
   const processingPayment = checking || checkingOccurrence;
 
@@ -114,7 +114,12 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
   }
 
   const date = new Date(pod.dateTime);
-  const dateOpts: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+  const dateOpts: Intl.DateTimeFormatOptions = {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  };
   const timeOpts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
   const formattedDate = date.toLocaleDateString('en-IN', dateOpts);
   const formattedTime = date.toLocaleTimeString('en-IN', timeOpts);
@@ -143,8 +148,12 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ podId, onBack, onSucces
             </View>
           )}
           <View style={styles.podInfo}>
-            <Text style={styles.podTitle} numberOfLines={2}>{pod.title}</Text>
-            <Text style={styles.podMeta}>{pod.category} · {formattedDate}</Text>
+            <Text style={styles.podTitle} numberOfLines={2}>
+              {pod.title}
+            </Text>
+            <Text style={styles.podMeta}>
+              {pod.category} · {formattedDate}
+            </Text>
             <Text style={styles.podMeta}>{pod.location}</Text>
           </View>
         </View>

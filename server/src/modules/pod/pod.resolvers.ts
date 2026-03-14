@@ -155,7 +155,8 @@ const podResolvers = {
       if (!user) throw new Error('Host user not found');
       return user;
     },
-    attendees: (pod: { attendeeIds: string[] }) => podService.resolveAttendees(pod.attendeeIds ?? []),
+    attendees: (pod: { attendeeIds: string[] }) =>
+      podService.resolveAttendees(pod.attendeeIds ?? []),
     place: (pod: { placeId: string }) => (pod.placeId ? getPlaceById(pod.placeId) : null),
   },
 };

@@ -1,13 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  Alert,
-  FlatList,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Image, TouchableOpacity, Alert, FlatList, Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useMutation } from '@apollo/client';
 
@@ -143,7 +135,11 @@ const MomentCard: React.FC<MomentCardProps> = ({ item, currentUserId, onCommentP
               </View>
             </>
           ) : (
-            <Image source={{ uri: item.mediaUrls[0] }} style={styles.cardImage} resizeMode="cover" />
+            <Image
+              source={{ uri: item.mediaUrls[0] }}
+              style={styles.cardImage}
+              resizeMode="cover"
+            />
           )}
         </View>
       )}

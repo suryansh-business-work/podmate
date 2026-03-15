@@ -1,12 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -76,9 +69,7 @@ const YourVenuesScreen: React.FC<YourVenuesScreenProps> = ({
           <Text style={styles.venueAddress} numberOfLines={1}>
             {item.address}, {item.city}
           </Text>
-          {item.category ? (
-            <Text style={styles.venueCategory}>{item.category}</Text>
-          ) : null}
+          {item.category ? <Text style={styles.venueCategory}>{item.category}</Text> : null}
           <View style={[styles.statusBadge, { backgroundColor: statusCfg.color + '18' }]}>
             <MaterialIcons name={statusCfg.icon} size={12} color={statusCfg.color} />
             <Text style={[styles.statusText, { color: statusCfg.color }]}>{item.status}</Text>

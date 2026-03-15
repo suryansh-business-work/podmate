@@ -6,11 +6,7 @@ import { useQuery } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { GET_ME } from '../../graphql/queries';
-import {
-  WithdrawalScreenProps,
-  TransactionFilter,
-  TRANSACTION_FILTERS,
-} from './Withdrawal.types';
+import { WithdrawalScreenProps, TransactionFilter, TRANSACTION_FILTERS } from './Withdrawal.types';
 import { createStyles } from './Withdrawal.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -33,7 +29,10 @@ const WithdrawalScreen: React.FC<WithdrawalScreenProps> = ({ onBack }) => {
         <View style={styles.headerRight} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
         {/* Earnings card */}
         <View style={styles.earningsCard}>
           <LinearGradient

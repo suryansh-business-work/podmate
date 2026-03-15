@@ -161,9 +161,7 @@ describe('useLocation', () => {
   });
 
   it('requestCachedLocation returns cached location', async () => {
-    mockGetSavedLocation
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce(mockLocationData);
+    mockGetSavedLocation.mockResolvedValueOnce(null).mockResolvedValueOnce(mockLocationData);
 
     const { result } = renderHook(() => useLocation());
 

@@ -28,7 +28,10 @@ const RoleSwitcher: React.FC<RoleSwitcherProps> = ({
             return (
               <TouchableOpacity
                 key={role}
-                style={[styles.roleItem, isActive ? styles.roleItemActive : styles.roleItemInactive]}
+                style={[
+                  styles.roleItem,
+                  isActive ? styles.roleItemActive : styles.roleItemInactive,
+                ]}
                 activeOpacity={0.7}
                 onPress={() => {
                   if (!isActive) onSwitch(role);
@@ -41,7 +44,9 @@ const RoleSwitcher: React.FC<RoleSwitcherProps> = ({
                   ]}
                 >
                   <MaterialIcons
-                    name={(ROLE_ICONS[role] ?? 'person') as ComponentProps<typeof MaterialIcons>['name']}
+                    name={
+                      (ROLE_ICONS[role] ?? 'person') as ComponentProps<typeof MaterialIcons>['name']
+                    }
                     size={20}
                     color={isActive ? colors.primary : colors.textSecondary}
                   />

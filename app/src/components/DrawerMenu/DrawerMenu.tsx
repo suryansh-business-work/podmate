@@ -1,12 +1,5 @@
 import React, { memo, useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery, useMutation } from '@apollo/client';
@@ -14,13 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { spacing } from '../../theme';
 import { GET_ME } from '../../graphql/queries';
 import { SWITCH_ACTIVE_ROLE } from '../../graphql/mutations';
-import {
-  DrawerMenuProps,
-  NavItem,
-  ROLE_MENUS,
-  ROLE_LABELS,
-  USER_NAV,
-} from './DrawerMenu.types';
+import { DrawerMenuProps, NavItem, ROLE_MENUS, ROLE_LABELS, USER_NAV } from './DrawerMenu.types';
 import { createStyles } from './DrawerMenu.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -114,9 +101,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({
               </View>
               <Text style={styles.userPhone}>{user?.phone ?? ''}</Text>
               <View style={styles.roleBadge}>
-                <Text style={styles.roleText}>
-                  {ROLE_LABELS[activeRole] ?? activeRole}
-                </Text>
+                <Text style={styles.roleText}>{ROLE_LABELS[activeRole] ?? activeRole}</Text>
               </View>
             </View>
           </TouchableOpacity>

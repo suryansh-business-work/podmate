@@ -112,10 +112,7 @@ export async function removeArea(cityId: string, areaId: string): Promise<boolea
 
 /* ── Pincode Management ── */
 
-export async function addPincodeToCity(
-  cityId: string,
-  pincode: string,
-): Promise<City | null> {
+export async function addPincodeToCity(cityId: string, pincode: string): Promise<City | null> {
   const doc = await CityModel.findByIdAndUpdate(
     cityId,
     { $addToSet: { pincodes: pincode.trim() }, $set: { updatedAt: new Date().toISOString() } },
@@ -124,10 +121,7 @@ export async function addPincodeToCity(
   return toCity(doc);
 }
 
-export async function removePincodeFromCity(
-  cityId: string,
-  pincode: string,
-): Promise<City | null> {
+export async function removePincodeFromCity(cityId: string, pincode: string): Promise<City | null> {
   const doc = await CityModel.findByIdAndUpdate(
     cityId,
     { $pull: { pincodes: pincode.trim() }, $set: { updatedAt: new Date().toISOString() } },
@@ -281,12 +275,14 @@ export async function resolveLocationByPincode(
 export async function searchGooglePlaces(
   input: string,
   sessionToken?: string,
-): Promise<Array<{
-  placeId: string;
-  description: string;
-  mainText: string;
-  secondaryText: string;
-}>> {
+): Promise<
+  Array<{
+    placeId: string;
+    description: string;
+    mainText: string;
+    secondaryText: string;
+  }>
+> {
   const predictions = await googleMaps.placesAutocomplete(input, sessionToken);
   return predictions.map((p) => ({
     placeId: p.place_id,
@@ -296,9 +292,7 @@ export async function searchGooglePlaces(
   }));
 }
 
-export async function resolveGooglePlaceDetails(
-  placeId: string,
-): Promise<ResolvedLocation | null> {
+export async function resolveGooglePlaceDetails(placeId: string): Promise<ResolvedLocation | null> {
   const geo = await googleMaps.getPlaceDetails(placeId);
   if (!geo) return null;
 

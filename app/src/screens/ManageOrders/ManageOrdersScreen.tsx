@@ -1,23 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { GET_PODS } from '../../graphql/queries';
 import { GET_MY_PLACES } from '../../graphql/queries/misc.queries';
-import {
-  ManageOrdersScreenProps,
-  BookingFilter,
-  BOOKING_FILTERS,
-} from './ManageOrders.types';
+import { ManageOrdersScreenProps, BookingFilter, BOOKING_FILTERS } from './ManageOrders.types';
 import { createStyles } from './ManageOrders.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 

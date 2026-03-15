@@ -65,10 +65,7 @@ async function getApiKey(): Promise<string> {
   return getConfigValue('google_maps_api_key', 'GOOGLE_MAPS_API_KEY');
 }
 
-function extractComponent(
-  components: GeocodeAddressComponent[],
-  type: string,
-): string {
+function extractComponent(components: GeocodeAddressComponent[], type: string): string {
   return components.find((c) => c.types.includes(type))?.long_name ?? '';
 }
 
@@ -176,9 +173,7 @@ export async function placesAutocomplete(
   const apiKey = await getApiKey();
   if (!apiKey || input.trim().length < 2) return [];
 
-  const url = new URL(
-    'https://maps.googleapis.com/maps/api/place/autocomplete/json',
-  );
+  const url = new URL('https://maps.googleapis.com/maps/api/place/autocomplete/json');
   url.searchParams.set('input', input);
   url.searchParams.set('types', 'establishment|geocode');
   url.searchParams.set('key', apiKey);
@@ -193,20 +188,13 @@ export async function placesAutocomplete(
 
 /* ── Place Details ── */
 
-export async function getPlaceDetails(
-  placeId: string,
-): Promise<GeocodedLocation | null> {
+export async function getPlaceDetails(placeId: string): Promise<GeocodedLocation | null> {
   const apiKey = await getApiKey();
   if (!apiKey) return null;
 
-  const url = new URL(
-    'https://maps.googleapis.com/maps/api/place/details/json',
-  );
+  const url = new URL('https://maps.googleapis.com/maps/api/place/details/json');
   url.searchParams.set('place_id', placeId);
-  url.searchParams.set(
-    'fields',
-    'geometry,formatted_address,address_components,place_id,name',
-  );
+  url.searchParams.set('fields', 'geometry,formatted_address,address_components,place_id,name');
   url.searchParams.set('key', apiKey);
 
   const res = await fetch(url.toString());

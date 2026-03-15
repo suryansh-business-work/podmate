@@ -35,11 +35,7 @@ const AnalyticsCard: React.FC<AnalyticsCardProps> = ({
           onPress={() => setShowHint((p) => !p)}
           activeOpacity={0.7}
         >
-          <MaterialIcons
-            name="info-outline"
-            size={18}
-            color={showHint ? iconColor : '#9CA3AF'}
-          />
+          <MaterialIcons name="info-outline" size={18} color={showHint ? iconColor : '#9CA3AF'} />
         </TouchableOpacity>
         {showHint && (
           <View style={styles.tooltip}>

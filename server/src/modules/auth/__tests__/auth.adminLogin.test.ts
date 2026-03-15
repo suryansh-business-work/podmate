@@ -84,7 +84,11 @@ describe('Admin Login', () => {
   });
 
   it('should throw for venue owner role', async () => {
-    const venueOwner = { ...adminUser, roles: [UserRole.VENUE_OWNER], activeRole: UserRole.VENUE_OWNER };
+    const venueOwner = {
+      ...adminUser,
+      roles: [UserRole.VENUE_OWNER],
+      activeRole: UserRole.VENUE_OWNER,
+    };
     mockFindUserByEmail.mockResolvedValue(venueOwner);
 
     await expect(adminLogin('admin@test.com', 'admin-pass-123')).rejects.toThrow(

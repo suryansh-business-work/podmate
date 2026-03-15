@@ -22,13 +22,10 @@ export function useInAppNotifications({
 }: UseInAppNotificationsOptions): UseInAppNotificationsResult {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const { data, loading, refetch } = useQuery<UnreadCountData>(
-    GET_UNREAD_NOTIFICATION_COUNT,
-    {
-      skip: !isAuthenticated,
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+  const { data, loading, refetch } = useQuery<UnreadCountData>(GET_UNREAD_NOTIFICATION_COUNT, {
+    skip: !isAuthenticated,
+    fetchPolicy: 'cache-and-network',
+  });
 
   useEffect(() => {
     if (!isAuthenticated) {

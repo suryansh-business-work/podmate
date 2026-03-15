@@ -27,11 +27,7 @@ describe('analytics.resolvers', () => {
     };
     (analyticsService.getHostAnalytics as jest.Mock).mockResolvedValue(mockData);
 
-    const result = await analyticsResolvers.Query.hostAnalytics(
-      undefined,
-      undefined,
-      mockContext,
-    );
+    const result = await analyticsResolvers.Query.hostAnalytics(undefined, undefined, mockContext);
 
     expect(result).toEqual(mockData);
     expect(analyticsService.getHostAnalytics).toHaveBeenCalledWith('u1');
@@ -48,11 +44,7 @@ describe('analytics.resolvers', () => {
     };
     (analyticsService.getVenueAnalytics as jest.Mock).mockResolvedValue(mockData);
 
-    const result = await analyticsResolvers.Query.venueAnalytics(
-      undefined,
-      undefined,
-      mockContext,
-    );
+    const result = await analyticsResolvers.Query.venueAnalytics(undefined, undefined, mockContext);
 
     expect(result).toEqual(mockData);
     expect(analyticsService.getVenueAnalytics).toHaveBeenCalledWith('u1');

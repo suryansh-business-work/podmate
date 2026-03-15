@@ -1,12 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -56,7 +49,7 @@ const VenueMomentsScreen: React.FC<VenueMomentsScreenProps> = ({ onBack }) => {
   };
 
   const selectedVenueName =
-    selectedVenueIdx === -1 ? 'All Venues' : venues[selectedVenueIdx]?.name ?? 'All Venues';
+    selectedVenueIdx === -1 ? 'All Venues' : (venues[selectedVenueIdx]?.name ?? 'All Venues');
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -124,7 +117,8 @@ const VenueMomentsScreen: React.FC<VenueMomentsScreenProps> = ({ onBack }) => {
         <TouchableOpacity style={styles.venueSelector} onPress={cycleVenue} activeOpacity={0.7}>
           <MaterialIcons name="store" size={20} color={colors.primary} />
           <Text style={styles.venueSelectorText} numberOfLines={1}>
-            {'  '}{selectedVenueName}
+            {'  '}
+            {selectedVenueName}
           </Text>
           <MaterialIcons name="swap-horiz" size={20} color={colors.textTertiary} />
         </TouchableOpacity>

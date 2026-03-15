@@ -180,7 +180,8 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
 
       const resolved = resolvedData?.resolveLocation;
       onLocationChange({
-        address: resolved?.address ?? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`,
+        address:
+          resolved?.address ?? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`,
         city: resolved?.city ?? '',
         state: resolved?.state ?? '',
         country: resolved?.country ?? '',
@@ -188,7 +189,9 @@ const VenueLocationPicker: React.FC<VenueLocationPickerProps> = ({
         latitude: coords.latitude,
         longitude: coords.longitude,
       });
-      setSearchQuery(resolved?.address ?? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
+      setSearchQuery(
+        resolved?.address ?? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`,
+      );
     } catch {
       // ignore
     } finally {

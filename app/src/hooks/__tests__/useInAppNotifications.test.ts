@@ -14,18 +14,14 @@ describe('useInAppNotifications', () => {
   });
 
   it('returns unread count when authenticated', () => {
-    const { result } = renderHook(() =>
-      useInAppNotifications({ isAuthenticated: true }),
-    );
+    const { result } = renderHook(() => useInAppNotifications({ isAuthenticated: true }));
 
     expect(result.current.unreadCount).toBe(5);
     expect(result.current.loading).toBe(false);
   });
 
   it('skips query when not authenticated', () => {
-    renderHook(() =>
-      useInAppNotifications({ isAuthenticated: false }),
-    );
+    renderHook(() => useInAppNotifications({ isAuthenticated: false }));
 
     expect(useQuery).toHaveBeenCalledWith(
       expect.anything(),
@@ -34,9 +30,7 @@ describe('useInAppNotifications', () => {
   });
 
   it('polls for updates at interval', () => {
-    renderHook(() =>
-      useInAppNotifications({ isAuthenticated: true }),
-    );
+    renderHook(() => useInAppNotifications({ isAuthenticated: true }));
 
     expect(mockRefetch).not.toHaveBeenCalled();
 
@@ -49,8 +43,7 @@ describe('useInAppNotifications', () => {
 
   it('stops polling when not authenticated', () => {
     const { rerender } = renderHook(
-      ({ isAuth }: { isAuth: boolean }) =>
-        useInAppNotifications({ isAuthenticated: isAuth }),
+      ({ isAuth }: { isAuth: boolean }) => useInAppNotifications({ isAuthenticated: isAuth }),
       { initialProps: { isAuth: true } },
     );
 
@@ -70,9 +63,7 @@ describe('useInAppNotifications', () => {
       refetch: mockRefetch,
     });
 
-    const { result } = renderHook(() =>
-      useInAppNotifications({ isAuthenticated: true }),
-    );
+    const { result } = renderHook(() => useInAppNotifications({ isAuthenticated: true }));
 
     expect(result.current.unreadCount).toBe(0);
     expect(result.current.loading).toBe(true);

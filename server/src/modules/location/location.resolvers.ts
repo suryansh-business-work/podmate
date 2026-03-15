@@ -11,7 +11,8 @@ const locationResolvers = {
       args: { page?: number; limit?: number; search?: string },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       return locationService.getCities(args.page ?? 1, args.limit ?? 50, args.search);
     },
     activeCities: async () => {
@@ -58,7 +59,8 @@ const locationResolvers = {
   },
   Mutation: {
     createCity: async (_: unknown, { input }: { input: CreateCityInput }, ctx: GraphQLContext) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       const err = validateCreateCity(input);
       if (err) throw new Error(err);
       return locationService.createCity(input);
@@ -68,7 +70,8 @@ const locationResolvers = {
       { id, input }: { id: string; input: UpdateCityInput },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       const err = validateUpdateCity(input);
       if (err) throw new Error(err);
       const updated = await locationService.updateCity(id, input);
@@ -76,11 +79,13 @@ const locationResolvers = {
       return updated;
     },
     deleteCity: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       return locationService.deleteCity(id);
     },
     addArea: async (_: unknown, { input }: { input: CreateAreaInput }, ctx: GraphQLContext) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       const err = validateCreateArea(input);
       if (err) throw new Error(err);
       return locationService.addArea(input);
@@ -90,7 +95,8 @@ const locationResolvers = {
       { cityId, areaId }: { cityId: string; areaId: string },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       return locationService.removeArea(cityId, areaId);
     },
     addPincodeToCity: async (
@@ -98,7 +104,8 @@ const locationResolvers = {
       { cityId, pincode }: { cityId: string; pincode: string },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       if (!pincode.trim()) throw new Error('Pincode is required');
       const result = await locationService.addPincodeToCity(cityId, pincode);
       if (!result) throw new Error('City not found');
@@ -109,7 +116,8 @@ const locationResolvers = {
       { cityId, pincode }: { cityId: string; pincode: string },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       const result = await locationService.removePincodeFromCity(cityId, pincode);
       if (!result) throw new Error('City not found');
       return result;
@@ -119,7 +127,8 @@ const locationResolvers = {
       { cityId, areaId, pincode }: { cityId: string; areaId: string; pincode: string },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       if (!pincode.trim()) throw new Error('Pincode is required');
       const result = await locationService.addPincodeToArea(cityId, areaId, pincode);
       if (!result) throw new Error('City or area not found');
@@ -130,7 +139,8 @@ const locationResolvers = {
       { cityId, areaId, pincode }: { cityId: string; areaId: string; pincode: string },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       const result = await locationService.removePincodeFromArea(cityId, areaId, pincode);
       if (!result) throw new Error('City or area not found');
       return result;

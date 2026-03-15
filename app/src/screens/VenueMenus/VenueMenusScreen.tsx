@@ -5,11 +5,7 @@ import { useQuery } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { GET_MY_PLACES } from '../../graphql/queries/misc.queries';
-import {
-  VenueMenuScreenProps,
-  MenuCategory,
-  MENU_CATEGORIES,
-} from './VenueMenus.types';
+import { VenueMenuScreenProps, MenuCategory, MENU_CATEGORIES } from './VenueMenus.types';
 import { createStyles } from './VenueMenus.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -52,7 +48,8 @@ const VenueMenusScreen: React.FC<VenueMenuScreenProps> = ({ onBack }) => {
         <TouchableOpacity style={styles.venueSelector} onPress={cycleVenue} activeOpacity={0.7}>
           <MaterialIcons name="store" size={20} color={colors.primary} />
           <Text style={styles.venueSelectorText} numberOfLines={1}>
-            {'  '}{selectedVenue?.name ?? 'Select Venue'}
+            {'  '}
+            {selectedVenue?.name ?? 'Select Venue'}
           </Text>
           {venues.length > 1 && (
             <MaterialIcons name="swap-horiz" size={20} color={colors.textTertiary} />
@@ -61,7 +58,11 @@ const VenueMenusScreen: React.FC<VenueMenuScreenProps> = ({ onBack }) => {
       )}
 
       {/* Category tabs */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoryRow}
+      >
         {MENU_CATEGORIES.map((cat) => (
           <TouchableOpacity
             key={cat.key}

@@ -75,9 +75,7 @@ export async function getHostAnalytics(userId: string): Promise<HostAnalytics> {
 export async function getVenueAnalytics(userId: string): Promise<VenueAnalytics> {
   const myPlaces = await PlaceModel.find({ ownerId: userId }).lean();
   const totalRegisteredVenues = myPlaces.length;
-  const cancelledVenues = myPlaces.filter(
-    (p) => p.status === PlaceStatus.REJECTED,
-  ).length;
+  const cancelledVenues = myPlaces.filter((p) => p.status === PlaceStatus.REJECTED).length;
 
   const approvedPlaceIds = myPlaces
     .filter((p) => p.status === PlaceStatus.APPROVED)

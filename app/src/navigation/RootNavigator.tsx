@@ -181,8 +181,7 @@ const RootNavigator: React.FC = () => {
       Feedback: () => nav.navigate('Feedback'),
       PodIdeas: () => nav.navigate('PodIdeas'),
       GoLive: () => nav.navigate('GoLive'),
-      Dashboard: () =>
-        nav.reset({ index: 0, routes: [{ name: 'Dashboard' }] }),
+      Dashboard: () => nav.reset({ index: 0, routes: [{ name: 'Dashboard' }] }),
       YourVenues: () => nav.navigate('YourVenues'),
       Menus: () => nav.navigate('Menus'),
       ManageOrders: () => nav.navigate('ManageOrders'),

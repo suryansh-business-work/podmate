@@ -162,24 +162,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
               </View>
               <TouchableOpacity
                 style={styles.statItem}
-                onPress={() =>
-                  user?.id && onFollowers?.(user.id, user.name || 'User')
-                }
+                onPress={() => user?.id && onFollowers?.(user.id, user.name || 'User')}
               >
-                <Text style={styles.statValue}>
-                  {followStats?.followersCount ?? 0}
-                </Text>
+                <Text style={styles.statValue}>{followStats?.followersCount ?? 0}</Text>
                 <Text style={styles.statLabel}>Followers</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.statItem}
-                onPress={() =>
-                  user?.id && onFollowing?.(user.id, user.name || 'User')
-                }
+                onPress={() => user?.id && onFollowing?.(user.id, user.name || 'User')}
               >
-                <Text style={styles.statValue}>
-                  {followStats?.followingCount ?? 0}
-                </Text>
+                <Text style={styles.statValue}>{followStats?.followingCount ?? 0}</Text>
                 <Text style={styles.statLabel}>Following</Text>
               </TouchableOpacity>
             </View>
@@ -189,9 +181,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
         {/* ── Name, username, bio ── */}
         <View style={styles.nameSection}>
           <Text style={styles.userName}>{user?.name || 'PartyWings User'}</Text>
-          {user?.username ? (
-            <Text style={styles.usernameText}>@{user.username}</Text>
-          ) : null}
+          {user?.username ? <Text style={styles.usernameText}>@{user.username}</Text> : null}
           {user?.phone ? <Text style={styles.userPhone}>{user.phone}</Text> : null}
           {user?.isVerifiedHost && (
             <View style={styles.verifiedBadge}>
@@ -244,8 +234,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </View>
 
         {/* ── Grid tab content ── */}
-        {activeTab === 'grid' && (
-          moments.length > 0 ? (
+        {activeTab === 'grid' &&
+          (moments.length > 0 ? (
             <View style={styles.gridContainer}>
               {moments.map((moment) => {
                 const imageUrl = moment.mediaUrls?.[0];
@@ -274,8 +264,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 </TouchableOpacity>
               )}
             </View>
-          )
-        )}
+          ))}
 
         {/* ── Menu tab content ── */}
         {activeTab === 'menu' && (

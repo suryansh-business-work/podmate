@@ -115,11 +115,7 @@ const userResolvers = {
       return userService.updateThemePreference(auth.userId, args.themePreference);
     },
 
-    switchActiveRole: (
-      _: unknown,
-      args: { role: UserRole },
-      context: GraphQLContext,
-    ) => {
+    switchActiveRole: (_: unknown, args: { role: UserRole }, context: GraphQLContext) => {
       const auth = requireAuth(context);
       return userService.switchActiveRole(auth.userId, args.role);
     },

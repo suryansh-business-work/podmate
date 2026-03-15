@@ -7,7 +7,11 @@ import { GET_HOST_ANALYTICS, GET_VENUE_ANALYTICS } from '../../graphql/queries';
 import AnalyticsCard from './components/AnalyticsCard';
 import { createStyles } from './Dashboard.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
-import type { DashboardScreenProps, HostAnalyticsData, VenueAnalyticsData } from './Dashboard.types';
+import type {
+  DashboardScreenProps,
+  HostAnalyticsData,
+  VenueAnalyticsData,
+} from './Dashboard.types';
 
 const DashboardScreen: React.FC<DashboardScreenProps> = ({
   onBack,
@@ -74,11 +78,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={false}
-            onRefresh={handleRefresh}
-            colors={[colors.primary]}
-          />
+          <RefreshControl refreshing={false} onRefresh={handleRefresh} colors={[colors.primary]} />
         }
       >
         {/* Host Analytics */}
@@ -139,11 +139,7 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         />
 
         {/* Register A Venue */}
-        <TouchableOpacity
-          style={styles.registerBtn}
-          onPress={onRegisterVenue}
-          activeOpacity={0.85}
-        >
+        <TouchableOpacity style={styles.registerBtn} onPress={onRegisterVenue} activeOpacity={0.85}>
           <MaterialIcons name="add-business" size={20} color={colors.white} />
           <Text style={styles.registerBtnText}>Register A Venue</Text>
         </TouchableOpacity>

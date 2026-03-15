@@ -57,8 +57,14 @@ describe('ProfileScreen', () => {
     const defaults = [
       meResult,
       podsResult,
-      followResult ?? { data: { followStats: { followersCount: 5, followingCount: 10 } }, refetch: mockRefetchFollow },
-      momentsResult ?? { data: { userMoments: { items: [], total: 0 } }, refetch: mockRefetchMoments },
+      followResult ?? {
+        data: { followStats: { followersCount: 5, followingCount: 10 } },
+        refetch: mockRefetchFollow,
+      },
+      momentsResult ?? {
+        data: { userMoments: { items: [], total: 0 } },
+        refetch: mockRefetchMoments,
+      },
     ];
     (useQuery as jest.Mock).mockReset().mockImplementation(() => {
       const idx = qCall++;
@@ -126,7 +132,9 @@ describe('ProfileScreen', () => {
     const { getByText, getAllByText } = render(<ProfileScreen {...defaultProps} />);
     fireEvent.press(getByText('menu'));
     const editProfileItems = getAllByText('Edit Profile');
-    const menuItem = editProfileItems.find((el) => el.parent?.parent?.props?.accessibilityRole !== 'button') ?? editProfileItems[editProfileItems.length - 1];
+    const menuItem =
+      editProfileItems.find((el) => el.parent?.parent?.props?.accessibilityRole !== 'button') ??
+      editProfileItems[editProfileItems.length - 1];
     fireEvent.press(menuItem);
     expect(defaultProps.onNavigate).toHaveBeenCalled();
   });

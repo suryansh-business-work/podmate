@@ -131,7 +131,16 @@ const StepVenueDetails: React.FC<StepVenueDetailsProps> = ({
             latitude={values.latitude}
             longitude={values.longitude}
             googleMapsApiKey={googleMapsApiKey}
-            onLocationChange={({ address, city, state, country, pincode, latitude, longitude, placeId }) => {
+            onLocationChange={({
+              address,
+              city,
+              state,
+              country,
+              pincode,
+              latitude,
+              longitude,
+              placeId,
+            }) => {
               setFieldValue('address', address);
               setFieldValue('city', city);
               if (state !== undefined) setFieldValue('state', state);

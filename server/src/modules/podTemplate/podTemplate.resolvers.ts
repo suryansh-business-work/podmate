@@ -11,7 +11,8 @@ const podTemplateResolvers = {
       args: { page?: number; limit?: number; search?: string },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       return podTemplateService.getPodTemplates(args.page ?? 1, args.limit ?? 20, args.search);
     },
     activePodTemplates: async () => {
@@ -24,7 +25,8 @@ const podTemplateResolvers = {
       { input }: { input: CreatePodTemplateInput },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       const err = validateCreatePodTemplate(input);
       if (err) throw new Error(err);
       return podTemplateService.createPodTemplate(input);
@@ -34,7 +36,8 @@ const podTemplateResolvers = {
       { id, input }: { id: string; input: UpdatePodTemplateInput },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       const err = validateUpdatePodTemplate(input);
       if (err) throw new Error(err);
       const updated = await podTemplateService.updatePodTemplate(id, input);
@@ -42,7 +45,8 @@ const podTemplateResolvers = {
       return updated;
     },
     deletePodTemplate: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN))
+        throw new Error('Admin access required');
       return podTemplateService.deletePodTemplate(id);
     },
   },

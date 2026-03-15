@@ -30,7 +30,8 @@ export function verifyToken(token: string): AuthPayload | null {
     const decoded = jwt.verify(token, JWT_SECRET) as Record<string, unknown>;
     // Backward compat: old tokens have `role` (string), new tokens have `roles` (array)
     if (!decoded.roles && decoded.role) {
-      const legacyRole = decoded.role === 'PLACE_OWNER' ? UserRole.VENUE_OWNER : (decoded.role as UserRole);
+      const legacyRole =
+        decoded.role === 'PLACE_OWNER' ? UserRole.VENUE_OWNER : (decoded.role as UserRole);
       decoded.roles = [legacyRole];
     }
     return decoded as unknown as AuthPayload;

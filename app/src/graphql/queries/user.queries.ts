@@ -10,7 +10,8 @@ export const GET_ME = gql`
       username
       dob
       avatar
-      role
+      roles
+      activeRole
       isVerifiedHost
       savedPodIds
       themePreference

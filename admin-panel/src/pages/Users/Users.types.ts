@@ -6,7 +6,8 @@ export interface User {
   username: string;
   dob: string;
   avatar: string;
-  role: string;
+  roles: string[];
+  activeRole: string;
   isVerifiedHost: boolean;
   isActive: boolean;
   disableReason: string;
@@ -26,10 +27,18 @@ export interface UsersData {
 
 export type Order = 'ASC' | 'DESC';
 
-export const roleColor: Record<string, 'primary' | 'warning' | 'error' | 'default'> = {
+export const roleColor: Record<string, 'primary' | 'warning' | 'error' | 'default' | 'info'> = {
   USER: 'default',
-  PLACE_OWNER: 'warning',
+  VENUE_OWNER: 'warning',
+  HOST: 'info',
   ADMIN: 'error',
+};
+
+export const ROLE_LABELS: Record<string, string> = {
+  USER: 'User',
+  VENUE_OWNER: 'Venue Owner',
+  HOST: 'Host',
+  ADMIN: 'Admin',
 };
 
 export const formatDate = (dateStr: string): string =>

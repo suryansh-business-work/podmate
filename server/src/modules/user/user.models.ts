@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 export enum UserRole {
   USER = 'USER',
-  PLACE_OWNER = 'PLACE_OWNER',
+  VENUE_OWNER = 'VENUE_OWNER',
+  HOST = 'HOST',
   ADMIN = 'ADMIN',
 }
 
@@ -17,7 +18,8 @@ export interface User {
   age: number;
   dob: string;
   avatar: string;
-  role: UserRole;
+  roles: UserRole[];
+  activeRole: UserRole;
   isVerifiedHost: boolean;
   isActive: boolean;
   disableReason: string;
@@ -28,7 +30,7 @@ export interface User {
 
 export interface CreateUserInput {
   phone: string;
-  role?: UserRole;
+  roles?: UserRole[];
   email?: string;
   password?: string;
   name?: string;
@@ -63,7 +65,10 @@ export interface PaginatedResponse<T> {
 
 /* ── Mongoose ── */
 
-export type UserMongoDoc = Omit<User, 'id'> & { _id: string };
+export type UserMongoDoc = Omit<User, 'id'> & {
+  _id: string;
+  role?: string; // legacy field for backward compat
+};
 
 const UserSchema = new Schema<UserMongoDoc>(
   {
@@ -76,7 +81,16 @@ const UserSchema = new Schema<UserMongoDoc>(
     age: { type: Number, default: 0 },
     dob: { type: String, default: '' },
     avatar: { type: String, default: '' },
-    role: { type: String, enum: Object.values(UserRole), default: UserRole.USER },
+    roles: {
+      type: [String],
+      enum: Object.values(UserRole),
+      default: [UserRole.USER],
+    },
+    activeRole: {
+      type: String,
+      enum: Object.values(UserRole),
+      default: UserRole.USER,
+    },
     isVerifiedHost: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     disableReason: { type: String, default: '' },
@@ -91,11 +105,26 @@ export const UserModel =
   (mongoose.models['User'] as mongoose.Model<UserMongoDoc> | undefined) ??
   model<UserMongoDoc>('User', UserSchema);
 
+/** Convert legacy single `role` to `roles` array for backward compat */
+function migrateRoles(doc: UserMongoDoc): UserRole[] {
+  if (doc.roles && doc.roles.length > 0) return doc.roles;
+  const legacyRole = (doc as unknown as { role?: string }).role;
+  if (legacyRole) {
+    // Map old PLACE_OWNER to VENUE_OWNER
+    const mapped = legacyRole === 'PLACE_OWNER' ? UserRole.VENUE_OWNER : (legacyRole as UserRole);
+    return [mapped];
+  }
+  return [UserRole.USER];
+}
+
 export function toUser(doc: (UserMongoDoc & { id?: string }) | null): User | null {
   if (!doc) return null;
+  const roles = migrateRoles(doc);
   return {
     ...doc,
     id: doc.id ?? doc._id,
+    roles,
+    activeRole: doc.activeRole ?? roles[0] ?? UserRole.USER,
     isActive: doc.isActive ?? true,
     disableReason: doc.disableReason ?? '',
     email: doc.email ?? '',

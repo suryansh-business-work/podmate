@@ -14,9 +14,10 @@ interface UserProfileCardProps {
   user: UserDetail;
 }
 
-const roleColors: Record<string, 'error' | 'warning' | 'default'> = {
+const roleColors: Record<string, 'error' | 'warning' | 'default' | 'info'> = {
   ADMIN: 'error',
-  PLACE_OWNER: 'warning',
+  VENUE_OWNER: 'warning',
+  HOST: 'info',
   USER: 'default',
 };
 
@@ -45,12 +46,15 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({ user }) => (
         {user.phone}
       </Typography>
 
-      <Stack direction="row" justifyContent="center" spacing={1} mt={1.5}>
-        <Chip
-          label={user.role.replace('_', ' ')}
-          size="small"
-          color={roleColors[user.role] ?? 'default'}
-        />
+      <Stack direction="row" justifyContent="center" spacing={1} mt={1.5} flexWrap="wrap">
+        {user.roles.map((r) => (
+          <Chip
+            key={r}
+            label={r.replace('_', ' ')}
+            size="small"
+            color={roleColors[r] ?? 'default'}
+          />
+        ))}
         <Chip
           label={user.isActive ? 'Active' : 'Disabled'}
           size="small"

@@ -1,6 +1,5 @@
 import { ComponentProps } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
-import { lightColors } from '../../colors';
 
 export type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
@@ -17,25 +16,45 @@ export interface NavItem {
   color?: string;
 }
 
-export const MAIN_NAV: NavItem[] = [
+/* ── User role menu ─── */
+export const USER_NAV: NavItem[] = [
   { id: 'Home', icon: 'home', label: 'Home', color: '#F50247' },
   { id: 'Explore', icon: 'explore', label: 'Explore', color: '#9333EA' },
   { id: 'Moments', icon: 'auto-awesome', label: 'Moments', color: '#2563EB' },
   { id: 'Notifications', icon: 'notifications', label: 'Notifications', color: '#F59E0B' },
-];
-
-export const QUICK_ACTIONS: NavItem[] = [
   { id: 'RegisterPlace', icon: 'store', label: 'Register a Venue', color: '#10B981' },
-  { id: 'CreatePod', icon: 'add-circle', label: 'Create a Pod', color: '#F50247' },
-  { id: 'GoLive', icon: 'videocam', label: 'Go Live', color: '#EF4444' },
+  { id: 'CreatePod', icon: 'add-circle', label: 'Be a Pod Owner', color: '#F50247' },
+  { id: 'Profile', icon: 'person', label: 'Profile Settings', color: '#6366F1' },
 ];
 
-export const ACCOUNT_ITEMS: NavItem[] = [
-  { id: 'Profile', icon: 'person', label: 'Profile', color: '#6366F1' },
-  { id: 'MyPods', icon: 'confirmation-number', label: 'My Pods', color: '#EC4899' },
-  { id: 'Payments', icon: 'account-balance-wallet', label: 'Payments', color: '#14B8A6' },
-  { id: 'Feedback', icon: 'feedback', label: 'Feedback', color: '#F59E0B' },
-  { id: 'PodIdeas', icon: 'emoji-objects', label: 'Pod Ideas', color: '#10B981' },
-  { id: 'Help', icon: 'help-outline', label: 'Help & FAQs', color: '#8B5CF6' },
-  { id: 'Support', icon: 'support-agent', label: 'Support', color: lightColors.primary },
+/* ── Venue Owner role menu ─── */
+export const VENUE_OWNER_NAV: NavItem[] = [
+  { id: 'YourVenues', icon: 'store', label: 'Your Venues', color: '#10B981' },
+  { id: 'Menus', icon: 'restaurant-menu', label: 'Menus', color: '#F59E0B' },
+  { id: 'ManageOrders', icon: 'receipt-long', label: 'Manage Orders', color: '#2563EB' },
+  { id: 'Payments', icon: 'account-balance-wallet', label: 'Payments History', color: '#14B8A6' },
+  { id: 'VenueMoments', icon: 'auto-awesome', label: 'Venues Moments', color: '#9333EA' },
+  { id: 'Withdrawal', icon: 'savings', label: 'Withdrawal', color: '#EC4899' },
 ];
+
+/* ── Host role menu ─── */
+export const HOST_NAV: NavItem[] = [
+  { id: 'CreatePod', icon: 'add-circle', label: 'Create a Pod', color: '#F50247' },
+  { id: 'Profile', icon: 'person', label: 'Profile', color: '#6366F1' },
+  { id: 'Withdrawal', icon: 'savings', label: 'Withdrawal', color: '#EC4899' },
+];
+
+export const ROLE_MENUS: Record<string, NavItem[]> = {
+  USER: USER_NAV,
+  VENUE_OWNER: VENUE_OWNER_NAV,
+  HOST: HOST_NAV,
+  ADMIN: USER_NAV,
+};
+
+export const ROLE_LABELS: Record<string, string> = {
+  USER: 'User',
+  VENUE_OWNER: 'Venue Owner',
+  HOST: 'Host',
+  ADMIN: 'Admin',
+};
+

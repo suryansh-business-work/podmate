@@ -17,10 +17,16 @@ export type RootStackParamList = {
   Payments: undefined;
   Privacy: undefined;
   MyPods: undefined;
+  Profile: undefined;
   Reviews: { targetType: 'POD' | 'PLACE'; targetId: string; targetTitle: string };
   Feedback: undefined;
   PodIdeas: undefined;
   GoLive: { podId?: string; podTitle?: string } | undefined;
   FollowList: { userId: string; userName: string; initialTab?: 'followers' | 'following' };
   UserProfile: { userId: string };
+  YourVenues: undefined;
+  Menus: undefined;
+  ManageOrders: undefined;
+  VenueMoments: undefined;
+  Withdrawal: undefined;
 };

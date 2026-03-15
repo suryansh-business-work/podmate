@@ -6,7 +6,8 @@ export const GET_ADMIN_ME = gql`
       id
       name
       email
-      role
+      roles
+      activeRole
       themePreference
     }
   }
@@ -23,7 +24,8 @@ export const GET_USERS = gql`
         username
         dob
         avatar
-        role
+        roles
+        activeRole
         isVerifiedHost
         isActive
         disableReason
@@ -267,7 +269,8 @@ export const GET_USER = gql`
       username
       dob
       avatar
-      role
+      roles
+      activeRole
       isVerifiedHost
       isActive
       disableReason

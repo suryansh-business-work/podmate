@@ -86,7 +86,7 @@ const supportResolvers = {
       if (content.length > 5000) {
         throw new Error('Reply content must not exceed 5000 characters');
       }
-      const senderRole = auth.role === UserRole.ADMIN ? 'ADMIN' : 'USER';
+      const senderRole = auth.roles.includes(UserRole.ADMIN) ? 'ADMIN' : 'USER';
       return supportService.replySupportTicket(
         args.id,
         auth.userId,

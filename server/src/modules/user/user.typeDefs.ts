@@ -1,7 +1,8 @@
 const userTypeDefs = `#graphql
   enum UserRole {
     USER
-    PLACE_OWNER
+    VENUE_OWNER
+    HOST
     ADMIN
   }
 
@@ -14,7 +15,8 @@ const userTypeDefs = `#graphql
     age: Int!
     dob: String!
     avatar: String!
-    role: UserRole!
+    roles: [UserRole!]!
+    activeRole: UserRole!
     isVerifiedHost: Boolean!
     isActive: Boolean!
     disableReason: String!

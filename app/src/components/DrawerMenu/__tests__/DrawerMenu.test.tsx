@@ -3,13 +3,6 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { useQuery } from '@apollo/client';
 import DrawerMenu from '../DrawerMenu';
 
-jest.mock('../../../contexts/ThemeContext', () => ({
-  useThemeMode: () => ({
-    isDark: false,
-    toggleTheme: jest.fn(),
-  }),
-}));
-
 describe('DrawerMenu', () => {
   const defaultProps = {
     onClose: jest.fn(),
@@ -26,7 +19,8 @@ describe('DrawerMenu', () => {
           phone: '+919876543210',
           avatar: 'https://cdn.example.com/avatar.jpg',
           isVerifiedHost: true,
-          role: 'HOST',
+          roles: ['HOST', 'USER'],
+          activeRole: 'USER',
         },
       },
       loading: false,
@@ -44,36 +38,97 @@ describe('DrawerMenu', () => {
     expect(getByText('+919876543210')).toBeTruthy();
   });
 
-  it('renders user role badge', () => {
+  it('renders active role badge label', () => {
     const { getByText } = render(<DrawerMenu {...defaultProps} />);
-    expect(getByText('HOST')).toBeTruthy();
+    expect(getByText('User')).toBeTruthy();
   });
 
-  it('renders main navigation items', () => {
+  it('renders USER role menu items', () => {
     const { getByText } = render(<DrawerMenu {...defaultProps} />);
     expect(getByText('Home')).toBeTruthy();
     expect(getByText('Explore')).toBeTruthy();
     expect(getByText('Moments')).toBeTruthy();
     expect(getByText('Notifications')).toBeTruthy();
-  });
-
-  it('renders quick action items', () => {
-    const { getByText } = render(<DrawerMenu {...defaultProps} />);
     expect(getByText('Register a Venue')).toBeTruthy();
+    expect(getByText('Be a Pod Owner')).toBeTruthy();
+    expect(getByText('Profile Settings')).toBeTruthy();
+  });
+
+  it('renders HOST role menu when activeRole is HOST', () => {
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        me: {
+          name: 'Suryansh',
+          phone: '+919876543210',
+          avatar: null,
+          isVerifiedHost: true,
+          roles: ['HOST', 'USER'],
+          activeRole: 'HOST',
+        },
+      },
+      loading: false,
+      error: null,
+    });
+    const { getByText, queryByText } = render(<DrawerMenu {...defaultProps} />);
     expect(getByText('Create a Pod')).toBeTruthy();
-    expect(getByText('Go Live')).toBeTruthy();
-  });
-
-  it('renders account items', () => {
-    const { getByText } = render(<DrawerMenu {...defaultProps} />);
     expect(getByText('Profile')).toBeTruthy();
-    expect(getByText('My Pods')).toBeTruthy();
-    expect(getByText('Payments')).toBeTruthy();
+    expect(getByText('Withdrawal')).toBeTruthy();
+    expect(queryByText('Home')).toBeNull();
   });
 
-  it('renders Dark Mode toggle', () => {
+  it('renders VENUE_OWNER role menu when activeRole is VENUE_OWNER', () => {
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        me: {
+          name: 'Suryansh',
+          phone: '+919876543210',
+          avatar: null,
+          isVerifiedHost: false,
+          roles: ['VENUE_OWNER'],
+          activeRole: 'VENUE_OWNER',
+        },
+      },
+      loading: false,
+      error: null,
+    });
+    const { getByText, queryByText } = render(<DrawerMenu {...defaultProps} />);
+    expect(getByText('Your Venues')).toBeTruthy();
+    expect(getByText('Menus')).toBeTruthy();
+    expect(getByText('Manage Orders')).toBeTruthy();
+    expect(getByText('Payments History')).toBeTruthy();
+    expect(getByText('Venues Moments')).toBeTruthy();
+    expect(getByText('Withdrawal')).toBeTruthy();
+    expect(queryByText('Switch Role')).toBeNull();
+  });
+
+  it('shows Switch Role when user has multiple roles', () => {
     const { getByText } = render(<DrawerMenu {...defaultProps} />);
-    expect(getByText('Dark Mode')).toBeTruthy();
+    expect(getByText('Switch Role')).toBeTruthy();
+  });
+
+  it('hides Switch Role when user has single role', () => {
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        me: {
+          name: 'Suryansh',
+          phone: '+919876543210',
+          avatar: null,
+          isVerifiedHost: false,
+          roles: ['USER'],
+          activeRole: 'USER',
+        },
+      },
+      loading: false,
+      error: null,
+    });
+    const { queryByText } = render(<DrawerMenu {...defaultProps} />);
+    expect(queryByText('Switch Role')).toBeNull();
+  });
+
+  it('expands role options when Switch Role is pressed', () => {
+    const { getByText } = render(<DrawerMenu {...defaultProps} />);
+    fireEvent.press(getByText('Switch Role'));
+    expect(getByText('Host')).toBeTruthy();
   });
 
   it('renders Logout button', () => {

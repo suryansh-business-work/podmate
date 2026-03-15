@@ -91,6 +91,36 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       marginVertical: spacing.sm,
       marginHorizontal: spacing.xl,
     },
+
+    /* Role switcher */
+    switchRoleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: spacing.xl,
+      gap: spacing.md,
+      marginTop: spacing.sm,
+    },
+    roleOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 10,
+      paddingHorizontal: spacing.xl,
+      marginHorizontal: spacing.lg,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.surfaceVariant,
+      marginBottom: spacing.xs,
+    },
+    roleOptionActive: {
+      backgroundColor: colors.primary + '12',
+    },
+    roleOptionText: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: colors.text,
+    },
+
     logoutRow: {
       flexDirection: 'row',
       alignItems: 'center',

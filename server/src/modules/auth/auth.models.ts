@@ -3,7 +3,7 @@ import type { UserRole } from '../user/user.models';
 export interface AuthPayload {
   userId: string;
   phone: string;
-  role: UserRole;
+  roles: UserRole[];
 }
 
 export interface AuthResponse {
@@ -13,7 +13,8 @@ export interface AuthResponse {
     phone: string;
     name: string;
     avatar: string;
-    role: UserRole;
+    roles: UserRole[];
+    activeRole: UserRole;
   };
   isNewUser: boolean;
 }

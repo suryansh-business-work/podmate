@@ -34,7 +34,8 @@ export const UPDATE_PROFILE = gql`
       username
       dob
       avatar
-      role
+      roles
+      activeRole
       isVerifiedHost
       savedPodIds
       themePreference
@@ -51,7 +52,8 @@ export const COMPLETE_PROFILE = gql`
       username
       dob
       avatar
-      role
+      roles
+      activeRole
     }
   }
 `;
@@ -80,5 +82,15 @@ export const REGISTER_PUSH_TOKEN = gql`
 export const UNREGISTER_PUSH_TOKEN = gql`
   mutation UnregisterPushToken($deviceId: String!) {
     unregisterPushToken(deviceId: $deviceId)
+  }
+`;
+
+export const SWITCH_ACTIVE_ROLE = gql`
+  mutation SwitchActiveRole($role: UserRole!) {
+    switchActiveRole(role: $role) {
+      id
+      roles
+      activeRole
+    }
   }
 `;

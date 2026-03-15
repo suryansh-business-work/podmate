@@ -56,7 +56,7 @@ const podResolvers = {
 
   Mutation: {
     createPod: (_: unknown, args: { input: CreatePodInput }, context: GraphQLContext) => {
-      const auth = requireRole(context, UserRole.PLACE_OWNER, UserRole.ADMIN);
+      const auth = requireRole(context, UserRole.HOST, UserRole.VENUE_OWNER, UserRole.ADMIN);
       return podService.createPod(args.input, auth.userId);
     },
 
@@ -71,7 +71,7 @@ const podResolvers = {
 
     deletePod: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       const auth = requireAuth(context);
-      if (auth.role === UserRole.ADMIN) {
+      if (auth.roles.includes(UserRole.ADMIN)) {
         return podService.deletePod(args.id);
       }
       return podService.hostDeletePod(args.id, auth.userId);

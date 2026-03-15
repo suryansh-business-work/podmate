@@ -3,13 +3,20 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Grid2';
 import CircularProgress from '@mui/material/CircularProgress';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+import Chip from '@mui/material/Chip';
+import Box from '@mui/material/Box';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 import SaveIcon from '@mui/icons-material/Save';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -22,13 +29,23 @@ interface UserEditFormProps {
   onSave: (values: AdminUpdateUserInput) => void;
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  USER: 'User',
+  VENUE_OWNER: 'Venue Owner',
+  HOST: 'Host',
+  ADMIN: 'Admin',
+};
+
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
   email: Yup.string().email('Invalid email'),
   phone: Yup.string().required('Phone is required'),
   username: Yup.string(),
   dob: Yup.string(),
-  role: Yup.string().oneOf(['USER', 'PLACE_OWNER', 'ADMIN']).required(),
+  roles: Yup.array()
+    .of(Yup.string().oneOf([...ROLE_OPTIONS]))
+    .min(1, 'At least one role required')
+    .required(),
   isVerifiedHost: Yup.boolean(),
   isActive: Yup.boolean(),
   disableReason: Yup.string(),
@@ -42,7 +59,7 @@ const UserEditForm: React.FC<UserEditFormProps> = ({ user, saving, onSave }) => 
       phone: user.phone,
       username: user.username,
       dob: user.dob,
-      role: user.role,
+      roles: user.roles,
       isVerifiedHost: user.isVerifiedHost,
       isActive: user.isActive,
       disableReason: user.disableReason,
@@ -125,21 +142,46 @@ const UserEditForm: React.FC<UserEditFormProps> = ({ user, saving, onSave }) => 
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <TextField
-                fullWidth
-                size="small"
-                select
-                label="Role"
-                name="role"
-                value={formik.values.role}
-                onChange={formik.handleChange}
-              >
-                {ROLE_OPTIONS.map((r) => (
-                  <MenuItem key={r} value={r}>
-                    {r.replace('_', ' ')}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <FormControl fullWidth size="small">
+                <InputLabel>Roles</InputLabel>
+                <Select
+                  multiple
+                  name="roles"
+                  value={formik.values.roles}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const newRoles = typeof val === 'string' ? val.split(',') : val;
+                    // ADMIN is exclusive
+                    if (newRoles.includes('ADMIN') && newRoles.length > 1) {
+                      formik.setFieldValue('roles', ['ADMIN']);
+                    } else {
+                      formik.setFieldValue('roles', newRoles);
+                    }
+                  }}
+                  input={<OutlinedInput label="Roles" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {(selected as string[]).map((r) => (
+                        <Chip key={r} label={ROLE_LABELS[r] ?? r} size="small" />
+                      ))}
+                    </Box>
+                  )}
+                >
+                  {formik.values.roles.includes('ADMIN')
+                    ? [
+                        <MenuItem key="ADMIN" value="ADMIN">
+                          <Checkbox checked size="small" />
+                          Admin
+                        </MenuItem>,
+                      ]
+                    : ROLE_OPTIONS.filter((r) => r !== 'ADMIN').map((r) => (
+                        <MenuItem key={r} value={r}>
+                          <Checkbox checked={formik.values.roles.includes(r)} size="small" />
+                          {ROLE_LABELS[r]}
+                        </MenuItem>
+                      ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
               <FormControlLabel

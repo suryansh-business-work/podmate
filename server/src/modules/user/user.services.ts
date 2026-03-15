@@ -49,7 +49,8 @@ export async function createUser(input: CreateUserInput): Promise<User> {
     age: input.age ?? 0,
     dob: input.dob ?? '',
     avatar: input.avatar ?? '',
-    role: input.role ?? UserRole.USER,
+    roles: input.roles ?? [UserRole.USER],
+    activeRole: input.roles?.[0] ?? UserRole.USER,
     isVerifiedHost: false,
     createdAt: new Date().toISOString(),
   });
@@ -100,10 +101,26 @@ export async function findUserByEmail(email: string): Promise<User | null> {
   return toUser(doc);
 }
 
-export async function updateUserRole(id: string, role: UserRole): Promise<User> {
+export async function updateUserRoles(id: string, roles: UserRole[]): Promise<User> {
   const updated = await UserModel.findByIdAndUpdate(
     id,
-    { $set: { role } },
+    { $set: { roles, activeRole: roles[0] } },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+  return result;
+}
+
+export async function switchActiveRole(id: string, role: UserRole): Promise<User> {
+  const user = await findUserById(id);
+  if (!user) throw new Error('User not found');
+  if (!user.roles.includes(role)) {
+    throw new Error(`Role '${role}' is not assigned to this user`);
+  }
+  const updated = await UserModel.findByIdAndUpdate(
+    id,
+    { $set: { activeRole: role } },
     { returnDocument: 'after' },
   ).lean({ virtuals: true });
   const result = toUser(updated);
@@ -257,7 +274,7 @@ export interface AdminUpdateUserInput {
   username?: string;
   dob?: string;
   avatar?: string;
-  role?: UserRole;
+  roles?: UserRole[];
   isVerifiedHost?: boolean;
   isActive?: boolean;
   disableReason?: string;
@@ -271,7 +288,10 @@ export async function adminUpdateUser(userId: string, input: AdminUpdateUserInpu
   if (input.username !== undefined) update.username = input.username;
   if (input.dob !== undefined) update.dob = input.dob;
   if (input.avatar !== undefined) update.avatar = input.avatar;
-  if (input.role !== undefined) update.role = input.role;
+  if (input.roles !== undefined) {
+    update.roles = input.roles;
+    update.activeRole = input.roles[0];
+  }
   if (input.isVerifiedHost !== undefined) update.isVerifiedHost = input.isVerifiedHost;
   if (input.isActive !== undefined) update.isActive = input.isActive;
   if (input.disableReason !== undefined) update.disableReason = input.disableReason;

@@ -197,3 +197,25 @@ export const GET_EFFECTIVE_FEE = gql`
     }
   }
 `;
+
+export const GET_MY_PLACES = gql`
+  query GetMyPlaces {
+    myPlaces {
+      id
+      name
+      description
+      address
+      city
+      state
+      imageUrl
+      mediaUrls
+      category
+      phone
+      email
+      status
+      isVerified
+      createdAt
+      updatedAt
+    }
+  }
+`;

@@ -27,7 +27,13 @@ export function signToken(payload: AuthPayload): string {
 
 export function verifyToken(token: string): AuthPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as AuthPayload;
+    const decoded = jwt.verify(token, JWT_SECRET) as Record<string, unknown>;
+    // Backward compat: old tokens have `role` (string), new tokens have `roles` (array)
+    if (!decoded.roles && decoded.role) {
+      const legacyRole = decoded.role === 'PLACE_OWNER' ? UserRole.VENUE_OWNER : (decoded.role as UserRole);
+      decoded.roles = [legacyRole];
+    }
+    return decoded as unknown as AuthPayload;
   } catch {
     return null;
   }
@@ -49,7 +55,8 @@ export function requireAuth(context: GraphQLContext): AuthPayload {
 
 export function requireRole(context: GraphQLContext, ...roles: UserRole[]): AuthPayload {
   const user = requireAuth(context);
-  if (!roles.includes(user.role)) {
+  const hasRole = user.roles.some((r) => roles.includes(r));
+  if (!hasRole) {
     throw new Error(`Access denied. Required roles: ${roles.join(', ')}`);
   }
   return user;
@@ -103,7 +110,7 @@ export async function verifyOtp(
   }
 
   logger.info(`User ${user.id} verified via OTP (isNew: ${isNewUser})`);
-  const token = signToken({ userId: user.id, phone: user.phone, role: user.role });
+  const token = signToken({ userId: user.id, phone: user.phone, roles: user.roles });
   return { token, user, isNewUser };
 }
 
@@ -118,12 +125,12 @@ export async function adminLogin(
   if (user.password !== password) {
     throw new Error('Invalid email or password');
   }
-  if (user.role !== UserRole.ADMIN) {
+  if (!user.roles.includes(UserRole.ADMIN)) {
     throw new Error('Access denied. Admin privileges required.');
   }
 
   logger.info(`Admin login: ${email}`);
-  const token = signToken({ userId: user.id, phone: user.phone, role: user.role });
+  const token = signToken({ userId: user.id, phone: user.phone, roles: user.roles });
   return { token, user };
 }
 

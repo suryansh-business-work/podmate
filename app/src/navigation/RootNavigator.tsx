@@ -20,6 +20,7 @@ import FaqScreen from '../screens/FaqScreen';
 import SupportScreen from '../screens/SupportScreen';
 import ChatbotScreen from '../screens/Chatbot';
 import EditProfileScreen from '../screens/EditProfile';
+import ProfileScreen from '../screens/Profile/ProfileScreen';
 import PaymentsScreen from '../screens/Payments';
 import MyPodsScreen from '../screens/MyPods';
 import PrivacySecurityScreen from '../screens/PrivacySecurity';
@@ -31,6 +32,11 @@ import GoLiveScreen from '../screens/GoLive/GoLiveScreen';
 import FollowListScreen from '../screens/FollowList/FollowListScreen';
 import UserProfileScreen from '../screens/UserProfile/UserProfileScreen';
 import { CreateMomentScreen } from '../screens/Moments';
+import YourVenuesScreen from '../screens/YourVenues';
+import VenueMenusScreen from '../screens/VenueMenus';
+import ManageOrdersScreen from '../screens/ManageOrders';
+import VenueMomentsScreen from '../screens/VenueMoments';
+import { WithdrawalScreen } from '../screens/Withdrawal';
 // ChatbotFab removed — chatbot trigger moved to HomeScreen header
 import NetworkBanner from '../components/NetworkBanner';
 import MainTabs from './MainTabs';
@@ -87,6 +93,11 @@ const linking: LinkingOptions<RootStackParamList> = {
       GoLive: 'go-live',
       FollowList: 'follow-list/:userId',
       UserProfile: 'user/:userId',
+      YourVenues: 'your-venues',
+      Menus: 'menus',
+      ManageOrders: 'manage-orders',
+      VenueMoments: 'venue-moments',
+      Withdrawal: 'withdrawal',
     },
   },
 };
@@ -167,12 +178,18 @@ const RootNavigator: React.FC = () => {
       Notifications: () => nav.navigate('Notifications'),
       RegisterPlace: () => nav.navigate('RegisterPlace'),
       MyPods: () => nav.navigate('MyPods'),
+      Profile: () => nav.navigate('Profile'),
       Payments: () => nav.navigate('Payments'),
       Help: () => nav.navigate('Faq'),
       Support: () => nav.navigate('Support'),
       Feedback: () => nav.navigate('Feedback'),
       PodIdeas: () => nav.navigate('PodIdeas'),
       GoLive: () => nav.navigate('GoLive'),
+      YourVenues: () => nav.navigate('YourVenues'),
+      Menus: () => nav.navigate('Menus'),
+      ManageOrders: () => nav.navigate('ManageOrders'),
+      VenueMoments: () => nav.navigate('VenueMoments'),
+      Withdrawal: () => nav.navigate('Withdrawal'),
     };
     map[screen]?.();
   };
@@ -308,6 +325,32 @@ const RootNavigator: React.FC = () => {
               <Stack.Screen name="EditProfile" options={{ presentation: 'card' }}>
                 {({ navigation }) => <EditProfileScreen onBack={() => navigation.goBack()} />}
               </Stack.Screen>
+              <Stack.Screen name="Profile" options={{ presentation: 'card' }}>
+                {({ navigation }) => (
+                  <ProfileScreen
+                    onLogout={async () => {
+                      navigation.goBack();
+                      await auth.handleLogout();
+                    }}
+                    onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
+                    onCreateMoment={() => navigation.navigate('CreateMoment')}
+                    onFollowers={(userId, userName) =>
+                      navigation.navigate('FollowList', {
+                        userId,
+                        userName,
+                        initialTab: 'followers',
+                      })
+                    }
+                    onFollowing={(userId, userName) =>
+                      navigation.navigate('FollowList', {
+                        userId,
+                        userName,
+                        initialTab: 'following',
+                      })
+                    }
+                  />
+                )}
+              </Stack.Screen>
               <Stack.Screen name="Payments" options={{ presentation: 'card' }}>
                 {({ navigation }) => <PaymentsScreen onBack={() => navigation.goBack()} />}
               </Stack.Screen>
@@ -403,6 +446,31 @@ const RootNavigator: React.FC = () => {
                     />
                   );
                 }}
+              </Stack.Screen>
+              <Stack.Screen name="YourVenues" options={{ presentation: 'card' }}>
+                {({ navigation }) => (
+                  <YourVenuesScreen
+                    onBack={() => navigation.goBack()}
+                    onRegisterVenue={() => navigation.navigate('RegisterPlace')}
+                  />
+                )}
+              </Stack.Screen>
+              <Stack.Screen name="Menus" options={{ presentation: 'card' }}>
+                {({ navigation }) => <VenueMenusScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="ManageOrders" options={{ presentation: 'card' }}>
+                {({ navigation }) => (
+                  <ManageOrdersScreen
+                    onBack={() => navigation.goBack()}
+                    onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
+                  />
+                )}
+              </Stack.Screen>
+              <Stack.Screen name="VenueMoments" options={{ presentation: 'card' }}>
+                {({ navigation }) => <VenueMomentsScreen onBack={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="Withdrawal" options={{ presentation: 'card' }}>
+                {({ navigation }) => <WithdrawalScreen onBack={() => navigation.goBack()} />}
               </Stack.Screen>
             </>
           )}

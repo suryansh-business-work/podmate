@@ -1,4 +1,5 @@
 import type { GraphQLContext } from '../auth/auth.models';
+import { UserRole } from '../user/user.models';
 import {
   CreateCategoryInput,
   UpdateCategoryInput,
@@ -26,7 +27,7 @@ const categoryResolvers = {
       args: { page?: number; limit?: number; search?: string },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
       return categoryService.getCategories(args.page ?? 1, args.limit ?? 100, args.search);
     },
     activeCategories: async () => {
@@ -42,7 +43,7 @@ const categoryResolvers = {
       { input }: { input: CreateCategoryInput },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
       const err = validateCreateCategory(input);
       if (err) throw new Error(err);
       return categoryService.createCategory(input);
@@ -52,7 +53,7 @@ const categoryResolvers = {
       { id, input }: { id: string; input: UpdateCategoryInput },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
       const err = validateUpdateCategory(input);
       if (err) throw new Error(err);
       const updated = await categoryService.updateCategory(id, input);
@@ -60,7 +61,7 @@ const categoryResolvers = {
       return updated;
     },
     deleteCategory: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
       return categoryService.deleteCategory(id);
     },
     createSubCategory: async (
@@ -68,7 +69,7 @@ const categoryResolvers = {
       { input }: { input: CreateSubCategoryInput },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
       const err = validateCreateSubCategory(input);
       if (err) throw new Error(err);
       return categoryService.createSubCategory(input);
@@ -78,7 +79,7 @@ const categoryResolvers = {
       { id, input }: { id: string; input: UpdateSubCategoryInput },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
       const err = validateUpdateSubCategory(input);
       if (err) throw new Error(err);
       const updated = await categoryService.updateSubCategory(id, input);
@@ -86,7 +87,7 @@ const categoryResolvers = {
       return updated;
     },
     deleteSubCategory: async (_: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      if (!ctx.user || ctx.user.role !== 'ADMIN') throw new Error('Admin access required');
+      if (!ctx.user || !ctx.user.roles.includes(UserRole.ADMIN)) throw new Error('Admin access required');
       return categoryService.deleteSubCategory(id);
     },
   },

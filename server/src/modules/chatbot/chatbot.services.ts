@@ -12,7 +12,7 @@ interface OpenAiMessage {
 
 function replacePromptSlugs(
   prompt: string,
-  user: { name: string; phone: string; email: string; role: string; id: string } | null,
+  user: { name: string; phone: string; email: string; roles: string[]; id: string } | null,
   model: string,
 ): string {
   let result = prompt;
@@ -20,7 +20,7 @@ function replacePromptSlugs(
     result = result.replace(/\{\{user_name\}\}/g, user.name || 'User');
     result = result.replace(/\{\{user_phone\}\}/g, user.phone || '');
     result = result.replace(/\{\{user_email\}\}/g, user.email || '');
-    result = result.replace(/\{\{user_role\}\}/g, user.role || 'USER');
+    result = result.replace(/\{\{user_role\}\}/g, user.roles.join(', ') || 'USER');
     result = result.replace(/\{\{user_id\}\}/g, user.id || '');
   }
   result = result.replace(/\{\{bot_model\}\}/g, model);
@@ -49,7 +49,7 @@ export async function askChatbot(userId: string, message: string): Promise<Chatb
           name: currentUser.name,
           phone: currentUser.phone,
           email: currentUser.email,
-          role: currentUser.role,
+          roles: currentUser.roles,
           id: currentUser.id,
         }
       : null,

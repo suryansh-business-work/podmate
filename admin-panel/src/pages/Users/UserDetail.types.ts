@@ -6,7 +6,8 @@ export interface UserDetail {
   username: string;
   dob: string;
   avatar: string;
-  role: string;
+  roles: string[];
+  activeRole: string;
   isVerifiedHost: boolean;
   isActive: boolean;
   disableReason: string;
@@ -23,7 +24,7 @@ export interface AdminUpdateUserInput {
   username?: string;
   dob?: string;
   avatar?: string;
-  role?: string;
+  roles?: string[];
   isVerifiedHost?: boolean;
   isActive?: boolean;
   disableReason?: string;
@@ -42,7 +43,7 @@ export interface PodSummary {
   host?: { id: string; name: string };
 }
 
-export const ROLE_OPTIONS = ['USER', 'PLACE_OWNER', 'ADMIN'] as const;
+export const ROLE_OPTIONS = ['USER', 'VENUE_OWNER', 'HOST', 'ADMIN'] as const;
 
 export const STATUS_COLORS: Record<string, 'success' | 'warning' | 'info' | 'default' | 'error'> = {
   NEW: 'info',

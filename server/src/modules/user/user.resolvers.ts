@@ -48,24 +48,24 @@ const userResolvers = {
       return userService.updateUser(auth.userId, args);
     },
 
-    updateUserRole: (
+    updateUserRoles: (
       _: unknown,
-      args: { userId: string; role: UserRole },
+      args: { userId: string; roles: UserRole[] },
       context: GraphQLContext,
     ) => {
       requireRole(context, UserRole.ADMIN);
-      return userService.updateUserRole(args.userId, args.role);
+      return userService.updateUserRoles(args.userId, args.roles);
     },
 
     adminCreateUser: async (
       _: unknown,
-      args: { phone: string; name: string; role: UserRole },
+      args: { phone: string; name: string; roles: UserRole[] },
       context: GraphQLContext,
     ) => {
       requireRole(context, UserRole.ADMIN);
       const existing = await userService.findUserByPhone(args.phone);
       if (existing) throw new Error('User with this phone already exists');
-      return userService.createUser({ phone: args.phone, name: args.name, role: args.role });
+      return userService.createUser({ phone: args.phone, name: args.name, roles: args.roles });
     },
 
     deleteUser: async (_: unknown, args: { userId: string }, context: GraphQLContext) => {
@@ -113,6 +113,15 @@ const userResolvers = {
     ) => {
       const auth = requireAuth(context);
       return userService.updateThemePreference(auth.userId, args.themePreference);
+    },
+
+    switchActiveRole: (
+      _: unknown,
+      args: { role: UserRole },
+      context: GraphQLContext,
+    ) => {
+      const auth = requireAuth(context);
+      return userService.switchActiveRole(auth.userId, args.role);
     },
 
     adminUpdateUser: (

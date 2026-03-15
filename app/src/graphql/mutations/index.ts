@@ -11,6 +11,7 @@ export {
   UPDATE_THEME_PREFERENCE,
   REGISTER_PUSH_TOKEN,
   UNREGISTER_PUSH_TOKEN,
+  SWITCH_ACTIVE_ROLE,
 } from './auth.mutations';
 
 export {

@@ -12,8 +12,18 @@ export function validateUpdateProfile(input: { name?: string; avatar?: string })
   }
 }
 
-export function validateUserRole(role: string): void {
-  if (!Object.values(UserRole).includes(role as UserRole)) {
-    throw new Error(`Invalid role. Must be one of: ${Object.values(UserRole).join(', ')}`);
+export function validateUserRoles(roles: string[]): void {
+  if (!roles.length) {
+    throw new Error('At least one role is required');
+  }
+  const validRoles = Object.values(UserRole);
+  for (const role of roles) {
+    if (!validRoles.includes(role as UserRole)) {
+      throw new Error(`Invalid role '${role}'. Must be one of: ${validRoles.join(', ')}`);
+    }
+  }
+  // ADMIN is exclusive — cannot be combined with other roles
+  if (roles.includes(UserRole.ADMIN) && roles.length > 1) {
+    throw new Error('ADMIN role cannot be combined with other roles');
   }
 }

@@ -9,6 +9,8 @@ import ExploreScreen from '../screens/ExploreScreen';
 import { MomentsScreen } from '../screens/Moments';
 import ChatScreen from '../screens/Chat';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
+import { useQuery } from '@apollo/client';
+import { GET_ME } from '../graphql/queries';
 
 const Tab = createBottomTabNavigator();
 
@@ -48,15 +50,21 @@ const MainTabs: React.FC<MainTabsProps> = ({
   const insets = useSafeAreaInsets();
   const bottomPadding = Platform.OS === 'android' ? Math.max(insets.bottom, 10) : insets.bottom;
 
+  const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
+  const activeRole = meData?.me?.activeRole ?? 'USER';
+  const hideTabBar = activeRole === 'VENUE_OWNER' || activeRole === 'HOST';
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: {
-          ...styles.tabBar,
-          paddingBottom: bottomPadding + 8,
-          height: 60 + bottomPadding + 8,
-        },
+        tabBarStyle: hideTabBar
+          ? { display: 'none' as const }
+          : {
+              ...styles.tabBar,
+              paddingBottom: bottomPadding + 8,
+              height: 60 + bottomPadding + 8,
+            },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textTertiary,
         tabBarLabelStyle: styles.tabLabel,

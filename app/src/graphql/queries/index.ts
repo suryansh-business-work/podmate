@@ -22,6 +22,7 @@ export {
   GET_ACTIVE_LIVE_SESSIONS,
   GET_LIVE_SESSION_FOR_POD,
   GET_EFFECTIVE_FEE,
+  GET_MY_PLACES,
 } from './misc.queries';
 export { GET_ACTIVE_SLIDERS } from './slider.queries';
 export {

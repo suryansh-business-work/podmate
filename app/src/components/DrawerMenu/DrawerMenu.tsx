@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import {
   View,
   Text,
@@ -6,21 +6,20 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
 import { spacing } from '../../theme';
 import { GET_ME } from '../../graphql/queries';
-import { useThemeMode } from '../../contexts/ThemeContext';
+import { SWITCH_ACTIVE_ROLE } from '../../graphql/mutations';
 import {
   DrawerMenuProps,
   NavItem,
-  MAIN_NAV,
-  QUICK_ACTIONS,
-  ACCOUNT_ITEMS,
+  ROLE_MENUS,
+  ROLE_LABELS,
+  USER_NAV,
 } from './DrawerMenu.types';
 import { createStyles } from './DrawerMenu.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
@@ -34,14 +33,32 @@ const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({
   const colors = useAppColors();
   const { data, loading } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const user = data?.me;
-  const { isDark, toggleTheme } = useThemeMode();
+  const [switchActiveRole] = useMutation(SWITCH_ACTIVE_ROLE, {
+    refetchQueries: [{ query: GET_ME }],
+  });
+
+  const [roleSwitcherOpen, setRoleSwitcherOpen] = useState(false);
+
+  const activeRole: string = user?.activeRole ?? 'USER';
+  const roles: string[] = user?.roles ?? ['USER'];
+  const hasMultipleRoles = roles.length > 1;
+  const menuItems = ROLE_MENUS[activeRole] ?? USER_NAV;
 
   const handleNavigate = (id: string) => {
     onClose();
     onNavigate(id);
   };
 
-  const renderMenuItem = (item: NavItem, accent: boolean = false) => (
+  const handleSwitchRole = async (role: string) => {
+    setRoleSwitcherOpen(false);
+    await switchActiveRole({ variables: { role } });
+    const newMenu = ROLE_MENUS[role] ?? USER_NAV;
+    if (newMenu.length > 0) {
+      handleNavigate(newMenu[0].id);
+    }
+  };
+
+  const renderMenuItem = (item: NavItem) => (
     <TouchableOpacity
       key={item.id}
       style={styles.menuRow}
@@ -56,9 +73,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({
       >
         <MaterialIcons name={item.icon} size={18} color={item.color ?? colors.textSecondary} />
       </View>
-      <Text style={[styles.menuLabel, accent && { color: item.color, fontWeight: '600' }]}>
-        {item.label}
-      </Text>
+      <Text style={styles.menuLabel}>{item.label}</Text>
       <MaterialIcons name="chevron-right" size={18} color={colors.border} />
     </TouchableOpacity>
   );
@@ -99,7 +114,9 @@ const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({
               </View>
               <Text style={styles.userPhone}>{user?.phone ?? ''}</Text>
               <View style={styles.roleBadge}>
-                <Text style={styles.roleText}>{user?.role ?? 'USER'}</Text>
+                <Text style={styles.roleText}>
+                  {ROLE_LABELS[activeRole] ?? activeRole}
+                </Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -111,37 +128,59 @@ const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        <Text style={styles.sectionLabel}>Navigate</Text>
-        {MAIN_NAV.map((item) => renderMenuItem(item))}
+        {/* Role switcher */}
+        {hasMultipleRoles && (
+          <>
+            <TouchableOpacity
+              style={styles.switchRoleRow}
+              onPress={() => setRoleSwitcherOpen(!roleSwitcherOpen)}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.iconCircle, { backgroundColor: colors.primary + '18' }]}>
+                <MaterialIcons name="swap-horiz" size={18} color={colors.primary} />
+              </View>
+              <Text style={[styles.menuLabel, { color: colors.primary, fontWeight: '600' }]}>
+                Switch Role
+              </Text>
+              <MaterialIcons
+                name={roleSwitcherOpen ? 'expand-less' : 'expand-more'}
+                size={22}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
 
-        <View style={styles.divider} />
+            {roleSwitcherOpen &&
+              roles.map((role) => {
+                const isActive = role === activeRole;
+                return (
+                  <TouchableOpacity
+                    key={role}
+                    style={[styles.roleOption, isActive && styles.roleOptionActive]}
+                    onPress={() => {
+                      if (!isActive) handleSwitchRole(role);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        styles.roleOptionText,
+                        isActive && { color: colors.primary, fontWeight: '700' },
+                      ]}
+                    >
+                      {ROLE_LABELS[role] ?? role}
+                    </Text>
+                    {isActive && (
+                      <MaterialIcons name="check-circle" size={18} color={colors.primary} />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            <View style={styles.divider} />
+          </>
+        )}
 
-        <Text style={styles.sectionLabel}>Quick Actions</Text>
-        {QUICK_ACTIONS.map((item) => renderMenuItem(item, true))}
-
-        <View style={styles.divider} />
-
-        <Text style={styles.sectionLabel}>Account</Text>
-        {ACCOUNT_ITEMS.map((item) => renderMenuItem(item))}
-
-        <View style={styles.divider} />
-
-        <View style={styles.menuRow}>
-          <View style={[styles.iconCircle, { backgroundColor: colors.indigoAccent + '18' }]}>
-            <MaterialIcons
-              name={isDark ? 'dark-mode' : 'light-mode'}
-              size={18}
-              color={colors.indigoAccent}
-            />
-          </View>
-          <Text style={[styles.menuLabel, { flex: 1 }]}>Dark Mode</Text>
-          <Switch
-            value={isDark}
-            onValueChange={toggleTheme}
-            trackColor={{ false: colors.border, true: colors.primary }}
-            thumbColor={colors.white}
-          />
-        </View>
+        {/* Role-specific menu */}
+        {menuItems.map((item) => renderMenuItem(item))}
 
         <View style={styles.divider} />
 

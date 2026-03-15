@@ -8,7 +8,8 @@ export const ADMIN_LOGIN = gql`
         id
         name
         email
-        role
+        roles
+        activeRole
       }
     }
   }
@@ -23,11 +24,12 @@ export const SEND_ADMIN_CREDENTIALS = gql`
   }
 `;
 
-export const UPDATE_USER_ROLE = gql`
-  mutation UpdateUserRole($userId: ID!, $role: UserRole!) {
-    updateUserRole(userId: $userId, role: $role) {
+export const UPDATE_USER_ROLES = gql`
+  mutation UpdateUserRoles($userId: ID!, $roles: [UserRole!]!) {
+    updateUserRoles(userId: $userId, roles: $roles) {
       id
-      role
+      roles
+      activeRole
     }
   }
 `;
@@ -68,12 +70,13 @@ export const DELETE_POLICY = gql`
 `;
 
 export const ADMIN_CREATE_USER = gql`
-  mutation AdminCreateUser($phone: String!, $name: String!, $role: UserRole!) {
-    adminCreateUser(phone: $phone, name: $name, role: $role) {
+  mutation AdminCreateUser($phone: String!, $name: String!, $roles: [UserRole!]!) {
+    adminCreateUser(phone: $phone, name: $name, roles: $roles) {
       id
       phone
       name
-      role
+      roles
+      activeRole
       createdAt
     }
   }
@@ -562,7 +565,8 @@ export const ADMIN_UPDATE_USER = gql`
       username
       dob
       avatar
-      role
+      roles
+      activeRole
       isVerifiedHost
       isActive
       disableReason

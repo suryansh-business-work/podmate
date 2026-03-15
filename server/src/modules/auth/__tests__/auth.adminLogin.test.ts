@@ -22,7 +22,8 @@ describe('Admin Login', () => {
     age: 30,
     dob: '1994-01-01',
     avatar: '',
-    role: UserRole.ADMIN,
+    roles: [UserRole.ADMIN],
+    activeRole: UserRole.ADMIN,
     isVerifiedHost: false,
     isActive: true,
     disableReason: '',
@@ -43,7 +44,7 @@ describe('Admin Login', () => {
     expect(result.token).toBeDefined();
     expect(result.token.split('.')).toHaveLength(3);
     expect(result.user.id).toBe('admin-1');
-    expect(result.user.role).toBe(UserRole.ADMIN);
+    expect(result.user.roles).toContain(UserRole.ADMIN);
   });
 
   it('should return a valid JWT that can be verified', async () => {
@@ -54,7 +55,7 @@ describe('Admin Login', () => {
 
     expect(decoded).not.toBeNull();
     expect(decoded?.userId).toBe('admin-1');
-    expect(decoded?.role).toBe(UserRole.ADMIN);
+    expect(decoded?.roles).toContain(UserRole.ADMIN);
   });
 
   it('should throw for non-existent email', async () => {
@@ -74,7 +75,7 @@ describe('Admin Login', () => {
   });
 
   it('should throw for non-admin user', async () => {
-    const normalUser = { ...adminUser, role: UserRole.USER };
+    const normalUser = { ...adminUser, roles: [UserRole.USER], activeRole: UserRole.USER };
     mockFindUserByEmail.mockResolvedValue(normalUser);
 
     await expect(adminLogin('admin@test.com', 'admin-pass-123')).rejects.toThrow(
@@ -82,9 +83,9 @@ describe('Admin Login', () => {
     );
   });
 
-  it('should throw for place owner role', async () => {
-    const placeOwner = { ...adminUser, role: UserRole.PLACE_OWNER };
-    mockFindUserByEmail.mockResolvedValue(placeOwner);
+  it('should throw for venue owner role', async () => {
+    const venueOwner = { ...adminUser, roles: [UserRole.VENUE_OWNER], activeRole: UserRole.VENUE_OWNER };
+    mockFindUserByEmail.mockResolvedValue(venueOwner);
 
     await expect(adminLogin('admin@test.com', 'admin-pass-123')).rejects.toThrow(
       'Access denied. Admin privileges required.',

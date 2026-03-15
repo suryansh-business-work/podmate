@@ -15,7 +15,7 @@ describe('Auth Services - Token Management', () => {
   const mockPayload: AuthPayload = {
     userId: 'test-user-123',
     phone: '+919876543210',
-    role: UserRole.USER,
+    roles: [UserRole.USER],
   };
 
   it('should sign a valid JWT token', () => {
@@ -31,7 +31,7 @@ describe('Auth Services - Token Management', () => {
     expect(result).toBeDefined();
     expect(result?.userId).toBe(mockPayload.userId);
     expect(result?.phone).toBe(mockPayload.phone);
-    expect(result?.role).toBe(mockPayload.role);
+    expect(result?.roles).toEqual(mockPayload.roles);
   });
 
   it('should return null for an invalid token', () => {
@@ -63,7 +63,7 @@ describe('Auth Services - Request Extraction', () => {
     const payload: AuthPayload = {
       userId: 'user-1',
       phone: '+911234567890',
-      role: UserRole.USER,
+      roles: [UserRole.USER],
     };
     const token = signToken(payload);
     const req = { headers: { authorization: `Bearer ${token}` } };
@@ -91,7 +91,7 @@ describe('Auth Services - Authorization', () => {
     const user: AuthPayload = {
       userId: 'user-1',
       phone: '+911234567890',
-      role: UserRole.USER,
+      roles: [UserRole.USER],
     };
     const context: GraphQLContext = { user };
 
@@ -108,19 +108,19 @@ describe('Auth Services - Authorization', () => {
     const user: AuthPayload = {
       userId: 'admin-1',
       phone: '+911234567890',
-      role: UserRole.ADMIN,
+      roles: [UserRole.ADMIN],
     };
     const context: GraphQLContext = { user };
 
     const result = requireRole(context, UserRole.ADMIN);
-    expect(result.role).toBe(UserRole.ADMIN);
+    expect(result.roles).toContain(UserRole.ADMIN);
   });
 
   it('should throw when user does not have required role', () => {
     const user: AuthPayload = {
       userId: 'user-1',
       phone: '+911234567890',
-      role: UserRole.USER,
+      roles: [UserRole.USER],
     };
     const context: GraphQLContext = { user };
 
@@ -131,12 +131,12 @@ describe('Auth Services - Authorization', () => {
     const user: AuthPayload = {
       userId: 'owner-1',
       phone: '+911234567890',
-      role: UserRole.PLACE_OWNER,
+      roles: [UserRole.VENUE_OWNER],
     };
     const context: GraphQLContext = { user };
 
-    const result = requireRole(context, UserRole.ADMIN, UserRole.PLACE_OWNER);
-    expect(result.role).toBe(UserRole.PLACE_OWNER);
+    const result = requireRole(context, UserRole.ADMIN, UserRole.VENUE_OWNER);
+    expect(result.roles).toContain(UserRole.VENUE_OWNER);
   });
 
   it('should throw for unauthenticated user on role check', () => {

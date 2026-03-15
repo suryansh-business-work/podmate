@@ -31,14 +31,17 @@ const validationSchema = Yup.object({
     .matches(/^\+?\d{10,15}$/, 'Enter a valid phone number')
     .required('Phone is required'),
   name: Yup.string().min(2, 'At least 2 characters').required('Name is required'),
-  role: Yup.string().oneOf(['USER', 'PLACE_OWNER', 'ADMIN']).required('Role is required'),
+  roles: Yup.array()
+    .of(Yup.string().oneOf(['USER', 'VENUE_OWNER', 'HOST', 'ADMIN']))
+    .min(1, 'At least one role is required')
+    .required('Roles are required'),
   email: Yup.string().email('Enter a valid email'),
 });
 
 const INITIAL_VALUES: CreateUserFormValues = {
   phone: '',
   name: '',
-  role: 'USER',
+  roles: ['USER'],
   email: '',
 };
 
@@ -60,7 +63,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ open, onClose, onCr
           variables: {
             phone: values.phone.trim(),
             name: values.name.trim(),
-            role: values.role,
+            roles: values.roles,
           },
         });
         handleReset();

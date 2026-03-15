@@ -4,7 +4,12 @@ import { MaterialIcons } from '@expo/vector-icons';
 export interface ProfileScreenProps {
   onLogout: () => void;
   onNavigate?: (screen: string) => void;
+  onCreateMoment?: () => void;
+  onFollowers?: (userId: string, userName: string) => void;
+  onFollowing?: (userId: string, userName: string) => void;
 }
+
+export type ProfileTab = 'grid' | 'menu';
 
 export interface MenuItem {
   icon: ComponentProps<typeof MaterialIcons>['name'];
@@ -22,16 +27,10 @@ export const MENU_ITEMS: MenuItem[] = [
     action: 'MyPods',
   },
   {
-    icon: 'credit-card',
-    label: 'Payments',
+    icon: 'account-balance-wallet',
+    label: 'Payments History',
     subtitle: 'Transactions & payouts',
     action: 'Payments',
-  },
-  {
-    icon: 'notifications',
-    label: 'Notifications',
-    subtitle: 'Manage preferences',
-    action: 'Notifications',
   },
   {
     icon: 'feedback',
@@ -45,11 +44,17 @@ export const MENU_ITEMS: MenuItem[] = [
     subtitle: 'Suggest & vote on ideas',
     action: 'PodIdeas',
   },
+  { icon: 'help', label: 'Help & FAQs', subtitle: 'FAQs, contact us', action: 'Help' },
+  {
+    icon: 'support-agent',
+    label: 'Support',
+    subtitle: 'Get help from our team',
+    action: 'Support',
+  },
   {
     icon: 'security',
     label: 'Privacy & Security',
     subtitle: 'Account settings',
     action: 'Privacy',
   },
-  { icon: 'help', label: 'Help & Support', subtitle: 'FAQs, contact us', action: 'Help' },
 ];

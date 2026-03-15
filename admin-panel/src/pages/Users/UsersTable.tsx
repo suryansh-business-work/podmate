@@ -18,14 +18,16 @@ import {
   Select,
   MenuItem,
   Checkbox,
+  OutlinedInput,
+  SelectChangeEvent,
 } from '@mui/material';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useMutation } from '@apollo/client';
-import { UPDATE_USER_ROLE } from '../../graphql/mutations';
-import { User, Order, formatDate } from './Users.types';
+import { UPDATE_USER_ROLES } from '../../graphql/mutations';
+import { User, Order, formatDate, roleColor, ROLE_LABELS } from './Users.types';
 
 interface UsersTableProps {
   users: User[];
@@ -55,16 +57,31 @@ const UsersTable: React.FC<UsersTableProps> = ({
   onToggleSelectAll,
 }) => {
   const navigate = useNavigate();
-  const [updateUserRole] = useMutation(UPDATE_USER_ROLE);
+  const [updateUserRoles] = useMutation(UPDATE_USER_ROLES);
   const allSelected = users.length > 0 && selectedIds.length === users.length;
   const someSelected = selectedIds.length > 0 && selectedIds.length < users.length;
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRolesChange = async (userId: string, event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    const newRoles = typeof value === 'string' ? value.split(',') : value;
+    if (!newRoles.length) return;
+
+    // ADMIN is exclusive — if ADMIN is being added, set only ADMIN
+    if (newRoles.includes('ADMIN') && newRoles.length > 1) {
+      try {
+        await updateUserRoles({ variables: { userId, roles: ['ADMIN'] } });
+        onRefetch();
+      } catch {
+        // Error handled silently
+      }
+      return;
+    }
+
     try {
-      await updateUserRole({ variables: { userId, role: newRole } });
+      await updateUserRoles({ variables: { userId, roles: newRoles } });
       onRefetch();
     } catch {
-      // Error handled silently - refetch shows current state
+      // Error handled silently
     }
   };
 
@@ -174,16 +191,40 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </TableCell>
                 <TableCell>
                   <Select
-                    value={user.role}
+                    multiple
+                    value={user.roles}
                     size="small"
                     variant="standard"
                     onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                    sx={{ fontSize: 13 }}
+                    onChange={(e) => handleRolesChange(user.id, e as SelectChangeEvent<string[]>)}
+                    input={<OutlinedInput />}
+                    renderValue={(selected) => (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {(selected as string[]).map((r) => (
+                          <Chip
+                            key={r}
+                            label={ROLE_LABELS[r] ?? r}
+                            size="small"
+                            color={roleColor[r] ?? 'default'}
+                          />
+                        ))}
+                      </Box>
+                    )}
+                    sx={{ fontSize: 13, minWidth: 140 }}
                   >
-                    <MenuItem value="USER">User</MenuItem>
-                    <MenuItem value="PLACE_OWNER">Place Owner</MenuItem>
-                    <MenuItem value="ADMIN">Admin</MenuItem>
+                    {user.roles.includes('ADMIN')
+                      ? [
+                          <MenuItem key="ADMIN" value="ADMIN">
+                            <Checkbox checked size="small" />
+                            Admin
+                          </MenuItem>,
+                        ]
+                      : ['USER', 'VENUE_OWNER', 'HOST'].map((r) => (
+                          <MenuItem key={r} value={r}>
+                            <Checkbox checked={user.roles.includes(r)} size="small" />
+                            {ROLE_LABELS[r]}
+                          </MenuItem>
+                        ))}
                   </Select>
                 </TableCell>
                 <TableCell align="center">

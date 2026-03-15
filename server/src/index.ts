@@ -190,8 +190,9 @@ const rootSchema = `#graphql
     savePod(podId: ID!): User!
     unsavePod(podId: ID!): User!
     updateThemePreference(themePreference: String!): User!
-    updateUserRole(userId: ID!, role: UserRole!): User!
-    adminCreateUser(phone: String!, name: String!, role: UserRole!): User!
+    updateUserRoles(userId: ID!, roles: [UserRole!]!): User!
+    adminCreateUser(phone: String!, name: String!, roles: [UserRole!]!): User!
+    switchActiveRole(role: UserRole!): User!
     deleteUser(userId: ID!): Boolean!
     bulkDeleteUsers(ids: [ID!]!): Int!
     getImageKitAuth: ImageKitAuth!
@@ -300,7 +301,7 @@ const rootSchema = `#graphql
     username: String
     dob: String
     avatar: String
-    role: UserRole
+    roles: [UserRole!]
     isVerifiedHost: Boolean
     isActive: Boolean
     disableReason: String
@@ -602,7 +603,8 @@ query Me {
     name
     phone
     email
-    role
+    roles
+    activeRole
   }
 }
 \`,

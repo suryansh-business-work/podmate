@@ -48,3 +48,5 @@ export { GET_ACTIVE_POD_TEMPLATES } from './queries/podTemplate.queries';
 export { GET_MY_SUBSCRIPTIONS, GET_SUBSCRIPTION_FOR_POD } from './queries/subscription.queries';
 
 export { GET_ACTIVE_CATEGORIES } from './queries/category.queries';
+
+export { GET_HOST_ANALYTICS, GET_VENUE_ANALYTICS } from './queries/dashboard.queries';

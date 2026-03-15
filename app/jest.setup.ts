@@ -118,7 +118,10 @@ jest.mock('@apollo/client', () => ({
     data: null,
     loading: false,
     error: null,
+    refetch: jest.fn(),
+    fetchMore: jest.fn(),
   })),
+  useLazyQuery: jest.fn(() => [jest.fn(), { data: null, loading: false, error: null }]),
   useMutation: jest.fn(() => [jest.fn(), { data: null, loading: false, error: null }]),
   gql: jest.fn((query: TemplateStringsArray) => query),
 }));
@@ -221,6 +224,10 @@ beforeEach(() => {
     fetchMore: jest.fn(),
   });
   (apollo.useMutation as jest.Mock).mockReturnValue([
+    jest.fn(),
+    { data: null, loading: false, error: null },
+  ]);
+  (apollo.useLazyQuery as jest.Mock).mockReturnValue([
     jest.fn(),
     { data: null, loading: false, error: null },
   ]);

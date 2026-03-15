@@ -1,0 +1,1 @@
+/* Analytics module has no user inputs that need validation */

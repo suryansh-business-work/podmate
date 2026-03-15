@@ -4,6 +4,7 @@ export type RootStackParamList = {
   Otp: { phone: string };
   CompleteProfile: undefined;
   Main: undefined;
+  Dashboard: undefined;
   PodDetail: { podId: string };
   Checkout: { podId: string };
   CreatePod: undefined;

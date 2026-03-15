@@ -57,7 +57,7 @@ describe('CreateUserDialog', () => {
   it('renders role selector', () => {
     renderWithProviders(<CreateUserDialog {...defaultProps} />, { mocks: [createUserMock] });
     // MUI Select renders label in both InputLabel and internal span
-    const matches = screen.getAllByText('Role');
+    const matches = screen.getAllByText('Roles');
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 

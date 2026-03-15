@@ -2,6 +2,7 @@
   "expo": {
     "name": "PartyWings",
     "slug": "partywings",
+    "scheme": "partywings",
     "version": "1.0.0",
     "orientation": "portrait",
     "extra": {
@@ -36,16 +37,7 @@
       "softwareKeyboardLayoutMode": "adjustResize"
     },
     "plugins": [
-      "expo-video",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/icon-and-splash/logo-1024x1024.png",
-          "color": "#111827",
-          "sounds": [],
-          "defaultChannel": "default"
-        }
-      ]
+      "expo-video"
     ],
     "web": {
       "bundler": "metro",

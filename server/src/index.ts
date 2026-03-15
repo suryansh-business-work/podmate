@@ -68,6 +68,8 @@ import subscriptionTypeDefs from './modules/subscription/subscription.typeDefs';
 import subscriptionResolvers from './modules/subscription/subscription.resolvers';
 import categoryTypeDefs from './modules/category/category.typeDefs';
 import categoryResolvers from './modules/category/category.resolvers';
+import analyticsTypeDefs from './modules/analytics/analytics.typeDefs';
+import analyticsResolvers from './modules/analytics/analytics.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -165,6 +167,8 @@ const rootSchema = `#graphql
     mySubscriptions(page: Int, limit: Int): PaginatedSubscriptions!
     subscriptionForPod(podId: ID!): PodSubscription
     subscriptions(page: Int, limit: Int, search: String, status: String, userId: ID, podId: ID, sortBy: String, order: String): PaginatedSubscriptions!
+    hostAnalytics: HostAnalytics!
+    venueAnalytics: VenueAnalytics!
   }
 
   type Mutation {
@@ -355,6 +359,7 @@ const typeDefs = [
   podTemplateTypeDefs,
   subscriptionTypeDefs,
   categoryTypeDefs,
+  analyticsTypeDefs,
 ];
 
 const resolvers = {
@@ -384,6 +389,7 @@ const resolvers = {
     ...podTemplateResolvers.Query,
     ...subscriptionResolvers.Query,
     ...categoryResolvers.Query,
+    ...analyticsResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,

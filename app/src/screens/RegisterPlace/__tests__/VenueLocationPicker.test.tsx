@@ -1,15 +1,29 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import { useLazyQuery } from '@apollo/client';
 import VenueLocationPicker from '../VenueLocationPicker';
 
-jest.mock('../../../utils/locationService', () => ({
-  getCurrentLocation: jest.fn().mockResolvedValue({
-    address: '123 Test Road, Mumbai',
-    city: 'Mumbai',
-    latitude: 19.076,
-    longitude: 72.8777,
-  }),
+const mockGetGpsCoordinates = jest.fn();
+
+jest.mock('@apollo/client', () => ({
+  ...jest.requireActual('@apollo/client'),
+  useQuery: jest.fn(() => ({
+    data: null,
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
+    fetchMore: jest.fn(),
+  })),
+  useLazyQuery: jest.fn(),
+  useMutation: jest.fn(() => [jest.fn(), { data: null, loading: false, error: null }]),
+  gql: jest.fn((query: TemplateStringsArray) => query),
 }));
+
+jest.mock('../../../utils/locationService', () => ({
+  getGpsCoordinates: (...args: unknown[]) => mockGetGpsCoordinates(...args),
+}));
+
+const mockResolveByCoords = jest.fn();
 
 describe('VenueLocationPicker', () => {
   const onLocationChange = jest.fn();
@@ -24,6 +38,24 @@ describe('VenueLocationPicker', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetGpsCoordinates.mockResolvedValue({ latitude: 19.076, longitude: 72.8777 });
+    mockResolveByCoords.mockResolvedValue({
+      data: {
+        resolveLocation: {
+          address: '123 Test Road, Mumbai',
+          city: 'Mumbai',
+          state: 'Maharashtra',
+          country: 'India',
+          pincode: '400001',
+          latitude: 19.076,
+          longitude: 72.8777,
+        } as Record<string, unknown>,
+      },
+    });
+    (useLazyQuery as jest.Mock).mockReturnValue([
+      mockResolveByCoords,
+      { data: null, loading: false, error: null },
+    ]);
     global.fetch = jest.fn().mockResolvedValue({
       json: () => Promise.resolve({ status: 'ZERO_RESULTS', predictions: [] }),
     });

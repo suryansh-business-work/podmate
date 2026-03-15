@@ -18,6 +18,24 @@ const GET_ALL_CITIES = gql`
   }
 `;
 
+const SEARCH_GOOGLE_PLACES = gql`
+  query SearchGooglePlaces($input: String!, $sessionToken: String) {
+    searchGooglePlaces(input: $input, sessionToken: $sessionToken) {
+      placeId
+      description
+      mainText
+      secondaryText
+    }
+  }
+`;
+
+const searchPlacesMock = {
+  request: { query: SEARCH_GOOGLE_PLACES, variables: { input: '123 Test St' } },
+  result: {
+    data: { searchGooglePlaces: [] },
+  },
+};
+
 const citiesMock = {
   request: { query: GET_ALL_CITIES },
   result: {
@@ -75,7 +93,7 @@ describe('CreatePlaceDialog', () => {
     vi.clearAllMocks();
   });
 
-  const allMocks = [createPlaceMock, citiesMock];
+  const allMocks = [createPlaceMock, citiesMock, searchPlacesMock];
 
   it('renders dialog title', () => {
     renderWithProviders(<CreatePlaceDialog {...defaultProps} />, { mocks: allMocks });
@@ -117,9 +135,12 @@ describe('CreatePlaceDialog', () => {
     fireEvent.change(screen.getByLabelText(/description/i), {
       target: { value: 'A great test venue' },
     });
-    fireEvent.change(screen.getByLabelText(/address/i), { target: { value: '123 Test St' } });
 
-    // Wait for the cities query to resolve so the City dropdown has items
+    // MUI Autocomplete: fire change and input events to trigger onInputChange
+    const addressInput = screen.getByLabelText(/address/i);
+    fireEvent.change(addressInput, { target: { value: '123 Test St' } });
+
+    // Wait for the cities query to resolve and address state to propagate
     await waitFor(() => {
       expect(screen.getByLabelText(/city/i)).toBeInTheDocument();
     });

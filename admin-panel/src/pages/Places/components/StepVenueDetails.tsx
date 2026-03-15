@@ -99,6 +99,7 @@ const StepVenueDetails: React.FC<StepVenueDetailsProps> = ({ formik }) => {
   const handleAddressSearch = useCallback(
     async (input: string) => {
       setAddressSearch(input);
+      formik.setFieldValue('address', input);
       if (input.length < 3) {
         setPredictions([]);
         return;
@@ -182,9 +183,7 @@ const StepVenueDetails: React.FC<StepVenueDetailsProps> = ({ formik }) => {
       <Autocomplete
         freeSolo
         options={predictions}
-        getOptionLabel={(option) =>
-          typeof option === 'string' ? option : option.description
-        }
+        getOptionLabel={(option) => (typeof option === 'string' ? option : option.description)}
         inputValue={addressSearch || formik.values.address}
         onInputChange={(_, value) => handleAddressSearch(value)}
         onChange={(_, value) => {

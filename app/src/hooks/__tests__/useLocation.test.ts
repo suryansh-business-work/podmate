@@ -1,32 +1,84 @@
 import { renderHook, act } from '@testing-library/react-native';
+import { useLazyQuery } from '@apollo/client';
 import { useLocation } from '../useLocation';
 
-const mockGetCurrentLocation = jest.fn();
-const mockGetOrRequestLocation = jest.fn();
-const mockGetLocationFromPincode = jest.fn();
+const mockGetGpsCoordinates = jest.fn();
 const mockSaveLocation = jest.fn();
-const mockIsServiceAvailable = jest.fn();
+const mockGetSavedLocation = jest.fn();
+const mockToLocationData = jest.fn();
 
-jest.mock('../../utils/locationService', () => ({
-  getCurrentLocation: (...args: unknown[]) => mockGetCurrentLocation(...args),
-  getOrRequestLocation: (...args: unknown[]) => mockGetOrRequestLocation(...args),
-  getLocationFromPincode: (...args: unknown[]) => mockGetLocationFromPincode(...args),
-  saveLocation: (...args: unknown[]) => mockSaveLocation(...args),
-  isServiceAvailable: (...args: unknown[]) => mockIsServiceAvailable(...args),
+jest.mock('@apollo/client', () => ({
+  ...jest.requireActual('@apollo/client'),
+  useQuery: jest.fn(() => ({
+    data: null,
+    loading: false,
+    error: null,
+    refetch: jest.fn(),
+    fetchMore: jest.fn(),
+  })),
+  useLazyQuery: jest.fn(),
+  useMutation: jest.fn(() => [jest.fn(), { data: null, loading: false, error: null }]),
+  gql: jest.fn((query: TemplateStringsArray) => query),
 }));
 
-const mockLocation = {
+jest.mock('../../utils/locationService', () => ({
+  getGpsCoordinates: (...args: unknown[]) => mockGetGpsCoordinates(...args),
+  saveLocation: (...args: unknown[]) => mockSaveLocation(...args),
+  getSavedLocation: (...args: unknown[]) => mockGetSavedLocation(...args),
+  toLocationData: (...args: unknown[]) => mockToLocationData(...args),
+}));
+
+const mockResolvedResponse = {
+  city: 'New Delhi',
+  state: 'Delhi',
+  country: 'India',
+  pincode: '110001',
+  area: 'Connaught Place',
+  address: 'New Delhi, India',
+  latitude: 28.6139,
+  longitude: 77.209,
+  matchedCityId: 'c1',
+  matchedCityName: 'New Delhi',
+  matchedAreaId: null,
+  matchedAreaName: null,
+  isServiceAvailable: true,
+};
+
+const mockLocationData = {
+  city: 'New Delhi',
+  pincode: '110001',
+  state: 'Delhi',
+  area: 'Connaught Place',
+  country: 'India',
   latitude: 28.6139,
   longitude: 77.209,
   address: 'New Delhi, India',
-  pincode: '110001',
+  matchedCityId: 'c1',
+  matchedCityName: 'New Delhi',
+  matchedAreaId: undefined,
+  matchedAreaName: undefined,
+  isServiceAvailable: true,
 };
 
+const mockResolveByCoords = jest.fn();
+const mockResolveByPincode = jest.fn();
+
 describe('useLocation', () => {
+  let lazyQueryCallIndex: number;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    mockIsServiceAvailable.mockReturnValue(true);
+    lazyQueryCallIndex = 0;
+    mockGetSavedLocation.mockResolvedValue(null);
     mockSaveLocation.mockResolvedValue(undefined);
+    mockToLocationData.mockReturnValue(mockLocationData);
+    (useLazyQuery as jest.Mock).mockImplementation(() => {
+      lazyQueryCallIndex++;
+      if (lazyQueryCallIndex % 2 === 1) {
+        return [mockResolveByCoords, { data: null, loading: false, error: null }];
+      }
+      return [mockResolveByPincode, { data: null, loading: false, error: null }];
+    });
   });
 
   it('returns initial state with null location', () => {
@@ -38,20 +90,25 @@ describe('useLocation', () => {
   });
 
   it('requestLocation sets location on success', async () => {
-    mockGetCurrentLocation.mockResolvedValue(mockLocation);
+    mockGetGpsCoordinates.mockResolvedValue({ latitude: 28.6139, longitude: 77.209 });
+    mockResolveByCoords.mockResolvedValue({
+      data: { resolveLocation: mockResolvedResponse },
+    });
+
     const { result } = renderHook(() => useLocation());
 
     await act(async () => {
       const loc = await result.current.requestLocation();
-      expect(loc).toEqual(mockLocation);
+      expect(loc).toEqual(mockLocationData);
     });
 
-    expect(result.current.location).toEqual(mockLocation);
+    expect(result.current.location).toEqual(mockLocationData);
     expect(result.current.loading).toBe(false);
   });
 
-  it('requestLocation sets error when location is null', async () => {
-    mockGetCurrentLocation.mockResolvedValue(null);
+  it('requestLocation sets error when GPS coordinates are null', async () => {
+    mockGetGpsCoordinates.mockResolvedValue(null);
+
     const { result } = renderHook(() => useLocation());
 
     await act(async () => {
@@ -59,11 +116,12 @@ describe('useLocation', () => {
       expect(loc).toBeNull();
     });
 
-    expect(result.current.error).toBe('Unable to get location');
+    expect(result.current.error).toBe('Unable to get GPS location');
   });
 
   it('requestLocation sets error on exception', async () => {
-    mockGetCurrentLocation.mockRejectedValue(new Error('GPS unavailable'));
+    mockGetGpsCoordinates.mockRejectedValue(new Error('GPS unavailable'));
+
     const { result } = renderHook(() => useLocation());
 
     await act(async () => {
@@ -74,19 +132,25 @@ describe('useLocation', () => {
   });
 
   it('searchByPincode updates location', async () => {
-    mockGetLocationFromPincode.mockResolvedValue(mockLocation);
+    mockResolveByPincode.mockResolvedValue({
+      data: { resolveLocationByPincode: mockResolvedResponse },
+    });
+
     const { result } = renderHook(() => useLocation());
 
     await act(async () => {
       const loc = await result.current.searchByPincode('110001');
-      expect(loc).toEqual(mockLocation);
+      expect(loc).toEqual(mockLocationData);
     });
 
-    expect(result.current.location).toEqual(mockLocation);
+    expect(result.current.location).toEqual(mockLocationData);
   });
 
   it('searchByPincode sets error on null result', async () => {
-    mockGetLocationFromPincode.mockResolvedValue(null);
+    mockResolveByPincode.mockResolvedValue({
+      data: { resolveLocationByPincode: null },
+    });
+
     const { result } = renderHook(() => useLocation());
 
     await act(async () => {
@@ -97,20 +161,26 @@ describe('useLocation', () => {
   });
 
   it('requestCachedLocation returns cached location', async () => {
-    mockGetOrRequestLocation.mockResolvedValue(mockLocation);
+    mockGetSavedLocation
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(mockLocationData);
+
     const { result } = renderHook(() => useLocation());
 
     await act(async () => {
       const loc = await result.current.requestCachedLocation();
-      expect(loc).toEqual(mockLocation);
+      expect(loc).toEqual(mockLocationData);
     });
 
-    expect(result.current.location).toEqual(mockLocation);
+    expect(result.current.location).toEqual(mockLocationData);
   });
 
-  it('sets isInServiceArea based on service availability', async () => {
-    mockGetCurrentLocation.mockResolvedValue(mockLocation);
-    mockIsServiceAvailable.mockReturnValue(true);
+  it('sets isInServiceArea based on resolved data', async () => {
+    mockGetGpsCoordinates.mockResolvedValue({ latitude: 28.6139, longitude: 77.209 });
+    mockResolveByCoords.mockResolvedValue({
+      data: { resolveLocation: mockResolvedResponse },
+    });
+
     const { result } = renderHook(() => useLocation());
 
     await act(async () => {
@@ -121,13 +191,17 @@ describe('useLocation', () => {
   });
 
   it('saves location after successful request', async () => {
-    mockGetCurrentLocation.mockResolvedValue(mockLocation);
+    mockGetGpsCoordinates.mockResolvedValue({ latitude: 28.6139, longitude: 77.209 });
+    mockResolveByCoords.mockResolvedValue({
+      data: { resolveLocation: mockResolvedResponse },
+    });
+
     const { result } = renderHook(() => useLocation());
 
     await act(async () => {
       await result.current.requestLocation();
     });
 
-    expect(mockSaveLocation).toHaveBeenCalledWith(mockLocation, true);
+    expect(mockSaveLocation).toHaveBeenCalledWith(mockLocationData);
   });
 });

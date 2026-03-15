@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   NavigationContainer,
   NavigationContainerRef,
@@ -37,6 +37,7 @@ import VenueMenusScreen from '../screens/VenueMenus';
 import ManageOrdersScreen from '../screens/ManageOrders';
 import VenueMomentsScreen from '../screens/VenueMoments';
 import { WithdrawalScreen } from '../screens/Withdrawal';
+import DashboardScreen from '../screens/Dashboard';
 // ChatbotFab removed — chatbot trigger moved to HomeScreen header
 import NetworkBanner from '../components/NetworkBanner';
 import MainTabs from './MainTabs';
@@ -48,8 +49,7 @@ import { useAppColors } from '../hooks/useThemedStyles';
 import { useThemeMode } from '../contexts/ThemeContext';
 import { useAuth } from './hooks/useAuth';
 import { useDrawer, DRAWER_WIDTH } from './hooks/useDrawer';
-import { usePushNotifications } from '../hooks/usePushNotifications';
-import * as Notifications from 'expo-notifications';
+import { useInAppNotifications } from '../hooks/useInAppNotifications';
 
 export type { RootStackParamList } from './RootNavigator.types';
 
@@ -98,6 +98,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       ManageOrders: 'manage-orders',
       VenueMoments: 'venue-moments',
       Withdrawal: 'withdrawal',
+      Dashboard: 'dashboard',
     },
   },
 };
@@ -110,22 +111,7 @@ const RootNavigator: React.FC = () => {
   const { isDark } = useThemeMode();
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
-  const handleNotificationTapped = useCallback((response: Notifications.NotificationResponse) => {
-    const data = response.notification.request.content.data as Record<string, string> | undefined;
-    const nav = navigationRef.current;
-    if (!nav || !data) return;
-
-    if (data.podId) {
-      nav.navigate('PodDetail', { podId: data.podId });
-    } else if (data.screen === 'Notifications') {
-      nav.navigate('Notifications');
-    }
-  }, []);
-
-  usePushNotifications({
-    isAuthenticated: auth.isAuthenticated,
-    onNotificationTapped: handleNotificationTapped,
-  });
+  useInAppNotifications({ isAuthenticated: auth.isAuthenticated });
 
   useEffect(() => {
     const onBackPress = () => {
@@ -135,6 +121,16 @@ const RootNavigator: React.FC = () => {
       }
       const nav = navigationRef.current;
       if (nav && nav.canGoBack()) {
+        /* Prevent navigating back to screens from a different role */
+        const state = nav.getState();
+        const currentRoute = state.routes[state.index];
+        if (currentRoute?.name === 'Dashboard') {
+          Alert.alert('Exit PartyWings', 'Are you sure you want to exit?', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Exit', style: 'destructive', onPress: () => BackHandler.exitApp() },
+          ]);
+          return true;
+        }
         nav.goBack();
         return true;
       }
@@ -170,7 +166,7 @@ const RootNavigator: React.FC = () => {
     if (!nav) return;
     drawer.closeDrawer();
     const map: Record<string, () => void> = {
-      Home: () => nav.navigate('Main', { screen: 'Home' } as never),
+      Home: () => nav.reset({ index: 0, routes: [{ name: 'Main' }] }),
       Explore: () => nav.navigate('Main', { screen: 'Explore' } as never),
       Chat: () => nav.navigate('Main', { screen: 'Chat' } as never),
       Moments: () => nav.navigate('Main', { screen: 'Moments' } as never),
@@ -185,6 +181,8 @@ const RootNavigator: React.FC = () => {
       Feedback: () => nav.navigate('Feedback'),
       PodIdeas: () => nav.navigate('PodIdeas'),
       GoLive: () => nav.navigate('GoLive'),
+      Dashboard: () =>
+        nav.reset({ index: 0, routes: [{ name: 'Dashboard' }] }),
       YourVenues: () => nav.navigate('YourVenues'),
       Menus: () => nav.navigate('Menus'),
       ManageOrders: () => nav.navigate('ManageOrders'),
@@ -266,6 +264,16 @@ const RootNavigator: React.FC = () => {
                     onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
                     onNotificationPress={() => navigation.navigate('Notifications')}
                     onChatbotPress={() => navigation.navigate('Chatbot')}
+                  />
+                )}
+              </Stack.Screen>
+              <Stack.Screen name="Dashboard" options={{ presentation: 'card' }}>
+                {({ navigation }) => (
+                  <DashboardScreen
+                    onBack={drawer.openDrawer}
+                    onProfilePress={() => navigation.navigate('Profile')}
+                    onNotificationPress={() => navigation.navigate('Notifications')}
+                    onRegisterVenue={() => navigation.navigate('RegisterPlace')}
                   />
                 )}
               </Stack.Screen>

@@ -29,6 +29,7 @@ export const USER_NAV: NavItem[] = [
 
 /* ── Venue Owner role menu ─── */
 export const VENUE_OWNER_NAV: NavItem[] = [
+  { id: 'Dashboard', icon: 'dashboard', label: 'Dashboard', color: '#F50247' },
   { id: 'YourVenues', icon: 'store', label: 'Your Venues', color: '#10B981' },
   { id: 'Menus', icon: 'restaurant-menu', label: 'Menus', color: '#F59E0B' },
   { id: 'ManageOrders', icon: 'receipt-long', label: 'Manage Orders', color: '#2563EB' },
@@ -39,6 +40,7 @@ export const VENUE_OWNER_NAV: NavItem[] = [
 
 /* ── Host role menu ─── */
 export const HOST_NAV: NavItem[] = [
+  { id: 'Dashboard', icon: 'dashboard', label: 'Dashboard', color: '#F50247' },
   { id: 'CreatePod', icon: 'add-circle', label: 'Create a Pod', color: '#F50247' },
   { id: 'Profile', icon: 'person', label: 'Profile', color: '#6366F1' },
   { id: 'Withdrawal', icon: 'savings', label: 'Withdrawal', color: '#EC4899' },

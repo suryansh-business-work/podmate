@@ -62,9 +62,11 @@ function buildConfig(): AppConfig {
   const isProduction = !__DEV__;
 
   if (isProduction) {
+    const envUrl = process.env.EXPO_PUBLIC_API_URL;
+    const apiUrl = envUrl || PRODUCTION_API;
     return {
-      apiUrl: PRODUCTION_API,
-      wsUrl: PRODUCTION_WS,
+      apiUrl,
+      wsUrl: envUrl ? deriveWsUrl(apiUrl) : PRODUCTION_WS,
       isProduction: true,
     };
   }

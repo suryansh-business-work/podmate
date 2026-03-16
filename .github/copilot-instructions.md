@@ -1,5 +1,7 @@
 NO DUMMY DATA ANYWHERE IN THE CODEBASE ONLY SERVER DATA SOURCES ARE ALLOWED
 
+Write only production-level code (no tricks or shortcuts), strictly follow .github/copilot-instructions.md, and after completing all work run lint, type checks, build, generate the APK, push the code, and keep fixing and rerunning the pipeline until all GitHub Actions pass successfully, then save the final APK with date and time append in file name in the output-package folder.
+
 # 🚀 Copilot Project Development Standards
 
 These standards apply to all repositories and projects including:

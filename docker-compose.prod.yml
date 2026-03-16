@@ -8,6 +8,7 @@ services:
       - .env
     environment:
       - MONGODB_URI=${MONGODB_URI}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - NODE_ENV=production
     restart: unless-stopped
     networks:

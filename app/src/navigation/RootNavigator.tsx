@@ -159,6 +159,8 @@ const RootNavigator: React.FC = () => {
       Help: () => navigation.navigate('Faq'),
       Feedback: () => navigation.navigate('Feedback'),
       PodIdeas: () => navigation.navigate('PodIdeas'),
+      GoLive: () => navigation.navigate('GoLive'),
+      RegisterPlace: () => navigation.navigate('RegisterPlace'),
     };
     map[screen]?.();
   };
@@ -262,7 +264,9 @@ const RootNavigator: React.FC = () => {
                       onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
                       onCreatePress={() => navigation.navigate('CreatePod')}
                       onCreateMoment={() => navigation.navigate('CreateMoment')}
-                      onMenuPress={drawer.openDrawer}
+                      onMenuPress={() =>
+                        navigation.navigate('Main', { screen: 'Profile' } as never)
+                      }
                       onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
                       onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
                       onNotificationPress={() => navigation.navigate('Notifications')}

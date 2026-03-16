@@ -15,7 +15,10 @@ interface UploadedFile {
 }
 
 interface UseImageKitUploadReturn {
-  pickAndUploadImage: (folder?: string) => Promise<UploadedFile | null>;
+  pickAndUploadImage: (
+    folder?: string,
+    options?: { aspect?: [number, number] },
+  ) => Promise<UploadedFile | null>;
   pickAndUploadVideo: (folder?: string) => Promise<UploadedFile | null>;
   uploading: boolean;
   progress: number;
@@ -115,14 +118,19 @@ export function useImageKitUpload(): UseImageKitUploadReturn {
   );
 
   const pickAndUploadImage = useCallback(
-    async (folder = '/pods'): Promise<UploadedFile | null> => {
+    async (
+      folder = '/pods',
+      options?: { aspect?: [number, number] },
+    ): Promise<UploadedFile | null> => {
       const hasPermission = await requestPermissions();
       if (!hasPermission) return null;
+
+      const aspect = options?.aspect ?? [16, 9];
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
-        aspect: [16, 9],
+        aspect,
         quality: 0.8,
       });
 

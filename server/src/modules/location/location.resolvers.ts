@@ -1,10 +1,26 @@
 import type { GraphQLContext } from '../auth/auth.models';
 import { UserRole } from '../user/user.models';
-import { CreateCityInput, UpdateCityInput, CreateAreaInput } from './location.models';
+import { CreateCityInput, UpdateCityInput, CreateAreaInput, City } from './location.models';
 import * as locationService from './location.services';
 import { validateCreateCity, validateUpdateCity, validateCreateArea } from './location.validators';
+import { PlaceModel } from '../place/place.models';
+import { PodModel } from '../pod/pod.models';
 
 const locationResolvers = {
+  City: {
+    podCount: async (parent: City) => {
+      const places = await PlaceModel.find(
+        { city: { $regex: new RegExp(`^${parent.name}$`, 'i') }, status: 'APPROVED' },
+        { _id: 1 },
+      ).lean();
+      if (places.length === 0) return 0;
+      const placeIds = places.map((p) => p._id.toString());
+      return PodModel.countDocuments({
+        placeId: { $in: placeIds },
+        status: { $in: ['NEW', 'OPEN', 'CONFIRMED', 'PENDING'] },
+      });
+    },
+  },
   Query: {
     cities: async (
       _: unknown,

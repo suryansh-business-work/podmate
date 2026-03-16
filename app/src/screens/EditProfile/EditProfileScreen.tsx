@@ -18,7 +18,7 @@ import { Formik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 
 import { GET_ME } from '../../graphql/queries';
-import { UPDATE_PROFILE } from '../../graphql/mutations';
+import { UPDATE_PROFILE, SEND_EMAIL_OTP, VERIFY_EMAIL_OTP } from '../../graphql/mutations';
 import { useImageKitUpload } from '../../hooks/useImageKitUpload';
 import { EditProfileScreenProps, EditProfileFormValues } from './EditProfile.types';
 import { createStyles } from './EditProfile.styles';
@@ -42,13 +42,22 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
     refetchQueries: [{ query: GET_ME }],
     awaitRefetchQueries: true,
   });
+  const [sendEmailOtpMutation] = useMutation(SEND_EMAIL_OTP);
+  const [verifyEmailOtpMutation] = useMutation(VERIFY_EMAIL_OTP, {
+    refetchQueries: [{ query: GET_ME }],
+  });
   const { pickAndUploadImage, uploading: avatarUploading } = useImageKitUpload();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [emailOtpSent, setEmailOtpSent] = useState(false);
+  const [emailOtp, setEmailOtp] = useState('');
+  const [pendingEmail, setPendingEmail] = useState('');
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   const user = meData?.me;
+  const isEmailVerified = user?.isEmailVerified ?? false;
 
   const handleAvatarChange = useCallback(async () => {
-    const result = await pickAndUploadImage('avatars');
+    const result = await pickAndUploadImage('avatars', { aspect: [1, 1] });
     if (result) {
       setAvatarUrl(result.url);
       try {
@@ -62,21 +71,56 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
   const handleSubmit = useCallback(
     async (values: EditProfileFormValues, helpers: FormikHelpers<EditProfileFormValues>) => {
       try {
+        const emailChanged =
+          values.email && values.email !== (user?.email ?? '') && values.email.trim() !== '';
+
+        if (emailChanged && !emailOtpSent) {
+          await sendEmailOtpMutation({ variables: { email: values.email } });
+          setPendingEmail(values.email);
+          setEmailOtpSent(true);
+          helpers.setSubmitting(false);
+          Alert.alert('Verify Email', `A verification code has been sent to ${values.email}`);
+          return;
+        }
+
         await updateProfile({
           variables: {
             name: values.name,
-            email: values.email || undefined,
+            email: emailChanged ? undefined : values.email || undefined,
           },
         });
         Alert.alert('Success', 'Profile updated successfully.', [{ text: 'OK', onPress: onBack }]);
-      } catch {
-        Alert.alert('Error', 'Failed to update profile. Please try again.');
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to update profile.';
+        Alert.alert('Error', message);
       } finally {
         helpers.setSubmitting(false);
       }
     },
-    [updateProfile, onBack],
+    [updateProfile, onBack, emailOtpSent, sendEmailOtpMutation, user?.email],
   );
+
+  const handleVerifyEmailOtp = useCallback(async () => {
+    if (emailOtp.length !== 6) {
+      Alert.alert('Invalid Code', 'Please enter the 6-digit verification code.');
+      return;
+    }
+    setVerifyingOtp(true);
+    try {
+      await verifyEmailOtpMutation({ variables: { email: pendingEmail, otp: emailOtp } });
+      setEmailOtpSent(false);
+      setEmailOtp('');
+      setPendingEmail('');
+      Alert.alert('Verified', 'Your email has been verified successfully.', [
+        { text: 'OK', onPress: onBack },
+      ]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Verification failed.';
+      Alert.alert('Error', message);
+    } finally {
+      setVerifyingOtp(false);
+    }
+  }, [emailOtp, pendingEmail, verifyEmailOtpMutation, onBack]);
 
   if (meLoading && !user) {
     return (
@@ -205,7 +249,15 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
                 </View>
 
                 <View style={styles.fieldContainer}>
-                  <Text style={styles.label}>Email</Text>
+                  <View style={styles.labelRow}>
+                    <Text style={styles.label}>Email</Text>
+                    {user?.email && isEmailVerified && (
+                      <View style={styles.verifiedBadge}>
+                        <MaterialIcons name="verified" size={14} color={colors.success} />
+                        <Text style={styles.verifiedText}>Verified</Text>
+                      </View>
+                    )}
+                  </View>
                   <TextInput
                     style={[
                       styles.input,
@@ -214,29 +266,65 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = ({ onBack }) => {
                     placeholder="Enter your email address"
                     placeholderTextColor={colors.textTertiary}
                     value={values.email}
-                    onChangeText={handleChange('email')}
+                    onChangeText={(text) => {
+                      handleChange('email')(text);
+                      if (emailOtpSent && text !== pendingEmail) {
+                        setEmailOtpSent(false);
+                        setEmailOtp('');
+                      }
+                    }}
                     onBlur={handleBlur('email')}
                     keyboardType="email-address"
                     autoCapitalize="none"
                     autoCorrect={false}
+                    editable={!emailOtpSent}
                   />
                   {touched.email && errors.email && (
                     <Text style={styles.errorText}>{errors.email}</Text>
                   )}
                 </View>
 
-                <TouchableOpacity
-                  style={[styles.saveButton, isSubmitting && styles.saveButtonDisabled]}
-                  onPress={() => submit()}
-                  disabled={isSubmitting}
-                  activeOpacity={0.8}
-                >
-                  {isSubmitting ? (
-                    <ActivityIndicator size="small" color={colors.white} />
-                  ) : (
-                    <Text style={styles.saveButtonText}>Save Changes</Text>
-                  )}
-                </TouchableOpacity>
+                {emailOtpSent && (
+                  <View style={styles.fieldContainer}>
+                    <Text style={styles.label}>Verification Code</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter 6-digit code"
+                      placeholderTextColor={colors.textTertiary}
+                      value={emailOtp}
+                      onChangeText={setEmailOtp}
+                      keyboardType="number-pad"
+                      maxLength={6}
+                    />
+                    <TouchableOpacity
+                      style={[styles.saveButton, verifyingOtp && styles.saveButtonDisabled]}
+                      onPress={handleVerifyEmailOtp}
+                      disabled={verifyingOtp}
+                      activeOpacity={0.8}
+                    >
+                      {verifyingOtp ? (
+                        <ActivityIndicator size="small" color={colors.white} />
+                      ) : (
+                        <Text style={styles.saveButtonText}>Verify Email</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                {!emailOtpSent && (
+                  <TouchableOpacity
+                    style={[styles.saveButton, isSubmitting && styles.saveButtonDisabled]}
+                    onPress={() => submit()}
+                    disabled={isSubmitting}
+                    activeOpacity={0.8}
+                  >
+                    {isSubmitting ? (
+                      <ActivityIndicator size="small" color={colors.white} />
+                    ) : (
+                      <Text style={styles.saveButtonText}>Save Changes</Text>
+                    )}
+                  </TouchableOpacity>
+                )}
               </>
             )}
           </Formik>

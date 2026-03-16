@@ -6,6 +6,7 @@ const locationTypeDefs = `#graphql
     country: String!
     imageUrl: String!
     clubCount: Int!
+    podCount: Int!
     isTopCity: Boolean!
     isActive: Boolean!
     sortOrder: Int!

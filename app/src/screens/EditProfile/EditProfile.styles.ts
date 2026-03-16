@@ -79,11 +79,26 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     fieldContainer: {
       marginBottom: spacing.xl,
     },
+    labelRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: spacing.sm,
+    },
     label: {
       fontSize: 14,
       fontWeight: '600',
       color: colors.textSecondary,
-      marginBottom: spacing.sm,
+    },
+    verifiedBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    verifiedText: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.success,
     },
     input: {
       backgroundColor: colors.surface,

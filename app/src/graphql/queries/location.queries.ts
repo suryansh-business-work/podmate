@@ -7,6 +7,7 @@ export const GET_ACTIVE_CITIES = gql`
       name
       imageUrl
       clubCount
+      podCount
       isTopCity
       pincodes
       areas {

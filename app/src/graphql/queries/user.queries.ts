@@ -13,6 +13,7 @@ export const GET_ME = gql`
       roles
       activeRole
       isVerifiedHost
+      isEmailVerified
       savedPodIds
       themePreference
     }

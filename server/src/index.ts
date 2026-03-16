@@ -191,6 +191,8 @@ const rootSchema = `#graphql
     forceDeletePod(id: ID!, issueRefunds: Boolean!): ForceDeletePodResult!
     bulkDeletePods(ids: [ID!]!, issueRefunds: Boolean!): Int!
     updateProfile(name: String, avatar: String, email: String): User!
+    sendEmailOtp(email: String!): OtpResponse!
+    verifyEmailOtp(email: String!, otp: String!): User!
     savePod(podId: ID!): User!
     unsavePod(podId: ID!): User!
     updateThemePreference(themePreference: String!): User!

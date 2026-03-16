@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -42,11 +42,27 @@ const CreateMomentScreen: React.FC<CreateMomentScreenProps> = ({ onClose, onSucc
   const [caption, setCaption] = useState('');
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [activeSlide, setActiveSlide] = useState(0);
+  const hasOpenedPicker = useRef(false);
   const { pickAndUploadImage, pickAndUploadVideo, uploading } = useImageKitUpload();
 
   const [createMoment, { loading }] = useMutation(CREATE_MOMENT, {
     refetchQueries: [{ query: GET_MOMENTS }],
   });
+
+  /* Auto-open image picker on mount */
+  useEffect(() => {
+    if (hasOpenedPicker.current) return;
+    hasOpenedPicker.current = true;
+    const openPicker = async () => {
+      const result = await pickAndUploadImage('moments');
+      if (result) {
+        setMediaItems((prev) => [...prev, { uri: result.uri, url: result.url, type: 'image' }]);
+      } else {
+        onClose();
+      }
+    };
+    openPicker();
+  }, [pickAndUploadImage, onClose]);
 
   const handlePickImage = useCallback(async () => {
     const result = await pickAndUploadImage('moments');

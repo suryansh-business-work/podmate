@@ -19,7 +19,7 @@ import { ROLE_LABELS } from '../../components/RoleSwitcher/RoleSwitcher.types';
 import { GET_ME, GET_MY_PODS, GET_FOLLOW_STATS, GET_USER_MOMENTS } from '../../graphql/queries';
 import { SWITCH_ACTIVE_ROLE } from '../../graphql/mutations';
 import { useThemeMode } from '../../contexts/ThemeContext';
-import { ProfileScreenProps, ProfileTab, MENU_ITEMS } from './Profile.types';
+import { ProfileScreenProps, ProfileTab, MENU_ITEMS, getStartEarningItems } from './Profile.types';
 import { createStyles } from './Profile.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -285,6 +285,30 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   <MaterialIcons name="chevron-right" size={22} color={colors.textTertiary} />
                 </TouchableOpacity>
               ))}
+
+              {/* Start Earning section */}
+              {user?.roles && getStartEarningItems(user.roles).length > 0 && (
+                <>
+                  <View style={styles.sectionDivider}>
+                    <Text style={styles.sectionLabel}>Start Earning</Text>
+                  </View>
+                  {getStartEarningItems(user.roles).map((item, index) => (
+                    <TouchableOpacity
+                      key={`earn-${index}`}
+                      style={styles.menuItem}
+                      activeOpacity={0.7}
+                      onPress={() => onNavigate?.(item.action)}
+                    >
+                      <MaterialIcons name={item.icon} size={22} color={colors.primary} />
+                      <View style={styles.menuContent}>
+                        <Text style={styles.menuLabel}>{item.label}</Text>
+                        <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+                      </View>
+                      <MaterialIcons name="chevron-right" size={22} color={colors.textTertiary} />
+                    </TouchableOpacity>
+                  ))}
+                </>
+              )}
 
               {/* Dark Mode toggle */}
               <View style={styles.menuItem}>

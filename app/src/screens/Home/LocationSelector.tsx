@@ -27,6 +27,7 @@ interface CityItem {
   name: string;
   imageUrl: string;
   clubCount: number;
+  podCount: number;
   isTopCity: boolean;
   areas: { id: string; name: string }[];
 }
@@ -122,7 +123,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       <SafeImage uri={city.imageUrl} style={styles.cityImage} fallbackIcon="location-city" />
       <View style={styles.cityCardOverlay}>
         <Text style={styles.cityCardName}>{city.name}</Text>
-        <Text style={styles.cityCardCount}>{city.clubCount} Clubs</Text>
+        <Text style={styles.cityCardCount}>{city.podCount} Pods</Text>
       </View>
       {currentCity === city.name && (
         <View style={styles.checkBadge}>
@@ -162,7 +163,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               <Text style={styles.currentCity}>{currentCity}</Text>
               {currentArea && <Text style={styles.currentArea}>({currentArea})</Text>}
             </View>
-            <TouchableOpacity style={styles.updateBtn}>
+            <TouchableOpacity style={styles.updateBtn} onPress={handleUseLocation}>
               <Text style={styles.updateBtnText}>Update location</Text>
             </TouchableOpacity>
           </View>
@@ -281,7 +282,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                         />
                         <View>
                           <Text style={styles.listCityName}>{city.name}</Text>
-                          <Text style={styles.listCityCount}>{city.clubCount} clubs</Text>
+                          <Text style={styles.listCityCount}>{city.podCount} Pods</Text>
                         </View>
                       </TouchableOpacity>
                     ))}

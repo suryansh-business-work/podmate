@@ -25,6 +25,7 @@ describe('Admin Login', () => {
     roles: [UserRole.ADMIN],
     activeRole: UserRole.ADMIN,
     isVerifiedHost: false,
+    isEmailVerified: false,
     isActive: true,
     disableReason: '',
     savedPodIds: [],

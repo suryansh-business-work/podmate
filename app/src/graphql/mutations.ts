@@ -12,6 +12,8 @@ export {
   REGISTER_PUSH_TOKEN,
   UNREGISTER_PUSH_TOKEN,
   SWITCH_ACTIVE_ROLE,
+  SEND_EMAIL_OTP,
+  VERIFY_EMAIL_OTP,
 } from './mutations/auth.mutations';
 
 export {

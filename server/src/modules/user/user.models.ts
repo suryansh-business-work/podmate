@@ -21,6 +21,7 @@ export interface User {
   roles: UserRole[];
   activeRole: UserRole;
   isVerifiedHost: boolean;
+  isEmailVerified: boolean;
   isActive: boolean;
   disableReason: string;
   savedPodIds: string[];
@@ -92,6 +93,7 @@ const UserSchema = new Schema<UserMongoDoc>(
       default: UserRole.USER,
     },
     isVerifiedHost: { type: Boolean, default: false },
+    isEmailVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     disableReason: { type: String, default: '' },
     savedPodIds: { type: [String], default: [] },

@@ -94,3 +94,22 @@ export const SWITCH_ACTIVE_ROLE = gql`
     }
   }
 `;
+
+export const SEND_EMAIL_OTP = gql`
+  mutation SendEmailOtp($email: String!) {
+    sendEmailOtp(email: $email) {
+      success
+      message
+    }
+  }
+`;
+
+export const VERIFY_EMAIL_OTP = gql`
+  mutation VerifyEmailOtp($email: String!, $otp: String!) {
+    verifyEmailOtp(email: $email, otp: $otp) {
+      id
+      email
+      isEmailVerified
+    }
+  }
+`;

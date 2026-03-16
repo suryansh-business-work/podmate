@@ -39,13 +39,33 @@ const userResolvers = {
   },
 
   Mutation: {
-    updateProfile: (
+    updateProfile: async (
       _: unknown,
       args: { name?: string; avatar?: string; email?: string },
       context: GraphQLContext,
     ) => {
       const auth = requireAuth(context);
-      return userService.updateUser(auth.userId, args);
+      const updated = await userService.updateUser(auth.userId, args);
+      userService.notifyProfileUpdate(updated);
+      return updated;
+    },
+
+    sendEmailOtp: async (
+      _: unknown,
+      args: { email: string },
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+      return userService.sendEmailOtp(args.email);
+    },
+
+    verifyEmailOtp: async (
+      _: unknown,
+      args: { email: string; otp: string },
+      context: GraphQLContext,
+    ) => {
+      const auth = requireAuth(context);
+      return userService.verifyEmailOtp(auth.userId, args.email, args.otp);
     },
 
     updateUserRoles: (

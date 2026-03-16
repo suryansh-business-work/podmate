@@ -3,6 +3,7 @@ const config = {
   testEnvironment: 'node',
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^mjml$': '<rootDir>/src/lib/__mocks__/mjml.ts',
   },
   transform: {
     '^.+\\.ts$': [

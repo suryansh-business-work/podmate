@@ -152,6 +152,20 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     menuContent: { flex: 1 },
     menuLabel: { fontSize: 16, fontWeight: '600', color: colors.text },
     menuSubtitle: { fontSize: 13, color: colors.textSecondary, marginTop: 1 },
+    sectionDivider: {
+      marginTop: spacing.lg,
+      marginBottom: spacing.sm,
+      paddingBottom: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.surfaceVariant,
+    },
+    sectionLabel: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: colors.primary,
+      letterSpacing: 0.5,
+      textTransform: 'uppercase',
+    },
 
     /* ── Logout & footer ── */
     logoutButton: {

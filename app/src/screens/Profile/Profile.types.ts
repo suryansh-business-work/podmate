@@ -58,3 +58,24 @@ export const MENU_ITEMS: MenuItem[] = [
     action: 'Privacy',
   },
 ];
+
+export function getStartEarningItems(roles: string[]): MenuItem[] {
+  const items: MenuItem[] = [];
+  if (!roles.includes('HOST')) {
+    items.push({
+      icon: 'campaign',
+      label: 'Be a Pod Owner',
+      subtitle: 'Host pods & start earning',
+      action: 'GoLive',
+    });
+  }
+  if (!roles.includes('VENUE_OWNER')) {
+    items.push({
+      icon: 'store',
+      label: 'Register a Venue',
+      subtitle: 'List your venue & earn',
+      action: 'RegisterPlace',
+    });
+  }
+  return items;
+}

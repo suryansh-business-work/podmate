@@ -8,6 +8,26 @@ import type {
 } from './user.models';
 import { UserModel, UserRole, toUser } from './user.models';
 import { disableUserPods, enableUserPods } from '../pod/pod.services';
+import { sendEmail } from '../../lib/email';
+import {
+  emailOtpTemplate,
+  profileUpdateTemplate,
+  emailVerifiedTemplate,
+} from '../../lib/emailTemplates';
+import logger from '../../lib/logger';
+
+const EMAIL_OTP_EXPIRY_MS = 5 * 60 * 1000;
+
+interface EmailOtpRecord {
+  otp: string;
+  expiresAt: number;
+}
+
+const emailOtpStore = new Map<string, EmailOtpRecord>();
+
+function generateEmailOtp(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export async function findUserById(id: string): Promise<User | null> {
   const doc = await UserModel.findById(id).lean({ virtuals: true });
@@ -312,4 +332,78 @@ export async function adminUpdateUser(userId: string, input: AdminUpdateUserInpu
   }
 
   return result;
+}
+
+/* ── Email OTP ── */
+
+export async function sendEmailOtp(
+  email: string,
+): Promise<{ success: boolean; message: string }> {
+  const otp = generateEmailOtp();
+  emailOtpStore.set(email.toLowerCase(), { otp, expiresAt: Date.now() + EMAIL_OTP_EXPIRY_MS });
+
+  const template = emailOtpTemplate(otp);
+  const sent = await sendEmail({
+    to: email,
+    subject: template.subject,
+    text: template.text,
+    html: template.html,
+  });
+
+  if (!sent) {
+    throw new Error('Failed to send verification email. Please try again.');
+  }
+
+  logger.info(`Email OTP sent to ${email}`);
+  return { success: true, message: `Verification code sent to ${email}` };
+}
+
+export async function verifyEmailOtp(userId: string, email: string, otp: string): Promise<User> {
+  const key = email.toLowerCase();
+  const record = emailOtpStore.get(key);
+
+  if (!record) {
+    throw new Error('Verification code not found or expired. Please request a new one.');
+  }
+  if (Date.now() > record.expiresAt) {
+    emailOtpStore.delete(key);
+    throw new Error('Verification code has expired. Please request a new one.');
+  }
+  if (otp !== record.otp) {
+    throw new Error('Invalid verification code. Please try again.');
+  }
+
+  emailOtpStore.delete(key);
+
+  const updated = await UserModel.findByIdAndUpdate(
+    userId,
+    { $set: { email, isEmailVerified: true } },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+
+  /* Send verification success email */
+  const successTemplate = emailVerifiedTemplate(result.name || 'User');
+  sendEmail({
+    to: email,
+    subject: successTemplate.subject,
+    text: successTemplate.text,
+    html: successTemplate.html,
+  }).catch((err) => logger.error('Failed to send verification success email:', err));
+
+  logger.info(`Email verified for user ${userId}: ${email}`);
+  return result;
+}
+
+/* Send profile update notification email */
+export async function notifyProfileUpdate(user: User): Promise<void> {
+  if (!user.email || !user.isEmailVerified) return;
+  const template = profileUpdateTemplate(user.name || 'User');
+  sendEmail({
+    to: user.email,
+    subject: template.subject,
+    text: template.text,
+    html: template.html,
+  }).catch((err) => logger.error('Failed to send profile update email:', err));
 }

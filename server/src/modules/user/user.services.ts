@@ -336,9 +336,7 @@ export async function adminUpdateUser(userId: string, input: AdminUpdateUserInpu
 
 /* ── Email OTP ── */
 
-export async function sendEmailOtp(
-  email: string,
-): Promise<{ success: boolean; message: string }> {
+export async function sendEmailOtp(email: string): Promise<{ success: boolean; message: string }> {
   const otp = generateEmailOtp();
   emailOtpStore.set(email.toLowerCase(), { otp, expiresAt: Date.now() + EMAIL_OTP_EXPIRY_MS });
 

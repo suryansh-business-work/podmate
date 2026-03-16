@@ -50,11 +50,7 @@ const userResolvers = {
       return updated;
     },
 
-    sendEmailOtp: async (
-      _: unknown,
-      args: { email: string },
-      context: GraphQLContext,
-    ) => {
+    sendEmailOtp: async (_: unknown, args: { email: string }, context: GraphQLContext) => {
       requireAuth(context);
       return userService.sendEmailOtp(args.email);
     },

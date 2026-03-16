@@ -103,7 +103,17 @@ export const useAuth = () => {
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       const response = await GoogleSignin.signIn();
-      const idToken = response.data?.idToken;
+      if (response.type === 'cancelled') {
+        setState((prev) => ({ ...prev, googleSignInLoading: false }));
+        return;
+      }
+      // response.data.idToken can be null in some configurations;
+      // getTokens() reliably returns the idToken after a successful signIn.
+      let idToken = response.data?.idToken;
+      if (!idToken) {
+        const tokens = await GoogleSignin.getTokens();
+        idToken = tokens.idToken;
+      }
       if (!idToken) {
         throw new Error('Google Sign-In did not return an ID token.');
       }

@@ -10,6 +10,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Linking from 'expo-linking';
 import { View, Animated, TouchableOpacity, StyleSheet, BackHandler, Alert } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import config from '../config';
 import SplashScreen from '../screens/SplashScreen';
 import { LoginScreen, OtpScreen } from '../screens/Auth';
 import CompleteProfileScreen from '../screens/CompleteProfileScreen';
@@ -118,7 +119,7 @@ const RootNavigator: React.FC = () => {
 
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      webClientId: config.googleWebClientId || undefined,
     });
   }, []);
 

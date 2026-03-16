@@ -7,6 +7,7 @@
     "orientation": "portrait",
     "extra": {
       "apiUrl": "http://192.168.68.61:4039/graphql",
+      "googleWebClientId": "508129946567-k7taq7410704i9jj0ntkco11clr5743u.apps.googleusercontent.com",
       "eas": {
         "projectId": "f12c936a-a509-4fdd-89ae-d83ed1959fd9"
       }

@@ -8,6 +8,8 @@ interface AppConfig {
   wsUrl: string;
   /** Whether the app is running in production mode */
   isProduction: boolean;
+  /** Google OAuth Web Client ID for Sign-In */
+  googleWebClientId: string;
 }
 
 const PRODUCTION_API = 'https://podify-api.exyconn.com/graphql';
@@ -58,14 +60,24 @@ function deriveWsUrl(httpUrl: string): string {
   return httpUrl.replace(/^http/, 'ws').replace('/graphql', '/ws');
 }
 
+function resolveGoogleWebClientId(): string {
+  const envId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+  if (envId) return envId;
+  const extraId = Constants.expoConfig?.extra?.googleWebClientId as string | undefined;
+  if (extraId) return extraId;
+  return '';
+}
+
 function buildConfig(): AppConfig {
   const isProduction = !__DEV__;
+  const googleWebClientId = resolveGoogleWebClientId();
 
   if (isProduction) {
     return {
       apiUrl: PRODUCTION_API,
       wsUrl: PRODUCTION_WS,
       isProduction: true,
+      googleWebClientId,
     };
   }
 
@@ -74,6 +86,7 @@ function buildConfig(): AppConfig {
     apiUrl,
     wsUrl: deriveWsUrl(apiUrl),
     isProduction: false,
+    googleWebClientId,
   };
 }
 

@@ -256,74 +256,94 @@ const RootNavigator: React.FC = () => {
           ) : (
             <>
               {initialRoute === 'Main' && (
-              <Stack.Screen name="Main">
-                {({ navigation }) => (
-                  <MainTabs
-                    onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
-                    onCreatePress={() => navigation.navigate('CreatePod')}
-                    onCreateMoment={() => navigation.navigate('CreateMoment')}
-                    onMenuPress={drawer.openDrawer}
-                    onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
-                    onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
-                    onNotificationPress={() => navigation.navigate('Notifications')}
-                    onChatbotPress={() => navigation.navigate('Chatbot')}
-                    onLogout={async () => { await auth.handleLogout(); }}
-                    onFollowers={(userId, userName) =>
-                      navigation.navigate('FollowList', { userId, userName, initialTab: 'followers' })
-                    }
-                    onFollowing={(userId, userName) =>
-                      navigation.navigate('FollowList', { userId, userName, initialTab: 'following' })
-                    }
-                  />
-                )}
-              </Stack.Screen>
+                <Stack.Screen name="Main">
+                  {({ navigation }) => (
+                    <MainTabs
+                      onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
+                      onCreatePress={() => navigation.navigate('CreatePod')}
+                      onCreateMoment={() => navigation.navigate('CreateMoment')}
+                      onMenuPress={drawer.openDrawer}
+                      onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
+                      onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
+                      onNotificationPress={() => navigation.navigate('Notifications')}
+                      onChatbotPress={() => navigation.navigate('Chatbot')}
+                      onLogout={async () => {
+                        await auth.handleLogout();
+                      }}
+                      onFollowers={(userId, userName) =>
+                        navigation.navigate('FollowList', {
+                          userId,
+                          userName,
+                          initialTab: 'followers',
+                        })
+                      }
+                      onFollowing={(userId, userName) =>
+                        navigation.navigate('FollowList', {
+                          userId,
+                          userName,
+                          initialTab: 'following',
+                        })
+                      }
+                    />
+                  )}
+                </Stack.Screen>
               )}
               {initialRoute === 'Dashboard' && (
-              <Stack.Screen name="Dashboard" options={{ presentation: 'card' }}>
-                {({ navigation }) => (
-                  <DashboardScreen
-                    onBack={drawer.openDrawer}
-                    onProfilePress={() => navigation.navigate('Profile')}
-                    onNotificationPress={() => navigation.navigate('Notifications')}
-                    onRegisterVenue={() => navigation.navigate('RegisterPlace')}
-                  />
-                )}
-              </Stack.Screen>
+                <Stack.Screen name="Dashboard" options={{ presentation: 'card' }}>
+                  {({ navigation }) => (
+                    <DashboardScreen
+                      onBack={drawer.openDrawer}
+                      onProfilePress={() => navigation.navigate('Profile')}
+                      onNotificationPress={() => navigation.navigate('Notifications')}
+                      onRegisterVenue={() => navigation.navigate('RegisterPlace')}
+                    />
+                  )}
+                </Stack.Screen>
               )}
               {initialRoute !== 'Main' && (
-              <Stack.Screen name="Main">
-                {({ navigation }) => (
-                  <MainTabs
-                    onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
-                    onCreatePress={() => navigation.navigate('CreatePod')}
-                    onCreateMoment={() => navigation.navigate('CreateMoment')}
-                    onMenuPress={drawer.openDrawer}
-                    onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
-                    onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
-                    onNotificationPress={() => navigation.navigate('Notifications')}
-                    onChatbotPress={() => navigation.navigate('Chatbot')}
-                    onLogout={async () => { await auth.handleLogout(); }}
-                    onFollowers={(userId, userName) =>
-                      navigation.navigate('FollowList', { userId, userName, initialTab: 'followers' })
-                    }
-                    onFollowing={(userId, userName) =>
-                      navigation.navigate('FollowList', { userId, userName, initialTab: 'following' })
-                    }
-                  />
-                )}
-              </Stack.Screen>
+                <Stack.Screen name="Main">
+                  {({ navigation }) => (
+                    <MainTabs
+                      onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
+                      onCreatePress={() => navigation.navigate('CreatePod')}
+                      onCreateMoment={() => navigation.navigate('CreateMoment')}
+                      onMenuPress={drawer.openDrawer}
+                      onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
+                      onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
+                      onNotificationPress={() => navigation.navigate('Notifications')}
+                      onChatbotPress={() => navigation.navigate('Chatbot')}
+                      onLogout={async () => {
+                        await auth.handleLogout();
+                      }}
+                      onFollowers={(userId, userName) =>
+                        navigation.navigate('FollowList', {
+                          userId,
+                          userName,
+                          initialTab: 'followers',
+                        })
+                      }
+                      onFollowing={(userId, userName) =>
+                        navigation.navigate('FollowList', {
+                          userId,
+                          userName,
+                          initialTab: 'following',
+                        })
+                      }
+                    />
+                  )}
+                </Stack.Screen>
               )}
               {initialRoute !== 'Dashboard' && (
-              <Stack.Screen name="Dashboard" options={{ presentation: 'card' }}>
-                {({ navigation }) => (
-                  <DashboardScreen
-                    onBack={drawer.openDrawer}
-                    onProfilePress={() => navigation.navigate('Profile')}
-                    onNotificationPress={() => navigation.navigate('Notifications')}
-                    onRegisterVenue={() => navigation.navigate('RegisterPlace')}
-                  />
-                )}
-              </Stack.Screen>
+                <Stack.Screen name="Dashboard" options={{ presentation: 'card' }}>
+                  {({ navigation }) => (
+                    <DashboardScreen
+                      onBack={drawer.openDrawer}
+                      onProfilePress={() => navigation.navigate('Profile')}
+                      onNotificationPress={() => navigation.navigate('Notifications')}
+                      onRegisterVenue={() => navigation.navigate('RegisterPlace')}
+                    />
+                  )}
+                </Stack.Screen>
               )}
               <Stack.Screen name="PodDetail" options={{ presentation: 'card' }}>
                 {({ navigation, route }) => (

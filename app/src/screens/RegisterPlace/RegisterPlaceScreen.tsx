@@ -136,11 +136,7 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
         <View style={{ flex: 1 }}>
           <View style={styles.header}>
             <TouchableOpacity onPress={goBack} style={styles.headerBtn}>
-              <MaterialIcons
-                name="arrow-back"
-                size={22}
-                color={colors.text}
-              />
+              <MaterialIcons name="arrow-back" size={22} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Register Venue</Text>
             <View style={styles.headerBtn} />

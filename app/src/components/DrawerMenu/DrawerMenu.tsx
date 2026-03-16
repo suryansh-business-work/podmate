@@ -7,7 +7,15 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { spacing } from '../../theme';
 import { GET_ME } from '../../graphql/queries';
 import { SWITCH_ACTIVE_ROLE } from '../../graphql/mutations';
-import { DrawerMenuProps, NavItem, ROLE_MENUS, ROLE_LABELS, USER_NAV, REGISTER_VENUE_ITEM, BE_A_POD_OWNER_ITEM } from './DrawerMenu.types';
+import {
+  DrawerMenuProps,
+  NavItem,
+  ROLE_MENUS,
+  ROLE_LABELS,
+  USER_NAV,
+  REGISTER_VENUE_ITEM,
+  BE_A_POD_OWNER_ITEM,
+} from './DrawerMenu.types';
 import { createStyles } from './DrawerMenu.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 

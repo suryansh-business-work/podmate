@@ -212,7 +212,11 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
             />
 
             {/* Register A Venue */}
-            <TouchableOpacity style={styles.registerBtn} onPress={onRegisterVenue} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={styles.registerBtn}
+              onPress={onRegisterVenue}
+              activeOpacity={0.85}
+            >
               <MaterialIcons name="add-business" size={20} color={colors.white} />
               <Text style={styles.registerBtnText}>Register A Venue</Text>
             </TouchableOpacity>

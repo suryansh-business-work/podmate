@@ -440,6 +440,7 @@ const resolvers = {
   MomentComment: momentResolvers.MomentComment,
   PodSubscription: subscriptionResolvers.PodSubscription,
   Category: categoryResolvers.Category,
+  City: locationResolvers.City,
 };
 
 /* ── WebSocket connection registry ── */

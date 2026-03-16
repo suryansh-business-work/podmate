@@ -152,7 +152,27 @@ const podResolvers = {
   Pod: {
     host: async (pod: { hostId: string }) => {
       const user = await podService.resolveHost(pod.hostId);
-      if (!user) throw new Error('Host user not found');
+      if (!user) {
+        return {
+          id: pod.hostId,
+          phone: '',
+          email: '',
+          username: 'deleted',
+          name: 'Deleted User',
+          age: 0,
+          dob: '',
+          avatar: '',
+          roles: [],
+          activeRole: 'USER',
+          isVerifiedHost: false,
+          isEmailVerified: false,
+          isActive: false,
+          disableReason: 'User account has been removed',
+          savedPodIds: [],
+          themePreference: 'system',
+          createdAt: new Date().toISOString(),
+        };
+      }
       return user;
     },
     attendees: (pod: { attendeeIds: string[] }) =>

@@ -43,14 +43,16 @@ describe('DrawerMenu', () => {
     expect(getByText('User')).toBeTruthy();
   });
 
-  it('renders USER role menu items', () => {
-    const { getByText } = render(<DrawerMenu {...defaultProps} />);
+  it('renders USER role menu items (conditionally based on roles)', () => {
+    const { getByText, queryByText } = render(<DrawerMenu {...defaultProps} />);
     expect(getByText('Home')).toBeTruthy();
     expect(getByText('Explore')).toBeTruthy();
     expect(getByText('Moments')).toBeTruthy();
-    expect(getByText('Notifications')).toBeTruthy();
+    expect(queryByText('Notifications')).toBeNull();
+    /* User already has HOST role → "Be a Pod Owner" hidden */
+    expect(queryByText('Be a Pod Owner')).toBeNull();
+    /* User does NOT have VENUE_OWNER role → "Register a Venue" shown */
     expect(getByText('Register a Venue')).toBeTruthy();
-    expect(getByText('Be a Pod Owner')).toBeTruthy();
     expect(getByText('Profile Settings')).toBeTruthy();
   });
 

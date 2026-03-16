@@ -7,7 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { spacing } from '../../theme';
 import { GET_ME } from '../../graphql/queries';
 import { SWITCH_ACTIVE_ROLE } from '../../graphql/mutations';
-import { DrawerMenuProps, NavItem, ROLE_MENUS, ROLE_LABELS, USER_NAV } from './DrawerMenu.types';
+import { DrawerMenuProps, NavItem, ROLE_MENUS, ROLE_LABELS, USER_NAV, REGISTER_VENUE_ITEM, BE_A_POD_OWNER_ITEM } from './DrawerMenu.types';
 import { createStyles } from './DrawerMenu.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
 
@@ -29,7 +29,26 @@ const DrawerMenu: React.FC<DrawerMenuProps> = memo(function DrawerMenu({
   const activeRole: string = user?.activeRole ?? 'USER';
   const roles: string[] = user?.roles ?? ['USER'];
   const hasMultipleRoles = roles.length > 1;
-  const menuItems = ROLE_MENUS[activeRole] ?? USER_NAV;
+
+  /* Build menu: for USER role, conditionally add registration items based on missing roles */
+  const buildMenuItems = (): NavItem[] => {
+    const baseItems = ROLE_MENUS[activeRole] ?? USER_NAV;
+    if (activeRole !== 'USER') return baseItems;
+
+    const items = [...baseItems];
+    const profileIdx = items.findIndex((item) => item.id === 'Profile');
+    const insertIdx = profileIdx >= 0 ? profileIdx : items.length;
+
+    if (!roles.includes('VENUE_OWNER')) {
+      items.splice(insertIdx, 0, REGISTER_VENUE_ITEM);
+    }
+    if (!roles.includes('HOST')) {
+      const newInsertIdx = items.findIndex((item) => item.id === 'Profile');
+      items.splice(newInsertIdx >= 0 ? newInsertIdx : items.length, 0, BE_A_POD_OWNER_ITEM);
+    }
+    return items;
+  };
+  const menuItems = buildMenuItems();
 
   const handleNavigate = (id: string) => {
     onClose();

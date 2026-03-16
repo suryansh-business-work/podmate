@@ -56,9 +56,9 @@ describe('CreatePodScreen', () => {
     expect(getByText('Host a Pod')).toBeTruthy();
   });
 
-  it('calls onClose when close button pressed', () => {
+  it('calls onClose when back button pressed', () => {
     const { getByText } = render(<CreatePodScreen {...defaultProps} />);
-    fireEvent.press(getByText('close'));
+    fireEvent.press(getByText('arrow-back'));
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 

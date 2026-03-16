@@ -138,9 +138,9 @@ describe('RegisterPlaceScreen', () => {
     expect(getByText('Step 3')).toBeTruthy();
   });
 
-  it('calls onClose when close button pressed', () => {
+  it('calls onClose when back button pressed', () => {
     const { getByText } = render(<RegisterPlaceScreen {...defaultProps} />);
-    fireEvent.press(getByText('close'));
+    fireEvent.press(getByText('arrow-back'));
     expect(defaultProps.onClose).toHaveBeenCalled();
   });
 });

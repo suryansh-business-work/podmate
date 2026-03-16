@@ -50,6 +50,7 @@ import { useThemeMode } from '../contexts/ThemeContext';
 import { useAuth } from './hooks/useAuth';
 import { useDrawer, DRAWER_WIDTH } from './hooks/useDrawer';
 import { useInAppNotifications } from '../hooks/useInAppNotifications';
+import { useRoleBasedInitialRoute } from './hooks/useRoleBasedInitialRoute';
 
 export type { RootStackParamList } from './RootNavigator.types';
 
@@ -69,9 +70,9 @@ const linking: LinkingOptions<RootStackParamList> = {
         screens: {
           Home: '',
           Explore: 'explore',
-          Create: 'create-tab',
           Chat: 'chat',
           Moments: 'moments',
+          Profile: 'profile-tab',
         },
       },
       PodDetail: 'pod/:podId',
@@ -110,6 +111,7 @@ const RootNavigator: React.FC = () => {
   const colors = useAppColors();
   const { isDark } = useThemeMode();
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
+  const { initialRoute, isReady: roleReady } = useRoleBasedInitialRoute(auth.isAuthenticated);
 
   useInAppNotifications({ isAuthenticated: auth.isAuthenticated });
 
@@ -124,7 +126,7 @@ const RootNavigator: React.FC = () => {
         /* Prevent navigating back to screens from a different role */
         const state = nav.getState();
         const currentRoute = state.routes[state.index];
-        if (currentRoute?.name === 'Dashboard') {
+        if (currentRoute?.name === 'Dashboard' || currentRoute?.name === 'Main') {
           Alert.alert('Exit PartyWings', 'Are you sure you want to exit?', [
             { text: 'Cancel', style: 'cancel' },
             { text: 'Exit', style: 'destructive', onPress: () => BackHandler.exitApp() },
@@ -198,6 +200,7 @@ const RootNavigator: React.FC = () => {
 
   if (auth.isLoading) return null;
   if (auth.showSplash) return <SplashScreen onFinish={auth.handleSplashFinish} />;
+  if (auth.isAuthenticated && !auth.isNewUser && !roleReady) return null;
 
   return (
     <View style={{ flex: 1 }}>
@@ -252,6 +255,7 @@ const RootNavigator: React.FC = () => {
             </Stack.Screen>
           ) : (
             <>
+              {initialRoute === 'Main' && (
               <Stack.Screen name="Main">
                 {({ navigation }) => (
                   <MainTabs
@@ -263,9 +267,18 @@ const RootNavigator: React.FC = () => {
                     onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
                     onNotificationPress={() => navigation.navigate('Notifications')}
                     onChatbotPress={() => navigation.navigate('Chatbot')}
+                    onLogout={async () => { await auth.handleLogout(); }}
+                    onFollowers={(userId, userName) =>
+                      navigation.navigate('FollowList', { userId, userName, initialTab: 'followers' })
+                    }
+                    onFollowing={(userId, userName) =>
+                      navigation.navigate('FollowList', { userId, userName, initialTab: 'following' })
+                    }
                   />
                 )}
               </Stack.Screen>
+              )}
+              {initialRoute === 'Dashboard' && (
               <Stack.Screen name="Dashboard" options={{ presentation: 'card' }}>
                 {({ navigation }) => (
                   <DashboardScreen
@@ -276,6 +289,42 @@ const RootNavigator: React.FC = () => {
                   />
                 )}
               </Stack.Screen>
+              )}
+              {initialRoute !== 'Main' && (
+              <Stack.Screen name="Main">
+                {({ navigation }) => (
+                  <MainTabs
+                    onPodPress={(id) => navigation.navigate('PodDetail', { podId: id })}
+                    onCreatePress={() => navigation.navigate('CreatePod')}
+                    onCreateMoment={() => navigation.navigate('CreateMoment')}
+                    onMenuPress={drawer.openDrawer}
+                    onNavigate={(screen) => handleProfileNavigate(screen, navigation)}
+                    onCheckout={(podId) => navigation.navigate('Checkout', { podId })}
+                    onNotificationPress={() => navigation.navigate('Notifications')}
+                    onChatbotPress={() => navigation.navigate('Chatbot')}
+                    onLogout={async () => { await auth.handleLogout(); }}
+                    onFollowers={(userId, userName) =>
+                      navigation.navigate('FollowList', { userId, userName, initialTab: 'followers' })
+                    }
+                    onFollowing={(userId, userName) =>
+                      navigation.navigate('FollowList', { userId, userName, initialTab: 'following' })
+                    }
+                  />
+                )}
+              </Stack.Screen>
+              )}
+              {initialRoute !== 'Dashboard' && (
+              <Stack.Screen name="Dashboard" options={{ presentation: 'card' }}>
+                {({ navigation }) => (
+                  <DashboardScreen
+                    onBack={drawer.openDrawer}
+                    onProfilePress={() => navigation.navigate('Profile')}
+                    onNotificationPress={() => navigation.navigate('Notifications')}
+                    onRegisterVenue={() => navigation.navigate('RegisterPlace')}
+                  />
+                )}
+              </Stack.Screen>
+              )}
               <Stack.Screen name="PodDetail" options={{ presentation: 'card' }}>
                 {({ navigation, route }) => (
                   <PodDetailScreen
@@ -301,7 +350,7 @@ const RootNavigator: React.FC = () => {
                   />
                 )}
               </Stack.Screen>
-              <Stack.Screen name="CreatePod" options={{ presentation: 'modal' }}>
+              <Stack.Screen name="CreatePod" options={{ presentation: 'card' }}>
                 {({ navigation }) => (
                   <CreatePodScreen
                     onClose={() => navigation.goBack()}
@@ -320,7 +369,7 @@ const RootNavigator: React.FC = () => {
               <Stack.Screen name="Notifications" options={{ presentation: 'card' }}>
                 {({ navigation }) => <NotificationsScreen onBack={() => navigation.goBack()} />}
               </Stack.Screen>
-              <Stack.Screen name="RegisterPlace" options={{ presentation: 'modal' }}>
+              <Stack.Screen name="RegisterPlace" options={{ presentation: 'card' }}>
                 {({ navigation }) => <RegisterPlaceScreen onClose={() => navigation.goBack()} />}
               </Stack.Screen>
               <Stack.Screen name="Faq" options={{ presentation: 'card' }}>

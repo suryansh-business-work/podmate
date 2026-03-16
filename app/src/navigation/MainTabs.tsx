@@ -1,13 +1,13 @@
 import React, { ComponentProps } from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import { MomentsScreen } from '../screens/Moments';
 import ChatScreen from '../screens/Chat';
+import ProfileScreen from '../screens/Profile/ProfileScreen';
 import { useThemedStyles, useAppColors, ThemeUtils } from '../hooks/useThemedStyles';
 import { useQuery } from '@apollo/client';
 import { GET_ME } from '../graphql/queries';
@@ -19,9 +19,9 @@ type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 const TAB_ICONS: Record<string, MaterialIconName> = {
   Home: 'home',
   Explore: 'explore',
-  Create: 'add',
   Chat: 'chat',
   Moments: 'auto-awesome',
+  Profile: 'person',
 };
 
 interface MainTabsProps {
@@ -33,6 +33,9 @@ interface MainTabsProps {
   onCheckout?: (podId: string) => void;
   onNotificationPress?: () => void;
   onChatbotPress?: () => void;
+  onLogout?: () => Promise<void>;
+  onFollowers?: (userId: string, userName: string) => void;
+  onFollowing?: (userId: string, userName: string) => void;
 }
 
 const MainTabs: React.FC<MainTabsProps> = ({
@@ -44,6 +47,9 @@ const MainTabs: React.FC<MainTabsProps> = ({
   onCheckout,
   onNotificationPress,
   onChatbotPress,
+  onLogout,
+  onFollowers,
+  onFollowing,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
@@ -70,20 +76,6 @@ const MainTabs: React.FC<MainTabsProps> = ({
         tabBarLabelStyle: styles.tabLabel,
         lazy: false,
         tabBarIcon: ({ focused, color }) => {
-          if (route.name === 'Create') {
-            return (
-              <View style={styles.createButtonOuter}>
-                <LinearGradient
-                  colors={[colors.primaryLight, colors.primary]}
-                  style={styles.createButton}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                >
-                  <MaterialIcons name="add" size={28} color={colors.white} />
-                </LinearGradient>
-              </View>
-            );
-          }
           const iconName = TAB_ICONS[route.name] ?? 'circle';
           return (
             <MaterialIcons
@@ -109,20 +101,20 @@ const MainTabs: React.FC<MainTabsProps> = ({
       <Tab.Screen name="Explore">
         {() => <ExploreScreen onPodPress={onPodPress} onCheckout={onCheckout} />}
       </Tab.Screen>
-      <Tab.Screen
-        name="Create"
-        listeners={{
-          tabPress: (e) => {
-            e.preventDefault();
-            onCreatePress();
-          },
-        }}
-      >
-        {() => <View />}
-      </Tab.Screen>
       <Tab.Screen name="Chat">{() => <ChatScreen />}</Tab.Screen>
       <Tab.Screen name="Moments">
         {() => <MomentsScreen onCreateMoment={onCreateMoment} />}
+      </Tab.Screen>
+      <Tab.Screen name="Profile">
+        {() => (
+          <ProfileScreen
+            onLogout={onLogout ?? (async () => {})}
+            onNavigate={onNavigate}
+            onCreateMoment={onCreateMoment}
+            onFollowers={onFollowers}
+            onFollowing={onFollowing}
+          />
+        )}
       </Tab.Screen>
     </Tab.Navigator>
   );
@@ -147,21 +139,6 @@ const createStyles = ({ colors }: ThemeUtils) =>
     tabLabel: {
       fontSize: 11,
       fontWeight: '500',
-    },
-    createButtonOuter: {
-      marginTop: -20,
-    },
-    createButton: {
-      width: 52,
-      height: 52,
-      borderRadius: 26,
-      justifyContent: 'center',
-      alignItems: 'center',
-      shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 6,
     },
   });
 

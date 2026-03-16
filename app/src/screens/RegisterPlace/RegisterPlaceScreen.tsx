@@ -137,7 +137,7 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
           <View style={styles.header}>
             <TouchableOpacity onPress={goBack} style={styles.headerBtn}>
               <MaterialIcons
-                name={step === 0 ? 'close' : 'arrow-back'}
+                name="arrow-back"
                 size={22}
                 color={colors.text}
               />

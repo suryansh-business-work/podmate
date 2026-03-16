@@ -5,6 +5,7 @@ node_modules/
 dist/
 build/
 .astro/
+output-package/
 
 # Environment
 .env

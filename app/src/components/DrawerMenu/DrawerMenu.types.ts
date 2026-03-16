@@ -21,11 +21,23 @@ export const USER_NAV: NavItem[] = [
   { id: 'Home', icon: 'home', label: 'Home', color: '#F50247' },
   { id: 'Explore', icon: 'explore', label: 'Explore', color: '#9333EA' },
   { id: 'Moments', icon: 'auto-awesome', label: 'Moments', color: '#2563EB' },
-  { id: 'Notifications', icon: 'notifications', label: 'Notifications', color: '#F59E0B' },
-  { id: 'RegisterPlace', icon: 'store', label: 'Register a Venue', color: '#10B981' },
-  { id: 'CreatePod', icon: 'add-circle', label: 'Be a Pod Owner', color: '#F50247' },
   { id: 'Profile', icon: 'person', label: 'Profile Settings', color: '#6366F1' },
 ];
+
+/* ── Conditional items shown based on missing roles ─── */
+export const REGISTER_VENUE_ITEM: NavItem = {
+  id: 'RegisterPlace',
+  icon: 'store',
+  label: 'Register a Venue',
+  color: '#10B981',
+};
+
+export const BE_A_POD_OWNER_ITEM: NavItem = {
+  id: 'CreatePod',
+  icon: 'add-circle',
+  label: 'Be a Pod Owner',
+  color: '#F50247',
+};
 
 /* ── Venue Owner role menu ─── */
 export const VENUE_OWNER_NAV: NavItem[] = [

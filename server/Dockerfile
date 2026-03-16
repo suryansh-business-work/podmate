@@ -3,9 +3,10 @@ WORKDIR /workspace
 COPY tsconfig.base.json ./tsconfig.base.json
 WORKDIR /workspace/server
 COPY server/package.json server/tsconfig.json ./
-RUN npm install -g pnpm && pnpm install
+RUN npm install -g pnpm && pnpm install --shamefully-hoist
 COPY server/src ./src
 RUN pnpm build
+RUN pnpm prune --prod
 
 FROM node:22-alpine
 WORKDIR /app

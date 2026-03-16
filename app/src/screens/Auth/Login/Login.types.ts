@@ -12,6 +12,8 @@ export interface LoginScreenProps {
   onSendOtp: (phone: string) => Promise<void> | void;
   loading?: boolean;
   error?: string;
+  onGoogleSignIn?: () => Promise<void> | void;
+  googleSignInLoading?: boolean;
 }
 
 export interface LoginFormValues {

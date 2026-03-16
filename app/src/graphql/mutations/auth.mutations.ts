@@ -24,6 +24,22 @@ export const VERIFY_OTP = gql`
   }
 `;
 
+export const GOOGLE_SIGN_IN = gql`
+  mutation GoogleSignIn($idToken: String!) {
+    googleSignIn(idToken: $idToken) {
+      token
+      isNewUser
+      user {
+        id
+        phone
+        name
+        avatar
+        email
+      }
+    }
+  }
+`;
+
 export const UPDATE_PROFILE = gql`
   mutation UpdateProfile($name: String, $avatar: String, $email: String) {
     updateProfile(name: $name, avatar: $avatar, email: $email) {

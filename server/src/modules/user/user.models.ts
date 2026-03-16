@@ -128,6 +128,8 @@ export function toUser(doc: (UserMongoDoc & { id?: string }) | null): User | nul
     roles,
     activeRole: doc.activeRole ?? roles[0] ?? UserRole.USER,
     isActive: doc.isActive ?? true,
+    isEmailVerified: doc.isEmailVerified ?? false,
+    isVerifiedHost: doc.isVerifiedHost ?? false,
     disableReason: doc.disableReason ?? '',
     email: doc.email ?? '',
     avatar: doc.avatar ?? '',

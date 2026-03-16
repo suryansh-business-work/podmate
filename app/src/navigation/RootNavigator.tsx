@@ -9,6 +9,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Linking from 'expo-linking';
 import { View, Animated, TouchableOpacity, StyleSheet, BackHandler, Alert } from 'react-native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import SplashScreen from '../screens/SplashScreen';
 import { LoginScreen, OtpScreen } from '../screens/Auth';
 import CompleteProfileScreen from '../screens/CompleteProfileScreen';
@@ -114,6 +115,12 @@ const RootNavigator: React.FC = () => {
   const { initialRoute, isReady: roleReady } = useRoleBasedInitialRoute(auth.isAuthenticated);
 
   useInAppNotifications({ isAuthenticated: auth.isAuthenticated });
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    });
+  }, []);
 
   useEffect(() => {
     const onBackPress = () => {
@@ -234,7 +241,14 @@ const RootNavigator: React.FC = () => {
             <>
               {!auth.otpPhone ? (
                 <Stack.Screen name="Login">
-                  {() => <LoginScreen onSendOtp={auth.handleSendOtp} loading={auth.sendingOtp} />}
+                  {() => (
+                    <LoginScreen
+                      onSendOtp={auth.handleSendOtp}
+                      loading={auth.sendingOtp}
+                      onGoogleSignIn={auth.handleGoogleSignIn}
+                      googleSignInLoading={auth.googleSignInLoading}
+                    />
+                  )}
                 </Stack.Screen>
               ) : (
                 <Stack.Screen name="Otp">

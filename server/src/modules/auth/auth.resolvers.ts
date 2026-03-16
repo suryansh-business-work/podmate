@@ -12,6 +12,10 @@ const authResolvers = {
       return authService.verifyOtp(args.phone, args.otp);
     },
 
+    googleSignIn: (_: unknown, args: { idToken: string }) => {
+      return authService.googleSignIn(args.idToken);
+    },
+
     adminLogin: (_: unknown, args: { email: string; password: string }) => {
       return authService.adminLogin(args.email, args.password);
     },

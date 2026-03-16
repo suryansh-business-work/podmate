@@ -36,7 +36,7 @@
       "package": "com.partywings.app",
       "softwareKeyboardLayoutMode": "adjustResize"
     },
-    "plugins": ["expo-video"],
+    "plugins": ["expo-video", "@react-native-google-signin/google-signin"],
     "web": {
       "bundler": "metro",
       "favicon": "./assets/icon-and-splash/logo-1024x1024.png"

@@ -17,4 +17,4 @@ COPY --from=builder /workspace/server/package.json ./
 COPY --from=builder /workspace/server/tsconfig.json ./
 COPY --from=builder /workspace/tsconfig.base.json ../tsconfig.base.json
 EXPOSE 4039
-CMD ["node", "--import", "tsx", "dist/index.js"]
+CMD ["node", "--disable-warning=DEP0040", "--import", "tsx", "dist/index.js"]

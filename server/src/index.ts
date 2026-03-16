@@ -174,6 +174,7 @@ const rootSchema = `#graphql
   type Mutation {
     sendOtp(phone: String!): OtpResponse!
     verifyOtp(phone: String!, otp: String!): AuthPayload!
+    googleSignIn(idToken: String!): AuthPayload!
     adminLogin(email: String!, password: String!): AdminAuthPayload!
     sendAdminCredentials(email: String!): SendCredentialsResponse!
     completeProfile(username: String!, name: String!, dob: String!): User!

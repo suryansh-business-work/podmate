@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useApolloClient } from '@apollo/client';
 import { Alert } from 'react-native';
-import { SEND_OTP, VERIFY_OTP, COMPLETE_PROFILE } from '../../graphql/mutations';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { SEND_OTP, VERIFY_OTP, COMPLETE_PROFILE, GOOGLE_SIGN_IN } from '../../graphql/mutations';
 
 interface AuthState {
   isLoading: boolean;
@@ -13,6 +14,7 @@ interface AuthState {
   sendingOtp: boolean;
   verifyingOtp: boolean;
   otpError: string;
+  googleSignInLoading: boolean;
 }
 
 export const useAuth = () => {
@@ -25,12 +27,14 @@ export const useAuth = () => {
     sendingOtp: false,
     verifyingOtp: false,
     otpError: '',
+    googleSignInLoading: false,
   });
 
   const apolloClient = useApolloClient();
   const [sendOtpMutation] = useMutation(SEND_OTP);
   const [verifyOtpMutation] = useMutation(VERIFY_OTP);
   const [completeProfileMutation] = useMutation(COMPLETE_PROFILE);
+  const [googleSignInMutation] = useMutation(GOOGLE_SIGN_IN);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -94,6 +98,34 @@ export const useAuth = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setState((prev) => ({ ...prev, googleSignInLoading: true, otpError: '' }));
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const response = await GoogleSignin.signIn();
+      const idToken = response.data?.idToken;
+      if (!idToken) {
+        throw new Error('Google Sign-In did not return an ID token.');
+      }
+      const { data } = await googleSignInMutation({ variables: { idToken } });
+      if (data?.googleSignIn?.token) {
+        await AsyncStorage.setItem('token', data.googleSignIn.token);
+        setState((prev) => ({
+          ...prev,
+          isAuthenticated: true,
+          isNewUser: !!data.googleSignIn.isNewUser,
+          googleSignInLoading: false,
+        }));
+      } else {
+        throw new Error('Google Sign-In failed. Please try again.');
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Google Sign-In failed.';
+      Alert.alert('Google Sign-In Error', message);
+      setState((prev) => ({ ...prev, googleSignInLoading: false }));
+    }
+  };
+
   const handleLogout = async () => {
     await AsyncStorage.removeItem('token');
     await apolloClient.clearStore();
@@ -117,6 +149,7 @@ export const useAuth = () => {
     handleSendOtp,
     handleVerifyOtp,
     handleResendOtp,
+    handleGoogleSignIn,
     handleLogout,
     handleCompleteProfile,
     clearOtp,

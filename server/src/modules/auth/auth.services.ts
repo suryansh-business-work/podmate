@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import type { AuthPayload } from './auth.models';
 import type { User } from '../user/user.models';
 import { UserRole } from '../user/user.models';
@@ -9,6 +10,7 @@ import logger from '../../lib/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'partywings-dev-secret';
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? '';
 
 interface OtpRecord {
   otp: string;
@@ -16,6 +18,8 @@ interface OtpRecord {
 }
 
 const otpStore = new Map<string, OtpRecord>();
+
+const googleOAuthClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -155,4 +159,48 @@ export async function completeProfile(
 ): Promise<User> {
   logger.info(`Profile completed for user ${userId}`);
   return userService.completeUserProfile(userId, username, name, dob);
+}
+
+export async function googleSignIn(
+  idToken: string,
+): Promise<{ token: string; user: User; isNewUser: boolean }> {
+  if (!GOOGLE_CLIENT_ID) {
+    throw new Error('Google Sign-In is not configured on the server.');
+  }
+
+  const ticket = await googleOAuthClient.verifyIdToken({
+    idToken,
+    audience: GOOGLE_CLIENT_ID,
+  });
+
+  const payload = ticket.getPayload();
+  if (!payload || !payload.email) {
+    throw new Error('Invalid Google token: missing email.');
+  }
+
+  const { email, name, picture, sub: googleId } = payload;
+
+  // Try to find user by email first, then by googleId stored in phone-like unique field
+  let user = await userService.findUserByEmail(email);
+  let isNewUser = false;
+
+  if (!user) {
+    // Use a deterministic unique phone-like key for Google users
+    const syntheticPhone = `google:${googleId}`;
+    user = await userService.findUserByPhone(syntheticPhone);
+
+    if (!user) {
+      user = await userService.createUser({
+        phone: syntheticPhone,
+        email,
+        name: name ?? '',
+        avatar: picture ?? '',
+      });
+      isNewUser = true;
+    }
+  }
+
+  logger.info(`Google Sign-In for user ${user.id} (isNew: ${isNewUser})`);
+  const jwtToken = signToken({ userId: user.id, phone: user.phone, roles: user.roles });
+  return { token: jwtToken, user, isNewUser };
 }

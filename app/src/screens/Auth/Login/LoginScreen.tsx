@@ -7,6 +7,7 @@ import {
   Platform,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,7 +21,13 @@ import { createStyles } from './Login.styles';
 import PolicyModal from './PolicyModal';
 import { useThemedStyles, useAppColors } from '../../../hooks/useThemedStyles';
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp, loading, error }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({
+  onSendOtp,
+  loading,
+  error,
+  onGoogleSignIn,
+  googleSignInLoading,
+}) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
   const [countryCode] = useState('+91');
@@ -117,6 +124,37 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onSendOtp, loading, error }) 
                       />
                     )}
                   </GradientButton>
+
+                  {onGoogleSignIn && (
+                    <>
+                      <View style={styles.dividerRow}>
+                        <View style={styles.dividerLine} />
+                        <Text style={styles.dividerText}>OR</Text>
+                        <View style={styles.dividerLine} />
+                      </View>
+                      <TouchableOpacity
+                        style={styles.googleButton}
+                        onPress={onGoogleSignIn}
+                        disabled={googleSignInLoading}
+                        testID="google-signin-button"
+                        accessibilityLabel="Sign in with Google"
+                      >
+                        {googleSignInLoading ? (
+                          <ActivityIndicator color={colors.textSecondary} size="small" />
+                        ) : (
+                          <Image
+                            source={{
+                              uri: 'https://developers.google.com/identity/images/g-logo.png',
+                            }}
+                            style={{ width: 20, height: 20 }}
+                            testID="google-logo"
+                          />
+                        )}
+                        <Text style={styles.googleButtonText}>Continue with Google</Text>
+                      </TouchableOpacity>
+                    </>
+                  )}
+
                   <Text style={styles.termsText}>
                     By continuing, you agree to our{' '}
                     <Text style={styles.termsLink} onPress={() => setPolicyModal('USER')}>

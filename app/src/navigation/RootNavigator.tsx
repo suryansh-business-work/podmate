@@ -165,12 +165,20 @@ const RootNavigator: React.FC = () => {
       Notifications: () => navigation.navigate('Notifications'),
       Privacy: () => navigation.navigate('Privacy'),
       Help: () => navigation.navigate('Faq'),
+      Support: () => navigation.navigate('Support'),
       Feedback: () => navigation.navigate('Feedback'),
       PodIdeas: () => navigation.navigate('PodIdeas'),
       GoLive: () => navigation.navigate('GoLive'),
       RegisterPlace: () => navigation.navigate('RegisterPlace'),
     };
     map[screen]?.();
+  };
+
+  const handleRoleSwitch = (role: string) => {
+    const nav = navigationRef.current;
+    if (!nav) return;
+    const targetRoute = role === 'HOST' || role === 'VENUE_OWNER' ? 'Dashboard' : 'Main';
+    nav.reset({ index: 0, routes: [{ name: targetRoute }] });
   };
 
   const handleDrawerNavigate = (screen: string) => {
@@ -303,6 +311,7 @@ const RootNavigator: React.FC = () => {
                           initialTab: 'following',
                         })
                       }
+                      onRoleSwitch={handleRoleSwitch}
                     />
                   )}
                 </Stack.Screen>
@@ -348,6 +357,7 @@ const RootNavigator: React.FC = () => {
                           initialTab: 'following',
                         })
                       }
+                      onRoleSwitch={handleRoleSwitch}
                     />
                   )}
                 </Stack.Screen>
@@ -443,6 +453,7 @@ const RootNavigator: React.FC = () => {
                         initialTab: 'following',
                       })
                     }
+                    onRoleSwitch={handleRoleSwitch}
                   />
                 )}
               </Stack.Screen>

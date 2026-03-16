@@ -40,9 +40,9 @@ const placeResolvers = {
       return placeService.getPlacesByOwner(auth.userId);
     },
 
-    approvedPlaces: (_: unknown, args: { search?: string }, context: GraphQLContext) => {
+    approvedPlaces: (_: unknown, args: { search?: string; city?: string }, context: GraphQLContext) => {
       requireAuth(context);
-      return placeService.getApprovedPlaces(args.search);
+      return placeService.getApprovedPlaces(args.search, args.city);
     },
   },
 

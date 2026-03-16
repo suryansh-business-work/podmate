@@ -104,10 +104,10 @@ const MomentsScreen: React.FC<MomentsScreenProps> = ({ onCreateMoment }) => {
       />
 
       {onCreateMoment && (
-        <TouchableOpacity activeOpacity={0.85} onPress={onCreateMoment}>
+        <TouchableOpacity activeOpacity={0.85} onPress={onCreateMoment} style={styles.fab}>
           <LinearGradient
             colors={[colors.primaryLight, colors.primary]}
-            style={styles.fab}
+            style={styles.fabGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >

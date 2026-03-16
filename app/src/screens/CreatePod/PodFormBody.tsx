@@ -19,7 +19,7 @@ import type { DateTimePickerEvent } from '@react-native-community/datetimepicker
 
 import { GradientButton } from '../../components/GradientButton';
 import MediaUploader, { MediaItem } from '../../components/MediaUploader';
-import { GET_APPROVED_PLACES, GET_APP_CONFIG, GET_ACTIVE_CATEGORIES } from '../../graphql/queries';
+import { GET_APPROVED_PLACES, GET_APP_CONFIG, GET_ACTIVE_CATEGORIES, GET_ACTIVE_CITIES } from '../../graphql/queries';
 import { useLocation } from '../../hooks/useLocation';
 import { useEffectiveFee } from '../../hooks/useEffectiveFee';
 import { PodFormValues, ApprovedPlace, ActiveCategory } from './CreatePod.types';
@@ -119,11 +119,18 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
 
   const [placeModalVisible, setPlaceModalVisible] = useState(false);
   const [placeSearch, setPlaceSearch] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [cityPickerVisible, setCityPickerVisible] = useState(false);
+
+  const { data: citiesData } = useQuery<{
+    activeCities: { id: string; name: string }[];
+  }>(GET_ACTIVE_CITIES, { fetchPolicy: 'cache-and-network' });
+  const activeCities = citiesData?.activeCities ?? [];
 
   const { data: placesData, loading: placesLoading } = useQuery<{
     approvedPlaces: ApprovedPlace[];
   }>(GET_APPROVED_PLACES, {
-    variables: { search: placeSearch || undefined },
+    variables: { search: placeSearch || undefined, city: selectedCity || undefined },
     fetchPolicy: 'cache-and-network',
   });
 
@@ -373,6 +380,102 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
             </View>
           </View>
         )}
+
+        <Text style={styles.inputLabel}>CITY</Text>
+        <TouchableOpacity
+          style={[
+            styles.textInput,
+            { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+          ]}
+          onPress={() => setCityPickerVisible(true)}
+          activeOpacity={0.7}
+        >
+          <Text
+            style={{
+              color: selectedCity ? colors.text : colors.textTertiary,
+              fontSize: 16,
+              flex: 1,
+            }}
+            numberOfLines={1}
+          >
+            {selectedCity || 'Select a city first'}
+          </Text>
+          <MaterialIcons name="arrow-drop-down" size={24} color={colors.textSecondary} />
+        </TouchableOpacity>
+
+        <Modal visible={cityPickerVisible} animationType="slide" transparent>
+          <View style={{ flex: 1, backgroundColor: colors.overlay }}>
+            <View
+              style={{
+                flex: 1,
+                marginTop: 200,
+                backgroundColor: colors.surface,
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                overflow: 'hidden',
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingHorizontal: 16,
+                  paddingVertical: 14,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.surfaceVariant,
+                }}
+              >
+                <Text style={{ fontSize: 17, fontWeight: '700', color: colors.text }}>
+                  Select City
+                </Text>
+                <TouchableOpacity onPress={() => setCityPickerVisible(false)}>
+                  <MaterialIcons name="close" size={24} color={colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+              <FlatList
+                data={activeCities}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={{
+                      paddingHorizontal: 16,
+                      paddingVertical: 14,
+                      borderBottomWidth: 1,
+                      borderBottomColor: colors.surfaceVariant,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 12,
+                      backgroundColor: selectedCity === item.name ? colors.primary + '10' : undefined,
+                    }}
+                    onPress={() => {
+                      setSelectedCity(item.name);
+                      setCityPickerVisible(false);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialIcons
+                      name="location-city"
+                      size={24}
+                      color={selectedCity === item.name ? colors.primary : colors.textTertiary}
+                    />
+                    <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>
+                      {item.name}
+                    </Text>
+                    {selectedCity === item.name && (
+                      <MaterialIcons
+                        name="check-circle"
+                        size={20}
+                        color={colors.primary}
+                        style={{ marginLeft: 'auto' }}
+                      />
+                    )}
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </View>
+        </Modal>
 
         <Text style={styles.inputLabel}>VENUE</Text>
         <TouchableOpacity

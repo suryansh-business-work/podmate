@@ -141,8 +141,11 @@ export async function getPlacesByOwner(ownerId: string): Promise<Place[]> {
   return docs.map(toPlace).filter(Boolean) as Place[];
 }
 
-export async function getApprovedPlaces(search?: string): Promise<Place[]> {
+export async function getApprovedPlaces(search?: string, city?: string): Promise<Place[]> {
   const filter: Record<string, unknown> = { status: PlaceStatus.APPROVED };
+  if (city) {
+    filter.city = { $regex: `^${city}$`, $options: 'i' };
+  }
   if (search) {
     filter.$or = [
       { name: { $regex: search, $options: 'i' } },

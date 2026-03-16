@@ -7,6 +7,7 @@ export interface ProfileScreenProps {
   onCreateMoment?: () => void;
   onFollowers?: (userId: string, userName: string) => void;
   onFollowing?: (userId: string, userName: string) => void;
+  onRoleSwitch?: (role: string) => void;
 }
 
 export type ProfileTab = 'grid' | 'menu';

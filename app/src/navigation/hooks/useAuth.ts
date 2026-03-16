@@ -131,7 +131,13 @@ export const useAuth = () => {
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Google Sign-In failed.';
-      Alert.alert('Google Sign-In Error', message);
+      const isDeveloperError = message.includes('DEVELOPER_ERROR') || message.includes('10');
+      Alert.alert(
+        'Google Sign-In Error',
+        isDeveloperError
+          ? 'Google Sign-In is not configured correctly for this build. Please verify SHA-1 fingerprint registration in Google Cloud Console.'
+          : message,
+      );
       setState((prev) => ({ ...prev, googleSignInLoading: false }));
     }
   };

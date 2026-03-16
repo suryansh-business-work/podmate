@@ -58,6 +58,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   const colors = useAppColors();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCityObj, setSelectedCityObj] = useState<CityItem | null>(null);
+  const [locationUpdating, setLocationUpdating] = useState(false);
   const { requestLocation } = useLocation();
 
   const { data, loading } = useQuery(GET_ACTIVE_CITIES, {
@@ -103,14 +104,19 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   };
 
   const handleUseLocation = useCallback(async () => {
-    const result = await requestLocation();
-    if (result) {
-      const cityName = result.matchedCityName || result.city;
-      const areaName = result.matchedAreaName || result.area || undefined;
-      if (cityName) {
-        onSelectCity(cityName, areaName);
-        onClose();
+    setLocationUpdating(true);
+    try {
+      const result = await requestLocation();
+      if (result) {
+        const cityName = result.matchedCityName || result.city;
+        const areaName = result.matchedAreaName || result.area || undefined;
+        if (cityName) {
+          onSelectCity(cityName, areaName);
+          onClose();
+        }
       }
+    } finally {
+      setLocationUpdating(false);
     }
   }, [requestLocation, onSelectCity, onClose]);
 
@@ -163,8 +169,16 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               <Text style={styles.currentCity}>{currentCity}</Text>
               {currentArea && <Text style={styles.currentArea}>({currentArea})</Text>}
             </View>
-            <TouchableOpacity style={styles.updateBtn} onPress={handleUseLocation}>
-              <Text style={styles.updateBtnText}>Update location</Text>
+            <TouchableOpacity
+              style={styles.updateBtn}
+              onPress={handleUseLocation}
+              disabled={locationUpdating}
+            >
+              {locationUpdating ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <Text style={styles.updateBtnText}>Update location</Text>
+              )}
             </TouchableOpacity>
           </View>
         )}
@@ -179,10 +193,18 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
               nearby ones first.
             </Text>
 
-            <TouchableOpacity style={styles.areaItem} onPress={handleUseLocation}>
-              <MaterialIcons name="my-location" size={20} color={colors.primary} />
+            <TouchableOpacity
+              style={styles.areaItem}
+              onPress={handleUseLocation}
+              disabled={locationUpdating}
+            >
+              {locationUpdating ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <MaterialIcons name="my-location" size={20} color={colors.primary} />
+              )}
               <Text style={[styles.areaItemText, { color: colors.primary }]}>
-                Use current location
+                {locationUpdating ? 'Getting location...' : 'Use current location'}
               </Text>
             </TouchableOpacity>
 

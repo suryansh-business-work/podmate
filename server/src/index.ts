@@ -104,7 +104,7 @@ const rootSchema = `#graphql
     places(page: Int, limit: Int, search: String, status: String, sortBy: String, order: String): PaginatedPlaces!
     place(id: ID!): Place
     myPlaces: [Place!]!
-    approvedPlaces(search: String): [Place!]!
+    approvedPlaces(search: String, city: String): [Place!]!
     mySupportTickets: [SupportTicket!]!
     supportTicket(id: ID!): SupportTicket
     supportTickets(page: Int, limit: Int, search: String, status: String, priority: String, sortBy: String, order: String): PaginatedSupportTickets!

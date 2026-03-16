@@ -14,8 +14,8 @@ export const GET_POLICIES = gql`
 `;
 
 export const GET_APPROVED_PLACES = gql`
-  query GetApprovedPlaces($search: String) {
-    approvedPlaces(search: $search) {
+  query GetApprovedPlaces($search: String, $city: String) {
+    approvedPlaces(search: $search, city: $city) {
       id
       name
       address

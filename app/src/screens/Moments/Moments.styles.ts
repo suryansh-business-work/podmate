@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 import type { ThemeUtils } from '../../hooks/useThemedStyles';
 
 const MEDIA_WIDTH = Dimensions.get('window').width - 32;
@@ -126,18 +126,23 @@ export const createStyles = ({ colors }: ThemeUtils) =>
     /* ── FAB ── */
     fab: {
       position: 'absolute',
-      bottom: 24,
+      bottom: Platform.OS === 'android' ? 40 : 24,
       right: 20,
       width: 56,
       height: 56,
       borderRadius: 28,
-      justifyContent: 'center',
-      alignItems: 'center',
       shadowColor: colors.primary,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3,
       shadowRadius: 8,
       elevation: 6,
+    },
+    fabGradient: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     /* ── Comment Bottom Sheet ── */
     commentOverlay: {

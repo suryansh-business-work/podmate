@@ -36,6 +36,7 @@ interface MainTabsProps {
   onLogout?: () => Promise<void>;
   onFollowers?: (userId: string, userName: string) => void;
   onFollowing?: (userId: string, userName: string) => void;
+  onRoleSwitch?: (role: string) => void;
 }
 
 const MainTabs: React.FC<MainTabsProps> = ({
@@ -50,6 +51,7 @@ const MainTabs: React.FC<MainTabsProps> = ({
   onLogout,
   onFollowers,
   onFollowing,
+  onRoleSwitch,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
@@ -113,6 +115,7 @@ const MainTabs: React.FC<MainTabsProps> = ({
             onCreateMoment={onCreateMoment}
             onFollowers={onFollowers}
             onFollowing={onFollowing}
+            onRoleSwitch={onRoleSwitch}
           />
         )}
       </Tab.Screen>

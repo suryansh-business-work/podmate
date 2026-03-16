@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 import { ThemeUtils } from '../../hooks/useThemedStyles';
 
@@ -89,7 +89,7 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     /* FAB + Modal */
     fab: {
       position: 'absolute',
-      bottom: 24,
+      bottom: Platform.OS === 'android' ? 40 : 24,
       right: 24,
       width: 56,
       height: 56,

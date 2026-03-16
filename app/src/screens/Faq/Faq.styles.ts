@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { ThemeUtils } from '../../hooks/useThemedStyles';
 
-const SIDEBAR_WIDTH = 56;
+const SIDEBAR_WIDTH = 44;
 
 const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
   StyleSheet.create({
@@ -40,7 +40,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       backgroundColor: colors.primary + '15',
     },
     sidebarTabLabel: {
-      fontSize: 8,
+      fontSize: 7,
       fontWeight: '600',
       color: colors.textTertiary,
       marginTop: 2,

@@ -34,6 +34,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onCreateMoment,
   onFollowers,
   onFollowing,
+  onRoleSwitch,
 }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
@@ -347,6 +348,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
           onSwitch={async (role) => {
             setRoleSwitcherVisible(false);
             await switchActiveRole({ variables: { role } });
+            onRoleSwitch?.(role);
           }}
           onClose={() => setRoleSwitcherVisible(false)}
         />

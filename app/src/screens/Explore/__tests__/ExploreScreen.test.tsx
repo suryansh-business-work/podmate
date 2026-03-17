@@ -43,7 +43,12 @@ const mockFetchMore = jest.fn();
  *  We cycle: idx % 3 === 0 → GET_ME, idx % 3 === 1 → categories, idx % 3 === 2 → GET_PODS. */
 function setupQueryMock(meResult: Record<string, unknown>, podsResult: Record<string, unknown>) {
   const categoriesResult = {
-    data: { activeCategories: [{ id: '1', name: 'Social' }, { id: '2', name: 'Learning' }] },
+    data: {
+      activeCategories: [
+        { id: '1', name: 'Social' },
+        { id: '2', name: 'Learning' },
+      ],
+    },
   };
   let qCall = 0;
   (useQuery as jest.Mock).mockReset().mockImplementation(() => {

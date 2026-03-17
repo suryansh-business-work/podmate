@@ -19,7 +19,12 @@ import type { DateTimePickerEvent } from '@react-native-community/datetimepicker
 
 import { GradientButton } from '../../components/GradientButton';
 import MediaUploader, { MediaItem } from '../../components/MediaUploader';
-import { GET_APPROVED_PLACES, GET_APP_CONFIG, GET_ACTIVE_CATEGORIES, GET_ACTIVE_CITIES } from '../../graphql/queries';
+import {
+  GET_APPROVED_PLACES,
+  GET_APP_CONFIG,
+  GET_ACTIVE_CATEGORIES,
+  GET_ACTIVE_CITIES,
+} from '../../graphql/queries';
 import { useLocation } from '../../hooks/useLocation';
 import { useEffectiveFee } from '../../hooks/useEffectiveFee';
 import { PodFormValues, ApprovedPlace, ActiveCategory } from './CreatePod.types';
@@ -446,7 +451,8 @@ const PodFormBody: React.FC<PodFormBodyProps> = ({
                       flexDirection: 'row',
                       alignItems: 'center',
                       gap: 12,
-                      backgroundColor: selectedCity === item.name ? colors.primary + '10' : undefined,
+                      backgroundColor:
+                        selectedCity === item.name ? colors.primary + '10' : undefined,
                     }}
                     onPress={() => {
                       setSelectedCity(item.name);

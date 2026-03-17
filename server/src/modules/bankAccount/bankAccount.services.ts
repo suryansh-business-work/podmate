@@ -1,5 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { BankAccount, CreateBankAccountInput, UpdateBankAccountInput } from './bankAccount.models';
+import type {
+  BankAccount,
+  CreateBankAccountInput,
+  UpdateBankAccountInput,
+} from './bankAccount.models';
 import { BankAccountModel, toBankAccount } from './bankAccount.models';
 
 export async function getBankAccountByUserId(userId: string): Promise<BankAccount | null> {

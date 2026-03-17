@@ -5,10 +5,14 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-android:
     runs-on: [self-hosted, linux, podmate]
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -20,6 +24,19 @@ jobs:
           echo "/opt/android-sdk/platform-tools" >> "$GITHUB_PATH"
           echo "/usr/lib/jvm/java-17-openjdk-amd64/bin" >> "$GITHUB_PATH"
 
+      - name: Ensure swap is enabled
+        run: |
+          if [ "$(swapon -s | wc -l)" -le 1 ]; then
+            if [ ! -f /swapfile ]; then
+              fallocate -l 4G /swapfile
+              chmod 600 /swapfile
+              mkswap /swapfile
+            fi
+            swapon /swapfile
+            echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab > /dev/null
+          fi
+          free -h
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -30,11 +47,19 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
 
+      - name: Set Gradle JVM args
+        working-directory: app/android
+        run: |
+          # Limit Gradle heap to avoid OOM on 8GB server
+          grep -q 'org.gradle.jvmargs' gradle.properties || echo 'org.gradle.jvmargs=-Xmx1536m -Xms512m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError' >> gradle.properties
+          sed -i 's/^org.gradle.jvmargs=.*/org.gradle.jvmargs=-Xmx1536m -Xms512m -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError/' gradle.properties
+          grep 'org.gradle.jvmargs' gradle.properties
+
       - name: Build APK
         working-directory: app/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease
+          GRADLE_OPTS='-Dkotlin.daemon.jvm.options=-Xmx1024m' ./gradlew assembleRelease --no-daemon
 
       - name: Prepare APK artifact
         id: apk

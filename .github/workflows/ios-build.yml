@@ -5,12 +5,29 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-ios:
     runs-on: [self-hosted, linux, podmate]
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+
+      - name: Ensure swap is enabled
+        run: |
+          if [ "$(swapon -s | wc -l)" -le 1 ]; then
+            if [ ! -f /swapfile ]; then
+              fallocate -l 4G /swapfile
+              chmod 600 /swapfile
+              mkswap /swapfile
+            fi
+            swapon /swapfile
+            echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab > /dev/null
+          fi
+          free -h
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

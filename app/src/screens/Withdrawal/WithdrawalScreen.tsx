@@ -64,7 +64,12 @@ const WithdrawalScreen: React.FC<WithdrawalScreenProps> = () => {
 
   const handleAddBank = async () => {
     const { accountHolderName, bankName, accountNumber, ifscCode } = formData;
-    if (!accountHolderName.trim() || !bankName.trim() || !accountNumber.trim() || !ifscCode.trim()) {
+    if (
+      !accountHolderName.trim() ||
+      !bankName.trim() ||
+      !accountNumber.trim() ||
+      !ifscCode.trim()
+    ) {
       Alert.alert('Validation', 'Please fill all fields');
       return;
     }
@@ -159,9 +164,7 @@ const WithdrawalScreen: React.FC<WithdrawalScreenProps> = () => {
         {/* Bank section */}
         <View style={styles.bankSection}>
           <Text style={styles.bankTitle}>Bank Account</Text>
-          {bankLoading && !bankAccount && (
-            <ActivityIndicator size="small" color={colors.primary} />
-          )}
+          {bankLoading && !bankAccount && <ActivityIndicator size="small" color={colors.primary} />}
           {bankAccount ? (
             <View>
               <View style={styles.bankRow}>
@@ -171,7 +174,8 @@ const WithdrawalScreen: React.FC<WithdrawalScreenProps> = () => {
                     {bankAccount.bankName}
                   </Text>
                   <Text style={styles.bankText}>
-                    {bankAccount.accountHolderName} • {maskedAccountNumber(bankAccount.accountNumber)}
+                    {bankAccount.accountHolderName} •{' '}
+                    {maskedAccountNumber(bankAccount.accountNumber)}
                   </Text>
                   <Text style={styles.bankText}>IFSC: {bankAccount.ifscCode}</Text>
                 </View>
@@ -235,7 +239,12 @@ const WithdrawalScreen: React.FC<WithdrawalScreenProps> = () => {
                   style={styles.bankFormCancelBtn}
                   onPress={() => {
                     setShowAddForm(false);
-                    setFormData({ accountHolderName: '', bankName: '', accountNumber: '', ifscCode: '' });
+                    setFormData({
+                      accountHolderName: '',
+                      bankName: '',
+                      accountNumber: '',
+                      ifscCode: '',
+                    });
                   }}
                 >
                   <Text style={styles.bankFormCancelText}>Cancel</Text>

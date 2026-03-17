@@ -15,7 +15,14 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useMutation } from '@apollo/client';
 
-import { Pod, formatDate, formatTime, isVideoUrl, getMediaCounts, getSortedMedia } from './Explore.types';
+import {
+  Pod,
+  formatDate,
+  formatTime,
+  isVideoUrl,
+  getMediaCounts,
+  getSortedMedia,
+} from './Explore.types';
 import { createStyles, SCREEN_W } from './Explore.styles';
 import { SAVE_POD, UNSAVE_POD } from '../../graphql/mutations';
 import SafeImage from '../../components/SafeImage';

@@ -4,6 +4,7 @@ COPY tsconfig.base.json ./tsconfig.base.json
 WORKDIR /workspace/app
 COPY app/package.json app/tsconfig.json app/app.json app/babel.config.js app/metro.config.js ./
 COPY app/assets ./assets
+COPY app/plugins ./plugins
 COPY app/App.tsx ./
 COPY app/src ./src
 RUN npm install -g pnpm && pnpm install

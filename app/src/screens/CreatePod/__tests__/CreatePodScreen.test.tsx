@@ -51,15 +51,14 @@ describe('CreatePodScreen', () => {
     (useMutation as jest.Mock).mockReturnValue([mockCreatePod, { loading: false }]);
   });
 
-  it('renders header with Host a Pod', () => {
+  it('renders header with Create a Pod', () => {
     const { getByText } = render(<CreatePodScreen {...defaultProps} />);
-    expect(getByText('Host a Pod')).toBeTruthy();
+    expect(getByText('Create a Pod')).toBeTruthy();
   });
 
-  it('calls onClose when back button pressed', () => {
-    const { getByText } = render(<CreatePodScreen {...defaultProps} />);
-    fireEvent.press(getByText('arrow-back'));
-    expect(defaultProps.onClose).toHaveBeenCalled();
+  it('does not render legacy back button icon text', () => {
+    const { queryByText } = render(<CreatePodScreen {...defaultProps} />);
+    expect(queryByText('arrow-back')).toBeNull();
   });
 
   it('renders the pod form body', () => {

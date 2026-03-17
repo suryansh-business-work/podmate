@@ -1,0 +1,103 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: [self-hosted, linux, podmate]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build iOS via EAS
+        id: build
+        working-directory: app
+        run: |
+          BUILD_OUTPUT=$(eas build -p ios --profile preview --non-interactive --json 2>&1 | tail -1)
+          BUILD_URL=$(echo "$BUILD_OUTPUT" | jq -r '.[0].artifacts.buildUrl // empty')
+          BUILD_ID=$(echo "$BUILD_OUTPUT" | jq -r '.[0].id // empty')
+          BUILD_STATUS=$(echo "$BUILD_OUTPUT" | jq -r '.[0].status // empty')
+          echo "build_url=$BUILD_URL" >> "$GITHUB_OUTPUT"
+          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+          echo "build_status=$BUILD_STATUS" >> "$GITHUB_OUTPUT"
+          echo "### iOS Build" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Build ID:** $BUILD_ID" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Status:** $BUILD_STATUS" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Download:** $BUILD_URL" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Download IPA
+        id: ipa
+        if: success() && steps.build.outputs.build_url != ''
+        run: |
+          TIMESTAMP=$(date -u '+%Y-%m-%d_%H-%M-%S')
+          IPA_NAME="PartyWings-iOS-${TIMESTAMP}.ipa"
+          mkdir -p artifacts
+          curl -L -o "artifacts/${IPA_NAME}" "${{ steps.build.outputs.build_url }}"
+          if [[ -f "artifacts/${IPA_NAME}" && -s "artifacts/${IPA_NAME}" ]]; then
+            IPA_SIZE=$(du -h "artifacts/${IPA_NAME}" | cut -f1)
+            echo "ipa_name=${IPA_NAME}" >> "$GITHUB_OUTPUT"
+            echo "ipa_path=artifacts/${IPA_NAME}" >> "$GITHUB_OUTPUT"
+            echo "ipa_size=${IPA_SIZE}" >> "$GITHUB_OUTPUT"
+            echo "timestamp=${TIMESTAMP}" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Failed to download IPA from EAS"
+            exit 1
+          fi
+
+      - name: Upload IPA artifact
+        if: success() && steps.ipa.outputs.ipa_name != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.ipa.outputs.ipa_name }}
+          path: ${{ steps.ipa.outputs.ipa_path }}
+          retention-days: 30
+
+      - name: Notify Slack — iOS Build
+        if: always()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ job.status == 'success' && '🍎 iOS IPA Build Succeeded' || '❌ iOS IPA Build Failed' }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Branch:*\n${{ github.ref_name }}" },
+                    { "type": "mrkdwn", "text": "*Commit:*\n`${{ github.sha }}`" },
+                    { "type": "mrkdwn", "text": "*Triggered by:*\n${{ github.actor }}" },
+                    { "type": "mrkdwn", "text": "*IPA Size:*\n${{ steps.ipa.outputs.ipa_size || 'N/A' }}" }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ steps.build.outputs.build_url && format('*📦 Download IPA:* <{0}|Direct Download> | <{1}/{2}/actions/runs/{3}|GitHub Actions>', steps.build.outputs.build_url, github.server_url, github.repository, github.run_id) || format('*📦 Download:* <{0}/{1}/actions/runs/{2}|View on GitHub Actions>', github.server_url, github.repository, github.run_id) }}"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "PartyWings iOS Build | EAS Build ID: ${{ steps.build.outputs.build_id || 'N/A' }} | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
+                    }
+                  ]
+                }
+              ]
+            }

@@ -1,0 +1,102 @@
+name: Android Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: [self-hosted, linux, podmate]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup environment
+        run: |
+          echo "ANDROID_HOME=/opt/android-sdk" >> "$GITHUB_ENV"
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> "$GITHUB_ENV"
+          echo "/opt/android-sdk/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "/opt/android-sdk/platform-tools" >> "$GITHUB_PATH"
+          echo "/usr/lib/jvm/java-17-openjdk-amd64/bin" >> "$GITHUB_PATH"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Expo prebuild Android
+        working-directory: app
+        run: npx expo prebuild --platform android --clean
+
+      - name: Accept Android SDK licenses
+        run: yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+
+      - name: Build APK
+        working-directory: app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Prepare APK artifact
+        id: apk
+        run: |
+          TIMESTAMP=$(date -u '+%Y-%m-%d_%H-%M-%S')
+          APK_SRC="app/android/app/build/outputs/apk/release/app-release.apk"
+          APK_NAME="PartyWings-Android-${TIMESTAMP}.apk"
+          mkdir -p artifacts
+          cp "$APK_SRC" "artifacts/${APK_NAME}"
+          echo "apk_name=${APK_NAME}" >> "$GITHUB_OUTPUT"
+          echo "apk_path=artifacts/${APK_NAME}" >> "$GITHUB_OUTPUT"
+          APK_SIZE=$(du -h "$APK_SRC" | cut -f1)
+          echo "apk_size=${APK_SIZE}" >> "$GITHUB_OUTPUT"
+          echo "timestamp=${TIMESTAMP}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk.outputs.apk_name }}
+          path: ${{ steps.apk.outputs.apk_path }}
+          retention-days: 30
+
+      - name: Notify Slack — Android Build
+        if: always()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ job.status == 'success' && '✅ Android APK Build Succeeded' || '❌ Android APK Build Failed' }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Branch:*\n${{ github.ref_name }}" },
+                    { "type": "mrkdwn", "text": "*Commit:*\n`${{ github.sha }}`" },
+                    { "type": "mrkdwn", "text": "*Triggered by:*\n${{ github.actor }}" },
+                    { "type": "mrkdwn", "text": "*APK Size:*\n${{ steps.apk.outputs.apk_size || 'N/A' }}" }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*📦 Download APK:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Download from GitHub Actions>"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "PartyWings Android Build | ${{ steps.apk.outputs.timestamp || 'N/A' }} | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
+                    }
+                  ]
+                }
+              ]
+            }

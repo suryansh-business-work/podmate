@@ -59,6 +59,7 @@ describe('PodCard', () => {
     activeCategory: 'All',
     currentUserId: 'me1',
     savedPodIds: [] as string[],
+    categories: ['All', 'Social', 'Learning', 'Outdoor'],
     onCategoryChange,
     onDetailPress,
     onJoinPress,

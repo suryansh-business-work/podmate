@@ -50,3 +50,5 @@ export { GET_MY_SUBSCRIPTIONS, GET_SUBSCRIPTION_FOR_POD } from './queries/subscr
 export { GET_ACTIVE_CATEGORIES } from './queries/category.queries';
 
 export { GET_HOST_ANALYTICS, GET_VENUE_ANALYTICS } from './queries/dashboard.queries';
+
+export { GET_MY_BANK_ACCOUNT } from './queries/bankAccount.queries';

@@ -61,7 +61,27 @@ const momentResolvers = {
   Moment: {
     user: async (parent: { userId: string }) => {
       const u = await findUserById(parent.userId);
-      if (!u) throw new Error('User not found');
+      if (!u) {
+        return {
+          id: parent.userId,
+          phone: '',
+          email: '',
+          username: 'deleted',
+          name: 'Deleted User',
+          age: 0,
+          dob: '',
+          avatar: '',
+          roles: [],
+          activeRole: 'USER',
+          isVerifiedHost: false,
+          isEmailVerified: false,
+          isActive: false,
+          disableReason: '',
+          savedPodIds: [],
+          themePreference: 'system',
+          createdAt: '',
+        };
+      }
       return u;
     },
     isLiked: async (parent: { id: string }, _: unknown, ctx: GraphQLContext) => {
@@ -72,7 +92,27 @@ const momentResolvers = {
   MomentComment: {
     user: async (parent: { userId: string }) => {
       const u = await findUserById(parent.userId);
-      if (!u) throw new Error('User not found');
+      if (!u) {
+        return {
+          id: parent.userId,
+          phone: '',
+          email: '',
+          username: 'deleted',
+          name: 'Deleted User',
+          age: 0,
+          dob: '',
+          avatar: '',
+          roles: [],
+          activeRole: 'USER',
+          isVerifiedHost: false,
+          isEmailVerified: false,
+          isActive: false,
+          disableReason: '',
+          savedPodIds: [],
+          themePreference: 'system',
+          createdAt: '',
+        };
+      }
       return u;
     },
   },

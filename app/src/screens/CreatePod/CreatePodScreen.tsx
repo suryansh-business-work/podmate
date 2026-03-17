@@ -208,11 +208,7 @@ const CreatePodScreen: React.FC<CreatePodScreenProps> = ({ onClose, onSuccess })
       >
         <View style={{ flex: 1 }}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose}>
-              <MaterialIcons name="arrow-back" size={24} color={colors.text} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Host a Pod</Text>
-            <View style={{ width: 24 }} />
+            <Text style={styles.headerTitle}>Create a Pod</Text>
           </View>
 
           <TemplateSelector onSelect={handleTemplateSelect} onSkip={handleTemplateSkip} />

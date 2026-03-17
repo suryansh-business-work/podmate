@@ -15,24 +15,18 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useMutation } from '@apollo/client';
 
-import { Pod, CATEGORIES, formatDate, formatTime } from './Explore.types';
+import { Pod, formatDate, formatTime, isVideoUrl, getMediaCounts, getSortedMedia } from './Explore.types';
 import { createStyles, SCREEN_W } from './Explore.styles';
 import { SAVE_POD, UNSAVE_POD } from '../../graphql/mutations';
 import SafeImage from '../../components/SafeImage';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
-
-const VIDEO_EXTENSIONS = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v'];
-
-function isVideoUrl(url: string): boolean {
-  const path = url.split('?')[0].toLowerCase();
-  return VIDEO_EXTENSIONS.some((ext) => path.endsWith(ext));
-}
 
 interface PodCardProps {
   item: Pod;
   activeCategory: string;
   currentUserId: string;
   savedPodIds: string[];
+  categories: string[];
   onCategoryChange: (cat: string) => void;
   onDetailPress?: (podId: string) => void;
   onJoinPress: (podId: string) => void;
@@ -44,6 +38,7 @@ const PodCard: React.FC<PodCardProps> = memo(function PodCard({
   activeCategory,
   currentUserId,
   savedPodIds,
+  categories,
   onCategoryChange,
   onDetailPress,
   onJoinPress,
@@ -84,16 +79,8 @@ const PodCard: React.FC<PodCardProps> = memo(function PodCard({
     }
   };
 
-  const allImages: string[] = (() => {
-    const urls: string[] = [];
-    if (item.imageUrl && item.imageUrl.trim().length > 0) urls.push(item.imageUrl);
-    if (item.mediaUrls) {
-      item.mediaUrls.forEach((url) => {
-        if (url && url.trim().length > 0 && !urls.includes(url)) urls.push(url);
-      });
-    }
-    return urls;
-  })();
+  const allImages: string[] = useMemo(() => getSortedMedia(item), [item]);
+  const mediaCounts = useMemo(() => getMediaCounts(item), [item]);
 
   const handleSliderScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_W);
@@ -218,7 +205,7 @@ const PodCard: React.FC<PodCardProps> = memo(function PodCard({
       />
 
       <View style={styles.topBar}>
-        {CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <TouchableOpacity
             key={cat}
             style={[styles.catPill, activeCategory === cat && styles.catPillActive]}
@@ -230,6 +217,23 @@ const PodCard: React.FC<PodCardProps> = memo(function PodCard({
           </TouchableOpacity>
         ))}
       </View>
+
+      {(mediaCounts.images > 0 || mediaCounts.videos > 0) && (
+        <View style={styles.mediaCountRow}>
+          {mediaCounts.videos > 0 && (
+            <View style={styles.mediaCountPill}>
+              <MaterialIcons name="videocam" size={12} color={colors.white} />
+              <Text style={styles.mediaCountText}>{mediaCounts.videos}</Text>
+            </View>
+          )}
+          {mediaCounts.images > 0 && (
+            <View style={styles.mediaCountPill}>
+              <MaterialIcons name="image" size={12} color={colors.white} />
+              <Text style={styles.mediaCountText}>{mediaCounts.images}</Text>
+            </View>
+          )}
+        </View>
+      )}
 
       <View style={styles.sideActions}>
         <TouchableOpacity style={styles.sideBtn} onPress={() => onDetailPress?.(item.id)}>

@@ -8,7 +8,7 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
       borderBottomWidth: 1,
@@ -71,6 +71,44 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       paddingVertical: spacing.sm,
     },
     addBankText: { fontSize: 14, fontWeight: '600', color: colors.primary },
+
+    /* Bank form */
+    bankForm: {
+      marginTop: spacing.sm,
+      gap: spacing.sm,
+    },
+    bankInput: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: borderRadius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.md,
+      fontSize: 14,
+      color: colors.text,
+      backgroundColor: colors.surface,
+    },
+    bankFormActions: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      marginTop: spacing.sm,
+    },
+    bankFormCancelBtn: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+    },
+    bankFormCancelText: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
+    bankFormSubmitBtn: {
+      flex: 1,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+    },
+    bankFormSubmitText: { fontSize: 14, fontWeight: '600', color: colors.white },
 
     /* Filters */
     filterRow: {

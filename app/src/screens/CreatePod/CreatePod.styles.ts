@@ -7,10 +7,12 @@ const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     container: { flex: 1, backgroundColor: colors.surface },
     header: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: spacing.xl,
       paddingVertical: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
     },
     headerTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
     scrollView: { flex: 1, paddingHorizontal: spacing.xl },

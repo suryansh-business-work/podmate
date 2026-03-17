@@ -12,6 +12,22 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
     container: { flex: 1, backgroundColor: colors.surface },
     centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 
+    /* ── Screen header ── */
+    screenHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    screenHeaderTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: colors.text,
+    },
+
     /* ── Instagram-style header ── */
     profileHeader: {
       paddingHorizontal: spacing.xl,

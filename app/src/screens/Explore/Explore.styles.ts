@@ -156,4 +156,26 @@ export const createStyles = ({ colors, spacing, borderRadius }: ThemeUtils) =>
       borderRadius: 3,
       backgroundColor: colors.surface,
     },
+    mediaCountRow: {
+      position: 'absolute',
+      top: STATUS_BAR_H + 50,
+      right: spacing.md,
+      flexDirection: 'row',
+      gap: spacing.xs,
+      zIndex: 10,
+    },
+    mediaCountPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+      borderRadius: borderRadius.full,
+    },
+    mediaCountText: {
+      fontSize: 11,
+      fontWeight: '600',
+      color: colors.white,
+    },
   });

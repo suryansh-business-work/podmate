@@ -70,6 +70,8 @@ import categoryTypeDefs from './modules/category/category.typeDefs';
 import categoryResolvers from './modules/category/category.resolvers';
 import analyticsTypeDefs from './modules/analytics/analytics.typeDefs';
 import analyticsResolvers from './modules/analytics/analytics.resolvers';
+import bankAccountTypeDefs from './modules/bankAccount/bankAccount.typeDefs';
+import bankAccountResolvers from './modules/bankAccount/bankAccount.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -169,6 +171,7 @@ const rootSchema = `#graphql
     subscriptions(page: Int, limit: Int, search: String, status: String, userId: ID, podId: ID, sortBy: String, order: String): PaginatedSubscriptions!
     hostAnalytics: HostAnalytics!
     venueAnalytics: VenueAnalytics!
+    myBankAccount: BankAccount
   }
 
   type Mutation {
@@ -299,6 +302,9 @@ const rootSchema = `#graphql
     checkoutOccurrencePod(podId: ID!): CheckoutOccurrencePodResult!
     cancelSubscription(subscriptionId: ID!): PodSubscription!
     renewSubscription(subscriptionId: ID!): PodSubscription!
+    addBankAccount(input: AddBankAccountInput!): BankAccount!
+    updateBankAccount(input: UpdateBankAccountInput!): BankAccount!
+    deleteBankAccount: Boolean!
   }
 
   input AdminUpdateUserInput {
@@ -363,6 +369,7 @@ const typeDefs = [
   subscriptionTypeDefs,
   categoryTypeDefs,
   analyticsTypeDefs,
+  bankAccountTypeDefs,
 ];
 
 const resolvers = {
@@ -393,6 +400,7 @@ const resolvers = {
     ...subscriptionResolvers.Query,
     ...categoryResolvers.Query,
     ...analyticsResolvers.Query,
+    ...bankAccountResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -422,6 +430,7 @@ const resolvers = {
     ...podTemplateResolvers.Mutation,
     ...subscriptionResolvers.Mutation,
     ...categoryResolvers.Mutation,
+    ...bankAccountResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   Review: reviewResolvers.Review,

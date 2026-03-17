@@ -38,13 +38,20 @@ const mockPods = [
 const mockRefetch = jest.fn();
 const mockFetchMore = jest.fn();
 
-/** Helper: ExploreScreen calls useQuery twice per render (GET_ME, GET_PODS).
- *  We cycle: even index → GET_ME result, odd index → GET_PODS result. */
+/** Helper: ExploreScreen calls useQuery three times per render
+ *  (GET_ME, GET_ACTIVE_CATEGORIES, GET_PODS).
+ *  We cycle: idx % 3 === 0 → GET_ME, idx % 3 === 1 → categories, idx % 3 === 2 → GET_PODS. */
 function setupQueryMock(meResult: Record<string, unknown>, podsResult: Record<string, unknown>) {
+  const categoriesResult = {
+    data: { activeCategories: [{ id: '1', name: 'Social' }, { id: '2', name: 'Learning' }] },
+  };
   let qCall = 0;
   (useQuery as jest.Mock).mockReset().mockImplementation(() => {
     const idx = qCall++;
-    return idx % 2 === 0 ? meResult : podsResult;
+    const mod = idx % 3;
+    if (mod === 0) return meResult;
+    if (mod === 1) return categoriesResult;
+    return podsResult;
   });
 }
 

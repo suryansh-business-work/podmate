@@ -108,6 +108,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.screenHeader}>
+        <Text style={styles.screenHeaderTitle}>Profile</Text>
+      </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}

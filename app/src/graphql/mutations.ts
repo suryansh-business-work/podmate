@@ -64,3 +64,9 @@ export {
   CANCEL_SUBSCRIPTION,
   RENEW_SUBSCRIPTION,
 } from './mutations/subscription.mutations';
+
+export {
+  ADD_BANK_ACCOUNT,
+  UPDATE_BANK_ACCOUNT,
+  DELETE_BANK_ACCOUNT,
+} from './mutations/bankAccount.mutations';

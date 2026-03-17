@@ -4,11 +4,16 @@ import { useQuery } from '@apollo/client';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
 import { spacing } from '../../theme';
-import { GET_PODS, GET_ME } from '../../graphql/queries';
+import { GET_PODS, GET_ME, GET_ACTIVE_CATEGORIES } from '../../graphql/queries';
 import { Pod, ExploreScreenProps } from './Explore.types';
 import { createStyles, getSlideHeight } from './Explore.styles';
 import PodCard from './PodCard';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
+
+interface CategoryItem {
+  id: string;
+  name: string;
+}
 
 const PAGE_SIZE = 20;
 
@@ -23,6 +28,12 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress, onCheckout })
   const { data: meData } = useQuery(GET_ME, { fetchPolicy: 'cache-first' });
   const currentUserId: string = (meData?.me?.id as string) ?? '';
   const savedPodIds: string[] = (meData?.me?.savedPodIds as string[]) ?? [];
+
+  const { data: categoriesData } = useQuery<{ activeCategories: CategoryItem[] }>(
+    GET_ACTIVE_CATEGORIES,
+    { fetchPolicy: 'cache-and-network' },
+  );
+  const dynamicCategories = ['All', ...(categoriesData?.activeCategories ?? []).map((c) => c.name)];
 
   const { data, loading, error, refetch, fetchMore } = useQuery(GET_PODS, {
     variables: {
@@ -116,6 +127,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ onPodPress, onCheckout })
             activeCategory={activeCategory}
             currentUserId={currentUserId}
             savedPodIds={savedPodIds}
+            categories={dynamicCategories}
             onCategoryChange={setActiveCategory}
             onDetailPress={onPodPress}
             onJoinPress={handleJoin}

@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 export type MaterialIconName = ComponentProps<typeof MaterialIcons>['name'];
 
 export interface WithdrawalScreenProps {
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export type TransactionFilter = 'ALL' | 'EARNINGS' | 'WITHDRAWALS' | 'PENDING';

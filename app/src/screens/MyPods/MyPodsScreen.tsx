@@ -45,10 +45,17 @@ const MyPodsScreen: React.FC<MyPodsScreenProps> = ({ onBack, onPodPress }) => {
   const renderPodCard = ({ item }: { item: MyPodItem }) => {
     const STATUS_CONFIG = getStatusConfig(colors as unknown as Record<string, string>);
     const statusConf = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.PENDING;
+    const thumbnailUrl =
+      item.imageUrl ||
+      item.mediaUrls?.find(
+        (url) => !url.toLowerCase().endsWith('.mp4') && !url.toLowerCase().endsWith('.mov'),
+      ) ||
+      item.mediaUrls?.[0] ||
+      '';
     return (
       <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => onPodPress(item.id)}>
         <SafeImage
-          uri={item.imageUrl}
+          uri={thumbnailUrl}
           style={styles.cardImage}
           fallbackIcon="celebration"
           fallbackIconSize={32}

@@ -42,7 +42,10 @@ export interface MeetingCountsData {
 
 export type MeetingOrder = 'ASC' | 'DESC';
 
-export const MEETING_STATUS_COLORS: Record<string, 'warning' | 'info' | 'success' | 'default' | 'error'> = {
+export const MEETING_STATUS_COLORS: Record<
+  string,
+  'warning' | 'info' | 'success' | 'default' | 'error'
+> = {
   PENDING: 'warning',
   CONFIRMED: 'info',
   COMPLETED: 'success',

@@ -33,12 +33,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { GET_MEETINGS, GET_MEETING_COUNTS } from '../../graphql/queries';
 import { UPDATE_MEETING, DELETE_MEETING } from '../../graphql/mutations';
 import { useDebounce } from '../../hooks/useDebounce';
-import type {
-  Meeting,
-  PaginatedMeetings,
-  MeetingCountsData,
-  MeetingOrder,
-} from './Meetings.types';
+import type { Meeting, PaginatedMeetings, MeetingCountsData, MeetingOrder } from './Meetings.types';
 import { MEETING_STATUS_COLORS } from './Meetings.types';
 import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
 
@@ -214,9 +209,7 @@ const MeetingsTab: React.FC = () => {
           <CircularProgress />
         </Box>
       )}
-      {!loading && items.length === 0 && (
-        <Alert severity="info">No meeting requests found.</Alert>
-      )}
+      {!loading && items.length === 0 && <Alert severity="info">No meeting requests found.</Alert>}
 
       {items.length > 0 && (
         <Card>
@@ -230,9 +223,7 @@ const MeetingsTab: React.FC = () => {
                       {col.sortable ? (
                         <TableSortLabel
                           active={sortBy === col.id}
-                          direction={
-                            sortBy === col.id ? (order === 'ASC' ? 'asc' : 'desc') : 'asc'
-                          }
+                          direction={sortBy === col.id ? (order === 'ASC' ? 'asc' : 'desc') : 'asc'}
                           onClick={() => handleSort(col.id)}
                         >
                           {col.label}
@@ -406,10 +397,7 @@ const MeetingsTab: React.FC = () => {
       >
         <DialogTitle>Update Meeting</DialogTitle>
         {editMeeting && (
-          <DialogContent
-            dividers
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2 }}
-          >
+          <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2 }}>
             <Typography variant="body2" color="text.secondary">
               {editMeeting.user?.name ?? 'Unknown'} — {editMeeting.userEmail}
             </Typography>

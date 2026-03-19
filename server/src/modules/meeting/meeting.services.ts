@@ -1,12 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
-import type {
-  Meeting,
-  CreateMeetingInput,
-  UpdateMeetingInput,
-} from './meeting.models';
+import type { Meeting, CreateMeetingInput, UpdateMeetingInput } from './meeting.models';
 import { MeetingModel, toMeeting } from './meeting.models';
 import { sendEmail } from '../../lib/email';
-import { meetingConfirmationTemplate, meetingAdminNotificationTemplate } from '../../lib/emailTemplates';
+import {
+  meetingConfirmationTemplate,
+  meetingAdminNotificationTemplate,
+} from '../../lib/emailTemplates';
 import logger from '../../lib/logger';
 
 export interface MeetingPaginationInput {
@@ -35,10 +34,22 @@ export interface MeetingCounts {
 }
 
 const MEETING_SLOTS = [
-  '09:00', '09:30', '10:00', '10:30',
-  '11:00', '11:30', '12:00', '12:30',
-  '14:00', '14:30', '15:00', '15:30',
-  '16:00', '16:30', '17:00', '17:30',
+  '09:00',
+  '09:30',
+  '10:00',
+  '10:30',
+  '11:00',
+  '11:30',
+  '12:00',
+  '12:30',
+  '14:00',
+  '14:30',
+  '15:00',
+  '15:30',
+  '16:00',
+  '16:30',
+  '17:00',
+  '17:30',
 ];
 
 const MAX_MEETINGS_PER_SLOT = 1;
@@ -75,7 +86,9 @@ export async function createMeeting(
   });
 
   const meeting = toMeeting(doc.toObject({ virtuals: true })) as Meeting;
-  logger.info(`Meeting request created by user ${userId} for ${input.meetingDate} at ${input.meetingTime}`);
+  logger.info(
+    `Meeting request created by user ${userId} for ${input.meetingDate} at ${input.meetingTime}`,
+  );
 
   // Send confirmation email to user
   const userEmailContent = meetingConfirmationTemplate(
@@ -111,9 +124,7 @@ export async function createMeeting(
 }
 
 export async function getMyMeetings(userId: string): Promise<Meeting[]> {
-  const docs = await MeetingModel.find({ userId })
-    .sort({ createdAt: -1 })
-    .lean({ virtuals: true });
+  const docs = await MeetingModel.find({ userId }).sort({ createdAt: -1 }).lean({ virtuals: true });
   return docs.map(toMeeting).filter(Boolean) as Meeting[];
 }
 

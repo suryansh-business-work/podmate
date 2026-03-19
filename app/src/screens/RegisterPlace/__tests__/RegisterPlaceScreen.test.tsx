@@ -3,6 +3,11 @@ import { render, fireEvent } from '@testing-library/react-native';
 import { useQuery, useMutation } from '@apollo/client';
 import RegisterPlaceScreen from '../RegisterPlaceScreen';
 
+const mockNavigate = jest.fn();
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: () => ({ navigate: mockNavigate }),
+}));
+
 jest.mock('../../../hooks/useImageKitUpload', () => ({
   useImageKitUpload: () => ({
     pickAndUploadImage: jest.fn().mockResolvedValue({ url: 'https://img.jpg' }),

@@ -89,12 +89,7 @@ const meetingResolvers = {
 
       const user = await findUserById(meeting.userId);
 
-      return meetingService.updateMeeting(
-        args.id,
-        args.input,
-        user?.name,
-        meeting.userEmail,
-      );
+      return meetingService.updateMeeting(args.id, args.input, user?.name, meeting.userEmail);
     },
 
     deleteMeeting: (_: unknown, args: { id: string }, context: GraphQLContext) => {

@@ -109,9 +109,7 @@ const StepEmail: React.FC<StepEmailProps> = ({
             autoCorrect={false}
             editable={!alreadyVerified}
           />
-          {alreadyVerified && (
-            <MaterialIcons name="check-circle" size={20} color="#2E7D32" />
-          )}
+          {alreadyVerified && <MaterialIcons name="check-circle" size={20} color="#2E7D32" />}
         </View>
         {!isValidEmail && email.length > 0 && (
           <Text style={styles.errorText}>Please enter a valid email address</Text>

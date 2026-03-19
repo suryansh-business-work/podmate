@@ -156,9 +156,7 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
               }}
             >
               <MaterialIcons name="videocam" size={16} color={colors.white} />
-              <Text style={{ fontSize: 11, fontWeight: '600', color: colors.white }}>
-                Meeting
-              </Text>
+              <Text style={{ fontSize: 11, fontWeight: '600', color: colors.white }}>Meeting</Text>
             </TouchableOpacity>
           </View>
           <StepIndicator step={step} />

@@ -18,6 +18,7 @@ import PodDetailScreen from '../screens/PodDetailScreen';
 import CreatePodScreen from '../screens/CreatePod';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import RegisterPlaceScreen from '../screens/RegisterPlace';
+import RequestMeetingScreen from '../screens/RequestMeeting';
 import FaqScreen from '../screens/FaqScreen';
 import SupportScreen from '../screens/SupportScreen';
 import ChatbotScreen from '../screens/Chatbot';
@@ -83,6 +84,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       CreateMoment: 'create-moment',
       Notifications: 'notifications',
       RegisterPlace: 'register-place',
+      RequestMeeting: 'request-meeting',
       Faq: 'faq',
       Support: 'support',
       Chatbot: 'chatbot',
@@ -420,6 +422,9 @@ const RootNavigator: React.FC = () => {
               </Stack.Screen>
               <Stack.Screen name="RegisterPlace" options={{ presentation: 'card' }}>
                 {({ navigation }) => <RegisterPlaceScreen onClose={() => navigation.goBack()} />}
+              </Stack.Screen>
+              <Stack.Screen name="RequestMeeting" options={{ presentation: 'card' }}>
+                {({ navigation }) => <RequestMeetingScreen onClose={() => navigation.goBack()} />}
               </Stack.Screen>
               <Stack.Screen name="Faq" options={{ presentation: 'card' }}>
                 {({ navigation }) => <FaqScreen onBack={() => navigation.goBack()} />}

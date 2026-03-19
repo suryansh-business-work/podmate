@@ -52,3 +52,9 @@ export { GET_ACTIVE_CATEGORIES } from './queries/category.queries';
 export { GET_HOST_ANALYTICS, GET_VENUE_ANALYTICS } from './queries/dashboard.queries';
 
 export { GET_MY_BANK_ACCOUNT } from './queries/bankAccount.queries';
+
+export {
+  GET_MY_MEETINGS,
+  GET_BOOKED_SLOTS,
+  GET_AVAILABLE_MEETING_SLOTS,
+} from './queries/meeting.queries';

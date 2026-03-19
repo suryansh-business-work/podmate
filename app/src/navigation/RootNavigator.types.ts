@@ -26,6 +26,7 @@ export type RootStackParamList = {
   FollowList: { userId: string; userName: string; initialTab?: 'followers' | 'following' };
   UserProfile: { userId: string };
   YourVenues: undefined;
+  RequestMeeting: undefined;
   Menus: undefined;
   ManageOrders: undefined;
   VenueMoments: undefined;

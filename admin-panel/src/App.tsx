@@ -18,6 +18,7 @@ import AiConfigPage from './pages/AiConfig';
 import NotificationsPage from './pages/Notifications';
 import FinancePage from './pages/Finance';
 import CallbacksPage from './pages/CallbacksPage';
+import MeetingsPage from './pages/Meetings';
 import FeedbackPage from './pages/Feedback';
 import PodIdeasPage from './pages/PodIdeas';
 import SlidersPage from './pages/Sliders';
@@ -74,6 +75,7 @@ const App: React.FC = () => {
           <Route path="/ai" element={<AiConfigPage />} />
           <Route path="/support" element={<SupportPage />} />
           <Route path="/callbacks" element={<CallbacksPage />} />
+          <Route path="/meetings" element={<MeetingsPage />} />
           <Route path="/feature-flags" element={<FeatureFlagsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/feedback" element={<FeedbackPage />} />

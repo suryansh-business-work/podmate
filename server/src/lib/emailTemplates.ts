@@ -147,3 +147,153 @@ export function emailVerifiedTemplate(userName: string): {
     text: `Hi ${userName}, your email has been successfully verified on PartyWings.`,
   };
 }
+
+export function meetingConfirmationTemplate(
+  userName: string,
+  meetingDate: string,
+  meetingTime: string,
+): { subject: string; html: string; text: string } {
+  const mjmlContent = wrapMjml(`
+    <mj-section background-color="#ffffff" padding="30px 20px">
+      <mj-column>
+        <mj-text font-size="22px" font-weight="bold" color="#333333">
+          Meeting Request Received
+        </mj-text>
+        <mj-text padding-top="10px">
+          Hi ${userName},
+        </mj-text>
+        <mj-text>
+          Your 1:1 meeting request has been received. Here are the details:
+        </mj-text>
+        <mj-table>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">Date</td>
+            <td style="padding: 8px 16px; color: #555;">${meetingDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">Time</td>
+            <td style="padding: 8px 16px; color: #555;">${meetingTime}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">Status</td>
+            <td style="padding: 8px 16px; color: ${BRAND_COLOR};">Pending Confirmation</td>
+          </tr>
+        </mj-table>
+        <mj-text padding-top="16px">
+          Our team will review your request and send you a meeting invite shortly.
+        </mj-text>
+        <mj-divider border-color="#eeeeee" padding="20px 0" />
+        <mj-text color="#999999" font-size="12px">
+          This is an automated notification from PartyWings.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  `);
+
+  return {
+    subject: 'Meeting Request Received - PartyWings',
+    html: renderMjml(mjmlContent),
+    text: `Hi ${userName}, your 1:1 meeting request for ${meetingDate} at ${meetingTime} has been received. Our team will review and confirm shortly.`,
+  };
+}
+
+export function meetingAdminNotificationTemplate(
+  userName: string,
+  userEmail: string,
+  meetingDate: string,
+  meetingTime: string,
+): { subject: string; html: string; text: string } {
+  const mjmlContent = wrapMjml(`
+    <mj-section background-color="#ffffff" padding="30px 20px">
+      <mj-column>
+        <mj-text font-size="22px" font-weight="bold" color="#333333">
+          New Meeting Request
+        </mj-text>
+        <mj-text padding-top="10px">
+          A new 1:1 meeting request has been submitted.
+        </mj-text>
+        <mj-table>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">User</td>
+            <td style="padding: 8px 16px; color: #555;">${userName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">Email</td>
+            <td style="padding: 8px 16px; color: #555;">${userEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">Date</td>
+            <td style="padding: 8px 16px; color: #555;">${meetingDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">Time</td>
+            <td style="padding: 8px 16px; color: #555;">${meetingTime}</td>
+          </tr>
+        </mj-table>
+        <mj-text padding-top="16px">
+          Please review and confirm this meeting request in the admin panel.
+        </mj-text>
+        <mj-divider border-color="#eeeeee" padding="20px 0" />
+        <mj-text color="#999999" font-size="12px">
+          This is an automated admin notification from PartyWings.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  `);
+
+  return {
+    subject: `New Meeting Request from ${userName} - PartyWings`,
+    html: renderMjml(mjmlContent),
+    text: `New meeting request from ${userName} (${userEmail}) for ${meetingDate} at ${meetingTime}. Please review in the admin panel.`,
+  };
+}
+
+export function meetingInviteTemplate(
+  userName: string,
+  meetingDate: string,
+  meetingTime: string,
+  meetingLink: string,
+): { subject: string; html: string; text: string } {
+  const mjmlContent = wrapMjml(`
+    <mj-section background-color="#ffffff" padding="30px 20px">
+      <mj-column>
+        <mj-text font-size="22px" font-weight="bold" color="#333333">
+          Meeting Confirmed ✓
+        </mj-text>
+        <mj-text padding-top="10px">
+          Hi ${userName},
+        </mj-text>
+        <mj-text>
+          Your 1:1 meeting has been confirmed! Here are the details:
+        </mj-text>
+        <mj-table>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">Date</td>
+            <td style="padding: 8px 16px; color: #555;">${meetingDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">Time</td>
+            <td style="padding: 8px 16px; color: #555;">${meetingTime}</td>
+          </tr>
+        </mj-table>
+        <mj-button background-color="${BRAND_COLOR}" color="#ffffff" href="${meetingLink}"
+          border-radius="8px" padding="20px 0" font-size="16px">
+          Join Meeting
+        </mj-button>
+        <mj-text padding-top="10px" font-size="13px" color="#666666">
+          Meeting Link: ${meetingLink}
+        </mj-text>
+        <mj-divider border-color="#eeeeee" padding="20px 0" />
+        <mj-text color="#999999" font-size="12px">
+          This is an automated notification from PartyWings.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  `);
+
+  return {
+    subject: 'Meeting Confirmed - PartyWings',
+    html: renderMjml(mjmlContent),
+    text: `Hi ${userName}, your 1:1 meeting on ${meetingDate} at ${meetingTime} is confirmed. Join here: ${meetingLink}`,
+  };
+}

@@ -70,3 +70,5 @@ export {
   UPDATE_BANK_ACCOUNT,
   DELETE_BANK_ACCOUNT,
 } from './mutations/bankAccount.mutations';
+
+export { REQUEST_MEETING } from './mutations/meeting.mutations';

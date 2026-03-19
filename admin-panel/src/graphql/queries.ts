@@ -659,6 +659,64 @@ export const GET_CALLBACK_REQUEST_COUNTS = gql`
   }
 `;
 
+/* ── 1:1 Meetings ── */
+
+export const GET_MEETINGS = gql`
+  query GetMeetings(
+    $page: Int
+    $limit: Int
+    $search: String
+    $status: String
+    $sortBy: String
+    $order: String
+  ) {
+    meetings(
+      page: $page
+      limit: $limit
+      search: $search
+      status: $status
+      sortBy: $sortBy
+      order: $order
+    ) {
+      items {
+        id
+        userId
+        user {
+          id
+          name
+          phone
+        }
+        userEmail
+        meetingDate
+        meetingTime
+        meetingLink
+        status
+        adminNote
+        cancelReason
+        completedAt
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+      totalPages
+    }
+  }
+`;
+
+export const GET_MEETING_COUNTS = gql`
+  query GetMeetingCounts {
+    meetingCounts {
+      pending
+      confirmed
+      completed
+      cancelled
+      total
+    }
+  }
+`;
+
 /* ── Feedback ── */
 
 export const GET_ALL_FEEDBACK = gql`

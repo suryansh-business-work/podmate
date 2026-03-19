@@ -12,6 +12,7 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PhoneCallbackIcon from '@mui/icons-material/PhoneCallback';
+import VideocamIcon from '@mui/icons-material/Videocam';
 import CodeIcon from '@mui/icons-material/Code';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
@@ -71,6 +72,7 @@ export const navGroups: NavGroupConfig[] = [
     items: [
       { icon: <SupportAgentIcon />, label: 'Tickets', path: '/support' },
       { icon: <PhoneCallbackIcon />, label: 'Callbacks', path: '/callbacks' },
+      { icon: <VideocamIcon />, label: '1:1 Meetings', path: '/meetings' },
     ],
   },
   {

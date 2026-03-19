@@ -72,6 +72,8 @@ import analyticsTypeDefs from './modules/analytics/analytics.typeDefs';
 import analyticsResolvers from './modules/analytics/analytics.resolvers';
 import bankAccountTypeDefs from './modules/bankAccount/bankAccount.typeDefs';
 import bankAccountResolvers from './modules/bankAccount/bankAccount.resolvers';
+import meetingTypeDefs from './modules/meeting/meeting.typeDefs';
+import meetingResolvers from './modules/meeting/meeting.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -172,6 +174,12 @@ const rootSchema = `#graphql
     hostAnalytics: HostAnalytics!
     venueAnalytics: VenueAnalytics!
     myBankAccount: BankAccount
+    myMeetings: [Meeting!]!
+    meeting(id: ID!): Meeting
+    meetings(page: Int, limit: Int, search: String, status: String, sortBy: String, order: String): PaginatedMeetings!
+    meetingCounts: MeetingCounts!
+    bookedSlots(meetingDate: String!): [BookedSlot!]!
+    availableMeetingSlots: [String!]!
   }
 
   type Mutation {
@@ -305,6 +313,9 @@ const rootSchema = `#graphql
     addBankAccount(input: AddBankAccountInput!): BankAccount!
     updateBankAccount(input: UpdateBankAccountInput!): BankAccount!
     deleteBankAccount: Boolean!
+    requestMeeting(input: CreateMeetingInput!): Meeting!
+    updateMeeting(id: ID!, input: UpdateMeetingInput!): Meeting!
+    deleteMeeting(id: ID!): Boolean!
   }
 
   input AdminUpdateUserInput {
@@ -370,6 +381,7 @@ const typeDefs = [
   categoryTypeDefs,
   analyticsTypeDefs,
   bankAccountTypeDefs,
+  meetingTypeDefs,
 ];
 
 const resolvers = {
@@ -401,6 +413,7 @@ const resolvers = {
     ...categoryResolvers.Query,
     ...analyticsResolvers.Query,
     ...bankAccountResolvers.Query,
+    ...meetingResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -431,6 +444,7 @@ const resolvers = {
     ...subscriptionResolvers.Mutation,
     ...categoryResolvers.Mutation,
     ...bankAccountResolvers.Mutation,
+    ...meetingResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   Review: reviewResolvers.Review,
@@ -450,6 +464,7 @@ const resolvers = {
   PodSubscription: subscriptionResolvers.PodSubscription,
   Category: categoryResolvers.Category,
   City: locationResolvers.City,
+  Meeting: meetingResolvers.Meeting,
 };
 
 /* ── WebSocket connection registry ── */

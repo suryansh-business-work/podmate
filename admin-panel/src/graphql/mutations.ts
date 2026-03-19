@@ -515,6 +515,28 @@ export const DELETE_CALLBACK_REQUEST = gql`
   }
 `;
 
+/* ── 1:1 Meetings ── */
+
+export const UPDATE_MEETING = gql`
+  mutation UpdateMeeting($id: ID!, $input: UpdateMeetingInput!) {
+    updateMeeting(id: $id, input: $input) {
+      id
+      status
+      adminNote
+      meetingLink
+      cancelReason
+      completedAt
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_MEETING = gql`
+  mutation DeleteMeeting($id: ID!) {
+    deleteMeeting(id: $id)
+  }
+`;
+
 /* ── Feedback ── */
 
 export const UPDATE_FEEDBACK_STATUS = gql`

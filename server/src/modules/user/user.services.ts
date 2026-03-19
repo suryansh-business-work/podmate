@@ -334,6 +334,20 @@ export async function adminUpdateUser(userId: string, input: AdminUpdateUserInpu
   return result;
 }
 
+/* ── Update user email (without OTP, for profile sync) ── */
+
+export async function updateUserEmail(userId: string, email: string): Promise<User> {
+  const updated = await UserModel.findByIdAndUpdate(
+    userId,
+    { $set: { email } },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
+  const result = toUser(updated);
+  if (!result) throw new Error('User not found');
+  logger.info(`User email updated for ${userId}: ${email}`);
+  return result;
+}
+
 /* ── Email OTP ── */
 
 export async function sendEmailOtp(email: string): Promise<{ success: boolean; message: string }> {

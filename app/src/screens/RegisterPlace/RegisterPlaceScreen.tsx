@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, Alert, Platform, KeyboardAvoidingView } f
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation } from '@apollo/client';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { GET_POLICIES, GET_APP_CONFIG } from '../../graphql/queries';
 import { CREATE_PLACE } from '../../graphql/mutations';
@@ -15,6 +17,7 @@ import StepDocuments from './StepDocuments';
 import StepPolicies from './StepPolicies';
 import { createStyles } from './RegisterPlace.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
+import type { RootStackParamList } from '../../navigation/RootNavigator.types';
 
 interface RegisterPlaceScreenProps {
   onClose: () => void;
@@ -23,6 +26,7 @@ interface RegisterPlaceScreenProps {
 const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [step, setStep] = useState(0);
   const [formValues, setFormValues] = useState<VenueFormValues>({
     name: '',
@@ -139,7 +143,23 @@ const RegisterPlaceScreen: React.FC<RegisterPlaceScreenProps> = ({ onClose }) =>
               <MaterialIcons name="arrow-back" size={22} color={colors.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Register Venue</Text>
-            <View style={styles.headerBtn} />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('RequestMeeting')}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: colors.primary,
+                paddingHorizontal: 10,
+                paddingVertical: 6,
+                borderRadius: 16,
+                gap: 4,
+              }}
+            >
+              <MaterialIcons name="videocam" size={16} color={colors.white} />
+              <Text style={{ fontSize: 11, fontWeight: '600', color: colors.white }}>
+                Meeting
+              </Text>
+            </TouchableOpacity>
           </View>
           <StepIndicator step={step} />
           {step === 0 && (

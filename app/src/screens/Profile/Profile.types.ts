@@ -67,7 +67,7 @@ export function getStartEarningItems(roles: string[]): MenuItem[] {
       icon: 'campaign',
       label: 'Be a Pod Owner',
       subtitle: 'Host pods & start earning',
-      action: 'GoLive',
+      action: 'CreatePod',
     });
   }
   if (!roles.includes('VENUE_OWNER')) {

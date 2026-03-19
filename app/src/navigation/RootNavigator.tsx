@@ -174,6 +174,7 @@ const RootNavigator: React.FC = () => {
       Support: () => navigation.navigate('Support'),
       Feedback: () => navigation.navigate('Feedback'),
       PodIdeas: () => navigation.navigate('PodIdeas'),
+      CreatePod: () => navigation.navigate('CreatePod'),
       GoLive: () => navigation.navigate('GoLive'),
       RegisterPlace: () => navigation.navigate('RegisterPlace'),
     };

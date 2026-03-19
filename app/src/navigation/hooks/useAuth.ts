@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useApolloClient } from '@apollo/client';
 import { Alert } from 'react-native';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { getGoogleSignin } from '../../utils/googleSignIn';
 import { SEND_OTP, VERIFY_OTP, COMPLETE_PROFILE, GOOGLE_SIGN_IN } from '../../graphql/mutations';
 
 interface AuthState {
@@ -101,6 +101,7 @@ export const useAuth = () => {
   const handleGoogleSignIn = async () => {
     setState((prev) => ({ ...prev, googleSignInLoading: true, otpError: '' }));
     try {
+      const GoogleSignin = getGoogleSignin();
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       const response = await GoogleSignin.signIn();
       if (response.type === 'cancelled') {
@@ -111,7 +112,7 @@ export const useAuth = () => {
       // getTokens() reliably returns the idToken after a successful signIn.
       let idToken = response.data?.idToken;
       if (!idToken) {
-        const tokens = await GoogleSignin.getTokens();
+        const tokens = await getGoogleSignin().getTokens();
         idToken = tokens.idToken;
       }
       if (!idToken) {

@@ -9,7 +9,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Linking from 'expo-linking';
 import { View, Animated, TouchableOpacity, StyleSheet, BackHandler, Alert } from 'react-native';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { getGoogleSignin } from '../utils/googleSignIn';
 import config from '../config';
 import SplashScreen from '../screens/SplashScreen';
 import { LoginScreen, OtpScreen } from '../screens/Auth';
@@ -120,9 +120,13 @@ const RootNavigator: React.FC = () => {
   useInAppNotifications({ isAuthenticated: auth.isAuthenticated });
 
   useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: config.googleWebClientId || undefined,
-    });
+    try {
+      getGoogleSignin().configure({
+        webClientId: config.googleWebClientId || undefined,
+      });
+    } catch {
+      // Native module unavailable (Expo Go / web) — skip configuration
+    }
   }, []);
 
   useEffect(() => {

@@ -1,16 +1,20 @@
-import { Platform } from 'react-native';
+import { Platform, TurboModuleRegistry } from 'react-native';
 
 type GoogleSigninType = typeof import('@react-native-google-signin/google-signin').GoogleSignin;
 
 let _GoogleSignin: GoogleSigninType | null = null;
 
+function isNativeModuleAvailable(): boolean {
+  try {
+    return TurboModuleRegistry.get('RNGoogleSignin') != null;
+  } catch {
+    return false;
+  }
+}
+
 function getGoogleSignin(): GoogleSigninType {
   if (!_GoogleSignin) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const mod = require('@react-native-google-signin/google-signin');
-      _GoogleSignin = mod.GoogleSignin as GoogleSigninType;
-    } catch {
+    if (!isNativeModuleAvailable()) {
       throw new Error(
         Platform.select({
           web: 'Google Sign-In is not supported on web.',
@@ -19,8 +23,11 @@ function getGoogleSignin(): GoogleSigninType {
         }),
       );
     }
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require('@react-native-google-signin/google-signin');
+    _GoogleSignin = mod.GoogleSignin as GoogleSigninType;
   }
   return _GoogleSignin;
 }
 
-export { getGoogleSignin };
+export { getGoogleSignin, isNativeModuleAvailable as isGoogleSignInAvailable };

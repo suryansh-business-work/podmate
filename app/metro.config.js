@@ -6,13 +6,8 @@ const monorepoRoot = path.resolve(projectRoot, '..');
 
 const config = getDefaultConfig(projectRoot);
 
-// pnpm support: watch monorepo root node_modules
+// pnpm monorepo support: watch monorepo root for shared packages
 config.watchFolders = [monorepoRoot];
-
-// Ensure entry file resolution uses the app directory, not the monorepo root.
-// getDefaultConfig auto-sets unstable_serverRoot to the monorepo root when
-// watchFolders includes a parent directory, which breaks export:embed bundling.
-config.server.unstable_serverRoot = projectRoot;
 
 // pnpm support: resolve from both app and root node_modules
 config.resolver.nodeModulesPaths = [

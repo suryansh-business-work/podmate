@@ -12,7 +12,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import Snackbar from '@mui/material/Snackbar';
 import AddIcon from '@mui/icons-material/Add';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import { useEmailTemplates } from './useEmailTemplates';
 import TemplateListTable from './TemplateListTable';
 import TemplateEditor from './TemplateEditor';
@@ -30,6 +32,7 @@ const EmailTemplatesPage: React.FC = () => {
     loading,
     creating,
     updating,
+    seeding,
     setPage,
     setSearch,
     setCategoryFilter,
@@ -38,6 +41,7 @@ const EmailTemplatesPage: React.FC = () => {
     deleteTemplate,
     validateMjml,
     previewTemplate,
+    seedDefaultTemplates,
   } = useEmailTemplates();
 
   const [editing, setEditing] = useState<EmailTemplate | null>(null);
@@ -46,6 +50,7 @@ const EmailTemplatesPage: React.FC = () => {
   const [previewDialog, setPreviewDialog] = useState<EmailTemplate | null>(null);
   const [previewHtml, setPreviewHtml] = useState('');
   const [error, setError] = useState('');
+  const [seedMessage, setSeedMessage] = useState('');
 
   const showEditor = editing !== null || isNew;
 
@@ -102,6 +107,19 @@ const EmailTemplatesPage: React.FC = () => {
     setIsNew(false);
   };
 
+  const handleSeed = async () => {
+    try {
+      const result = await seedDefaultTemplates();
+      const parts: string[] = [];
+      if (result.created.length > 0) parts.push(`Created: ${result.created.join(', ')}`);
+      if (result.skipped.length > 0) parts.push(`Skipped (existing): ${result.skipped.join(', ')}`);
+      if (result.errors.length > 0) parts.push(`Errors: ${result.errors.join('; ')}`);
+      setSeedMessage(parts.join(' | ') || 'No templates to seed');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Seed failed');
+    }
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Breadcrumbs sx={{ mb: 2 }}>
@@ -153,6 +171,14 @@ const EmailTemplatesPage: React.FC = () => {
               ))}
             </TextField>
             <Box sx={{ flexGrow: 1 }} />
+            <Button
+              variant="outlined"
+              startIcon={seeding ? <CircularProgress size={16} /> : <CloudDownloadIcon />}
+              onClick={handleSeed}
+              disabled={seeding}
+            >
+              Seed Defaults
+            </Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={handleCreate}>
               New Template
             </Button>
@@ -206,6 +232,12 @@ const EmailTemplatesPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={!!seedMessage}
+        autoHideDuration={8000}
+        onClose={() => setSeedMessage('')}
+        message={seedMessage}
+      />
     </Box>
   );
 };

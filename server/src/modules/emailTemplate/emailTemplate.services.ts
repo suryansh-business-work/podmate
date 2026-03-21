@@ -236,3 +236,329 @@ function wrapWithLayout(bodyContent: string): string {
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
+interface DefaultTemplateDefinition {
+  slug: string;
+  name: string;
+  subject: string;
+  mjmlBody: string;
+  variables: Array<{
+    key: string;
+    description: string;
+    defaultValue: string;
+    required: boolean;
+  }>;
+  category: string;
+}
+
+const DEFAULT_TEMPLATES: DefaultTemplateDefinition[] = [
+  {
+    slug: 'email-otp',
+    name: 'Email OTP Verification',
+    subject: '{{otp}} is your PartyWings email verification code',
+    category: 'authentication',
+    variables: [
+      { key: 'otp', description: 'One-time verification code', defaultValue: '123456', required: true },
+    ],
+    mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
+  <mj-column>
+    <mj-text font-size="22px" font-weight="bold" color="#333333">
+      Verify Your Email
+    </mj-text>
+    <mj-text padding-top="10px">
+      Use the code below to verify your email address on PartyWings.
+    </mj-text>
+    <mj-text align="center" font-size="36px" font-weight="bold" color="#F50247"
+      padding="20px 0" letter-spacing="8px">
+      {{otp}}
+    </mj-text>
+    <mj-text>
+      This code is valid for <strong>5 minutes</strong>. Do not share it with anyone.
+    </mj-text>
+    <mj-divider border-color="#eeeeee" padding="20px 0" />
+    <mj-text color="#999999" font-size="12px">
+      If you didn't request this, you can safely ignore this email.
+    </mj-text>
+  </mj-column>
+</mj-section>`,
+  },
+  {
+    slug: 'profile-update',
+    name: 'Profile Updated Notification',
+    subject: 'Your PartyWings profile has been updated',
+    category: 'account',
+    variables: [
+      { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
+    ],
+    mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
+  <mj-column>
+    <mj-text font-size="22px" font-weight="bold" color="#333333">
+      Profile Updated
+    </mj-text>
+    <mj-text padding-top="10px">
+      Hi {{userName}},
+    </mj-text>
+    <mj-text>
+      Your PartyWings profile has been successfully updated.
+    </mj-text>
+    <mj-text>
+      If you didn't make this change, please contact our support team immediately.
+    </mj-text>
+    <mj-button background-color="#F50247" color="#ffffff" href="mailto:support@partywings.com"
+      border-radius="8px" padding="20px 0">
+      Contact Support
+    </mj-button>
+    <mj-divider border-color="#eeeeee" padding="10px 0" />
+    <mj-text color="#999999" font-size="12px">
+      This is an automated notification from PartyWings.
+    </mj-text>
+  </mj-column>
+</mj-section>`,
+  },
+  {
+    slug: 'email-verified',
+    name: 'Email Verified Confirmation',
+    subject: 'Email verified on PartyWings',
+    category: 'account',
+    variables: [
+      { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
+    ],
+    mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
+  <mj-column>
+    <mj-text font-size="22px" font-weight="bold" color="#333333">
+      Email Verified ✓
+    </mj-text>
+    <mj-text padding-top="10px">
+      Hi {{userName}},
+    </mj-text>
+    <mj-text>
+      Your email address has been successfully verified on PartyWings. You'll now receive
+      important updates and notifications at this address.
+    </mj-text>
+    <mj-divider border-color="#eeeeee" padding="20px 0" />
+    <mj-text color="#999999" font-size="12px">
+      This is an automated notification from PartyWings.
+    </mj-text>
+  </mj-column>
+</mj-section>`,
+  },
+  {
+    slug: 'meeting-confirmation',
+    name: 'Meeting Request Confirmation',
+    subject: 'Meeting Request Received - PartyWings',
+    category: 'meeting',
+    variables: [
+      { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
+      { key: 'meetingDate', description: 'Meeting date', defaultValue: '2025-01-01', required: true },
+      { key: 'meetingTime', description: 'Meeting time', defaultValue: '10:00 AM', required: true },
+    ],
+    mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
+  <mj-column>
+    <mj-text font-size="22px" font-weight="bold" color="#333333">
+      Meeting Request Received
+    </mj-text>
+    <mj-text padding-top="10px">
+      Hi {{userName}},
+    </mj-text>
+    <mj-text>
+      Your 1:1 meeting request has been received. Here are the details:
+    </mj-text>
+    <mj-table>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">Date</td>
+        <td style="padding: 8px 16px; color: #555;">{{meetingDate}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">Time</td>
+        <td style="padding: 8px 16px; color: #555;">{{meetingTime}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">Status</td>
+        <td style="padding: 8px 16px; color: #F50247;">Pending Confirmation</td>
+      </tr>
+    </mj-table>
+    <mj-text padding-top="16px">
+      Our team will review your request and send you a meeting invite shortly.
+    </mj-text>
+    <mj-divider border-color="#eeeeee" padding="20px 0" />
+    <mj-text color="#999999" font-size="12px">
+      This is an automated notification from PartyWings.
+    </mj-text>
+  </mj-column>
+</mj-section>`,
+  },
+  {
+    slug: 'meeting-admin-notification',
+    name: 'Meeting Admin Notification',
+    subject: 'New Meeting Request from {{userName}} - PartyWings',
+    category: 'meeting',
+    variables: [
+      { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
+      { key: 'userEmail', description: 'User email address', defaultValue: 'user@example.com', required: true },
+      { key: 'meetingDate', description: 'Meeting date', defaultValue: '2025-01-01', required: true },
+      { key: 'meetingTime', description: 'Meeting time', defaultValue: '10:00 AM', required: true },
+    ],
+    mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
+  <mj-column>
+    <mj-text font-size="22px" font-weight="bold" color="#333333">
+      New Meeting Request
+    </mj-text>
+    <mj-text padding-top="10px">
+      A new 1:1 meeting request has been submitted.
+    </mj-text>
+    <mj-table>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">User</td>
+        <td style="padding: 8px 16px; color: #555;">{{userName}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">Email</td>
+        <td style="padding: 8px 16px; color: #555;">{{userEmail}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">Date</td>
+        <td style="padding: 8px 16px; color: #555;">{{meetingDate}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">Time</td>
+        <td style="padding: 8px 16px; color: #555;">{{meetingTime}}</td>
+      </tr>
+    </mj-table>
+    <mj-text padding-top="16px">
+      Please review and confirm this meeting request in the admin panel.
+    </mj-text>
+    <mj-divider border-color="#eeeeee" padding="20px 0" />
+    <mj-text color="#999999" font-size="12px">
+      This is an automated admin notification from PartyWings.
+    </mj-text>
+  </mj-column>
+</mj-section>`,
+  },
+  {
+    slug: 'meeting-invite',
+    name: 'Meeting Confirmed Invite',
+    subject: 'Meeting Confirmed - PartyWings',
+    category: 'meeting',
+    variables: [
+      { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
+      { key: 'meetingDate', description: 'Meeting date', defaultValue: '2025-01-01', required: true },
+      { key: 'meetingTime', description: 'Meeting time', defaultValue: '10:00 AM', required: true },
+      { key: 'meetingLink', description: 'Meeting join URL', defaultValue: 'https://meet.example.com', required: true },
+    ],
+    mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
+  <mj-column>
+    <mj-text font-size="22px" font-weight="bold" color="#333333">
+      Meeting Confirmed ✓
+    </mj-text>
+    <mj-text padding-top="10px">
+      Hi {{userName}},
+    </mj-text>
+    <mj-text>
+      Your 1:1 meeting has been confirmed! Here are the details:
+    </mj-text>
+    <mj-table>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">Date</td>
+        <td style="padding: 8px 16px; color: #555;">{{meetingDate}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">Time</td>
+        <td style="padding: 8px 16px; color: #555;">{{meetingTime}}</td>
+      </tr>
+    </mj-table>
+    <mj-button background-color="#F50247" color="#ffffff" href="{{meetingLink}}"
+      border-radius="8px" padding="20px 0" font-size="16px">
+      Join Meeting
+    </mj-button>
+    <mj-text padding-top="10px" font-size="13px" color="#666666">
+      Meeting Link: {{meetingLink}}
+    </mj-text>
+    <mj-divider border-color="#eeeeee" padding="20px 0" />
+    <mj-text color="#999999" font-size="12px">
+      This is an automated notification from PartyWings.
+    </mj-text>
+  </mj-column>
+</mj-section>`,
+  },
+  {
+    slug: 'meeting-reschedule',
+    name: 'Meeting Rescheduled Notification',
+    subject: 'Meeting Rescheduled - PartyWings',
+    category: 'meeting',
+    variables: [
+      { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
+      { key: 'previousDateTime', description: 'Previous date and time', defaultValue: '2025-01-01 10:00 AM', required: true },
+      { key: 'newDate', description: 'New meeting date', defaultValue: '2025-01-02', required: true },
+      { key: 'newTime', description: 'New meeting time', defaultValue: '11:00 AM', required: true },
+      { key: 'meetingLink', description: 'Meeting join URL', defaultValue: 'https://meet.example.com', required: false },
+    ],
+    mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
+  <mj-column>
+    <mj-text font-size="22px" font-weight="bold" color="#333333">
+      Meeting Rescheduled
+    </mj-text>
+    <mj-text padding-top="10px">
+      Hi {{userName}},
+    </mj-text>
+    <mj-text>
+      Your 1:1 meeting has been rescheduled. Here are the updated details:
+    </mj-text>
+    <mj-table>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">Previous</td>
+        <td style="padding: 8px 16px; color: #999; text-decoration: line-through;">{{previousDateTime}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">New Date</td>
+        <td style="padding: 8px 16px; color: #555;">{{newDate}}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 16px; font-weight: bold; color: #333;">New Time</td>
+        <td style="padding: 8px 16px; color: #555;">{{newTime}}</td>
+      </tr>
+    </mj-table>
+    <mj-divider border-color="#eeeeee" padding="20px 0" />
+    <mj-text color="#999999" font-size="12px">
+      This is an automated notification from PartyWings.
+    </mj-text>
+  </mj-column>
+</mj-section>`,
+  },
+];
+
+export interface SeedResult {
+  created: string[];
+  skipped: string[];
+  errors: string[];
+}
+
+export async function seedDefaultTemplates(): Promise<SeedResult> {
+  const result: SeedResult = { created: [], skipped: [], errors: [] };
+
+  for (const tpl of DEFAULT_TEMPLATES) {
+    try {
+      const existing = await EmailTemplateModel.findOne({ slug: tpl.slug });
+      if (existing) {
+        result.skipped.push(tpl.slug);
+        continue;
+      }
+      await EmailTemplateModel.create({
+        _id: uuidv4(),
+        ...tpl,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      result.created.push(tpl.slug);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      result.errors.push(`${tpl.slug}: ${msg}`);
+      logger.error(`Seed template "${tpl.slug}" failed:`, msg);
+    }
+  }
+
+  logger.info(
+    `Seed templates: ${result.created.length} created, ${result.skipped.length} skipped, ${result.errors.length} errors`,
+  );
+  return result;
+}

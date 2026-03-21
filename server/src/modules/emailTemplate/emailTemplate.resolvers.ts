@@ -77,6 +77,10 @@ const resolvers = {
       const vars = JSON.parse(args.variables) as Record<string, string>;
       return service.renderTemplate(template.mjmlBody, vars);
     },
+    seedDefaultTemplates: async (_: unknown, _args: Record<string, never>, ctx: GraphQLContext) => {
+      requireRole(ctx, UserRole.ADMIN);
+      return service.seedDefaultTemplates();
+    },
   },
 };
 

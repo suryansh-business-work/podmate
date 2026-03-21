@@ -792,3 +792,13 @@ export const PREVIEW_EMAIL_TEMPLATE = gql`
     }
   }
 `;
+
+export const SEED_DEFAULT_TEMPLATES = gql`
+  mutation SeedDefaultTemplates {
+    seedDefaultTemplates {
+      created
+      skipped
+      errors
+    }
+  }
+`;

@@ -241,9 +241,10 @@ No test file should exceed 200 lines. If it does, please segregate it into multi
 # Email Templates (MJML) — Dynamic Template System
 
 ## Architecture Overview
-- **Server module**: `server/src/modules/emailTemplate/` — full CRUD for email templates stored in MongoDB
+- **Server module**: `server/src/modules/emailTemplate/` — full CRUD + seed API for email templates stored in MongoDB
 - **Hardcoded fallback**: `server/src/lib/emailTemplates.ts` — each template function tries DB first via `tryDbTemplate(slug, variables, fallback)`, falls back to hardcoded MJML
-- **Admin panel page**: `admin-panel/src/pages/EmailTemplates/` — split-pane editor (code left, preview right) with MJML validation, variable management, and live preview
+- **Default templates**: `server/src/modules/emailTemplate/emailTemplate.services.ts` — `DEFAULT_TEMPLATES` array and `seedDefaultTemplates()` function populate all 7 hardcoded templates into MongoDB
+- **Admin panel page**: `admin-panel/src/pages/EmailTemplates/` — Monaco Editor with MJML syntax highlighting (code left, preview right), MJML validation, variable management, live preview, and "Seed Defaults" button
 - **Route**: `/email-templates` in admin panel sidebar under "App Settings"
 
 ## How Templates Work
@@ -251,6 +252,20 @@ No test file should exceed 200 lines. If it does, please segregate it into multi
 2. Templates use `{{variableName}}` syntax for dynamic values
 3. When rendering, the system checks MongoDB for an active template with matching slug; if found, uses DB version; if not, uses hardcoded fallback
 4. The MJML body is wrapped with the common layout (header with brand logo, footer with copyright) automatically
+
+## Seeding Templates into Database
+- **API**: `seedDefaultTemplates` GraphQL mutation (admin-only) — creates all 7 default templates in MongoDB, skipping any that already exist
+- **Admin UI**: "Seed Defaults" button in the Email Templates list page — triggers the mutation and shows results (created/skipped/errors) in a Snackbar
+- **Service**: `seedDefaultTemplates()` in `emailTemplate.services.ts` — iterates `DEFAULT_TEMPLATES` array, creates each via MongoDB, returns `SeedResult { created, skipped, errors }`
+- **Idempotent**: Running seed multiple times is safe — existing slugs are skipped, not overwritten
+
+## Monaco Editor Integration
+- **Package**: `@monaco-editor/react` — Monaco Editor for MJML code editing
+- **Custom MJML language**: `mjmlLanguage.ts` — Monarch tokenizer for syntax highlighting (tags, attributes, `{{variable}}` syntax, HTML comments)
+- **Component**: `MjmlCodeEditor.tsx` — wraps Monaco Editor with custom theme (`mjml-dark`), auto-completion for MJML tags and template variables, snippet support
+- **Theme colors**: Tags in brand color `#F50247`, variables in `#DCDCAA` bold, attributes in `#9CDCFE`, values in `#CE9178`, comments in `#6A9955`
+- **Language registration**: Done once via `beforeMount` callback with `languageRegistered` guard
+- **Completions**: Dynamic — tag snippets from `MJML_TAG_SNIPPETS` + template variables from current template's variable list
 
 ## Existing Template Slugs
 | Slug | Variables | Category |
@@ -264,7 +279,7 @@ No test file should exceed 200 lines. If it does, please segregate it into multi
 | `meeting-reschedule` | `userName`, `previousDateTime`, `newDate`, `newTime`, `meetingLink` | meeting |
 
 ## How to Add a New Email Template
-1. **Server**: Add a new exported async function in `server/src/lib/emailTemplates.ts`:
+1. **Server hardcoded fallback**: Add a new exported async function in `server/src/lib/emailTemplates.ts`:
    ```typescript
    export async function myNewTemplate(param1: string, param2: string): Promise<{ subject: string; html: string; text: string }> {
      return tryDbTemplate('my-new-template', { param1, param2 }, () => {
@@ -277,25 +292,51 @@ No test file should exceed 200 lines. If it does, please segregate it into multi
      });
    }
    ```
-2. **Important**: All template functions are **async** and return **Promise**. Callers must use `await`.
-3. **Admin panel**: Template is automatically manageable through the Email Templates admin page — admin can override the MJML body, subject, and variables without code changes.
-4. **Add to this table** in copilot-instructions.md when creating new templates.
+2. **Server seed definition**: Add a new entry to the `DEFAULT_TEMPLATES` array in `emailTemplate.services.ts`:
+   ```typescript
+   {
+     slug: 'my-new-template',
+     name: 'My New Template',
+     subject: 'My Subject with {{param1}}',
+     category: 'general',
+     variables: [
+       { key: 'param1', description: 'First parameter', defaultValue: 'value1', required: true },
+       { key: 'param2', description: 'Second parameter', defaultValue: 'value2', required: true },
+     ],
+     mjmlBody: \`<mj-section>...</mj-section>\`,
+   }
+   ```
+3. **Important**: All template functions are **async** and return **Promise**. Callers must use `await`.
+4. **Admin panel**: Template is automatically manageable through the Email Templates admin page — admin can override the MJML body, subject, and variables without code changes. Use "Seed Defaults" to populate new templates into DB.
+5. **Add to this table** in copilot-instructions.md when creating new templates.
 
 ## MJML Body Rules
 - Write only the **inner content** (mj-section, mj-column, mj-text, etc.) — the layout wrapper (header/footer) is added automatically
-- Use `{{variableName}}` for dynamic variables
-- brand color constant: `#F50247`
+- Use `{{variableName}}` for dynamic variables (not `${variable}` — those are JS template literals in hardcoded fallbacks only)
+- Brand color constant: `#F50247`
 - Always include a divider and footer note section
 - Keep MJML simple and email-client compatible
 
 ## Admin Panel Component Structure
 ```
 admin-panel/src/pages/EmailTemplates/
-  EmailTemplatesPage.tsx    — Main page with list/editor toggle, dialogs
+  EmailTemplatesPage.tsx    — Main page with list/editor toggle, seed button, dialogs
   EmailTemplates.types.ts   — Interfaces, constants
-  TemplateEditor.tsx         — Split-pane: code textarea left, iframe preview right
+  TemplateEditor.tsx         — Split-pane: Monaco editor left, iframe preview right
+  MjmlCodeEditor.tsx         — Monaco Editor wrapper with MJML language support
+  mjmlLanguage.ts            — Custom MJML language: Monarch tokenizer, tag snippets, theme
   TemplateListTable.tsx      — Paginated table with actions
   VariableEditor.tsx         — Add/edit/remove template variables
-  useEmailTemplates.ts       — Custom hook: queries, mutations, state
+  useEmailTemplates.ts       — Custom hook: queries, mutations, seed, state
   index.ts                   — Barrel export
+```
+
+## Server Module Structure
+```
+server/src/modules/emailTemplate/
+  emailTemplate.models.ts     — Mongoose schema, toEmailTemplate converter
+  emailTemplate.services.ts   — CRUD + validate + render + preview + seedDefaultTemplates + DEFAULT_TEMPLATES array
+  emailTemplate.resolvers.ts  — GraphQL resolvers (admin-only): CRUD, validate, preview, render, seed
+  emailTemplate.typeDefs.ts   — GraphQL types: EmailTemplate, SeedResult, inputs
+  emailTemplate.validators.ts — Input validation for create/update
 ```

@@ -7,6 +7,7 @@ import {
   DELETE_EMAIL_TEMPLATE,
   VALIDATE_MJML,
   PREVIEW_EMAIL_TEMPLATE,
+  SEED_DEFAULT_TEMPLATES,
 } from '../../graphql/mutations';
 import type {
   EmailTemplate,
@@ -40,6 +41,9 @@ export function useEmailTemplates() {
   const [previewMut] = useMutation<{ previewEmailTemplate: TemplatePreviewResult }>(
     PREVIEW_EMAIL_TEMPLATE,
   );
+  const [seedMut, { loading: seeding }] = useMutation<{
+    seedDefaultTemplates: { created: string[]; skipped: string[]; errors: string[] };
+  }>(SEED_DEFAULT_TEMPLATES);
 
   const templates = data?.emailTemplates?.items ?? [];
   const total = data?.emailTemplates?.total ?? 0;
@@ -108,6 +112,12 @@ export function useEmailTemplates() {
     [previewMut],
   );
 
+  const seedDefaultTemplates = useCallback(async () => {
+    const res = await seedMut();
+    refetch();
+    return res.data?.seedDefaultTemplates ?? { created: [], skipped: [], errors: [] };
+  }, [seedMut, refetch]);
+
   return {
     templates,
     total,
@@ -118,6 +128,7 @@ export function useEmailTemplates() {
     loading,
     creating,
     updating,
+    seeding,
     setPage,
     setSearch,
     setCategoryFilter,
@@ -126,5 +137,6 @@ export function useEmailTemplates() {
     deleteTemplate,
     validateMjml,
     previewTemplate,
+    seedDefaultTemplates,
   };
 }

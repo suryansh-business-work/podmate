@@ -72,6 +72,12 @@ const typeDefs = `#graphql
     category: String
     isActive: Boolean
   }
+
+  type SeedResult {
+    created: [String!]!
+    skipped: [String!]!
+    errors: [String!]!
+  }
 `;
 
 export default typeDefs;

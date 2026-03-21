@@ -12,6 +12,7 @@ import Divider from '@mui/material/Divider';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import VariableEditor from './VariableEditor';
+import MjmlCodeEditor from './MjmlCodeEditor';
 import type {
   EmailTemplate,
   TemplateVariable,
@@ -108,6 +109,8 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
     });
   };
 
+  const variableKeys = variables.map((v) => v.key);
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 2 }}>
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -160,22 +163,15 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
       />
       <VariableEditor variables={variables} onChange={setVariables} />
       <Divider />
-      <Box sx={{ display: 'flex', gap: 2, flex: 1, minHeight: 400 }}>
+      <Box sx={{ display: 'flex', gap: 2, flex: 1, minHeight: 500 }}>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Typography variant="subtitle2" gutterBottom>
             MJML Code
           </Typography>
-          <TextField
-            multiline
-            fullWidth
-            minRows={16}
-            maxRows={30}
+          <MjmlCodeEditor
             value={mjmlBody}
-            onChange={(e) => setMjmlBody(e.target.value)}
-            sx={{
-              flex: 1,
-              '& .MuiInputBase-input': { fontFamily: 'monospace', fontSize: 13 },
-            }}
+            onChange={setMjmlBody}
+            variableKeys={variableKeys}
           />
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

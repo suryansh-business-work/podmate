@@ -329,6 +329,7 @@ const rootSchema = `#graphql
     validateMjml(mjmlBody: String!): MjmlValidationResult!
     previewEmailTemplate(mjmlBody: String!, variables: String!): TemplatePreviewResult!
     renderEmailTemplate(slug: String!, variables: String!): TemplateRenderResult!
+    seedDefaultTemplates: SeedResult!
   }
 
   input AdminUpdateUserInput {

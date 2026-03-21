@@ -26,6 +26,7 @@ export const client = new ApolloClient({
           pods: { merge: false },
           policies: { merge: false },
           places: { merge: false },
+          meetings: { merge: false },
         },
       },
     },

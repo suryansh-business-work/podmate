@@ -30,7 +30,7 @@ const MeetingsTab: React.FC = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const { data, loading, refetch } = useQuery<PaginatedMeetings>(GET_MEETINGS, {
+  const { data, loading, error, refetch } = useQuery<PaginatedMeetings>(GET_MEETINGS, {
     variables: {
       page: page + 1,
       limit: rowsPerPage,
@@ -128,7 +128,14 @@ const MeetingsTab: React.FC = () => {
           <CircularProgress />
         </Box>
       )}
-      {!loading && items.length === 0 && <Alert severity="info">No meeting requests found.</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error.message}
+        </Alert>
+      )}
+      {!loading && !error && items.length === 0 && (
+        <Alert severity="info">No meeting requests found.</Alert>
+      )}
 
       {items.length > 0 && (
         <MeetingsTable

@@ -718,3 +718,77 @@ export const DELETE_SUBCATEGORY = gql`
     deleteSubCategory(id: $id)
   }
 `;
+
+export const CREATE_EMAIL_TEMPLATE = gql`
+  mutation CreateEmailTemplate($input: CreateEmailTemplateInput!) {
+    createEmailTemplate(input: $input) {
+      id
+      slug
+      name
+      subject
+      mjmlBody
+      variables {
+        key
+        description
+        defaultValue
+        required
+      }
+      category
+      isActive
+    }
+  }
+`;
+
+export const UPDATE_EMAIL_TEMPLATE = gql`
+  mutation UpdateEmailTemplate($id: ID!, $input: UpdateEmailTemplateInput!) {
+    updateEmailTemplate(id: $id, input: $input) {
+      id
+      slug
+      name
+      subject
+      mjmlBody
+      variables {
+        key
+        description
+        defaultValue
+        required
+      }
+      category
+      isActive
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_EMAIL_TEMPLATE = gql`
+  mutation DeleteEmailTemplate($id: ID!) {
+    deleteEmailTemplate(id: $id)
+  }
+`;
+
+export const VALIDATE_MJML = gql`
+  mutation ValidateMjml($mjmlBody: String!) {
+    validateMjml(mjmlBody: $mjmlBody) {
+      valid
+      html
+      errors {
+        line
+        message
+        tagName
+      }
+    }
+  }
+`;
+
+export const PREVIEW_EMAIL_TEMPLATE = gql`
+  mutation PreviewEmailTemplate($mjmlBody: String!, $variables: String!) {
+    previewEmailTemplate(mjmlBody: $mjmlBody, variables: $variables) {
+      html
+      errors {
+        line
+        message
+        tagName
+      }
+    }
+  }
+`;

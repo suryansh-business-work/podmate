@@ -354,7 +354,7 @@ export async function sendEmailOtp(email: string): Promise<{ success: boolean; m
   const otp = generateEmailOtp();
   emailOtpStore.set(email.toLowerCase(), { otp, expiresAt: Date.now() + EMAIL_OTP_EXPIRY_MS });
 
-  const template = emailOtpTemplate(otp);
+  const template = await emailOtpTemplate(otp);
   const sent = await sendEmail({
     to: email,
     subject: template.subject,
@@ -396,7 +396,7 @@ export async function verifyEmailOtp(userId: string, email: string, otp: string)
   if (!result) throw new Error('User not found');
 
   /* Send verification success email */
-  const successTemplate = emailVerifiedTemplate(result.name || 'User');
+  const successTemplate = await emailVerifiedTemplate(result.name || 'User');
   sendEmail({
     to: email,
     subject: successTemplate.subject,
@@ -411,7 +411,7 @@ export async function verifyEmailOtp(userId: string, email: string, otp: string)
 /* Send profile update notification email */
 export async function notifyProfileUpdate(user: User): Promise<void> {
   if (!user.email || !user.isEmailVerified) return;
-  const template = profileUpdateTemplate(user.name || 'User');
+  const template = await profileUpdateTemplate(user.name || 'User');
   sendEmail({
     to: user.email,
     subject: template.subject,

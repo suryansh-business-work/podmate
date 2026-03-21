@@ -102,7 +102,7 @@ export async function createMeeting(
   );
 
   // Send confirmation email to user
-  const userEmailContent = meetingConfirmationTemplate(
+  const userEmailContent = await meetingConfirmationTemplate(
     userName,
     input.meetingDate,
     input.meetingTime,
@@ -117,7 +117,7 @@ export async function createMeeting(
   // Send notification to admin
   const adminEmail = process.env.ADMIN_EMAIL ?? process.env.SMTP_USER ?? '';
   if (adminEmail) {
-    const adminEmailContent = meetingAdminNotificationTemplate(
+    const adminEmailContent = await meetingAdminNotificationTemplate(
       userName,
       input.email.trim(),
       input.meetingDate,
@@ -265,7 +265,7 @@ export async function updateMeeting(
     const meetingLink = (update.meetingLink as string) || result.meetingLink;
     if (meetingLink) {
       const { meetingInviteTemplate } = await import('../../lib/emailTemplates');
-      const emailContent = meetingInviteTemplate(
+      const emailContent = await meetingInviteTemplate(
         userName ?? 'User',
         result.meetingDate,
         result.meetingTime,
@@ -345,7 +345,7 @@ export async function rescheduleMeeting(
   const email = userEmail ?? meeting.userEmail;
   if (email) {
     const { meetingRescheduleTemplate } = await import('../../lib/emailTemplates');
-    const emailContent = meetingRescheduleTemplate(
+    const emailContent = await meetingRescheduleTemplate(
       userName ?? 'User',
       previousDateTime,
       input.meetingDate,

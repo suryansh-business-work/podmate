@@ -237,3 +237,65 @@ No test file should exceed 200 lines. If it does, please segregate it into multi
 6. Many test cases are causing long waits or breaking during execution. Please investigate and ensure that no test case blocks the command line execution.
 7. Identify which test cases are causing the UI or test runner to hang or block, and fix the underlying issue. Tests should run smoothly without long blocking waits or freezes.
 8. If necessary, update the implementation to ensure that the tests execute reliably and efficiently, while maintaining production-ready behavior and no breaking changes.
+
+# Email Templates (MJML) — Dynamic Template System
+
+## Architecture Overview
+- **Server module**: `server/src/modules/emailTemplate/` — full CRUD for email templates stored in MongoDB
+- **Hardcoded fallback**: `server/src/lib/emailTemplates.ts` — each template function tries DB first via `tryDbTemplate(slug, variables, fallback)`, falls back to hardcoded MJML
+- **Admin panel page**: `admin-panel/src/pages/EmailTemplates/` — split-pane editor (code left, preview right) with MJML validation, variable management, and live preview
+- **Route**: `/email-templates` in admin panel sidebar under "App Settings"
+
+## How Templates Work
+1. Each template has a **slug** (e.g., `email-otp`, `meeting-invite`, `profile-update`) that maps to a hardcoded fallback
+2. Templates use `{{variableName}}` syntax for dynamic values
+3. When rendering, the system checks MongoDB for an active template with matching slug; if found, uses DB version; if not, uses hardcoded fallback
+4. The MJML body is wrapped with the common layout (header with brand logo, footer with copyright) automatically
+
+## Existing Template Slugs
+| Slug | Variables | Category |
+|------|-----------|----------|
+| `email-otp` | `otp` | authentication |
+| `profile-update` | `userName` | account |
+| `email-verified` | `userName` | account |
+| `meeting-confirmation` | `userName`, `meetingDate`, `meetingTime` | meeting |
+| `meeting-admin-notification` | `userName`, `userEmail`, `meetingDate`, `meetingTime` | meeting |
+| `meeting-invite` | `userName`, `meetingDate`, `meetingTime`, `meetingLink` | meeting |
+| `meeting-reschedule` | `userName`, `previousDateTime`, `newDate`, `newTime`, `meetingLink` | meeting |
+
+## How to Add a New Email Template
+1. **Server**: Add a new exported async function in `server/src/lib/emailTemplates.ts`:
+   ```typescript
+   export async function myNewTemplate(param1: string, param2: string): Promise<{ subject: string; html: string; text: string }> {
+     return tryDbTemplate('my-new-template', { param1, param2 }, () => {
+       const mjmlContent = wrapMjml(\`...MJML body with \${param1} and \${param2}...\`);
+       return {
+         subject: 'My Subject with ' + param1,
+         html: renderMjml(mjmlContent),
+         text: \`Plain text fallback with \${param1}\`,
+       };
+     });
+   }
+   ```
+2. **Important**: All template functions are **async** and return **Promise**. Callers must use `await`.
+3. **Admin panel**: Template is automatically manageable through the Email Templates admin page — admin can override the MJML body, subject, and variables without code changes.
+4. **Add to this table** in copilot-instructions.md when creating new templates.
+
+## MJML Body Rules
+- Write only the **inner content** (mj-section, mj-column, mj-text, etc.) — the layout wrapper (header/footer) is added automatically
+- Use `{{variableName}}` for dynamic variables
+- brand color constant: `#F50247`
+- Always include a divider and footer note section
+- Keep MJML simple and email-client compatible
+
+## Admin Panel Component Structure
+```
+admin-panel/src/pages/EmailTemplates/
+  EmailTemplatesPage.tsx    — Main page with list/editor toggle, dialogs
+  EmailTemplates.types.ts   — Interfaces, constants
+  TemplateEditor.tsx         — Split-pane: code textarea left, iframe preview right
+  TemplateListTable.tsx      — Paginated table with actions
+  VariableEditor.tsx         — Add/edit/remove template variables
+  useEmailTemplates.ts       — Custom hook: queries, mutations, state
+  index.ts                   — Barrel export
+```

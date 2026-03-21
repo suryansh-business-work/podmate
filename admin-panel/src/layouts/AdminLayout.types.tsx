@@ -20,6 +20,7 @@ import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CategoryIcon from '@mui/icons-material/Category';
+import EmailIcon from '@mui/icons-material/Email';
 
 export const DRAWER_WIDTH = 240;
 
@@ -84,6 +85,7 @@ export const navGroups: NavGroupConfig[] = [
       { icon: <FeedbackIcon />, label: 'Feedback', path: '/feedback' },
       { icon: <LightbulbIcon />, label: 'Pod Ideas', path: '/pod-ideas' },
       { icon: <CodeIcon />, label: 'Dev Tools', path: '/configuration' },
+      { icon: <EmailIcon />, label: 'Email Templates', path: '/email-templates' },
     ],
   },
   {

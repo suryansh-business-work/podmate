@@ -25,6 +25,7 @@ import SlidersPage from './pages/Sliders';
 import LocationsPage from './pages/Locations';
 import PodTemplatesPage from './pages/PodTemplates';
 import CategoriesPage from './pages/Categories';
+import EmailTemplatesPage from './pages/EmailTemplates';
 import AdminLayout from './layouts/AdminLayout';
 
 const App: React.FC = () => {
@@ -84,6 +85,7 @@ const App: React.FC = () => {
           <Route path="/locations" element={<LocationsPage />} />
           <Route path="/pod-templates" element={<PodTemplatesPage />} />
           <Route path="/configuration" element={<ConfigurationPage />} />
+          <Route path="/email-templates" element={<EmailTemplatesPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AdminLayout>

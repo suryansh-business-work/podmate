@@ -1,7 +1,32 @@
 import mjml2html from 'mjml';
+import { getEmailTemplateBySlug, renderTemplate } from '../modules/emailTemplate/emailTemplate.services';
+import logger from './logger';
 
 const BRAND_COLOR = '#F50247';
 const LOGO_TEXT = 'PartyWings';
+
+/** Try to render from DB template first, fall back to hardcoded */
+async function tryDbTemplate(
+  slug: string,
+  variables: Record<string, string>,
+  fallback: () => { subject: string; html: string; text: string },
+): Promise<{ subject: string; html: string; text: string }> {
+  try {
+    const template = await getEmailTemplateBySlug(slug);
+    if (template && template.isActive) {
+      let subject = template.subject;
+      for (const [key, value] of Object.entries(variables)) {
+        const pattern = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+        subject = subject.replace(pattern, value);
+      }
+      const rendered = renderTemplate(template.mjmlBody, variables);
+      return { subject, html: rendered.html, text: rendered.text };
+    }
+  } catch (err) {
+    logger.warn('DB template lookup failed, using hardcoded:', err);
+  }
+  return fallback();
+}
 
 function wrapMjml(bodyContent: string): string {
   return `
@@ -44,8 +69,11 @@ function renderMjml(mjmlContent: string): string {
   return html;
 }
 
-export function emailOtpTemplate(otp: string): { subject: string; html: string; text: string } {
-  const mjmlContent = wrapMjml(`
+export async function emailOtpTemplate(
+  otp: string,
+): Promise<{ subject: string; html: string; text: string }> {
+  return tryDbTemplate('email-otp', { otp }, () => {
+    const mjmlContent = wrapMjml(`
     <mj-section background-color="#ffffff" padding="30px 20px">
       <mj-column>
         <mj-text font-size="22px" font-weight="bold" color="#333333">
@@ -69,19 +97,21 @@ export function emailOtpTemplate(otp: string): { subject: string; html: string; 
     </mj-section>
   `);
 
-  return {
-    subject: `${otp} is your PartyWings email verification code`,
-    html: renderMjml(mjmlContent),
-    text: `Your PartyWings email verification code is: ${otp}. Valid for 5 minutes.`,
-  };
+    return {
+      subject: `${otp} is your PartyWings email verification code`,
+      html: renderMjml(mjmlContent),
+      text: `Your PartyWings email verification code is: ${otp}. Valid for 5 minutes.`,
+    };
+  });
 }
 
-export function profileUpdateTemplate(userName: string): {
+export async function profileUpdateTemplate(userName: string): Promise<{
   subject: string;
   html: string;
   text: string;
-} {
-  const mjmlContent = wrapMjml(`
+}> {
+  return tryDbTemplate('profile-update', { userName }, () => {
+    const mjmlContent = wrapMjml(`
     <mj-section background-color="#ffffff" padding="30px 20px">
       <mj-column>
         <mj-text font-size="22px" font-weight="bold" color="#333333">
@@ -108,19 +138,21 @@ export function profileUpdateTemplate(userName: string): {
     </mj-section>
   `);
 
-  return {
-    subject: 'Your PartyWings profile has been updated',
-    html: renderMjml(mjmlContent),
-    text: `Hi ${userName}, your PartyWings profile has been successfully updated. If you didn't make this change, please contact support.`,
-  };
+    return {
+      subject: 'Your PartyWings profile has been updated',
+      html: renderMjml(mjmlContent),
+      text: `Hi ${userName}, your PartyWings profile has been successfully updated. If you didn't make this change, please contact support.`,
+    };
+  });
 }
 
-export function emailVerifiedTemplate(userName: string): {
+export async function emailVerifiedTemplate(userName: string): Promise<{
   subject: string;
   html: string;
   text: string;
-} {
-  const mjmlContent = wrapMjml(`
+}> {
+  return tryDbTemplate('email-verified', { userName }, () => {
+    const mjmlContent = wrapMjml(`
     <mj-section background-color="#ffffff" padding="30px 20px">
       <mj-column>
         <mj-text font-size="22px" font-weight="bold" color="#333333">
@@ -141,19 +173,21 @@ export function emailVerifiedTemplate(userName: string): {
     </mj-section>
   `);
 
-  return {
-    subject: 'Email verified on PartyWings',
-    html: renderMjml(mjmlContent),
-    text: `Hi ${userName}, your email has been successfully verified on PartyWings.`,
-  };
+    return {
+      subject: 'Email verified on PartyWings',
+      html: renderMjml(mjmlContent),
+      text: `Hi ${userName}, your email has been successfully verified on PartyWings.`,
+    };
+  });
 }
 
-export function meetingConfirmationTemplate(
+export async function meetingConfirmationTemplate(
   userName: string,
   meetingDate: string,
   meetingTime: string,
-): { subject: string; html: string; text: string } {
-  const mjmlContent = wrapMjml(`
+): Promise<{ subject: string; html: string; text: string }> {
+  return tryDbTemplate('meeting-confirmation', { userName, meetingDate, meetingTime }, () => {
+    const mjmlContent = wrapMjml(`
     <mj-section background-color="#ffffff" padding="30px 20px">
       <mj-column>
         <mj-text font-size="22px" font-weight="bold" color="#333333">
@@ -190,20 +224,25 @@ export function meetingConfirmationTemplate(
     </mj-section>
   `);
 
-  return {
-    subject: 'Meeting Request Received - PartyWings',
-    html: renderMjml(mjmlContent),
-    text: `Hi ${userName}, your 1:1 meeting request for ${meetingDate} at ${meetingTime} has been received. Our team will review and confirm shortly.`,
-  };
+    return {
+      subject: 'Meeting Request Received - PartyWings',
+      html: renderMjml(mjmlContent),
+      text: `Hi ${userName}, your 1:1 meeting request for ${meetingDate} at ${meetingTime} has been received. Our team will review and confirm shortly.`,
+    };
+  });
 }
 
-export function meetingAdminNotificationTemplate(
+export async function meetingAdminNotificationTemplate(
   userName: string,
   userEmail: string,
   meetingDate: string,
   meetingTime: string,
-): { subject: string; html: string; text: string } {
-  const mjmlContent = wrapMjml(`
+): Promise<{ subject: string; html: string; text: string }> {
+  return tryDbTemplate(
+    'meeting-admin-notification',
+    { userName, userEmail, meetingDate, meetingTime },
+    () => {
+      const mjmlContent = wrapMjml(`
     <mj-section background-color="#ffffff" padding="30px 20px">
       <mj-column>
         <mj-text font-size="22px" font-weight="bold" color="#333333">
@@ -241,20 +280,26 @@ export function meetingAdminNotificationTemplate(
     </mj-section>
   `);
 
-  return {
-    subject: `New Meeting Request from ${userName} - PartyWings`,
-    html: renderMjml(mjmlContent),
-    text: `New meeting request from ${userName} (${userEmail}) for ${meetingDate} at ${meetingTime}. Please review in the admin panel.`,
-  };
+      return {
+        subject: `New Meeting Request from ${userName} - PartyWings`,
+        html: renderMjml(mjmlContent),
+        text: `New meeting request from ${userName} (${userEmail}) for ${meetingDate} at ${meetingTime}. Please review in the admin panel.`,
+      };
+    },
+  );
 }
 
-export function meetingInviteTemplate(
+export async function meetingInviteTemplate(
   userName: string,
   meetingDate: string,
   meetingTime: string,
   meetingLink: string,
-): { subject: string; html: string; text: string } {
-  const mjmlContent = wrapMjml(`
+): Promise<{ subject: string; html: string; text: string }> {
+  return tryDbTemplate(
+    'meeting-invite',
+    { userName, meetingDate, meetingTime, meetingLink },
+    () => {
+      const mjmlContent = wrapMjml(`
     <mj-section background-color="#ffffff" padding="30px 20px">
       <mj-column>
         <mj-text font-size="22px" font-weight="bold" color="#333333">
@@ -291,21 +336,27 @@ export function meetingInviteTemplate(
     </mj-section>
   `);
 
-  return {
-    subject: 'Meeting Confirmed - PartyWings',
-    html: renderMjml(mjmlContent),
-    text: `Hi ${userName}, your 1:1 meeting on ${meetingDate} at ${meetingTime} is confirmed. Join here: ${meetingLink}`,
-  };
+      return {
+        subject: 'Meeting Confirmed - PartyWings',
+        html: renderMjml(mjmlContent),
+        text: `Hi ${userName}, your 1:1 meeting on ${meetingDate} at ${meetingTime} is confirmed. Join here: ${meetingLink}`,
+      };
+    },
+  );
 }
 
-export function meetingRescheduleTemplate(
+export async function meetingRescheduleTemplate(
   userName: string,
   previousDateTime: string,
   newDate: string,
   newTime: string,
   meetingLink: string,
-): { subject: string; html: string; text: string } {
-  const mjmlContent = wrapMjml(`
+): Promise<{ subject: string; html: string; text: string }> {
+  return tryDbTemplate(
+    'meeting-reschedule',
+    { userName, previousDateTime, newDate, newTime, meetingLink },
+    () => {
+      const mjmlContent = wrapMjml(`
     <mj-section background-color="#ffffff" padding="30px 20px">
       <mj-column>
         <mj-text font-size="22px" font-weight="bold" color="#333333">
@@ -356,9 +407,11 @@ export function meetingRescheduleTemplate(
     </mj-section>
   `);
 
-  return {
-    subject: 'Meeting Rescheduled - PartyWings',
-    html: renderMjml(mjmlContent),
-    text: `Hi ${userName}, your meeting previously scheduled for ${previousDateTime} has been rescheduled to ${newDate} at ${newTime}.${meetingLink ? ` Join here: ${meetingLink}` : ''}`,
-  };
+      return {
+        subject: 'Meeting Rescheduled - PartyWings',
+        html: renderMjml(mjmlContent),
+        text: `Hi ${userName}, your meeting previously scheduled for ${previousDateTime} has been rescheduled to ${newDate} at ${newTime}.${meetingLink ? ` Join here: ${meetingLink}` : ''}`,
+      };
+    },
+  );
 }

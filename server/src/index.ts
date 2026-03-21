@@ -74,6 +74,8 @@ import bankAccountTypeDefs from './modules/bankAccount/bankAccount.typeDefs';
 import bankAccountResolvers from './modules/bankAccount/bankAccount.resolvers';
 import meetingTypeDefs from './modules/meeting/meeting.typeDefs';
 import meetingResolvers from './modules/meeting/meeting.resolvers';
+import emailTemplateTypeDefs from './modules/emailTemplate/emailTemplate.typeDefs';
+import emailTemplateResolvers from './modules/emailTemplate/emailTemplate.resolvers';
 import logger from './lib/logger';
 import { connectDB } from './lib/db';
 
@@ -180,6 +182,9 @@ const rootSchema = `#graphql
     meetingCounts: MeetingCounts!
     bookedSlots(meetingDate: String!): [BookedSlot!]!
     availableMeetingSlots: [String!]!
+    emailTemplates(page: Int, limit: Int, search: String, category: String): PaginatedEmailTemplates!
+    emailTemplate(id: ID!): EmailTemplate
+    emailTemplateBySlug(slug: String!): EmailTemplate
   }
 
   type Mutation {
@@ -318,6 +323,12 @@ const rootSchema = `#graphql
     updateMeeting(id: ID!, input: UpdateMeetingInput!): Meeting!
     rescheduleMeeting(id: ID!, input: RescheduleMeetingInput!): Meeting!
     deleteMeeting(id: ID!): Boolean!
+    createEmailTemplate(input: CreateEmailTemplateInput!): EmailTemplate!
+    updateEmailTemplate(id: ID!, input: UpdateEmailTemplateInput!): EmailTemplate
+    deleteEmailTemplate(id: ID!): Boolean!
+    validateMjml(mjmlBody: String!): MjmlValidationResult!
+    previewEmailTemplate(mjmlBody: String!, variables: String!): TemplatePreviewResult!
+    renderEmailTemplate(slug: String!, variables: String!): TemplateRenderResult!
   }
 
   input AdminUpdateUserInput {
@@ -384,6 +395,7 @@ const typeDefs = [
   analyticsTypeDefs,
   bankAccountTypeDefs,
   meetingTypeDefs,
+  emailTemplateTypeDefs,
 ];
 
 const resolvers = {
@@ -416,6 +428,7 @@ const resolvers = {
     ...analyticsResolvers.Query,
     ...bankAccountResolvers.Query,
     ...meetingResolvers.Query,
+    ...emailTemplateResolvers.Query,
   },
   Mutation: {
     ...userResolvers.Mutation,
@@ -447,6 +460,7 @@ const resolvers = {
     ...categoryResolvers.Mutation,
     ...bankAccountResolvers.Mutation,
     ...meetingResolvers.Mutation,
+    ...emailTemplateResolvers.Mutation,
   },
   Pod: podResolvers.Pod,
   Review: reviewResolvers.Review,

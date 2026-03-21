@@ -884,3 +884,52 @@ export const GET_ACTIVE_CATEGORIES = gql`
     }
   }
 `;
+
+export const GET_EMAIL_TEMPLATES = gql`
+  query GetEmailTemplates($page: Int, $limit: Int, $search: String, $category: String) {
+    emailTemplates(page: $page, limit: $limit, search: $search, category: $category) {
+      items {
+        id
+        slug
+        name
+        subject
+        mjmlBody
+        variables {
+          key
+          description
+          defaultValue
+          required
+        }
+        category
+        isActive
+        createdAt
+        updatedAt
+      }
+      total
+      page
+      limit
+    }
+  }
+`;
+
+export const GET_EMAIL_TEMPLATE = gql`
+  query GetEmailTemplate($id: ID!) {
+    emailTemplate(id: $id) {
+      id
+      slug
+      name
+      subject
+      mjmlBody
+      variables {
+        key
+        description
+        defaultValue
+        required
+      }
+      category
+      isActive
+      createdAt
+      updatedAt
+    }
+  }
+`;

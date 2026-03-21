@@ -84,5 +84,15 @@ export const MeetingModel =
 
 export function toMeeting(doc: (MeetingMongoDoc & { id?: string }) | null): Meeting | null {
   if (!doc) return null;
-  return { ...doc, id: doc.id ?? doc._id } as Meeting;
+  return {
+    ...doc,
+    id: doc.id ?? doc._id,
+    googleEventId: doc.googleEventId ?? '',
+    meetingLink: doc.meetingLink ?? '',
+    adminNote: doc.adminNote ?? '',
+    cancelReason: doc.cancelReason ?? '',
+    rescheduledFrom: doc.rescheduledFrom ?? '',
+    rescheduledBy: doc.rescheduledBy ?? '',
+    completedAt: doc.completedAt ?? '',
+  } as Meeting;
 }

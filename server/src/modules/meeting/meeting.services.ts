@@ -87,6 +87,7 @@ export async function createMeeting(
     meetingDate: input.meetingDate.trim(),
     meetingTime: input.meetingTime.trim(),
     meetingLink: '',
+    googleEventId: '',
     status: 'PENDING',
     purpose: input.purpose ?? 'GENERAL',
     adminNote: '',

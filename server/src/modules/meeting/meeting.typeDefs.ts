@@ -20,7 +20,7 @@ const meetingTypeDefs = `#graphql
     meetingDate: String!
     meetingTime: String!
     meetingLink: String!
-    googleEventId: String!
+    googleEventId: String
     status: MeetingStatus!
     purpose: MeetingPurpose!
     adminNote: String!

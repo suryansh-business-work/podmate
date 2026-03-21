@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, Stack, FormControlLabel, Switch } from '@mui/material';
+import { TextField, Stack, FormControlLabel, Switch, Typography, Alert, Link } from '@mui/material';
 import type { GoogleCalendarConfig } from './Configuration.types';
 
 interface GoogleCalendarFormFieldsProps {
@@ -12,6 +12,54 @@ const GoogleCalendarFormFields: React.FC<GoogleCalendarFormFieldsProps> = ({
   onChange,
 }) => (
   <Stack spacing={2}>
+    <Alert severity="info" sx={{ mb: 1 }}>
+      <Typography variant="body2" gutterBottom>
+        <strong>How to get a Refresh Token:</strong>
+      </Typography>
+      <Typography variant="body2" component="ol" sx={{ pl: 2, m: 0 }}>
+        <li>
+          Go to{' '}
+          <Link
+            href="https://console.cloud.google.com/apis/credentials"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google Cloud Console &gt; Credentials
+          </Link>
+        </li>
+        <li>Create an OAuth 2.0 Client ID (Web application type)</li>
+        <li>
+          Enable the{' '}
+          <Link
+            href="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google Calendar API
+          </Link>
+        </li>
+        <li>
+          Open{' '}
+          <Link
+            href="https://developers.google.com/oauthplayground/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            OAuth 2.0 Playground
+          </Link>
+        </li>
+        <li>
+          Click the gear icon, check &quot;Use your own OAuth credentials&quot;, and enter your
+          Client ID &amp; Secret
+        </li>
+        <li>
+          Select scope:{' '}
+          <code>https://www.googleapis.com/auth/calendar</code>
+        </li>
+        <li>Authorize APIs &rarr; Exchange authorization code for tokens</li>
+        <li>Copy the <strong>Refresh Token</strong> from the response</li>
+      </Typography>
+    </Alert>
     <TextField
       label="Client ID"
       value={config.clientId}
@@ -33,7 +81,7 @@ const GoogleCalendarFormFields: React.FC<GoogleCalendarFormFieldsProps> = ({
       value={config.refreshToken}
       onChange={(e) => onChange('refreshToken', e.target.value)}
       fullWidth
-      helperText="OAuth 2.0 Refresh Token (obtained via OAuth consent flow)"
+      helperText="OAuth 2.0 Refresh Token — see instructions above"
     />
     <TextField
       label="Calendar ID"

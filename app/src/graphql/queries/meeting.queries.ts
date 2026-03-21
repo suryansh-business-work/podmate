@@ -9,6 +9,7 @@ export const GET_MY_MEETINGS = gql`
       meetingTime
       meetingLink
       status
+      purpose
       adminNote
       cancelReason
       createdAt

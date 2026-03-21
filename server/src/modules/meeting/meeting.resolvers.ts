@@ -64,7 +64,7 @@ const meetingResolvers = {
       context: GraphQLContext,
     ) => {
       const auth = requireAuth(context);
-      validateMeetingInput(args.input.email, args.input.meetingDate, args.input.meetingTime);
+      validateMeetingInput(args.input.email, args.input.meetingDate, args.input.meetingTime, args.input.purpose);
 
       const user = await findUserById(auth.userId);
       if (!user) throw new Error('User not found');

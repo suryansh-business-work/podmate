@@ -26,14 +26,14 @@ export const USER_NAV: NavItem[] = [
 
 /* ── Conditional items shown based on missing roles ─── */
 export const REGISTER_VENUE_ITEM: NavItem = {
-  id: 'RegisterPlace',
+  id: 'RequestMeeting:VENUE_OWNER',
   icon: 'store',
   label: 'Register a Venue',
   color: '#10B981',
 };
 
 export const BE_A_POD_OWNER_ITEM: NavItem = {
-  id: 'CreatePod',
+  id: 'RequestMeeting:POD_OWNER',
   icon: 'add-circle',
   label: 'Be a Pod Owner',
   color: '#F50247',

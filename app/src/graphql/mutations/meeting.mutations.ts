@@ -7,6 +7,7 @@ export const REQUEST_MEETING = gql`
       userEmail
       meetingDate
       meetingTime
+      purpose
       status
       createdAt
     }

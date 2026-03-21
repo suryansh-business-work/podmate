@@ -1,3 +1,5 @@
+export type MeetingPurpose = 'POD_OWNER' | 'VENUE_OWNER' | 'GENERAL';
+
 export interface MeetingUser {
   id: string;
   name: string;
@@ -13,6 +15,7 @@ export interface Meeting {
   meetingTime: string;
   meetingLink: string;
   status: string;
+  purpose: MeetingPurpose;
   adminNote: string;
   cancelReason: string;
   completedAt: string;
@@ -50,4 +53,16 @@ export const MEETING_STATUS_COLORS: Record<
   CONFIRMED: 'info',
   COMPLETED: 'success',
   CANCELLED: 'error',
+};
+
+export const PURPOSE_LABELS: Record<MeetingPurpose, string> = {
+  POD_OWNER: 'Pod Owner',
+  VENUE_OWNER: 'Venue Owner',
+  GENERAL: 'General',
+};
+
+export const PURPOSE_COLORS: Record<MeetingPurpose, 'primary' | 'secondary' | 'default'> = {
+  POD_OWNER: 'primary',
+  VENUE_OWNER: 'secondary',
+  GENERAL: 'default',
 };

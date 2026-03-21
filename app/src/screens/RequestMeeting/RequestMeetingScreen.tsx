@@ -18,9 +18,12 @@ import StepEmail from './components/StepEmail';
 import StepDateTime from './components/StepDateTime';
 import { createStyles } from './RequestMeeting.styles';
 import { useThemedStyles, useAppColors } from '../../hooks/useThemedStyles';
+import type { MeetingPurpose } from './RequestMeeting.types';
+import { PURPOSE_CONFIG } from './RequestMeeting.types';
 
 interface RequestMeetingScreenProps {
   onClose: () => void;
+  purpose?: MeetingPurpose;
 }
 
 const STEPS = ['Email', 'Schedule'];
@@ -42,9 +45,11 @@ const StepIndicator: React.FC<{
   </View>
 );
 
-const RequestMeetingScreen: React.FC<RequestMeetingScreenProps> = ({ onClose }) => {
+const RequestMeetingScreen: React.FC<RequestMeetingScreenProps> = ({ onClose, purpose }) => {
   const styles = useThemedStyles(createStyles);
   const colors = useAppColors();
+  const activePurpose: MeetingPurpose = purpose ?? 'GENERAL';
+  const config = PURPOSE_CONFIG[activePurpose];
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState('');
   const [updateProfileEmail, setUpdateProfileEmail] = useState(false);
@@ -78,6 +83,7 @@ const RequestMeetingScreen: React.FC<RequestMeetingScreenProps> = ({ onClose }) 
             meetingDate,
             meetingTime,
             updateProfileEmail,
+            purpose: activePurpose,
           },
         },
       });
@@ -86,7 +92,7 @@ const RequestMeetingScreen: React.FC<RequestMeetingScreenProps> = ({ onClose }) 
       const message = err instanceof Error ? err.message : 'Failed to request meeting';
       Alert.alert('Error', message);
     }
-  }, [email, meetingDate, meetingTime, updateProfileEmail, requestMeeting]);
+  }, [email, meetingDate, meetingTime, updateProfileEmail, activePurpose, requestMeeting]);
 
   const goBack = () => {
     if (success) {
@@ -105,17 +111,16 @@ const RequestMeetingScreen: React.FC<RequestMeetingScreenProps> = ({ onClose }) 
           <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
             <MaterialIcons name="close" size={22} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Meeting Requested</Text>
+          <Text style={styles.headerTitle}>{config.headerTitle}</Text>
           <View style={styles.headerBtn} />
         </View>
         <View style={styles.successContainer}>
           <View style={styles.successIcon}>
             <MaterialIcons name="check-circle" size={72} color={colors.primary} />
           </View>
-          <Text style={styles.successTitle}>Request Submitted!</Text>
+          <Text style={styles.successTitle}>{config.successTitle}</Text>
           <Text style={styles.successSubtitle}>
-            Your 1:1 meeting request has been submitted. You will receive a Zoom meeting invite at{' '}
-            {email} once confirmed by our team.
+            {config.successSubtitle.replace('{email}', email)}
           </Text>
         </View>
         <View style={styles.btnContainer}>
@@ -138,7 +143,7 @@ const RequestMeetingScreen: React.FC<RequestMeetingScreenProps> = ({ onClose }) 
             <TouchableOpacity onPress={goBack} style={styles.headerBtn}>
               <MaterialIcons name="arrow-back" size={22} color={colors.text} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Request Meeting</Text>
+            <Text style={styles.headerTitle}>{config.headerTitle}</Text>
             <View style={styles.headerBtn} />
           </View>
 

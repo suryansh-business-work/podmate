@@ -78,6 +78,7 @@ export async function createMeeting(
     meetingTime: input.meetingTime.trim(),
     meetingLink: '',
     status: 'PENDING',
+    purpose: input.purpose ?? 'GENERAL',
     adminNote: '',
     cancelReason: '',
     completedAt: '',

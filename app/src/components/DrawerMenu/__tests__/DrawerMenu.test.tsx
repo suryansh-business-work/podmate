@@ -151,6 +151,19 @@ describe('DrawerMenu', () => {
     expect(onNavigate).toHaveBeenCalledWith('Explore');
   });
 
+  it('navigates to RequestMeeting with VENUE_OWNER purpose when Register a Venue is pressed', () => {
+    const onClose = jest.fn();
+    const onNavigate = jest.fn();
+    const { getByText } = render(
+      <DrawerMenu {...defaultProps} onClose={onClose} onNavigate={onNavigate} />,
+    );
+
+    fireEvent.press(getByText('Register a Venue'));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onNavigate).toHaveBeenCalledWith('RequestMeeting:VENUE_OWNER');
+  });
+
   it('calls onLogout when Logout is pressed', () => {
     const onLogout = jest.fn();
     const { getByText } = render(<DrawerMenu {...defaultProps} onLogout={onLogout} />);

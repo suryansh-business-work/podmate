@@ -67,7 +67,7 @@ export function getStartEarningItems(roles: string[]): MenuItem[] {
       icon: 'campaign',
       label: 'Be a Pod Owner',
       subtitle: 'Host pods & start earning',
-      action: 'CreatePod',
+      action: 'RequestMeeting:POD_OWNER',
     });
   }
   if (!roles.includes('VENUE_OWNER')) {
@@ -75,7 +75,7 @@ export function getStartEarningItems(roles: string[]): MenuItem[] {
       icon: 'store',
       label: 'Register a Venue',
       subtitle: 'List your venue & earn',
-      action: 'RegisterPlace',
+      action: 'RequestMeeting:VENUE_OWNER',
     });
   }
   return items;

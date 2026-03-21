@@ -54,6 +54,7 @@ import { useAuth } from './hooks/useAuth';
 import { useDrawer, DRAWER_WIDTH } from './hooks/useDrawer';
 import { useInAppNotifications } from '../hooks/useInAppNotifications';
 import { useRoleBasedInitialRoute } from './hooks/useRoleBasedInitialRoute';
+import type { MeetingPurpose } from './RootNavigator.types';
 
 export type { RootStackParamList } from './RootNavigator.types';
 
@@ -164,6 +165,12 @@ const RootNavigator: React.FC = () => {
     screen: string,
     navigation: { navigate: (name: string, params?: Record<string, unknown>) => void },
   ) => {
+    // Handle RequestMeeting:PURPOSE format
+    if (screen.startsWith('RequestMeeting:')) {
+      const purpose = screen.split(':')[1] as MeetingPurpose;
+      navigation.navigate('RequestMeeting', { purpose });
+      return;
+    }
     const map: Record<string, () => void> = {
       EditProfile: () => navigation.navigate('EditProfile'),
       MyPods: () => navigation.navigate('MyPods'),
@@ -177,6 +184,7 @@ const RootNavigator: React.FC = () => {
       CreatePod: () => navigation.navigate('CreatePod'),
       GoLive: () => navigation.navigate('GoLive'),
       RegisterPlace: () => navigation.navigate('RegisterPlace'),
+      RequestMeeting: () => navigation.navigate('RequestMeeting'),
     };
     map[screen]?.();
   };
@@ -192,6 +200,12 @@ const RootNavigator: React.FC = () => {
     const nav = navigationRef.current;
     if (!nav) return;
     drawer.closeDrawer();
+    // Handle RequestMeeting:PURPOSE format
+    if (screen.startsWith('RequestMeeting:')) {
+      const purpose = screen.split(':')[1] as MeetingPurpose;
+      nav.navigate('RequestMeeting', { purpose });
+      return;
+    }
     const map: Record<string, () => void> = {
       Home: () => nav.reset({ index: 0, routes: [{ name: 'Main' }] }),
       Explore: () => nav.navigate('Main', { screen: 'Explore' } as never),
@@ -200,6 +214,7 @@ const RootNavigator: React.FC = () => {
       CreatePod: () => nav.navigate('CreatePod'),
       Notifications: () => nav.navigate('Notifications'),
       RegisterPlace: () => nav.navigate('RegisterPlace'),
+      RequestMeeting: () => nav.navigate('RequestMeeting'),
       MyPods: () => nav.navigate('MyPods'),
       Profile: () => nav.navigate('Profile'),
       Payments: () => nav.navigate('Payments'),
@@ -429,7 +444,12 @@ const RootNavigator: React.FC = () => {
                 {({ navigation }) => <RegisterPlaceScreen onClose={() => navigation.goBack()} />}
               </Stack.Screen>
               <Stack.Screen name="RequestMeeting" options={{ presentation: 'card' }}>
-                {({ navigation }) => <RequestMeetingScreen onClose={() => navigation.goBack()} />}
+                {({ navigation, route }) => (
+                  <RequestMeetingScreen
+                    onClose={() => navigation.goBack()}
+                    purpose={(route.params as { purpose?: MeetingPurpose } | undefined)?.purpose}
+                  />
+                )}
               </Stack.Screen>
               <Stack.Screen name="Faq" options={{ presentation: 'card' }}>
                 {({ navigation }) => <FaqScreen onBack={() => navigation.goBack()} />}

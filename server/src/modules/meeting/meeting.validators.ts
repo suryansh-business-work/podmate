@@ -1,7 +1,12 @@
+import type { MeetingPurpose } from './meeting.models';
+
+const VALID_PURPOSES: MeetingPurpose[] = ['POD_OWNER', 'VENUE_OWNER', 'GENERAL'];
+
 export function validateMeetingInput(
   email: string,
   meetingDate: string,
   meetingTime: string,
+  purpose: MeetingPurpose,
 ): void {
   const emailTrimmed = email.trim();
   if (!emailTrimmed) {
@@ -35,5 +40,9 @@ export function validateMeetingInput(
   const timeRegex = /^\d{2}:\d{2}$/;
   if (!timeRegex.test(meetingTime.trim())) {
     throw new Error('Meeting time must be in HH:mm format');
+  }
+
+  if (!VALID_PURPOSES.includes(purpose)) {
+    throw new Error(`Invalid meeting purpose: ${purpose}. Must be one of: ${VALID_PURPOSES.join(', ')}`);
   }
 }

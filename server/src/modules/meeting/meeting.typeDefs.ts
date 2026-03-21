@@ -6,6 +6,12 @@ const meetingTypeDefs = `#graphql
     CANCELLED
   }
 
+  enum MeetingPurpose {
+    POD_OWNER
+    VENUE_OWNER
+    GENERAL
+  }
+
   type Meeting {
     id: ID!
     userId: ID!
@@ -15,6 +21,7 @@ const meetingTypeDefs = `#graphql
     meetingTime: String!
     meetingLink: String!
     status: MeetingStatus!
+    purpose: MeetingPurpose!
     adminNote: String!
     cancelReason: String!
     completedAt: String!
@@ -47,6 +54,7 @@ const meetingTypeDefs = `#graphql
     meetingDate: String!
     meetingTime: String!
     updateProfileEmail: Boolean!
+    purpose: MeetingPurpose!
   }
 
   input UpdateMeetingInput {

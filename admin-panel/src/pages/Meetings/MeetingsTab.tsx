@@ -34,13 +34,15 @@ import { GET_MEETINGS, GET_MEETING_COUNTS } from '../../graphql/queries';
 import { UPDATE_MEETING, DELETE_MEETING } from '../../graphql/mutations';
 import { useDebounce } from '../../hooks/useDebounce';
 import type { Meeting, PaginatedMeetings, MeetingCountsData, MeetingOrder } from './Meetings.types';
-import { MEETING_STATUS_COLORS } from './Meetings.types';
+import { MEETING_STATUS_COLORS, PURPOSE_LABELS, PURPOSE_COLORS } from './Meetings.types';
+import type { MeetingPurpose } from './Meetings.types';
 import ConfirmDeleteDialog from '../../components/ConfirmDeleteDialog';
 
 const COLUMNS = [
   { id: 'userEmail', label: 'Email', sortable: false },
   { id: 'meetingDate', label: 'Date', sortable: true },
   { id: 'meetingTime', label: 'Time', sortable: false },
+  { id: 'purpose', label: 'Purpose', sortable: false },
   { id: 'status', label: 'Status', sortable: true },
   { id: 'createdAt', label: 'Requested', sortable: true },
 ] as const;
@@ -264,6 +266,14 @@ const MeetingsTab: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Chip
+                        label={PURPOSE_LABELS[meeting.purpose as MeetingPurpose] ?? meeting.purpose}
+                        size="small"
+                        color={PURPOSE_COLORS[meeting.purpose as MeetingPurpose] ?? 'default'}
+                        variant="outlined"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip
                         label={meeting.status}
                         size="small"
                         color={MEETING_STATUS_COLORS[meeting.status] ?? 'default'}
@@ -341,6 +351,15 @@ const MeetingsTab: React.FC = () => {
             <Chip
               label={viewMeeting.status}
               color={MEETING_STATUS_COLORS[viewMeeting.status] ?? 'default'}
+              size="small"
+              sx={{ mb: 2 }}
+            />
+            <Typography variant="subtitle2" color="text.secondary">
+              Purpose
+            </Typography>
+            <Chip
+              label={PURPOSE_LABELS[viewMeeting.purpose as MeetingPurpose] ?? viewMeeting.purpose}
+              color={PURPOSE_COLORS[viewMeeting.purpose as MeetingPurpose] ?? 'default'}
               size="small"
               sx={{ mb: 2 }}
             />

@@ -1,3 +1,5 @@
+export type MeetingPurpose = 'POD_OWNER' | 'VENUE_OWNER' | 'GENERAL';
+
 export type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
@@ -26,7 +28,7 @@ export type RootStackParamList = {
   FollowList: { userId: string; userName: string; initialTab?: 'followers' | 'following' };
   UserProfile: { userId: string };
   YourVenues: undefined;
-  RequestMeeting: undefined;
+  RequestMeeting: { purpose?: MeetingPurpose } | undefined;
   Menus: undefined;
   ManageOrders: undefined;
   VenueMoments: undefined;

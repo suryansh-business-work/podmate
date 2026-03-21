@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 export type MeetingStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
 
+export type MeetingPurpose = 'POD_OWNER' | 'VENUE_OWNER' | 'GENERAL';
+
 export interface Meeting {
   id: string;
   userId: string;
@@ -11,6 +13,7 @@ export interface Meeting {
   meetingTime: string;
   meetingLink: string;
   status: MeetingStatus;
+  purpose: MeetingPurpose;
   adminNote: string;
   cancelReason: string;
   completedAt: string;
@@ -23,6 +26,7 @@ export interface CreateMeetingInput {
   meetingDate: string;
   meetingTime: string;
   updateProfileEmail: boolean;
+  purpose: MeetingPurpose;
 }
 
 export interface UpdateMeetingInput {
@@ -46,6 +50,11 @@ const MeetingSchema = new Schema<MeetingMongoDoc>(
       type: String,
       enum: ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'],
       default: 'PENDING',
+    },
+    purpose: {
+      type: String,
+      enum: ['POD_OWNER', 'VENUE_OWNER', 'GENERAL'],
+      default: 'GENERAL',
     },
     adminNote: { type: String, default: '' },
     cancelReason: { type: String, default: '' },

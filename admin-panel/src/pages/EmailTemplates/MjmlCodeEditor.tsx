@@ -17,11 +17,7 @@ interface MjmlCodeEditorProps {
 
 let languageRegistered = false;
 
-const MjmlCodeEditor: React.FC<MjmlCodeEditorProps> = ({
-  value,
-  onChange,
-  variableKeys,
-}) => {
+const MjmlCodeEditor: React.FC<MjmlCodeEditorProps> = ({ value, onChange, variableKeys }) => {
   const editorRef = useRef<monacoEditor.IStandaloneCodeEditor | null>(null);
   const disposablesRef = useRef<IDisposable[]>([]);
 
@@ -56,10 +52,7 @@ const MjmlCodeEditor: React.FC<MjmlCodeEditorProps> = ({
         MJML_LANGUAGE_ID,
         {
           triggerCharacters: ['<', '{', ' '],
-          provideCompletionItems: (
-            _model: monacoEditor.ITextModel,
-            position: Position,
-          ) => {
+          provideCompletionItems: (_model: monacoEditor.ITextModel, position: Position) => {
             const items = getMjmlCompletionItems(variableKeys);
             const suggestions = items.map((item) => ({
               label: item.label,

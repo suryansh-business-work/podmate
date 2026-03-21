@@ -39,15 +39,27 @@ jest.mock('../../../lib/emailTemplates', () => {
 });
 
 jest.mock('../../../lib/logger', () => ({
-  __esModule: true, default: { info: () => undefined, warn: () => undefined, error: () => undefined },
+  __esModule: true,
+  default: { info: () => undefined, warn: () => undefined, error: () => undefined },
 }));
 
 const baseMeeting: Meeting = {
-  id: 'meeting-1', userId: 'user-1', userEmail: 'user@example.com',
-  meetingDate: '2027-06-15', meetingTime: '10:00', meetingLink: '',
-  status: 'PENDING', purpose: 'GENERAL', adminNote: '', cancelReason: '',
-  completedAt: '', googleEventId: '', rescheduledFrom: '', rescheduledBy: '',
-  createdAt: '2027-06-10T00:00:00.000Z', updatedAt: '2027-06-10T00:00:00.000Z',
+  id: 'meeting-1',
+  userId: 'user-1',
+  userEmail: 'user@example.com',
+  meetingDate: '2027-06-15',
+  meetingTime: '10:00',
+  meetingLink: '',
+  status: 'PENDING',
+  purpose: 'GENERAL',
+  adminNote: '',
+  cancelReason: '',
+  completedAt: '',
+  googleEventId: '',
+  rescheduledFrom: '',
+  rescheduledBy: '',
+  createdAt: '2027-06-10T00:00:00.000Z',
+  updatedAt: '2027-06-10T00:00:00.000Z',
 };
 beforeEach(() => {
   jest.clearAllMocks();
@@ -77,11 +89,7 @@ describe('rescheduleMeeting', () => {
       lean: jest.fn().mockReturnValue({ ...baseMeeting, _id: 'meeting-1', status: 'COMPLETED' }),
     });
     await expect(
-      rescheduleMeeting(
-        'meeting-1',
-        { meetingDate: '2027-06-16', meetingTime: '11:00' },
-        'ADMIN',
-      ),
+      rescheduleMeeting('meeting-1', { meetingDate: '2027-06-16', meetingTime: '11:00' }, 'ADMIN'),
     ).rejects.toThrow('Cannot reschedule a completed or cancelled meeting');
   });
 
@@ -90,11 +98,7 @@ describe('rescheduleMeeting', () => {
       lean: jest.fn().mockReturnValue({ ...baseMeeting, _id: 'meeting-1', status: 'CANCELLED' }),
     });
     await expect(
-      rescheduleMeeting(
-        'meeting-1',
-        { meetingDate: '2027-06-16', meetingTime: '11:00' },
-        'ADMIN',
-      ),
+      rescheduleMeeting('meeting-1', { meetingDate: '2027-06-16', meetingTime: '11:00' }, 'ADMIN'),
     ).rejects.toThrow('Cannot reschedule a completed or cancelled meeting');
   });
 
@@ -104,11 +108,7 @@ describe('rescheduleMeeting', () => {
     });
     (MeetingModel.countDocuments as jest.Mock).mockResolvedValue(1);
     await expect(
-      rescheduleMeeting(
-        'meeting-1',
-        { meetingDate: '2027-06-16', meetingTime: '11:00' },
-        'ADMIN',
-      ),
+      rescheduleMeeting('meeting-1', { meetingDate: '2027-06-16', meetingTime: '11:00' }, 'ADMIN'),
     ).rejects.toThrow('This time slot is already booked');
   });
 

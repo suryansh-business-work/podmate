@@ -1,5 +1,8 @@
 import mjml2html from 'mjml';
-import { getEmailTemplateBySlug, renderTemplate } from '../modules/emailTemplate/emailTemplate.services';
+import {
+  getEmailTemplateBySlug,
+  renderTemplate,
+} from '../modules/emailTemplate/emailTemplate.services';
 import logger from './logger';
 
 const BRAND_COLOR = '#F50247';

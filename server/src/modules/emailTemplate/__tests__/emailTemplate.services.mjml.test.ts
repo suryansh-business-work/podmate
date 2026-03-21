@@ -139,10 +139,7 @@ describe('emailTemplate.services - MJML Operations', () => {
       });
 
       expect(() =>
-        renderTemplate(
-          '<mj-section><mj-column><mj-text>Hi</mj-text></mj-column></mj-section>',
-          {},
-        ),
+        renderTemplate('<mj-section><mj-column><mj-text>Hi</mj-text></mj-column></mj-section>', {}),
       ).toThrow('Template render failed: Render failure');
     });
   });

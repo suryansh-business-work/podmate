@@ -78,7 +78,9 @@ const EmailTemplatesPage: React.FC = () => {
     }
   };
 
-  const handleSave = async (data: Parameters<typeof createTemplate>[0] & { isActive?: boolean }) => {
+  const handleSave = async (
+    data: Parameters<typeof createTemplate>[0] & { isActive?: boolean },
+  ) => {
     try {
       if (isNew) {
         await createTemplate(data);

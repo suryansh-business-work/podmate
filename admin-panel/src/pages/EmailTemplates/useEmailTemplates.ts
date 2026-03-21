@@ -70,8 +70,14 @@ export function useEmailTemplates() {
 
   const updateTemplate = useCallback(
     async (id: string, input: Partial<EmailTemplate>) => {
-      const { id: _id, slug: _slug, createdAt: _c, updatedAt: _u, __typename, ...rest } =
-        input as EmailTemplate & { __typename?: string };
+      const {
+        id: _id,
+        slug: _slug,
+        createdAt: _c,
+        updatedAt: _u,
+        __typename,
+        ...rest
+      } = input as EmailTemplate & { __typename?: string };
       void _id;
       void _slug;
       void _c;

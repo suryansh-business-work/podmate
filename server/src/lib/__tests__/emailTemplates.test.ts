@@ -41,7 +41,8 @@ describe('emailTemplates - DB-first with hardcoded fallback', () => {
       mockGetBySlug.mockResolvedValue({
         slug: 'email-otp',
         subject: 'Your code is {{otp}}',
-        mjmlBody: '<mj-section><mj-column><mj-text>Code: {{otp}}</mj-text></mj-column></mj-section>',
+        mjmlBody:
+          '<mj-section><mj-column><mj-text>Code: {{otp}}</mj-text></mj-column></mj-section>',
         isActive: true,
       });
       mockRender.mockReturnValue({ html: '<html>DB</html>', text: 'DB text' });

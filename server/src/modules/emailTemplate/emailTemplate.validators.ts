@@ -64,10 +64,7 @@ export function validateUpdateEmailTemplate(input: UpdateEmailTemplateInput): vo
   if (input.mjmlBody !== undefined && input.mjmlBody.length > 100000) {
     throw new Error('MJML body must be at most 100000 characters');
   }
-  if (
-    input.category !== undefined &&
-    (input.category.length < 1 || input.category.length > 50)
-  ) {
+  if (input.category !== undefined && (input.category.length < 1 || input.category.length > 50)) {
     throw new Error('Category must be between 1 and 50 characters');
   }
   if (input.variables !== undefined) {

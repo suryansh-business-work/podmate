@@ -28,11 +28,7 @@ describe('emailTemplate.resolvers - seedDefaultTemplates', () => {
     };
     (service.seedDefaultTemplates as jest.Mock).mockResolvedValue(mockResult);
 
-    const result = await resolvers.Mutation.seedDefaultTemplates(
-      undefined,
-      {},
-      adminContext,
-    );
+    const result = await resolvers.Mutation.seedDefaultTemplates(undefined, {}, adminContext);
 
     expect(result).toEqual(mockResult);
     expect(service.seedDefaultTemplates).toHaveBeenCalledTimes(1);
@@ -51,9 +47,7 @@ describe('emailTemplate.resolvers - seedDefaultTemplates', () => {
   });
 
   it('propagates service errors', async () => {
-    (service.seedDefaultTemplates as jest.Mock).mockRejectedValue(
-      new Error('Database error'),
-    );
+    (service.seedDefaultTemplates as jest.Mock).mockRejectedValue(new Error('Database error'));
 
     await expect(
       resolvers.Mutation.seedDefaultTemplates(undefined, {}, adminContext),

@@ -31,9 +31,9 @@ describe('validateCreateEmailTemplate', () => {
   });
 
   it('throws for slug with spaces', () => {
-    expect(() =>
-      validateCreateEmailTemplate({ ...validCreateInput, slug: 'test slug' }),
-    ).toThrow('Slug must be a non-empty lowercase string');
+    expect(() => validateCreateEmailTemplate({ ...validCreateInput, slug: 'test slug' })).toThrow(
+      'Slug must be a non-empty lowercase string',
+    );
   });
 
   it('throws for slug exceeding 100 characters', () => {
@@ -73,9 +73,9 @@ describe('validateCreateEmailTemplate', () => {
   });
 
   it('throws for mjmlBody shorter than 10 characters', () => {
-    expect(() =>
-      validateCreateEmailTemplate({ ...validCreateInput, mjmlBody: 'short' }),
-    ).toThrow('MJML body must be at least 10 characters');
+    expect(() => validateCreateEmailTemplate({ ...validCreateInput, mjmlBody: 'short' })).toThrow(
+      'MJML body must be at least 10 characters',
+    );
   });
 
   it('throws for mjmlBody exceeding 100000 characters', () => {
@@ -136,9 +136,7 @@ describe('validateCreateEmailTemplate', () => {
   });
 
   it('allows empty variables array', () => {
-    expect(() =>
-      validateCreateEmailTemplate({ ...validCreateInput, variables: [] }),
-    ).not.toThrow();
+    expect(() => validateCreateEmailTemplate({ ...validCreateInput, variables: [] })).not.toThrow();
   });
 });
 

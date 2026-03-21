@@ -160,7 +160,10 @@ export function renderTemplate(
     if (errors.length > 0) {
       errors.forEach((e) => logger.warn('MJML render warning:', e.message));
     }
-    const textContent = processed.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const textContent = processed
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
     return { html, text: textContent };
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'MJML render failed';
@@ -258,7 +261,12 @@ const DEFAULT_TEMPLATES: DefaultTemplateDefinition[] = [
     subject: '{{otp}} is your PartyWings email verification code',
     category: 'authentication',
     variables: [
-      { key: 'otp', description: 'One-time verification code', defaultValue: '123456', required: true },
+      {
+        key: 'otp',
+        description: 'One-time verification code',
+        defaultValue: '123456',
+        required: true,
+      },
     ],
     mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
   <mj-column>
@@ -349,7 +357,12 @@ const DEFAULT_TEMPLATES: DefaultTemplateDefinition[] = [
     category: 'meeting',
     variables: [
       { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
-      { key: 'meetingDate', description: 'Meeting date', defaultValue: '2025-01-01', required: true },
+      {
+        key: 'meetingDate',
+        description: 'Meeting date',
+        defaultValue: '2025-01-01',
+        required: true,
+      },
       { key: 'meetingTime', description: 'Meeting time', defaultValue: '10:00 AM', required: true },
     ],
     mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
@@ -394,8 +407,18 @@ const DEFAULT_TEMPLATES: DefaultTemplateDefinition[] = [
     category: 'meeting',
     variables: [
       { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
-      { key: 'userEmail', description: 'User email address', defaultValue: 'user@example.com', required: true },
-      { key: 'meetingDate', description: 'Meeting date', defaultValue: '2025-01-01', required: true },
+      {
+        key: 'userEmail',
+        description: 'User email address',
+        defaultValue: 'user@example.com',
+        required: true,
+      },
+      {
+        key: 'meetingDate',
+        description: 'Meeting date',
+        defaultValue: '2025-01-01',
+        required: true,
+      },
       { key: 'meetingTime', description: 'Meeting time', defaultValue: '10:00 AM', required: true },
     ],
     mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
@@ -441,9 +464,19 @@ const DEFAULT_TEMPLATES: DefaultTemplateDefinition[] = [
     category: 'meeting',
     variables: [
       { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
-      { key: 'meetingDate', description: 'Meeting date', defaultValue: '2025-01-01', required: true },
+      {
+        key: 'meetingDate',
+        description: 'Meeting date',
+        defaultValue: '2025-01-01',
+        required: true,
+      },
       { key: 'meetingTime', description: 'Meeting time', defaultValue: '10:00 AM', required: true },
-      { key: 'meetingLink', description: 'Meeting join URL', defaultValue: 'https://meet.example.com', required: true },
+      {
+        key: 'meetingLink',
+        description: 'Meeting join URL',
+        defaultValue: 'https://meet.example.com',
+        required: true,
+      },
     ],
     mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
   <mj-column>
@@ -487,10 +520,25 @@ const DEFAULT_TEMPLATES: DefaultTemplateDefinition[] = [
     category: 'meeting',
     variables: [
       { key: 'userName', description: 'User display name', defaultValue: 'User', required: true },
-      { key: 'previousDateTime', description: 'Previous date and time', defaultValue: '2025-01-01 10:00 AM', required: true },
-      { key: 'newDate', description: 'New meeting date', defaultValue: '2025-01-02', required: true },
+      {
+        key: 'previousDateTime',
+        description: 'Previous date and time',
+        defaultValue: '2025-01-01 10:00 AM',
+        required: true,
+      },
+      {
+        key: 'newDate',
+        description: 'New meeting date',
+        defaultValue: '2025-01-02',
+        required: true,
+      },
       { key: 'newTime', description: 'New meeting time', defaultValue: '11:00 AM', required: true },
-      { key: 'meetingLink', description: 'Meeting join URL', defaultValue: 'https://meet.example.com', required: false },
+      {
+        key: 'meetingLink',
+        description: 'Meeting join URL',
+        defaultValue: 'https://meet.example.com',
+        required: false,
+      },
     ],
     mjmlBody: `<mj-section background-color="#ffffff" padding="30px 20px">
   <mj-column>

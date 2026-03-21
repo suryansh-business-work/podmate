@@ -40,9 +40,7 @@ describe('mjmlLanguage', () => {
     });
 
     it('has root, comment, and tag tokenizer states', () => {
-      const states = Object.keys(
-        mjmlTokensProvider.tokenizer as Record<string, unknown>,
-      );
+      const states = Object.keys(mjmlTokensProvider.tokenizer as Record<string, unknown>);
       expect(states).toContain('root');
       expect(states).toContain('comment');
       expect(states).toContain('tag');

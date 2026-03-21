@@ -32,15 +32,11 @@ describe('emailTemplate.resolvers', () => {
     });
 
     it('throws for non-admin user', async () => {
-      await expect(
-        resolvers.Query.emailTemplates(undefined, {}, userContext),
-      ).rejects.toThrow();
+      await expect(resolvers.Query.emailTemplates(undefined, {}, userContext)).rejects.toThrow();
     });
 
     it('throws for unauthenticated user', async () => {
-      await expect(
-        resolvers.Query.emailTemplates(undefined, {}, unauthContext),
-      ).rejects.toThrow();
+      await expect(resolvers.Query.emailTemplates(undefined, {}, unauthContext)).rejects.toThrow();
     });
   });
 
@@ -49,11 +45,7 @@ describe('emailTemplate.resolvers', () => {
       const mockTemplate = { id: 'tmpl-1', slug: 'test' };
       (service.getEmailTemplateById as jest.Mock).mockResolvedValue(mockTemplate);
 
-      const result = await resolvers.Query.emailTemplate(
-        undefined,
-        { id: 'tmpl-1' },
-        adminContext,
-      );
+      const result = await resolvers.Query.emailTemplate(undefined, { id: 'tmpl-1' }, adminContext);
 
       expect(result).toEqual(mockTemplate);
     });
@@ -189,10 +181,9 @@ describe('emailTemplate.resolvers', () => {
       );
 
       expect(result).toEqual(mockResult);
-      expect(service.previewTemplate).toHaveBeenCalledWith(
-        '<mj-section>content</mj-section>',
-        { userName: 'Test' },
-      );
+      expect(service.previewTemplate).toHaveBeenCalledWith('<mj-section>content</mj-section>', {
+        userName: 'Test',
+      });
     });
   });
 

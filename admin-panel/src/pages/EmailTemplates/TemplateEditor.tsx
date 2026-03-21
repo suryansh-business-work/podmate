@@ -13,11 +13,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import VariableEditor from './VariableEditor';
 import MjmlCodeEditor from './MjmlCodeEditor';
-import type {
-  EmailTemplate,
-  TemplateVariable,
-  MjmlValidationError,
-} from './EmailTemplates.types';
+import type { EmailTemplate, TemplateVariable, MjmlValidationError } from './EmailTemplates.types';
 import { TEMPLATE_CATEGORIES, DEFAULT_MJML_BODY } from './EmailTemplates.types';
 
 interface TemplateEditorProps {
@@ -146,9 +142,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
         </TextField>
         {template && (
           <FormControlLabel
-            control={
-              <Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
-            }
+            control={<Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />}
             label="Active"
           />
         )}
@@ -168,11 +162,7 @@ const TemplateEditor: React.FC<TemplateEditorProps> = ({
           <Typography variant="subtitle2" gutterBottom>
             MJML Code
           </Typography>
-          <MjmlCodeEditor
-            value={mjmlBody}
-            onChange={setMjmlBody}
-            variableKeys={variableKeys}
-          />
+          <MjmlCodeEditor value={mjmlBody} onChange={setMjmlBody} variableKeys={variableKeys} />
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>

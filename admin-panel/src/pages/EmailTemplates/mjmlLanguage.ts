@@ -32,10 +32,7 @@ export const mjmlTokensProvider: languages.IMonarchLanguage = {
     root: [
       [/\{\{\s*\w+\s*\}\}/, 'variable'],
       [/<!--/, 'comment', '@comment'],
-      [
-        /(<)(\/?)(\w[\w-]*)/,
-        ['delimiter', 'delimiter', { token: 'tag', switchTo: '@tag' }],
-      ],
+      [/(<)(\/?)(\w[\w-]*)/, ['delimiter', 'delimiter', { token: 'tag', switchTo: '@tag' }]],
       [/[^<{]+/, ''],
     ],
     comment: [
@@ -45,14 +42,8 @@ export const mjmlTokensProvider: languages.IMonarchLanguage = {
     tag: [
       [/\{\{\s*\w+\s*\}\}/, 'variable'],
       [/[ \t\r\n]+/, ''],
-      [
-        /([\w-]+)(\s*=\s*)("(?:[^"]*)")/,
-        ['attribute.name', 'delimiter', 'attribute.value'],
-      ],
-      [
-        /([\w-]+)(\s*=\s*)('(?:[^']*)')/,
-        ['attribute.name', 'delimiter', 'attribute.value'],
-      ],
+      [/([\w-]+)(\s*=\s*)("(?:[^"]*)")/, ['attribute.name', 'delimiter', 'attribute.value']],
+      [/([\w-]+)(\s*=\s*)('(?:[^']*)')/, ['attribute.name', 'delimiter', 'attribute.value']],
       [/[\w-]+/, 'attribute.name'],
       [/\/?>/, 'delimiter', '@pop'],
     ],
@@ -136,9 +127,7 @@ export interface MjmlCompletionItem {
   detail: string;
 }
 
-export function getMjmlCompletionItems(
-  templateVariables: string[],
-): MjmlCompletionItem[] {
+export function getMjmlCompletionItems(templateVariables: string[]): MjmlCompletionItem[] {
   const items: MjmlCompletionItem[] = [];
 
   for (const snippet of MJML_TAG_SNIPPETS) {

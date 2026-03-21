@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 import { useQuery, useMutation } from '@apollo/client';
 import RequestMeetingScreen from '../RequestMeetingScreen';
 
@@ -19,7 +19,10 @@ describe('RequestMeetingScreen', () => {
       },
       loading: false,
     });
-    (useMutation as jest.Mock).mockReturnValue([jest.fn().mockResolvedValue({}), { loading: false }]);
+    (useMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({}),
+      { loading: false },
+    ]);
   });
 
   it('renders with GENERAL purpose header by default', () => {
@@ -28,16 +31,12 @@ describe('RequestMeetingScreen', () => {
   });
 
   it('renders with POD_OWNER purpose header', () => {
-    const { getByText } = render(
-      <RequestMeetingScreen {...defaultProps} purpose="POD_OWNER" />,
-    );
+    const { getByText } = render(<RequestMeetingScreen {...defaultProps} purpose="POD_OWNER" />);
     expect(getByText('Become a Pod Owner')).toBeTruthy();
   });
 
   it('renders with VENUE_OWNER purpose header', () => {
-    const { getByText } = render(
-      <RequestMeetingScreen {...defaultProps} purpose="VENUE_OWNER" />,
-    );
+    const { getByText } = render(<RequestMeetingScreen {...defaultProps} purpose="VENUE_OWNER" />);
     expect(getByText('Register a Venue')).toBeTruthy();
   });
 
@@ -49,9 +48,7 @@ describe('RequestMeetingScreen', () => {
 
   it('calls onClose when back is pressed on first step', () => {
     const onClose = jest.fn();
-    const { getByText } = render(
-      <RequestMeetingScreen onClose={onClose} />,
-    );
+    const { getByText } = render(<RequestMeetingScreen onClose={onClose} />);
     fireEvent.press(getByText('arrow-back'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });

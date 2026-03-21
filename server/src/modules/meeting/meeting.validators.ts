@@ -43,6 +43,8 @@ export function validateMeetingInput(
   }
 
   if (!VALID_PURPOSES.includes(purpose)) {
-    throw new Error(`Invalid meeting purpose: ${purpose}. Must be one of: ${VALID_PURPOSES.join(', ')}`);
+    throw new Error(
+      `Invalid meeting purpose: ${purpose}. Must be one of: ${VALID_PURPOSES.join(', ')}`,
+    );
   }
 }

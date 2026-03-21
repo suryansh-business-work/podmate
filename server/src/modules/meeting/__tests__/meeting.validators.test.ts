@@ -76,12 +76,7 @@ describe('validateMeetingInput', () => {
 
   it('throws when purpose is invalid', () => {
     expect(() =>
-      validateMeetingInput(
-        validEmail,
-        validDate,
-        validTime,
-        'INVALID' as 'POD_OWNER',
-      ),
+      validateMeetingInput(validEmail, validDate, validTime, 'INVALID' as 'POD_OWNER'),
     ).toThrow('Invalid meeting purpose');
   });
 });

@@ -331,6 +331,15 @@ export const TEST_IMAGEKIT_CONNECTION = gql`
   }
 `;
 
+export const TEST_GOOGLE_CALENDAR_CONNECTION = gql`
+  mutation TestGoogleCalendarConnection {
+    testGoogleCalendarConnection {
+      success
+      message
+    }
+  }
+`;
+
 /* ── Delete User (cascade) ── */
 
 export const DELETE_USER = gql`
@@ -524,8 +533,25 @@ export const UPDATE_MEETING = gql`
       status
       adminNote
       meetingLink
+      googleEventId
       cancelReason
       completedAt
+      updatedAt
+    }
+  }
+`;
+
+export const RESCHEDULE_MEETING = gql`
+  mutation RescheduleMeeting($id: ID!, $input: RescheduleMeetingInput!) {
+    rescheduleMeeting(id: $id, input: $input) {
+      id
+      meetingDate
+      meetingTime
+      meetingLink
+      googleEventId
+      status
+      rescheduledFrom
+      rescheduledBy
       updatedAt
     }
   }

@@ -237,6 +237,7 @@ const rootSchema = `#graphql
     testSmtpConnection: TestConnectionResult!
     testOpenAiConnection: TestConnectionResult!
     testImageKitConnection: TestConnectionResult!
+    testGoogleCalendarConnection: TestConnectionResult!
     toggleUserActive(userId: ID!, isActive: Boolean!, reason: String): User!
     createFeatureFlag(input: CreateFeatureFlagInput!): FeatureFlag!
     updateFeatureFlag(id: ID!, input: UpdateFeatureFlagInput!): FeatureFlag!
@@ -315,6 +316,7 @@ const rootSchema = `#graphql
     deleteBankAccount: Boolean!
     requestMeeting(input: CreateMeetingInput!): Meeting!
     updateMeeting(id: ID!, input: UpdateMeetingInput!): Meeting!
+    rescheduleMeeting(id: ID!, input: RescheduleMeetingInput!): Meeting!
     deleteMeeting(id: ID!): Boolean!
   }
 

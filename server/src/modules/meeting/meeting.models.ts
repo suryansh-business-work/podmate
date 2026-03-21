@@ -12,10 +12,13 @@ export interface Meeting {
   meetingDate: string;
   meetingTime: string;
   meetingLink: string;
+  googleEventId: string;
   status: MeetingStatus;
   purpose: MeetingPurpose;
   adminNote: string;
   cancelReason: string;
+  rescheduledFrom: string;
+  rescheduledBy: string;
   completedAt: string;
   createdAt: string;
   updatedAt: string;
@@ -36,6 +39,11 @@ export interface UpdateMeetingInput {
   cancelReason?: string;
 }
 
+export interface RescheduleMeetingInput {
+  meetingDate: string;
+  meetingTime: string;
+}
+
 export type MeetingMongoDoc = Omit<Meeting, 'id'> & { _id: string };
 
 const MeetingSchema = new Schema<MeetingMongoDoc>(
@@ -46,6 +54,7 @@ const MeetingSchema = new Schema<MeetingMongoDoc>(
     meetingDate: { type: String, required: true },
     meetingTime: { type: String, required: true },
     meetingLink: { type: String, default: '' },
+    googleEventId: { type: String, default: '' },
     status: {
       type: String,
       enum: ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'],
@@ -58,6 +67,8 @@ const MeetingSchema = new Schema<MeetingMongoDoc>(
     },
     adminNote: { type: String, default: '' },
     cancelReason: { type: String, default: '' },
+    rescheduledFrom: { type: String, default: '' },
+    rescheduledBy: { type: String, default: '' },
     completedAt: { type: String, default: '' },
     createdAt: { type: String, default: () => new Date().toISOString() },
     updatedAt: { type: String, default: () => new Date().toISOString() },

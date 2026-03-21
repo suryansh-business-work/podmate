@@ -38,7 +38,7 @@ export const PURPOSE_CONFIG: Record<MeetingPurpose, PurposeConfig> = {
       'We need your email to send you the onboarding meeting invite for becoming a Pod Owner.',
     successTitle: 'Pod Owner Request Submitted!',
     successSubtitle:
-      'Your meeting request to become a Pod Owner has been submitted. You will receive a Zoom meeting invite at {email} once confirmed by our team.',
+      'Your meeting request to become a Pod Owner has been submitted. You will receive a Google Meet invite at {email} once confirmed by our team.',
   },
   VENUE_OWNER: {
     headerTitle: 'Register a Venue',
@@ -47,7 +47,7 @@ export const PURPOSE_CONFIG: Record<MeetingPurpose, PurposeConfig> = {
       'We need your email to send you the onboarding meeting invite for venue registration.',
     successTitle: 'Venue Registration Request Submitted!',
     successSubtitle:
-      'Your meeting request to register a venue has been submitted. You will receive a Zoom meeting invite at {email} once confirmed by our team.',
+      'Your meeting request to register a venue has been submitted. You will receive a Google Meet invite at {email} once confirmed by our team.',
   },
   GENERAL: {
     headerTitle: 'Request Meeting',
@@ -56,6 +56,6 @@ export const PURPOSE_CONFIG: Record<MeetingPurpose, PurposeConfig> = {
       'We need your email to send you the meeting invite. Please verify your email address.',
     successTitle: 'Request Submitted!',
     successSubtitle:
-      'Your 1:1 meeting request has been submitted. You will receive a Zoom meeting invite at {email} once confirmed by our team.',
+      'Your 1:1 meeting request has been submitted. You will receive a Google Meet invite at {email} once confirmed by our team.',
   },
 };

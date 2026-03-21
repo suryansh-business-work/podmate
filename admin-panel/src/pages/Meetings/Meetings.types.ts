@@ -14,10 +14,13 @@ export interface Meeting {
   meetingDate: string;
   meetingTime: string;
   meetingLink: string;
+  googleEventId: string;
   status: string;
   purpose: MeetingPurpose;
   adminNote: string;
   cancelReason: string;
+  rescheduledFrom: string;
+  rescheduledBy: string;
   completedAt: string;
   createdAt: string;
   updatedAt: string;

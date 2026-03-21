@@ -61,6 +61,14 @@ export interface GoogleMapsConfig {
   enabled: string;
 }
 
+export interface GoogleCalendarConfig {
+  clientId: string;
+  clientSecret: string;
+  refreshToken: string;
+  calendarId: string;
+  enabled: string;
+}
+
 export const SMTP_KEYS: { key: keyof SmtpConfig; label: string; type?: string }[] = [
   { key: 'host', label: 'SMTP Host' },
   { key: 'port', label: 'SMTP Port' },
@@ -142,6 +150,14 @@ export const DEFAULT_STRIPE: StripeConfig = {
 
 export const DEFAULT_GOOGLE_MAPS: GoogleMapsConfig = {
   apiKey: '',
+  enabled: 'false',
+};
+
+export const DEFAULT_GOOGLE_CALENDAR: GoogleCalendarConfig = {
+  clientId: '',
+  clientSecret: '',
+  refreshToken: '',
+  calendarId: 'primary',
   enabled: 'false',
 };
 

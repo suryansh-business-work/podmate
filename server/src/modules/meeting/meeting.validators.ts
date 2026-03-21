@@ -17,6 +17,20 @@ export function validateMeetingInput(
     throw new Error('Invalid email format');
   }
 
+  validateDateAndTime(meetingDate, meetingTime);
+
+  if (!VALID_PURPOSES.includes(purpose)) {
+    throw new Error(
+      `Invalid meeting purpose: ${purpose}. Must be one of: ${VALID_PURPOSES.join(', ')}`,
+    );
+  }
+}
+
+export function validateRescheduleInput(meetingDate: string, meetingTime: string): void {
+  validateDateAndTime(meetingDate, meetingTime);
+}
+
+function validateDateAndTime(meetingDate: string, meetingTime: string): void {
   if (!meetingDate.trim()) {
     throw new Error('Meeting date is required');
   }
@@ -40,11 +54,5 @@ export function validateMeetingInput(
   const timeRegex = /^\d{2}:\d{2}$/;
   if (!timeRegex.test(meetingTime.trim())) {
     throw new Error('Meeting time must be in HH:mm format');
-  }
-
-  if (!VALID_PURPOSES.includes(purpose)) {
-    throw new Error(
-      `Invalid meeting purpose: ${purpose}. Must be one of: ${VALID_PURPOSES.join(', ')}`,
-    );
   }
 }

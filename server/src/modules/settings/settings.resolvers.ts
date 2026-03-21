@@ -77,6 +77,12 @@ const settingsResolvers = {
       requireRole(context, UserRole.ADMIN);
       return settingsService.testImageKitConnection();
     },
+
+    testGoogleCalendarConnection: async (_: unknown, __: unknown, context: GraphQLContext) => {
+      requireRole(context, UserRole.ADMIN);
+      const { testGoogleCalendarConnection } = await import('../meeting/googleCalendar.service');
+      return testGoogleCalendarConnection();
+    },
   },
 };
 

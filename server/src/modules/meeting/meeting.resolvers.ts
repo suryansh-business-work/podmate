@@ -3,8 +3,12 @@ import { requireAuth, requireRole } from '../auth/auth.services';
 import { UserRole } from '../user/user.models';
 import { findUserById, updateUserEmail } from '../user/user.services';
 import * as meetingService from './meeting.services';
-import { validateMeetingInput } from './meeting.validators';
-import type { CreateMeetingInput, UpdateMeetingInput } from './meeting.models';
+import { validateMeetingInput, validateRescheduleInput } from './meeting.validators';
+import type {
+  CreateMeetingInput,
+  UpdateMeetingInput,
+  RescheduleMeetingInput,
+} from './meeting.models';
 
 const meetingResolvers = {
   Query: {
@@ -100,6 +104,35 @@ const meetingResolvers = {
     deleteMeeting: (_: unknown, args: { id: string }, context: GraphQLContext) => {
       requireRole(context, UserRole.ADMIN);
       return meetingService.deleteMeeting(args.id);
+    },
+
+    rescheduleMeeting: async (
+      _: unknown,
+      args: { id: string; input: RescheduleMeetingInput },
+      context: GraphQLContext,
+    ) => {
+      const auth = requireAuth(context);
+      validateRescheduleInput(args.input.meetingDate, args.input.meetingTime);
+
+      const meeting = await meetingService.getMeetingById(args.id);
+      if (!meeting) throw new Error('Meeting not found');
+
+      // Allow both admin and the meeting owner to reschedule
+      const isAdmin = context.user?.roles?.includes(UserRole.ADMIN);
+      if (!isAdmin && meeting.userId !== auth.userId) {
+        throw new Error('Not authorized to reschedule this meeting');
+      }
+
+      const user = await findUserById(meeting.userId);
+      const rescheduledBy = isAdmin ? 'ADMIN' : 'USER';
+
+      return meetingService.rescheduleMeeting(
+        args.id,
+        args.input,
+        rescheduledBy,
+        user?.name,
+        meeting.userEmail,
+      );
     },
   },
 

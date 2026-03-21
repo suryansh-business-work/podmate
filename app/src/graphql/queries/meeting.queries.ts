@@ -8,10 +8,13 @@ export const GET_MY_MEETINGS = gql`
       meetingDate
       meetingTime
       meetingLink
+      googleEventId
       status
       purpose
       adminNote
       cancelReason
+      rescheduledFrom
+      rescheduledBy
       createdAt
     }
   }

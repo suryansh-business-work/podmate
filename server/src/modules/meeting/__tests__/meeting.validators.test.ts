@@ -1,4 +1,4 @@
-import { validateMeetingInput } from '../meeting.validators';
+import { validateMeetingInput, validateRescheduleInput } from '../meeting.validators';
 
 describe('validateMeetingInput', () => {
   const validEmail = 'test@example.com';
@@ -78,5 +78,48 @@ describe('validateMeetingInput', () => {
     expect(() =>
       validateMeetingInput(validEmail, validDate, validTime, 'INVALID' as 'POD_OWNER'),
     ).toThrow('Invalid meeting purpose');
+  });
+});
+
+describe('validateRescheduleInput', () => {
+  const validDate = '2027-06-15';
+  const validTime = '10:00';
+
+  it('accepts valid date and time', () => {
+    expect(() => validateRescheduleInput(validDate, validTime)).not.toThrow();
+  });
+
+  it('throws when date is empty', () => {
+    expect(() => validateRescheduleInput('', validTime)).toThrow('Meeting date is required');
+  });
+
+  it('throws when date format is invalid', () => {
+    expect(() => validateRescheduleInput('15-06-2027', validTime)).toThrow(
+      'Meeting date must be in YYYY-MM-DD format',
+    );
+  });
+
+  it('throws when date is in the past', () => {
+    expect(() => validateRescheduleInput('2020-01-01', validTime)).toThrow(
+      'Cannot select a past date',
+    );
+  });
+
+  it('throws when time is empty', () => {
+    expect(() => validateRescheduleInput(validDate, '')).toThrow('Meeting time is required');
+  });
+
+  it('throws when time format is invalid', () => {
+    expect(() => validateRescheduleInput(validDate, '10:00:00')).toThrow(
+      'Meeting time must be in HH:mm format',
+    );
+  });
+
+  it('throws when time is whitespace only', () => {
+    expect(() => validateRescheduleInput(validDate, '   ')).toThrow('Meeting time is required');
+  });
+
+  it('throws when date is whitespace only', () => {
+    expect(() => validateRescheduleInput('   ', validTime)).toThrow('Meeting date is required');
   });
 });

@@ -1,11 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { Meeting, CreateMeetingInput, UpdateMeetingInput } from './meeting.models';
+import type {
+  Meeting,
+  CreateMeetingInput,
+  UpdateMeetingInput,
+  RescheduleMeetingInput,
+} from './meeting.models';
 import { MeetingModel, toMeeting } from './meeting.models';
 import { sendEmail } from '../../lib/email';
 import {
   meetingConfirmationTemplate,
   meetingAdminNotificationTemplate,
 } from '../../lib/emailTemplates';
+import {
+  createGoogleMeetEvent,
+  updateGoogleMeetEvent,
+  deleteGoogleMeetEvent,
+} from './googleCalendar.service';
 import logger from '../../lib/logger';
 
 export interface MeetingPaginationInput {
@@ -212,6 +222,35 @@ export async function updateMeeting(
   if (input.meetingLink !== undefined) update.meetingLink = input.meetingLink;
   if (input.cancelReason !== undefined) update.cancelReason = input.cancelReason;
 
+  // Auto-create Google Meet event when confirming
+  if (input.status === 'CONFIRMED' && userEmail) {
+    const existingMeeting = await getMeetingById(id);
+    if (existingMeeting && !existingMeeting.googleEventId) {
+      const meetResult = await createGoogleMeetEvent(
+        `PartyWings Meeting - ${userName ?? 'User'}`,
+        `1:1 meeting with ${userName ?? 'User'} (${userEmail})`,
+        existingMeeting.meetingDate,
+        existingMeeting.meetingTime,
+        userEmail,
+      );
+
+      if (meetResult) {
+        update.meetingLink = meetResult.meetLink;
+        update.googleEventId = meetResult.eventId;
+      }
+    }
+  }
+
+  // Cancel Google Calendar event when cancelling
+  if (input.status === 'CANCELLED') {
+    const existingMeeting = await getMeetingById(id);
+    if (existingMeeting?.googleEventId) {
+      deleteGoogleMeetEvent(existingMeeting.googleEventId).catch((err) =>
+        logger.error('Failed to delete Google Calendar event:', err),
+      );
+    }
+  }
+
   const updated = await MeetingModel.findByIdAndUpdate(
     id,
     { $set: update },
@@ -221,21 +260,104 @@ export async function updateMeeting(
   if (!result) throw new Error('Meeting not found');
   logger.info(`Meeting updated: ${result.id}`);
 
-  // If meeting is confirmed and has a meeting link, notify user
-  if (input.status === 'CONFIRMED' && input.meetingLink && userEmail) {
-    const { meetingInviteTemplate } = await import('../../lib/emailTemplates');
-    const emailContent = meetingInviteTemplate(
+  // If meeting is confirmed, notify user with meeting link
+  if (input.status === 'CONFIRMED' && userEmail) {
+    const meetingLink = (update.meetingLink as string) || result.meetingLink;
+    if (meetingLink) {
+      const { meetingInviteTemplate } = await import('../../lib/emailTemplates');
+      const emailContent = meetingInviteTemplate(
+        userName ?? 'User',
+        result.meetingDate,
+        result.meetingTime,
+        meetingLink,
+      );
+      sendEmail({
+        to: userEmail,
+        subject: emailContent.subject,
+        text: emailContent.text,
+        html: emailContent.html,
+      }).catch((err) => logger.error('Failed to send meeting invite email:', err));
+    }
+  }
+
+  return result;
+}
+
+export async function rescheduleMeeting(
+  id: string,
+  input: RescheduleMeetingInput,
+  rescheduledBy: string,
+  userName?: string,
+  userEmail?: string,
+): Promise<Meeting> {
+  const meeting = await getMeetingById(id);
+  if (!meeting) throw new Error('Meeting not found');
+
+  if (meeting.status === 'COMPLETED' || meeting.status === 'CANCELLED') {
+    throw new Error('Cannot reschedule a completed or cancelled meeting');
+  }
+
+  // Check slot availability
+  const existingSlot = await MeetingModel.countDocuments({
+    meetingDate: input.meetingDate,
+    meetingTime: input.meetingTime,
+    status: { $in: ['PENDING', 'CONFIRMED'] },
+    _id: { $ne: id },
+  });
+
+  if (existingSlot >= MAX_MEETINGS_PER_SLOT) {
+    throw new Error('This time slot is already booked. Please select another slot.');
+  }
+
+  const previousDateTime = `${meeting.meetingDate} at ${meeting.meetingTime}`;
+
+  const update: Record<string, unknown> = {
+    meetingDate: input.meetingDate.trim(),
+    meetingTime: input.meetingTime.trim(),
+    rescheduledFrom: previousDateTime,
+    rescheduledBy,
+    updatedAt: new Date().toISOString(),
+  };
+
+  // Update Google Calendar event if it exists
+  if (meeting.googleEventId) {
+    const meetResult = await updateGoogleMeetEvent(
+      meeting.googleEventId,
+      input.meetingDate,
+      input.meetingTime,
+    );
+    if (meetResult) {
+      update.meetingLink = meetResult.meetLink;
+    }
+  }
+
+  const updated = await MeetingModel.findByIdAndUpdate(
+    id,
+    { $set: update },
+    { returnDocument: 'after' },
+  ).lean({ virtuals: true });
+  const result = toMeeting(updated);
+  if (!result) throw new Error('Meeting not found');
+
+  logger.info(`Meeting rescheduled: ${result.id} from ${previousDateTime}`);
+
+  // Notify user about reschedule
+  const email = userEmail ?? meeting.userEmail;
+  if (email) {
+    const { meetingRescheduleTemplate } = await import('../../lib/emailTemplates');
+    const emailContent = meetingRescheduleTemplate(
       userName ?? 'User',
-      result.meetingDate,
-      result.meetingTime,
-      input.meetingLink,
+      previousDateTime,
+      input.meetingDate,
+      input.meetingTime,
+      result.meetingLink,
     );
     sendEmail({
-      to: userEmail,
+      to: email,
       subject: emailContent.subject,
       text: emailContent.text,
       html: emailContent.html,
-    }).catch((err) => logger.error('Failed to send meeting invite email:', err));
+    }).catch((err) => logger.error('Failed to send reschedule email:', err));
   }
 
   return result;

@@ -13,3 +13,19 @@ export const REQUEST_MEETING = gql`
     }
   }
 `;
+
+export const RESCHEDULE_MEETING = gql`
+  mutation RescheduleMeeting($id: ID!, $input: RescheduleMeetingInput!) {
+    rescheduleMeeting(id: $id, input: $input) {
+      id
+      meetingDate
+      meetingTime
+      meetingLink
+      googleEventId
+      status
+      rescheduledFrom
+      rescheduledBy
+      updatedAt
+    }
+  }
+`;

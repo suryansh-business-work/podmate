@@ -297,3 +297,68 @@ export function meetingInviteTemplate(
     text: `Hi ${userName}, your 1:1 meeting on ${meetingDate} at ${meetingTime} is confirmed. Join here: ${meetingLink}`,
   };
 }
+
+export function meetingRescheduleTemplate(
+  userName: string,
+  previousDateTime: string,
+  newDate: string,
+  newTime: string,
+  meetingLink: string,
+): { subject: string; html: string; text: string } {
+  const mjmlContent = wrapMjml(`
+    <mj-section background-color="#ffffff" padding="30px 20px">
+      <mj-column>
+        <mj-text font-size="22px" font-weight="bold" color="#333333">
+          Meeting Rescheduled
+        </mj-text>
+        <mj-text padding-top="10px">
+          Hi ${userName},
+        </mj-text>
+        <mj-text>
+          Your 1:1 meeting has been rescheduled. Here are the updated details:
+        </mj-text>
+        <mj-table>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">Previous</td>
+            <td style="padding: 8px 16px; color: #999; text-decoration: line-through;">${previousDateTime}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">New Date</td>
+            <td style="padding: 8px 16px; color: #555;">${newDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 16px; font-weight: bold; color: #333;">New Time</td>
+            <td style="padding: 8px 16px; color: #555;">${newTime}</td>
+          </tr>
+        </mj-table>
+        ${
+          meetingLink
+            ? `
+        <mj-button background-color="${BRAND_COLOR}" color="#ffffff" href="${meetingLink}"
+          border-radius="8px" padding="20px 0" font-size="16px">
+          Join Meeting
+        </mj-button>
+        <mj-text padding-top="10px" font-size="13px" color="#666666">
+          Meeting Link: ${meetingLink}
+        </mj-text>
+        `
+            : `
+        <mj-text padding-top="10px" color="#666666">
+          A meeting link will be provided once the meeting is confirmed.
+        </mj-text>
+        `
+        }
+        <mj-divider border-color="#eeeeee" padding="20px 0" />
+        <mj-text color="#999999" font-size="12px">
+          This is an automated notification from PartyWings.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  `);
+
+  return {
+    subject: 'Meeting Rescheduled - PartyWings',
+    html: renderMjml(mjmlContent),
+    text: `Hi ${userName}, your meeting previously scheduled for ${previousDateTime} has been rescheduled to ${newDate} at ${newTime}.${meetingLink ? ` Join here: ${meetingLink}` : ''}`,
+  };
+}

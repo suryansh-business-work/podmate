@@ -20,10 +20,13 @@ const meetingTypeDefs = `#graphql
     meetingDate: String!
     meetingTime: String!
     meetingLink: String!
+    googleEventId: String!
     status: MeetingStatus!
     purpose: MeetingPurpose!
     adminNote: String!
     cancelReason: String!
+    rescheduledFrom: String!
+    rescheduledBy: String!
     completedAt: String!
     createdAt: String!
     updatedAt: String!
@@ -62,6 +65,11 @@ const meetingTypeDefs = `#graphql
     adminNote: String
     meetingLink: String
     cancelReason: String
+  }
+
+  input RescheduleMeetingInput {
+    meetingDate: String!
+    meetingTime: String!
   }
 `;
 
